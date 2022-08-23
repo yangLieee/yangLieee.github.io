@@ -28,7 +28,7 @@
 <meta property="og:description" content="Be all you can be!">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-08-20T04:07:43.000Z">
-<meta property="article:modified_time" content="2022-08-21T13:44:45.161Z">
+<meta property="article:modified_time" content="2022-08-23T15:41:44.927Z">
 <meta property="article:author" content="Lee">
 <meta name="twitter:card" content="summary">
 
@@ -432,6 +432,35 @@
   
 
   
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
 
 </body>
 </html>
