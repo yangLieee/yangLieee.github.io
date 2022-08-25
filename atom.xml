@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-08-23T15:42:46.710Z</updated>
+  <updated>2022-08-25T15:02:53.069Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CMake</title>
+    <link href="http://example.com/2022/08/25/cmake/"/>
+    <id>http://example.com/2022/08/25/cmake/</id>
+    <published>2022-08-24T16:00:00.000Z</published>
+    <updated>2022-08-25T15:02:53.069Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;[toc]&lt;/p&gt;
+&lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;官网 : &lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    
+    <category term="Tools" scheme="http://example.com/categories/Linux/Tools/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>Hello New World</title>
