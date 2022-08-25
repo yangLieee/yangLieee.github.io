@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Hello New World</title>
+    <url>/2022/08/22/hello-world/</url>
+    <content><![CDATA[<blockquote>
+<p>Be all you can be!</p>
+</blockquote>
+<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
+<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
+<ol>
+<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
+<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
+<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
+</ol>
+<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
+<p align="right">2022-8-22/23.38</p>
+
+<p align="right">Lee</p>
+
+]]></content>
+      <categories>
+        <category>Personal</category>
+      </categories>
+      <tags>
+        <tag>开篇</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CMake</title>
     <url>/2022/08/25/cmake/</url>
     <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
@@ -178,31 +204,5 @@
         <category>Linux</category>
         <category>Tools</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Hello New World</title>
-    <url>/2022/08/22/hello-world/</url>
-    <content><![CDATA[<blockquote>
-<p>Be all you can be!</p>
-</blockquote>
-<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
-<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
-<ol>
-<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
-<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
-<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
-</ol>
-<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
-<p align="right">2022-8-22/23.38</p>
-
-<p align="right">Lee</p>
-
-]]></content>
-      <categories>
-        <category>Personal</category>
-      </categories>
-      <tags>
-        <tag>开篇</tag>
-      </tags>
   </entry>
 </search>
