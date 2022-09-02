@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-08-25T15:05:56.203Z</updated>
+  <updated>2022-09-02T08:45:58.728Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -17,11 +17,39 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Audio-初识</title>
+    <link href="http://example.com/2022/08/31/Audio-meet/"/>
+    <id>http://example.com/2022/08/31/Audio-meet/</id>
+    <published>2022-08-30T16:00:00.000Z</published>
+    <updated>2022-09-02T08:45:58.728Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;跳动的音符，婉转的节奏，悠扬的歌声……&lt;/p&gt;
+&lt;p&gt;音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？&lt;/p&gt;
+&lt;p&gt;下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识&lt;/p&gt;
+&lt;h1</summary>
+        
+      
+    
+    
+    
+    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://example.com/categories/Linux/Audio/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>CMake</title>
     <link href="http://example.com/2022/08/25/cmake/"/>
     <id>http://example.com/2022/08/25/cmake/</id>
     <published>2022-08-24T16:00:00.000Z</published>
-    <updated>2022-08-25T15:05:56.203Z</updated>
+    <updated>2022-08-30T14:19:32.205Z</updated>
     
     
       
