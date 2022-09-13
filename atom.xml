@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-09-13T14:59:46.606Z</updated>
+  <updated>2022-09-13T15:00:51.765Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -21,10 +21,10 @@
     <link href="http://example.com/2022/09/05/Audio-meet-1/"/>
     <id>http://example.com/2022/09/05/Audio-meet-1/</id>
     <published>2022-09-04T16:00:00.000Z</published>
-    <updated>2022-09-13T14:59:46.606Z</updated>
+    <updated>2022-09-13T15:00:51.765Z</updated>
     
     
-    <summary type="html">详解WAVE MP3</summary>
+    <summary type="html">详解WAVE MP3格式文件</summary>
     
     
     
@@ -40,19 +40,10 @@
     <link href="http://example.com/2022/08/31/Audio-meet/"/>
     <id>http://example.com/2022/08/31/Audio-meet/</id>
     <published>2022-08-30T16:00:00.000Z</published>
-    <updated>2022-09-05T13:45:42.462Z</updated>
+    <updated>2022-09-13T15:14:38.962Z</updated>
     
     
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;跳动的音符，婉转的节奏，悠扬的歌声……&lt;/p&gt;
-&lt;p&gt;音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？&lt;/p&gt;
-&lt;p&gt;下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识&lt;/p&gt;
-&lt;h1</summary>
-        
-      
+    <summary type="html">信号的分类引入音频概念，进而讲解AD转换及相关音频参数</summary>
     
     
     
@@ -68,17 +59,10 @@
     <link href="http://example.com/2022/08/25/cmake/"/>
     <id>http://example.com/2022/08/25/cmake/</id>
     <published>2022-08-24T16:00:00.000Z</published>
-    <updated>2022-08-30T14:19:32.205Z</updated>
+    <updated>2022-09-13T15:02:48.299Z</updated>
     
     
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;blockquote&gt;
-&lt;p&gt;官网 : &lt;a</summary>
-        
-      
+    <summary type="html">CMakeLists.txt及Makefile的编写方法</summary>
     
     
     
