@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-09-02T08:45:58.728Z</updated>
+  <updated>2022-09-13T14:59:46.606Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -17,11 +17,30 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Audio-再遇</title>
+    <link href="http://example.com/2022/09/05/Audio-meet-1/"/>
+    <id>http://example.com/2022/09/05/Audio-meet-1/</id>
+    <published>2022-09-04T16:00:00.000Z</published>
+    <updated>2022-09-13T14:59:46.606Z</updated>
+    
+    
+    <summary type="html">详解WAVE MP3</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://example.com/categories/Linux/Audio/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>Audio-初识</title>
     <link href="http://example.com/2022/08/31/Audio-meet/"/>
     <id>http://example.com/2022/08/31/Audio-meet/</id>
     <published>2022-08-30T16:00:00.000Z</published>
-    <updated>2022-09-02T08:45:58.728Z</updated>
+    <updated>2022-09-05T13:45:42.462Z</updated>
     
     
       
