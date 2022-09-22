@@ -581,4 +581,212 @@
         <category>Audio</category>
       </categories>
   </entry>
+  <entry>
+    <title>GPIO</title>
+    <url>/2022/09/22/GPIO/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
+<p><img src="/images/system/GPIO-1.png" alt="image"></p>
+<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
+<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
+<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
+<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
+<li>下拉输入：IO口输入设定为低电平输入（0）</li>
+<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
+</ol>
+<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
+<li>推挽输出：输出高低电平</li>
+<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
+<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
+<li>复用开漏输出：普通i2c处于该模式</li>
+</ol>
+<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
+<ul>
+<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
+<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
+<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
+<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
+<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
+<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
+<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
+</ul>
+<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
+<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>注意事项</p>
+<ul>
+<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
+<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
+<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
+<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
+</ul>
+<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖始终，故可以配置IO作为中断源对CPU进行唤醒</p>
+]]></content>
+      <categories>
+        <category>Computure System</category>
+        <category>GPIO</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Audio-探索-Alsa</title>
+    <url>/2022/09/20/backup/Audio-Alsa/</url>
+    <content><![CDATA[<blockquote>
+<p>Link : <a href="https://www.cnblogs.com/jason-lu/articles/3123750.html">https://www.cnblogs.com/jason-lu/articles/3123750.html</a></p>
+<p>​    	  <a href="https://magodo.github.io/alsa-pcm/#0-pcm">https://magodo.github.io/alsa-pcm/#0-pcm</a></p>
+</blockquote>
+<h1 id="ALSA"><a href="#ALSA" class="headerlink" title="ALSA"></a>ALSA</h1><blockquote>
+<p>官网：<a href="https://www.alsa-project.org/wiki/Main_Page">https://www.alsa-project.org/wiki/Main_Page</a></p>
+<p>音频通路 : <a href="https://wenku.baidu.com/view/dacb0922af45b307e87197a2.html">https://wenku.baidu.com/view/dacb0922af45b307e87197a2.html</a></p>
+</blockquote>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>ALSA：Advanced Linux Sound Architecture，高级linux声音体系</p>
+<h2 id="ALSA设备文件结构"><a href="#ALSA设备文件结构" class="headerlink" title="ALSA设备文件结构"></a>ALSA设备文件结构</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta"># cd /dev/snd; ls -l;</span></span><br><span class="line"></span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">8</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">38</span> controlC0	 用于声卡的控制,例如通道选择,混音,麦克风的控制等 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">4</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">38</span> midiC0D0	 用于播放midi音频 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">7</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">39</span> pcmC0D0c	 用于录音的pcm设备 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">6</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">56</span> pcmC0D0p	 用于播放的pcm设备 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">3</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">38</span> seq		 音序器 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">2</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">38</span> timer	     定时器</span><br></pre></td></tr></tbody></table></figure>
+
+<p>其中,C0D0代表的是声卡0中的设备0 ; pcmC0D0c最后一个c代表capture ; pcmC0D0p最后一个p代表playback。</p>
+<h2 id="3-alsa相关函数及文件"><a href="#3-alsa相关函数及文件" class="headerlink" title="3. alsa相关函数及文件"></a>3. alsa相关函数及文件</h2><h3 id="3-1-函数及结构体"><a href="#3-1-函数及结构体" class="headerlink" title="3.1 函数及结构体"></a>3.1 函数及结构体</h3><ul>
+<li>AVFrame    iFrame           存储非压缩的数据，输入</li>
+<li>AVFrame    swapFrame   存储非压缩的数据，重采样</li>
+<li>AVPack       oPacket          压缩即编码后的输入，输出</li>
+</ul>
+<ol>
+<li><p>snd_pcm_hw_params_get_rate( )</p>
+</li>
+<li><p>snd_pcm_open( )</p>
+<ul>
+<li><p>snd_config_update_ref</p>
+<p>这个函数作用是检查alsa配置文件是否发生了变化，包括文件名字和各个配置文件的内容是否修改，如果有修改，就重新加载配置文件树，刷新全局变量snd_config并增加一个snd_config的引用计数，调用snd_config_update_ref传入的top就是指向snd_config的指针，这个top当作参数传入snd_pcm_open_noupdate函数中。snd_config_unref接下来会减去snd_config的引用计数。</p>
+<p>首先创建顶层配置节点，然后打开/usr/share/alsa/alsa.conf，加载文件内容到顶层配置节点上，然后遍历所有的hooks，调用snd_config_hooks加载所有hooks，并调用相关的hooks函数打开对应的plugin动态库</p>
+</li>
+<li><p>snd_pcm_open_noupdate</p>
+</li>
+</ul>
+</li>
+<li><p>avcodec_open2( )</p>
+<ul>
+<li><p>检测指定的codec和context里面的codec是否匹配。</p>
+</li>
+<li><p>分配空间。</p>
+</li>
+<li><p>检测codec各个参数合法性，并给某些字段赋初值。</p>
+</li>
+<li><p>调用codec的init初始化codec。</p>
+</li>
+<li><p>释放资源，返回。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="3-2-配置文件"><a href="#3-2-配置文件" class="headerlink" title="3.2 配置文件"></a>3.2 配置文件</h3><ol>
+<li><p>参考网址 : <a href="https://www.cnblogs.com/lihaiping/p/alsaconfig.html">https://www.cnblogs.com/lihaiping/p/alsaconfig.html</a></p>
+</li>
+<li><p>配置文件的调用过程</p>
+<p>alsa-lib库  :  alsa-lib-1.2.1.2/src/pcm/pcm.c</p>
+<p>snd_pcm_open( ) 函数作为打开一个pcm的接口.  具体的调用过程是 :  static snd_pcm_open_noupdate —-&gt;  static snd_pcm_open_conf( )</p>
+<p>解析asound.conf过程 : <a href="https://www.xuebuyuan.com/1043778.html">https://www.xuebuyuan.com/1043778.html</a></p>
+</li>
+<li><p>snd_pcm_open内部直接解析的是usr/share/alsa/alsa.conf, 在这个文件中决定了etc/asound.conf和/.asoundrc这两个文件要不要调用</p>
+</li>
+</ol>
+<h3 id="3-3-音频设备的定义"><a href="#3-3-音频设备的定义" class="headerlink" title="3.3 音频设备的定义"></a>3.3 音频设备的定义</h3><figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">#  文件定义位置 : /system/core/include/system/audio.h</span><br><span class="line">enum {</span><br><span class="line">    AUDIO_DEVICE_NONE                          = 0x0,</span><br><span class="line">    /* reserved bits */</span><br><span class="line">    AUDIO_DEVICE_BIT_IN                        = 0x80000000,</span><br><span class="line">    AUDIO_DEVICE_BIT_DEFAULT                   = 0x40000000,</span><br><span class="line">    /* output devices */</span><br><span class="line">    AUDIO_DEVICE_OUT_EARPIECE                  = 0x1,    // 听筒</span><br><span class="line">    AUDIO_DEVICE_OUT_SPEAKER                   = 0x2,    // 扬声器</span><br><span class="line">    AUDIO_DEVICE_OUT_WIRED_HEADSET             = 0x4,    // 线控耳机，可以通过耳机控制远端播放、暂停、音量调节等功能的耳机</span><br><span class="line">    AUDIO_DEVICE_OUT_WIRED_HEADPHONE           = 0x8,    // 普通耳机，只能听，不能操控播放</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_SCO             = 0x10,   // 单声道蓝牙耳机，十进制32</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET     = 0x20,   // 车载免提蓝牙设备，十进制64</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT      = 0x40,   // 立体声蓝牙耳机</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_A2DP            = 0x80,   // 十进制128</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES = 0x100,  // 十进制256</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER    = 0x200,  // 十进制512</span><br><span class="line">    AUDIO_DEVICE_OUT_AUX_DIGITAL               = 0x400,  // 十进制1024</span><br><span class="line">    AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET         = 0x800,  // 十进制2048</span><br><span class="line">    AUDIO_DEVICE_OUT_DGTL_DOCK_HEADSET         = 0x1000, // 十进制4096</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="3-4-alsa插件"><a href="#3-4-alsa插件" class="headerlink" title="3.4 alsa插件"></a>3.4 alsa插件</h3><blockquote>
+<p>asound.conf配置 <a href="https://www.alsa-project.org/main/index.php/Asoundrc">https://www.alsa-project.org/main/index.php/Asoundrc</a></p>
+<p>插件详解官网  <a href="https://www.alsa-project.org/alsa-doc/alsa-lib/pcm_plugins.html">https://www.alsa-project.org/alsa-doc/alsa-lib/pcm_plugins.html</a></p>
+</blockquote>
+<ol>
+<li>生成alsa配置文件 : alsactl store -f a.conf</li>
+<li>对于耳机的controls需要指定-c 1,默认走的是card 0</li>
+<li>播放音频的命令 arecord -D usbheadsetC -d 5 -f cd -r 48000 -c 2 -t wav test.wav</li>
+</ol>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//查看控件</span></span><br><span class="line"><span class="meta"># amixer -c 1 controls </span></span><br><span class="line">numid=<span class="number">3</span>,iface=MIXER,name=<span class="string">'PCM Playback Switch'</span></span><br><span class="line">numid=<span class="number">4</span>,iface=MIXER,name=<span class="string">'PCM Playback Volume'</span></span><br><span class="line">numid=<span class="number">6</span>,iface=MIXER,name=<span class="string">'usbCapture_vol'</span></span><br><span class="line">numid=<span class="number">5</span>,iface=MIXER,name=<span class="string">'usbPlay_vol'</span></span><br><span class="line">numid=<span class="number">1</span>,iface=PCM,name=<span class="string">'Capture Channel Map'</span></span><br><span class="line">numid=<span class="number">2</span>,iface=PCM,name=<span class="string">'Playback Channel Map'</span></span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"><span class="comment">//对控件进行配置</span></span><br><span class="line"><span class="meta"># amixer -c 1 sget usbCapture_vol </span></span><br><span class="line">Simple mixer control <span class="string">'usbCapture_vol'</span>,<span class="number">0</span></span><br><span class="line">  Capabilities: volume</span><br><span class="line">  Playback channels: Front Left - Front Right</span><br><span class="line">  Capture channels: Front Left - Front Right</span><br><span class="line">  Limits: <span class="number">0</span> - <span class="number">255</span></span><br><span class="line">  Front Left: <span class="number">100</span> [<span class="number">39</span>%]</span><br><span class="line">  Front Right: <span class="number">100</span> [<span class="number">39</span>%]</span><br><span class="line"><span class="meta"># amixer -c 1 cget numid=5,iface=MIXER,name=<span class="string">'usbCapture_vol'</span></span></span><br><span class="line">numid=<span class="number">5</span>,iface=MIXER,name=<span class="string">'usbCapture_vol'</span></span><br><span class="line">  ; type=INTEGER,access=rw---RW-,values=<span class="number">2</span>,min=<span class="number">0</span>,max=<span class="number">255</span>,step=<span class="number">0</span></span><br><span class="line">  : values=<span class="number">100</span>,<span class="number">100</span></span><br><span class="line">  | dBscale-min=<span class="number">-20.00</span>dB,step=<span class="number">0.20</span>dB,mute=<span class="number">0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> <span class="comment">//</span></span><br><span class="line"><span class="meta"># arecord -l</span></span><br><span class="line">**** List of CAPTURE Hardware Devices ****</span><br><span class="line">card <span class="number">0</span>: smartpenknot [smartpen_knot], device <span class="number">0</span>: i2s-ecodec nau8822-hifi<span class="number">-0</span> []</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line">card <span class="number">0</span>: smartpenknot [smartpen_knot], device <span class="number">1</span>: dmic dmic-codec-hifi<span class="number">-1</span> []</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line">card <span class="number">0</span>: smartpenknot [smartpen_knot], device <span class="number">2</span>: i2s-tloop pcm-dump<span class="number">-2</span> []</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line">card <span class="number">1</span>: EP3C [Meizu EP3C], device <span class="number">0</span>: USB Audio [USB Audio]</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line"># </span><br><span class="line"><span class="meta"># aplay -l</span></span><br><span class="line">**** List of PLAYBACK Hardware Devices ****</span><br><span class="line">card <span class="number">0</span>: smartpenknot [smartpen_knot], device <span class="number">0</span>: i2s-ecodec nau8822-hifi<span class="number">-0</span> []</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line">card <span class="number">1</span>: EP3C [Meizu EP3C], device <span class="number">0</span>: USB Audio [USB Audio]</span><br><span class="line">  Subdevices: <span class="number">0</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="4-alsa音频工具"><a href="#4-alsa音频工具" class="headerlink" title="4. alsa音频工具"></a>4. alsa音频工具</h2><h3 id="4-1-arecode录音"><a href="#4-1-arecode录音" class="headerlink" title="4.1  arecode录音"></a>4.1  arecode录音</h3><ol>
+<li>查看录音设备 : arecode -l</li>
+<li>命令实例 :  arecord -D hw:0,1 -d 10 -f cd -r 44100 -c 2 -t wav test.wav</li>
+<li>参数解析 : <ul>
+<li>-D 指定了录音设备，0,1 是card 0 device 1</li>
+<li>-d 指定录音的时长，单位 : 秒</li>
+<li>-f 指定采样格式，通过上面的信息知道只支持 cd cdr dat </li>
+<li>-r 指定了采样率，单位 : Hz</li>
+<li>-c 指定channel 个数</li>
+<li>-t 指定生成的文件格式</li>
+</ul>
+</li>
+</ol>
+<h3 id="4-2-aplay放音"><a href="#4-2-aplay放音" class="headerlink" title="4.2 aplay放音"></a>4.2 aplay放音</h3><ol>
+<li><p>查看放音设备 : aplay -l</p>
+</li>
+<li><p>命令实例 : aplay test.wav</p>
+<blockquote>
+<p>如果是直接播放pcm数据，则需要指定pcm格式 、采样率、channel个数等。</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="4-3-amixer配参"><a href="#4-3-amixer配参" class="headerlink" title="4.3 amixer配参"></a>4.3 amixer配参</h3><ol>
+<li><p>使用方法 :</p>
+<ol>
+<li><p>用 # amixer controls 列出所有控制项。( 显示接口函数 )</p>
+</li>
+<li><p>如果对控制项不熟悉或者想查看当前的所有配置可以使用 # amixer contents 命令。(显示当前配置)</p>
+</li>
+<li><p>查看获取某个设置项的值用 # amixer cget + 控制参数 命令。 这里控制参数直接复制 # amixer controls 打印出来的数据就可以</p>
+</li>
+<li><p>根据控制参数类型设置控制参数使用 # amixer cset + 控制参数 + 设置参数 命令。</p>
+</li>
+<li><p>values 表示数值对于 volume 之类的是具体的数字，在上下文菜单中有显示数值的范围，对于 switch 之类的表示开关一般是 on 或 off。</p>
+<p>另外一sget/sset系列的命令, 与cget/cset的使用相同</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//使用例子:</span></span><br><span class="line"><span class="comment">//给的参数看value需要几个 需要什么类型进行相应的配置即可</span></span><br><span class="line">/ <span class="meta"># amixer cget numid=43,iface=MIXER,name=<span class="string">'Speaker Playback Volum'</span></span></span><br><span class="line">numid=<span class="number">43</span>,iface=MIXER,name=<span class="string">'Speaker Playback Volume'</span></span><br><span class="line">  ; type=INTEGER,access=rw---R--,values=<span class="number">2</span>,min=<span class="number">0</span>,max=<span class="number">63</span>,step=<span class="number">0</span></span><br><span class="line">  : values=<span class="number">63</span>,<span class="number">63</span></span><br><span class="line">  | dBscale-min=<span class="number">-57.00</span>dB,step=<span class="number">1.00</span>dB,mute=<span class="number">0</span></span><br><span class="line">/ # </span><br><span class="line">/ # </span><br><span class="line">/ # </span><br><span class="line">/ <span class="meta"># amixer cset numid=43,iface=MIXER,name=<span class="string">'Speaker Playback Volum'</span> 30 30 </span></span><br><span class="line">numid=<span class="number">43</span>,iface=MIXER,name=<span class="string">'Speaker Playback Volume'</span></span><br><span class="line">  ; type=INTEGER,access=rw---R--,values=<span class="number">2</span>,min=<span class="number">0</span>,max=<span class="number">63</span>,step=<span class="number">0</span></span><br><span class="line">  : values=<span class="number">30</span>,<span class="number">30</span></span><br><span class="line">  | dBscale-min=<span class="number">-57.00</span>dB,step=<span class="number">1.00</span>dB,mute=<span class="number">0</span></span><br><span class="line">/ # </span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+</li>
+<li><p>保存及恢复方法</p>
+<p>对声卡信息状态进行保存 : alsactl store -f /var/lib/alsa/asound.state </p>
+<p>声卡状态恢复命令 : alsactl restore -f /var/lib/alsa/asound.state</p>
+</li>
+</ol>
+<blockquote>
+<p><em><strong>play播放裸数据命令 : play -t raw -r 16000 -e signed-integer -b 16 -c 1 test.wav</strong></em></p>
+</blockquote>
+<h2 id="5-Linux音频分析工具"><a href="#5-Linux音频分析工具" class="headerlink" title="5. Linux音频分析工具"></a>5. Linux音频分析工具</h2><ol>
+<li><p>名字 : audacity</p>
+</li>
+<li><p>下载方法 : sudo apt install audacity -o Acquire::http::proxy=”<a href="http://192.168.4.15:8080/&quot;">http://192.168.4.15:8080/"</a>( -o 参数指定代理)</p>
+</li>
+<li><p>使用方法 : 直接命令行 audacity , 添加音频观察即可</p>
+</li>
+</ol>
+<h2 id="6-Q-amp-A"><a href="#6-Q-amp-A" class="headerlink" title="6. Q&amp;A"></a>6. Q&amp;A</h2><ol>
+<li><p>Q：数据存储出来只有78字节，但是写函数已经执行完毕？</p>
+<p>A：这只是写了一个文件头，而最终文件没有写入。原因是：avio_open之后没有关闭，调用closep函数之后数据正常写入;</p>
+<p>​		调试流程：首先定位问题位置。在alsa录音完成之后将数据写入buffer中存储来看是否是alsa部分的录音问题。之后根据流程进行检查。一定要注意open close / new delete / 等配套的使用</p>
+</li>
+<li><p>数据已经写结束 但是还是会再次执行一次其上面的程序</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">if</span>(fmtContext)                                                                    </span><br><span class="line">       av_write_trailer(fmtContext);</span><br><span class="line"><span class="keyword">if</span>(fmtContext != <span class="literal">NULL</span>){   </span><br><span class="line">   <span class="keyword">if</span>( avio_closep(&amp;fmtContext-&gt;pb) &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"avio_closep error!"</span>);</span><br><span class="line">   avformat_free_context(fmtContext);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">av_write_trailer的作用</span></span><br><span class="line"><span class="comment">	1. 循环调用interleave_packet()以及write_packet()，将还未输出的AVPacket输出出来。</span></span><br><span class="line"><span class="comment">	2. 调用AVOutputFormat的write_trailer()，输出文件尾。</span></span><br><span class="line"><span class="comment">avio_closep的作用</span></span><br><span class="line"><span class="comment">	关闭输出文件的上下文,与avio_open相对应使用</span></span><br><span class="line"><span class="comment">	</span></span><br><span class="line"><span class="comment">这两个的使用需要保证av_write_trailer函数调用早于avio_closep</span></span><br><span class="line"><span class="comment">如果不调用这两个函数会导致最终文件不能写出</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>Q：重采样时 channel 可以正常转换, sample_rate采样率变化不能转换?</p>
+<p>A：在做采样率的重采样时, 对输出的context配置需要将采样点也做一下转换,否则已经转换成功但是生成的文件大小还是按照以前的输出进行.<br>  采样点转换函数 : av_rescale_rnd(iFrame-&gt;nb_samples, oSampleRate, iSampleRate, AV_ROUND_UP);</p>
+</li>
+<li><p>Q : 录音之后声音太小, 甚至有时候听不到, 需要如何调整? </p>
+<p>A : 通过amixer参数进行相应的配置</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/storage/recode <span class="meta"># amixer cset numid=53,iface=MIXER,name=<span class="string">'DMIC GAIN'</span> 15</span></span><br><span class="line">numid=<span class="number">53</span>,iface=MIXER,name=<span class="string">'DMIC GAIN'</span></span><br><span class="line">  ; type=INTEGER,access=rw---R--,values=<span class="number">1</span>,min=<span class="number">0</span>,max=<span class="number">31</span>,step=<span class="number">0</span></span><br><span class="line">  : values=<span class="number">15</span></span><br><span class="line">  | dBscale-min=<span class="number">0.00</span>dB,step=<span class="number">3.00</span>dB,mute=<span class="number">0</span></span><br><span class="line"><span class="comment">//这个步骤的作用是, 将dmic的增益调整为15 </span></span><br></pre></td></tr></tbody></table></figure>
+
+
+</li>
+<li><p>Q:  耳机音量小但是amixer没有相关可以配置的参数?</p>
+<p>A : 通过asound.conf配置新的插件, </p>
+<p><a href="https://alsa.opensrc.org/How_to_use_softvol_to_control_the_master_volume">https://alsa.opensrc.org/How_to_use_softvol_to_control_the_master_volume</a></p>
+</li>
+</ol>
+<h2 id="7-相关资料"><a href="#7-相关资料" class="headerlink" title="7. 相关资料"></a>7. 相关资料</h2><p>[avPacket的使用]: <a href="https://blog.csdn.net/BrookIcv/article/details/53490799?ops_request_misc=&amp;request_id=&amp;biz_id=102&amp;utm_term=av_packet_alloc&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-4-53490799.pc_search_insert_es_download_v2&amp;spm=1018.2226.3001.4187">https://blog.csdn.net/BrookIcv/article/details/53490799?ops_request_misc=&amp;request_id=&amp;biz_id=102&amp;utm_term=av_packet_alloc&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-4-53490799.pc_search_insert_es_download_v2&amp;spm=1018.2226.3001.4187</a>	“AVFrame：存储非压缩的数据（视频对应RGB/YUV像素数据，音频对应PCM采样数据）AVPacket保存的是解码前的数据，也就是压缩后的数据”</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Audio</category>
+        <category>ALSA</category>
+      </categories>
+  </entry>
 </search>

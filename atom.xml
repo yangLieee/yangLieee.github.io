@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-09-13T15:00:51.765Z</updated>
+  <updated>2022-09-22T14:41:26.222Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -17,11 +17,51 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>GPIO</title>
+    <link href="http://example.com/2022/09/22/GPIO/"/>
+    <id>http://example.com/2022/09/22/GPIO/</id>
+    <published>2022-09-21T16:00:00.000Z</published>
+    <updated>2022-09-22T14:41:26.222Z</updated>
+    
+    
+    <summary type="html">GPIO基础原理</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://example.com/categories/Computure-System/"/>
+    
+    <category term="GPIO" scheme="http://example.com/categories/Computure-System/GPIO/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Audio-探索-Alsa</title>
+    <link href="http://example.com/2022/09/20/backup/Audio-Alsa/"/>
+    <id>http://example.com/2022/09/20/backup/Audio-Alsa/</id>
+    <published>2022-09-19T16:00:00.000Z</published>
+    <updated>2022-09-21T15:03:36.695Z</updated>
+    
+    
+    <summary type="html">对ALSA基础及使用进行说明</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://example.com/categories/Linux/Audio/"/>
+    
+    <category term="ALSA" scheme="http://example.com/categories/Linux/Audio/ALSA/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>Audio-再遇</title>
     <link href="http://example.com/2022/09/05/Audio-meet-1/"/>
     <id>http://example.com/2022/09/05/Audio-meet-1/</id>
     <published>2022-09-04T16:00:00.000Z</published>
-    <updated>2022-09-13T15:00:51.765Z</updated>
+    <updated>2022-09-13T15:25:14.380Z</updated>
     
     
     <summary type="html">详解WAVE MP3格式文件</summary>
