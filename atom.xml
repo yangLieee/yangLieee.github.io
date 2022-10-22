@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-09-22T14:41:26.222Z</updated>
+  <updated>2022-10-22T10:35:17.753Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>搭建Ubuntu虚拟机</title>
+    <link href="http://example.com/2022/10/22/ubuntu-create/"/>
+    <id>http://example.com/2022/10/22/ubuntu-create/</id>
+    <published>2022-10-21T16:00:00.000Z</published>
+    <updated>2022-10-22T10:35:17.753Z</updated>
+    
+    
+    <summary type="html">基于vmware搭建Ubuntu虚拟机</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    
+    <category term="搭建虚拟机" scheme="http://example.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>GPIO</title>
@@ -31,27 +50,6 @@
     <category term="Computure System" scheme="http://example.com/categories/Computure-System/"/>
     
     <category term="GPIO" scheme="http://example.com/categories/Computure-System/GPIO/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>Audio-探索-Alsa</title>
-    <link href="http://example.com/2022/09/20/backup/Audio-Alsa/"/>
-    <id>http://example.com/2022/09/20/backup/Audio-Alsa/</id>
-    <published>2022-09-19T16:00:00.000Z</published>
-    <updated>2022-09-21T15:03:36.695Z</updated>
-    
-    
-    <summary type="html">对ALSA基础及使用进行说明</summary>
-    
-    
-    
-    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
-    
-    <category term="Audio" scheme="http://example.com/categories/Linux/Audio/"/>
-    
-    <category term="ALSA" scheme="http://example.com/categories/Linux/Audio/ALSA/"/>
     
     
   </entry>
