@@ -188,6 +188,152 @@
       </categories>
   </entry>
   <entry>
+    <title>GPIO</title>
+    <url>/2022/09/22/GPIO/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
+<p><img src="/images/system/GPIO-1.png" alt="image"></p>
+<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
+<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
+<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
+<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
+<li>下拉输入：IO口输入设定为低电平输入（0）</li>
+<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
+</ol>
+<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
+<li>推挽输出：输出高低电平</li>
+<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
+<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
+<li>复用开漏输出：普通i2c处于该模式</li>
+</ol>
+<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
+<ul>
+<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
+<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
+<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
+<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
+<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
+<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
+<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
+</ul>
+<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
+<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>注意事项</p>
+<ul>
+<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
+<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
+<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
+<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
+</ul>
+<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖始终，故可以配置IO作为中断源对CPU进行唤醒</p>
+]]></content>
+      <categories>
+        <category>Computure System</category>
+        <category>GPIO</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Audio-初识</title>
+    <url>/2022/08/31/Audio-meet/</url>
+    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
+<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
+<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
+<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
+<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
+<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
+<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
+<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
+<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
+<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
+<ul>
+<li>定义：在时间轴上对信号进行离散化</li>
+<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
+</ul>
+<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
+<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
+<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
+<ul>
+<li><p>定义：在幅度轴上对信号进行数字化</p>
+</li>
+<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
+</li>
+</ul>
+<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
+<blockquote>
+<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
+</blockquote>
+<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
+<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
+<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
+</blockquote>
+<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
+<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
+<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
+</ul>
+<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
+<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
+<ul>
+<li><p>WAV编码（波形编码）</p>
+<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
+</li>
+<li><p>MP3编码</p>
+<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
+</li>
+<li><p>AAC编码</p>
+</li>
+</ul>
+<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
+<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
+<ul>
+<li><p>Ogg编码（有损）</p>
+<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
+</li>
+</ul>
+<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
+<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
+<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
+<ul>
+<li>单声道（mono）</li>
+<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
+<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
+<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
+<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
+</ul>
+<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
+<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
+<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
+<ul>
+<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
+<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
+</ul>
+<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
+<li>交错模式：每个声道的样本数据交错存储排布</li>
+<li>平面模式：每个声道的样本数据分开存储</li>
+</ul>
+<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
+<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
+<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
+<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
+<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
+</ul>
+<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
+<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
+<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
+<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Audio</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Audio-再遇</title>
     <url>/2022/09/05/Audio-meet-1/</url>
     <content><![CDATA[<p>本篇内容对一节提到的编码进行扩展，将重点对PCM格式、WAVE格式、MP3格式进行详细解析。</p>
@@ -465,152 +611,6 @@
       <categories>
         <category>Linux</category>
         <category>Audio</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Audio-初识</title>
-    <url>/2022/08/31/Audio-meet/</url>
-    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
-<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
-<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
-<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
-<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
-<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
-<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
-<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
-<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
-<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
-<ul>
-<li>定义：在时间轴上对信号进行离散化</li>
-<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
-</ul>
-<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
-<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
-<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
-<ul>
-<li><p>定义：在幅度轴上对信号进行数字化</p>
-</li>
-<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
-</li>
-</ul>
-<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
-<blockquote>
-<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
-</blockquote>
-<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
-<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
-<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
-</blockquote>
-<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
-<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
-<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
-</ul>
-<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
-<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
-<ul>
-<li><p>WAV编码（波形编码）</p>
-<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
-</li>
-<li><p>MP3编码</p>
-<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
-</li>
-<li><p>AAC编码</p>
-</li>
-</ul>
-<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
-<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
-<ul>
-<li><p>Ogg编码（有损）</p>
-<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
-</li>
-</ul>
-<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
-<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
-<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
-<ul>
-<li>单声道（mono）</li>
-<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
-<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
-<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
-<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
-</ul>
-<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
-<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
-<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
-<ul>
-<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
-<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
-</ul>
-<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
-<li>交错模式：每个声道的样本数据交错存储排布</li>
-<li>平面模式：每个声道的样本数据分开存储</li>
-</ul>
-<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
-<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
-<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
-<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
-<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
-</ul>
-<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
-<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
-<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
-<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Audio</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>GPIO</title>
-    <url>/2022/09/22/GPIO/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
-<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
-<p><img src="/images/system/GPIO-1.png" alt="image"></p>
-<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
-<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
-<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
-<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
-<li>下拉输入：IO口输入设定为低电平输入（0）</li>
-<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
-</ol>
-<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
-<li>推挽输出：输出高低电平</li>
-<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
-<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
-<li>复用开漏输出：普通i2c处于该模式</li>
-</ol>
-<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
-<ul>
-<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
-<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
-<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
-<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
-<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
-<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
-<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
-</ul>
-<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
-<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
-
-<p>注意事项</p>
-<ul>
-<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
-<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
-<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
-<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
-</ul>
-<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖始终，故可以配置IO作为中断源对CPU进行唤醒</p>
-]]></content>
-      <categories>
-        <category>Computure System</category>
-        <category>GPIO</category>
       </categories>
   </entry>
   <entry>
