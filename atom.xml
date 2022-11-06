@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-10-22T10:35:17.753Z</updated>
+  <updated>2022-11-06T08:43:16.384Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Libmad详解</title>
+    <link href="http://example.com/2022/11/05/Audio-libmad/"/>
+    <id>http://example.com/2022/11/05/Audio-libmad/</id>
+    <published>2022-11-04T16:00:00.000Z</published>
+    <updated>2022-11-06T08:43:16.384Z</updated>
+    
+    
+    <summary type="html">对MP3的解码库libmad进行详细介绍说明及部分经验分享ji</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://example.com/categories/Linux/Audio/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>搭建Ubuntu虚拟机</title>
