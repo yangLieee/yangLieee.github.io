@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-11-15T14:50:50.684Z</updated>
+  <updated>2022-11-16T14:36:24.938Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -17,11 +17,30 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>init.rc语法及解析</title>
+    <link href="http://example.com/2022/11/16/init.rc/"/>
+    <id>http://example.com/2022/11/16/init.rc/</id>
+    <published>2022-11-15T16:00:00.000Z</published>
+    <updated>2022-11-16T14:36:24.938Z</updated>
+    
+    
+    <summary type="html">对Andriod中系统启动时加载的init.rc文件语法进行解析</summary>
+    
+    
+    
+    <category term="linux" scheme="http://example.com/categories/linux/"/>
+    
+    <category term="Andriod" scheme="http://example.com/categories/linux/Andriod/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>理解c/c++ Volatile关键字</title>
     <link href="http://example.com/2022/11/15/Volatile/"/>
     <id>http://example.com/2022/11/15/Volatile/</id>
     <published>2022-11-14T16:00:00.000Z</published>
-    <updated>2022-11-15T14:50:50.684Z</updated>
+    <updated>2022-11-15T14:58:31.065Z</updated>
     
     
     <summary type="html">通过实例对c/c++模型中volatile关键字进行解析</summary>

@@ -653,6 +653,7 @@
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> sig_done = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">//static volatile bool sig_done = false;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">handler</span><span class="params">(<span class="type">int</span> sig)</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(sig == SIGINT)</span><br><span class="line">    ┆   sig_done = <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc , <span class="type">char</span> *argv[])</span></span><br><span class="line">{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main start, press ctrl+c go on\n"</span>);</span><br><span class="line">    signal(SIGINT, handler);</span><br><span class="line">    <span class="keyword">while</span>(!sig_done) {</span><br><span class="line">    }   </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main exit\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//编译命令</span></span><br><span class="line">gcc main.c <span class="number">-02</span></span><br><span class="line">objdump -d a.out &gt; a.s</span><br></pre></td></tr></tbody></table></figure>
 
 <p>通过反汇编比较两个程序的异同（左侧volatile，右侧无volatile）</p>
+<p><img src="/images/coding/meld.png" alt="image"></p>
 <p>没有voaltile的while实现方式为：</p>
 <ol>
 <li>比较rip寄存器+0x2f65地址处的值（sig_done）与 0 是否相等</li>
@@ -677,7 +678,6 @@
 <li><p>je   如果ZF（零标志位）=1，零标志位为1（真值）说明结果为0，则转到label所指的指令语句；否则跳过这条语句，执行下条语句</p>
 </li>
 </ol>
-<p><img src="C:\Users\lee_y\AppData\Roaming\Typora\typora-user-images\image-20221113201714398.png" alt="image-20221113201714398"></p>
 <h2 id="多线程场景"><a href="#多线程场景" class="headerlink" title="多线程场景"></a>多线程场景</h2><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> mstop = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">//static volatile bool mstop = true;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">first_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    <span class="keyword">while</span>(mstop) {</span><br><span class="line">    }</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">second_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">sleep</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    mstop = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}                                                                                                                                                                     </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    std::thread fthread{first_thread};</span><br><span class="line">    std::thread sthread{second_thread};</span><br><span class="line">    fthread.<span class="built_in">join</span>();</span><br><span class="line">	sthread.<span class="built_in">join</span>();</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
 <h2 id="外设寄存器"><a href="#外设寄存器" class="headerlink" title="外设寄存器"></a>外设寄存器</h2><p>对于外设通常设置有状态寄存器，我们可以通过循环读取状态寄存器的值来查看对应外设的状态。对于如下示例，如果没有使用volatile关键字，编译器可能生成的代码是读取一个固定地址的值而不会每次都从主存中读取新的值（或者读取n次状态，生成的代码只读取了一次，然后使用n次相同的值）</p>
@@ -907,6 +907,126 @@
       <tags>
         <tag>开篇</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>init.rc语法及解析</title>
+    <url>/2022/11/16/init.rc/</url>
+    <content><![CDATA[<p>在linux设备上输入“pstree”命令我们便会看到一棵进程树，不同状态不同设备树上进程名字进程号可能不完全一致，但进程号pid=1的进程一定是init进程！对于Android系统来讲，其实际是运行于Linux内核之上的一系列“服务进程”，而这些服务进程的“老祖宗”就是init，它是Android中第一个被启动的进程，所有服务都是通过解析init.rc文件得到的（部分可以执行程序通过init.d/文件夹下的脚本启动）</p>
+<p>本篇文章将对init.rc文件语法进行解析</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>查看andriod源码：<a href="http://androidxref.com/">http://androidxref.com/</a></p>
+</blockquote>
+<p>init.rc是系统启动的第一个程序所加载的语法文件。init.rc文件是以“块”(section)为单位服务的，一个“块”(section)可以包含多行，而一行中包含多个tokens(符号)。“块”(section)分成两大类：一类称为”动作(action)”，另一类称为“服务(service)”。而一个init.rc脚本由四个类型的声明组成：</p>
+<ol>
+<li>动作 ：Actions，以关键字“on”开始</li>
+<li>命令 ：Commands，以关键字“start”“restart”“stop”开始</li>
+<li>服务 ：Services</li>
+<li>选项 ：Options</li>
+</ol>
+<h1 id="Actions"><a href="#Actions" class="headerlink" title="Actions"></a>Actions</h1><p>Actions就是响应某个事件的过程。如下所示当满足trigger触发条件时依次执行Commands命令。源码会依次将这些命令添加到“命令执行队列尾部”，系统对这些命令顺序执行。所以服务启动的根本就是on类型的section被执行的过程</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on &lt;trigger&gt;        //触发条件</span><br><span class="line">    &lt;command1&gt;      //命令1</span><br><span class="line">    &lt;command2&gt;      //命令2</span><br><span class="line">    &lt;command3&gt;      //命令3</span><br></pre></td></tr></tbody></table></figure>
+
+<p>对于trigger（触发器）来讲，常见的有两种形式：</p>
+<ol>
+<li>单纯的字符串。例如：on boot</li>
+<li>键值匹配，格式为“ on property <key> = <value> ”。例如：on property:init.svc.wifi = stopped</value></key></li>
+</ol>
+<p>此外还有两种形式：</p>
+<ol>
+<li>device-added/removed-<patch> 当设备节点添加/删除时触发此事件</patch></li>
+<li>sevice-exited-<name> 当指定服务<name> 存在时触发</name></name></li>
+</ol>
+<h2 id="Actions解析后执行顺序"><a href="#Actions解析后执行顺序" class="headerlink" title="Actions解析后执行顺序"></a>Actions解析后执行顺序</h2><figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on early-init           #在初始化早期阶段触发</span><br><span class="line">on init                 #初始化阶段触发。这里会执行完属性服务，接下来就可以设置属性了</span><br><span class="line">on late-init            #在初始化晚期触发。在这里会通过trigger来执行其他的action,以下均是</span><br><span class="line">on early-fs</span><br><span class="line">on fs</span><br><span class="line">on post-fs</span><br><span class="line">on post-fs-data</span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">on early-boot</span><br><span class="line">on boot`</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="Commands"><a href="#Commands" class="headerlink" title="Commands"></a>Commands</h1><table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>start <service></service></td>
+<td>启动一个服务，如果它没有处于运行状态的话</td>
+</tr>
+<tr>
+<td>stop <service></service></td>
+<td>停止一个服务，如果当前它处于运行状态的话</td>
+</tr>
+<tr>
+<td>restart <service></service></td>
+<td></td>
+</tr>
+<tr>
+<td>setprop <name> <value></value></name></td>
+<td>设置<name>的属性值为<value></value></name></td>
+</tr>
+<tr>
+<td>trigger <event></event></td>
+<td>触发一个事件</td>
+</tr>
+<tr>
+<td>export <name> <value></value></name></td>
+<td>设置<name>环境变量的值为<value>，全局有效</value></name></td>
+</tr>
+<tr>
+<td>mount <type> <device> <dir> [<mountoption>]*</mountoption></dir></device></type></td>
+<td>尝试在指定路径上挂载一个设备</td>
+</tr>
+</tbody></table>
+<h1 id="Services"><a href="#Services" class="headerlink" title="Services"></a>Services</h1><p>实际上每一个service就是一个可执行程序，它们在特定选项的约束下是被init程序运行或者重启(service可以在配置中指定是否需要退出重启，这样当service出现异常crash时就可以有机会复原)</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">service &lt;name&gt; &lt;pathname&gt; [ &lt;argument&gt; ]*</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        ...</span><br><span class="line"># &lt;name&gt;       service服务的名字</span><br><span class="line"># &lt;pathname&gt;   service路径，一般对应可执行程序或者脚本</span><br><span class="line"># &lt;argument&gt;   启动pathname下的service所需要的参数</span><br><span class="line"># &lt;option&gt;     service的约束项</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h1><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>disable</td>
+<td>隐式声明，默认不会自动启动该服务，需要显式调用</td>
+</tr>
+<tr>
+<td>oneshot</td>
+<td>字面意思一次性，即服务退出时，不要主动重启该服务</td>
+</tr>
+<tr>
+<td>onrestart</td>
+<td>当服务重启时，执行某些命令（需要理解）</td>
+</tr>
+<tr>
+<td>class <name></name></td>
+<td>指定该服务属于<name>class类，默认class名为default（注：同一个class所有服务必须是同时启动或停止）</name></td>
+</tr>
+<tr>
+<td>socket <name> <type> <perm> [<user> [<group>] ]</group></user></perm></type></name></td>
+<td>创建一个名为dev/socket/<name>的 socket，然后将它的fd值传给启动它的进，有效的<type>值包括dgram,stream 和seqpacket。ueser 和group 的默认值为0。</type></name></td>
+</tr>
+<tr>
+<td>critical</td>
+<td>表明这是对设备至关重要的服务；如果它在四分钟内退出超过四次，则设备将进入Recovery 模式</td>
+</tr>
+<tr>
+<td>group <groupname> [<groupname>]*</groupname></groupname></td>
+<td>在启动服务前将用户组切换至<groupname></groupname></td>
+</tr>
+<tr>
+<td>setenv <name> <value></value></name></td>
+<td>设置环境变量<name> 为值<value></value></name></td>
+</tr>
+</tbody></table>
+<h1 id="Notice"><a href="#Notice" class="headerlink" title="Notice"></a>Notice</h1><ol>
+<li>service和Actions都是有唯一的名字的。如果有重名的情况会作为错误忽略。</li>
+<li>无论是动作还是服务，并不是按照文件的编排顺序执行的。</li>
+<li>该文件中注释以“#”开始；反斜杠“\”在行尾表示下面一行是同一行</li>
+</ol>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">/* </span><br><span class="line"> * copy from http://androidxref.com/6.0.0_r5/xref/bootable/recovery/etc/init.rc</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">import /init.recovery.${ro.hardware}.rc</span><br><span class="line"></span><br><span class="line">on early-init</span><br><span class="line">    start ueventd</span><br><span class="line">    start healthd</span><br><span class="line"></span><br><span class="line">on init</span><br><span class="line">    export PATH /sbin:/system/bin</span><br><span class="line">    export ANDROID_ROOT /system</span><br><span class="line">    export ANDROID_DATA /data</span><br><span class="line">    export EXTERNAL_STORAGE /sdcard</span><br><span class="line"></span><br><span class="line">    symlink /system/etc /etc</span><br><span class="line"></span><br><span class="line">    mkdir /sdcard</span><br><span class="line">    mkdir /system</span><br><span class="line">    mkdir /data</span><br><span class="line">    mkdir /cache</span><br><span class="line">    mkdir /sideload</span><br><span class="line">    mount tmpfs tmpfs /tmp</span><br><span class="line"></span><br><span class="line">    chown root shell /tmp</span><br><span class="line">    chmod 0775 /tmp</span><br><span class="line"></span><br><span class="line">    write /proc/sys/kernel/panic_on_oops 1</span><br><span class="line">    write /proc/sys/vm/max_map_count 1000000</span><br><span class="line"></span><br><span class="line">on fs</span><br><span class="line">    mkdir /dev/usb-ffs 0770 shell shell</span><br><span class="line">    mkdir /dev/usb-ffs/adb 0770 shell shell</span><br><span class="line">    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=2000</span><br><span class="line"></span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    write /sys/class/android_usb/android0/idVendor 18D1</span><br><span class="line">    write /sys/class/android_usb/android0/idProduct D001</span><br><span class="line">    write /sys/class/android_usb/android0/f_ffs/aliases adb</span><br><span class="line">    write /sys/class/android_usb/android0/functions adb</span><br><span class="line">    write /sys/class/android_usb/android0/iManufacturer ${ro.product.manufacturer}</span><br><span class="line">    write /sys/class/android_usb/android0/iProduct ${ro.product.model}</span><br><span class="line">    write /sys/class/android_usb/android0/iSerial ${ro.serialno}</span><br><span class="line"></span><br><span class="line">on boot</span><br><span class="line">    ifup lo</span><br><span class="line">    hostname localhost</span><br><span class="line">    domainname localdomain</span><br><span class="line"></span><br><span class="line">    class_start default</span><br><span class="line"></span><br><span class="line"># Load properties from /system/ + /factory after fs mount.</span><br><span class="line">on load_all_props_action</span><br><span class="line">    load_all_props</span><br><span class="line"></span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">   rm /dev/.booting</span><br><span class="line"></span><br><span class="line"># Mount filesystems and start core system services.</span><br><span class="line">on late-init</span><br><span class="line">    trigger early-fs</span><br><span class="line">    trigger fs</span><br><span class="line">    trigger post-fs</span><br><span class="line">    trigger post-fs-data</span><br><span class="line"></span><br><span class="line">    # Load properties from /system/ + /factory after fs mount. Place</span><br><span class="line">    # this in another action so that the load will be scheduled after the prior</span><br><span class="line">    # issued fs triggers have completed.</span><br><span class="line">    trigger load_all_props_action</span><br><span class="line"></span><br><span class="line">    # Remove a file to wake up anything waiting for firmware</span><br><span class="line">    trigger firmware_mounts_complete</span><br><span class="line"></span><br><span class="line">    trigger early-boot</span><br><span class="line">    trigger boot</span><br><span class="line"></span><br><span class="line">on property:sys.powerctl=*</span><br><span class="line">   powerctl ${sys.powerctl}</span><br><span class="line"></span><br><span class="line">service ueventd /sbin/ueventd</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:ueventd:s0</span><br><span class="line"></span><br><span class="line">service healthd /sbin/healthd -r</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:healthd:s0</span><br><span class="line"></span><br><span class="line">service recovery /sbin/recovery</span><br><span class="line">    seclabel u:r:recovery:s0</span><br><span class="line"></span><br><span class="line">service adbd /sbin/adbd --root_seclabel=u:r:su:s0 --device_banner=recovery</span><br><span class="line">    disabled</span><br><span class="line">    socket adbd stream 660 system system</span><br><span class="line">    seclabel u:r:adbd:s0</span><br><span class="line"></span><br><span class="line"># Always start adbd on userdebug and eng builds</span><br><span class="line">on property:ro.debuggable=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br><span class="line">    start adbd</span><br><span class="line"></span><br><span class="line"># Restart adbd so it can run as root</span><br><span class="line">on property:service.adb.root=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    restart adbd</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br></pre></td></tr></tbody></table></figure>]]></content>
+      <categories>
+        <category>linux</category>
+        <category>Andriod</category>
+      </categories>
   </entry>
   <entry>
     <title>搭建Ubuntu虚拟机</title>
