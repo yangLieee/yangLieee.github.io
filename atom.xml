@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>yangLieee</title>
-  <icon>http://example.com/images/favicon_200x200.png</icon>
+  <icon>http://yanglieee.com/images/favicon_200x200.png</icon>
   
-  <link href="http://example.com/atom.xml" rel="self"/>
+  <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
-  <link href="http://example.com/"/>
+  <link href="http://yanglieee.com/"/>
   <updated>2022-11-26T14:59:19.699Z</updated>
-  <id>http://example.com/</id>
+  <id>http://yanglieee.com/</id>
   
   <author>
     <name>Lee</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>硬件随机数测试方法</title>
-    <link href="http://example.com/2022/11/26/DTRNG_Test/"/>
-    <id>http://example.com/2022/11/26/DTRNG_Test/</id>
+    <link href="http://yanglieee.com/2022/11/26/DTRNG_Test/"/>
+    <id>http://yanglieee.com/2022/11/26/DTRNG_Test/</id>
     <published>2022-11-25T16:00:00.000Z</published>
     <updated>2022-11-26T14:59:19.699Z</updated>
     
@@ -28,15 +28,15 @@
     
     
     
-    <category term="Third Party" scheme="http://example.com/categories/Third-Party/"/>
+    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
     
     
   </entry>
   
   <entry>
     <title>init.rc语法及解析</title>
-    <link href="http://example.com/2022/11/16/init.rc/"/>
-    <id>http://example.com/2022/11/16/init.rc/</id>
+    <link href="http://yanglieee.com/2022/11/16/init.rc/"/>
+    <id>http://yanglieee.com/2022/11/16/init.rc/</id>
     <published>2022-11-15T16:00:00.000Z</published>
     <updated>2022-11-16T14:39:43.105Z</updated>
     
@@ -45,17 +45,17 @@
     
     
     
-    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
     
-    <category term="Andriod" scheme="http://example.com/categories/Linux/Andriod/"/>
+    <category term="Andriod" scheme="http://yanglieee.com/categories/Linux/Andriod/"/>
     
     
   </entry>
   
   <entry>
     <title>理解c/c++ Volatile关键字</title>
-    <link href="http://example.com/2022/11/15/Volatile/"/>
-    <id>http://example.com/2022/11/15/Volatile/</id>
+    <link href="http://yanglieee.com/2022/11/15/Volatile/"/>
+    <id>http://yanglieee.com/2022/11/15/Volatile/</id>
     <published>2022-11-14T16:00:00.000Z</published>
     <updated>2022-11-15T14:58:31.065Z</updated>
     
@@ -64,15 +64,15 @@
     
     
     
-    <category term="c/c++" scheme="http://example.com/categories/c-c/"/>
+    <category term="c/c++" scheme="http://yanglieee.com/categories/c-c/"/>
     
     
   </entry>
   
   <entry>
     <title>Libmad详解</title>
-    <link href="http://example.com/2022/11/05/Audio-libmad/"/>
-    <id>http://example.com/2022/11/05/Audio-libmad/</id>
+    <link href="http://yanglieee.com/2022/11/05/Audio-libmad/"/>
+    <id>http://yanglieee.com/2022/11/05/Audio-libmad/</id>
     <published>2022-11-04T16:00:00.000Z</published>
     <updated>2022-11-06T09:00:12.527Z</updated>
     
@@ -81,17 +81,17 @@
     
     
     
-    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
     
-    <category term="Audio" scheme="http://example.com/categories/Linux/Audio/"/>
+    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
     
     
   </entry>
   
   <entry>
     <title>搭建Ubuntu虚拟机</title>
-    <link href="http://example.com/2022/10/22/ubuntu-create/"/>
-    <id>http://example.com/2022/10/22/ubuntu-create/</id>
+    <link href="http://yanglieee.com/2022/10/22/ubuntu-create/"/>
+    <id>http://yanglieee.com/2022/10/22/ubuntu-create/</id>
     <published>2022-10-21T16:00:00.000Z</published>
     <updated>2022-10-22T10:35:17.753Z</updated>
     
@@ -100,17 +100,17 @@
     
     
     
-    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
     
-    <category term="搭建虚拟机" scheme="http://example.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/"/>
+    <category term="搭建虚拟机" scheme="http://yanglieee.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/"/>
     
     
   </entry>
   
   <entry>
     <title>GPIO</title>
-    <link href="http://example.com/2022/09/22/GPIO/"/>
-    <id>http://example.com/2022/09/22/GPIO/</id>
+    <link href="http://yanglieee.com/2022/09/22/GPIO/"/>
+    <id>http://yanglieee.com/2022/09/22/GPIO/</id>
     <published>2022-09-21T16:00:00.000Z</published>
     <updated>2022-09-22T14:41:26.222Z</updated>
     
@@ -119,17 +119,17 @@
     
     
     
-    <category term="Computure System" scheme="http://example.com/categories/Computure-System/"/>
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
     
-    <category term="GPIO" scheme="http://example.com/categories/Computure-System/GPIO/"/>
+    <category term="GPIO" scheme="http://yanglieee.com/categories/Computure-System/GPIO/"/>
     
     
   </entry>
   
   <entry>
     <title>Audio-再遇</title>
-    <link href="http://example.com/2022/09/05/Audio-meet-1/"/>
-    <id>http://example.com/2022/09/05/Audio-meet-1/</id>
+    <link href="http://yanglieee.com/2022/09/05/Audio-meet-1/"/>
+    <id>http://yanglieee.com/2022/09/05/Audio-meet-1/</id>
     <published>2022-09-04T16:00:00.000Z</published>
     <updated>2022-09-13T15:25:14.380Z</updated>
     
@@ -138,17 +138,17 @@
     
     
     
-    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
     
-    <category term="Audio" scheme="http://example.com/categories/Linux/Audio/"/>
+    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
     
     
   </entry>
   
   <entry>
     <title>Audio-初识</title>
-    <link href="http://example.com/2022/08/31/Audio-meet/"/>
-    <id>http://example.com/2022/08/31/Audio-meet/</id>
+    <link href="http://yanglieee.com/2022/08/31/Audio-meet/"/>
+    <id>http://yanglieee.com/2022/08/31/Audio-meet/</id>
     <published>2022-08-30T16:00:00.000Z</published>
     <updated>2022-11-26T15:22:03.161Z</updated>
     
@@ -166,17 +166,17 @@
     
     
     
-    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
     
-    <category term="Audio" scheme="http://example.com/categories/Linux/Audio/"/>
+    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
     
     
   </entry>
   
   <entry>
     <title>CMake</title>
-    <link href="http://example.com/2022/08/25/cmake/"/>
-    <id>http://example.com/2022/08/25/cmake/</id>
+    <link href="http://yanglieee.com/2022/08/25/cmake/"/>
+    <id>http://yanglieee.com/2022/08/25/cmake/</id>
     <published>2022-08-24T16:00:00.000Z</published>
     <updated>2022-11-26T15:22:03.163Z</updated>
     
@@ -192,17 +192,17 @@
     
     
     
-    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
     
-    <category term="Tools" scheme="http://example.com/categories/Linux/Tools/"/>
+    <category term="Tools" scheme="http://yanglieee.com/categories/Linux/Tools/"/>
     
     
   </entry>
   
   <entry>
     <title>Hello New World</title>
-    <link href="http://example.com/2022/08/22/hello-world/"/>
-    <id>http://example.com/2022/08/22/hello-world/</id>
+    <link href="http://yanglieee.com/2022/08/22/hello-world/"/>
+    <id>http://yanglieee.com/2022/08/22/hello-world/</id>
     <published>2022-08-21T16:00:00.000Z</published>
     <updated>2022-08-23T15:42:46.710Z</updated>
     
@@ -220,10 +220,10 @@
     
     
     
-    <category term="Personal" scheme="http://example.com/categories/Personal/"/>
+    <category term="Personal" scheme="http://yanglieee.com/categories/Personal/"/>
     
     
-    <category term="开篇" scheme="http://example.com/tags/%E5%BC%80%E7%AF%87/"/>
+    <category term="开篇" scheme="http://yanglieee.com/tags/%E5%BC%80%E7%AF%87/"/>
     
   </entry>
   
