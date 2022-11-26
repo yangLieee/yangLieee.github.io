@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-11-16T14:36:24.938Z</updated>
+  <updated>2022-11-26T14:49:16.907Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -17,20 +17,37 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>硬件随机数测试方法</title>
+    <link href="http://example.com/2022/11/26/DTRNG_Test/"/>
+    <id>http://example.com/2022/11/26/DTRNG_Test/</id>
+    <published>2022-11-25T16:00:00.000Z</published>
+    <updated>2022-11-26T14:49:16.907Z</updated>
+    
+    
+    <summary type="html">通过对NIST测试套件的说明验证随机种子的真假性</summary>
+    
+    
+    
+    <category term="Third Party" scheme="http://example.com/categories/Third-Party/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>init.rc语法及解析</title>
     <link href="http://example.com/2022/11/16/init.rc/"/>
     <id>http://example.com/2022/11/16/init.rc/</id>
     <published>2022-11-15T16:00:00.000Z</published>
-    <updated>2022-11-16T14:36:24.938Z</updated>
+    <updated>2022-11-16T14:39:43.105Z</updated>
     
     
     <summary type="html">对Andriod中系统启动时加载的init.rc文件语法进行解析</summary>
     
     
     
-    <category term="linux" scheme="http://example.com/categories/linux/"/>
+    <category term="Linux" scheme="http://example.com/categories/Linux/"/>
     
-    <category term="Andriod" scheme="http://example.com/categories/linux/Andriod/"/>
+    <category term="Andriod" scheme="http://example.com/categories/Linux/Andriod/"/>
     
     
   </entry>

@@ -1,3 +1,4 @@
+http://example.com/2022/11/26/DTRNG_Test/
 http://example.com/2022/11/16/init.rc/
 http://example.com/2022/11/15/Volatile/
 http://example.com/2022/11/05/Audio-libmad/
@@ -14,12 +15,12 @@ http://example.com/about/index.html
 http://example.com/
 http://example.com/tags/%E5%BC%80%E7%AF%87/
 http://example.com/categories/Linux/
-http://example.com/categories/Computure-System/
+http://example.com/categories/Third-Party/
 http://example.com/categories/Linux/Audio/
 http://example.com/categories/c-c/
 http://example.com/categories/Linux/Tools/
+http://example.com/categories/Computure-System/
 http://example.com/categories/Personal/
-http://example.com/categories/linux/
+http://example.com/categories/Linux/Andriod/
 http://example.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/
 http://example.com/categories/Computure-System/GPIO/
-http://example.com/categories/linux/Andriod/
