@@ -1,193 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Libmad详解</title>
-    <url>/2022/11/05/Audio-libmad/</url>
-    <content><![CDATA[<p>简单来讲，libmad就是一个MP3文件的解码库。如果想要深入理解其中的实现需要对MP3文件格式有详细的了解，关于MP3文件格式的内容在这里我不赘述，之前的文章当中有过详细的讲解 <a href="https://yanglieee.com/2022/09/05/Audio-meet-1/">click here</a></p>
-<h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><blockquote>
-<p>Libmad 详解：<a href="https://www.underbit.com/products/mad/">https://www.underbit.com/products/mad/</a></p>
-</blockquote>
-<p> libmad 是一个高质量的 MPEG 音频解码器。目前支持  MPEG-1 和 MPEG-2 对较低采样频率的扩展，以及所谓的 MPEG 2.5 格式，三个音频层都在代码上做了实现。优势：</p>
-<ul>
-<li>24 位 PCM 输出</li>
-<li>100% 定点（整数）计算</li>
-<li>基于 ISO/IEC 标准的全新实施</li>
-<li>根据 GNU 通用公共许可证 (GPL) 的条款分发</li>
-</ul>
-<h1 id="How"><a href="#How" class="headerlink" title="How"></a>How</h1><h2 id="代码下载"><a href="#代码下载" class="headerlink" title="代码下载"></a>代码下载</h2><p><a href="https://sourceforge.net/projects/mad/files/">https://sourceforge.net/projects/mad/files/</a></p>
-<p><a href="https://www.linuxfromscratch.org/blfs/view/svn/multimedia/libmad.html">https://www.linuxfromscratch.org/blfs/view/svn/multimedia/libmad.html</a></p>
-<h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2><p>&lt; 基于 libmad-0.15.1b 版本&gt;</p>
-<table>
-<thead>
-<tr>
-<th>源文件</th>
-<th>bit.c</th>
-<th>decoder.c</th>
-<th>fixed.c</th>
-<th>frame.c</th>
-<th>huffman.c</th>
-<th>layer12.c</th>
-<th>layer3.c</th>
-<th>stream.c</th>
-<th>synth.c</th>
-<th>timer.c</th>
-<th>version.c</th>
-<th>minimad.c(demo)</th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>头文件</td>
-<td>bit.h</td>
-<td>decoder.h</td>
-<td>fixed.h</td>
-<td>frame.h</td>
-<td>huffman.h</td>
-<td>layer12.h</td>
-<td>layer3.h</td>
-<td>stream.h</td>
-<td>synth.h</td>
-<td>timer.h</td>
-<td>version.h</td>
-<td>global.h</td>
-<td>mad.h（API）</td>
-</tr>
-<tr>
-<td>dat文件</td>
-<td>sf_table.dat</td>
-<td>imdct_s.dat</td>
-<td>qc_table.dat</td>
-<td>D.dat</td>
-<td>rq_table.dat</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>其他文件</td>
-<td>Makefile</td>
-<td>config</td>
-<td>……</td>
-<td></td>
-<td>大部分内容不参与编译</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
-<p>具体使用方法可以参考minimad.c文件，这里面对api的使用有进一步的说明</p>
-<p>同时也可以参考我基于Linux libmad写出来的一个音频播放器，源码链接 <a href="https://github.com/yangLieee/audioplayer">click here</a></p>
-<h1 id="编译方法"><a href="#编译方法" class="headerlink" title="编译方法"></a>编译方法</h1><p>&lt; 仅介绍linux环境下编译方法 &gt; </p>
-<ol>
-<li>手写Makefile / CMakeLists.txt</li>
-<li>系统提供的config<ul>
-<li>执行 <strong>sed -i ‘/-fforce-mem/d’ configure</strong> ， 这条命令是为了适配高版本的gcc，因为高版本的gcc已经将-fforce-mem去除了</li>
-<li>执行 <strong>./configure ,</strong> 文件夹下会生成Makefile</li>
-<li>执行 <strong>sudo make; sudo install;</strong> </li>
-<li>至此静态库和动态库已经生成，目录在/usr/local/lib</li>
-</ul>
-</li>
-</ol>
-<h1 id="核心API"><a href="#核心API" class="headerlink" title="核心API"></a>核心API</h1><ol>
-<li><p>mad_decoder_init( )</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">mad_decoder_init</span><span class="params">(<span class="keyword">struct</span> mad_decoder *, <span class="type">void</span> *,   </span></span><br><span class="line"><span class="params">           <span class="comment">/* input func  */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* header func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_header <span class="type">const</span> *),                   </span></span><br><span class="line"><span class="params">           <span class="comment">/* filter func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream <span class="type">const</span> *, <span class="keyword">struct</span> mad_frame *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* output func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_header <span class="type">const</span> *, <span class="keyword">struct</span> mad_pcm *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* error func  */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream *, <span class="keyword">struct</span> mad_frame *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* message func*/</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="type">void</span> *, <span class="type">unsigned</span> <span class="type">int</span> *))</span>; </span><br></pre></td></tr></tbody></table></figure>
-
-<p>mad_decoder_init( )是libmad中最终重要的函数之一，其作用是将line3~line8的六个回调函数注册到mad_decoder实例出来的decoder中。</p>
-<ul>
-<li><p><strong>必须自定义的参数：</strong>参数1：用户自己实例的一个解码器结构体；参数2：用户自定义的结构体指针，这个指针将用于整个解码的过程在回调函数之间进行数据的传输；参数3：输入的回调函数，该回调用于用户自定义将数据输入编码器的逻辑；参数6：输出的回调函数，同input callback func。自定义输出的分辨率吧：24bit / 16bit，可以存成文件亦可以直接通过pcm接口播放。Output回调函数在madlib每解码完成一个帧后被调用，直到全部解码完成或出错。参数8（异步工作模式下必选）：输出信息。</p>
-</li>
-<li><p><strong>选择性定义参数：</strong>其他参数属于自定义参数比如进行头解析、过滤筛选的回调函数等等，如果自己没有需求置0即可。</p>
-</li>
-</ul>
-</li>
-<li><p>mad_decoder_run( )</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">mad_decoder_run</span><span class="params">(<span class="keyword">struct</span> mad_decoder *, <span class="keyword">enum</span> mad_decoder_mode)</span>; </span><br></pre></td></tr></tbody></table></figure>
-
-<p>该函数是解码的主流程函数，即解码器的入口函数，如果要追代码可以从此处开始进行剖析。</p>
-<ul>
-<li>参数1：用户自定义实例化并初始化的解码器decoder；</li>
-<li>参数2：选择解码模式（SYNC / ASYNC）深入代码可以发现这个选择使得解码器进入不同的函数进行工作。</li>
-</ul>
-<p>所谓同步方式是指解码函数在解码完一帧后才返回并带回出错信息，异步方式是指解码函数在调用后立即返回，通过消息传递解码状态信息。(故异步方式必须定义message回调函数)</p>
-</li>
-<li><p>mad_decoder_finish( )</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">mad_decoder_finish</span><span class="params">(<span class="keyword">struct</span> mad_decoder *)</span>;</span><br></pre></td></tr></tbody></table></figure>
-
-<p>解码结束，用于清理工作，释放与流相关的任何动态内存。</p>
-</li>
-<li><p>mad_stream_buffer( )</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">mad_stream_buffer</span><span class="params">(<span class="keyword">struct</span> mad_stream *, <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *, <span class="type">unsigned</span> <span class="type">long</span>)</span>; </span><br></pre></td></tr></tbody></table></figure>
-
-<p>该函数是input回调函数中最重要的函数，其作用是按照参数2、参数3即MP3文件在内存映像的起始地址和本次要传递的文件长度与mad_stream进行关联，形成libmad可识别的stream流</p>
-<p>需要注意，这里传递多少数据完全是自定义的。如果一次性送入则整个解码过程调用一次input；如果一次性传递若干，output根据传递的数据进行解码，如果没有数据可解继续调用input。所以自己定义好输入逻辑即可。</p>
-</li>
-</ol>
-<h1 id="重点数据结构"><a href="#重点数据结构" class="headerlink" title="重点数据结构"></a>重点数据结构</h1><ol>
-<li><p>mad_stream</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h &amp;&amp; stream.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_stream</span> {</span>           </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *buffer;          <span class="comment">/* input bitstream buffer */</span>                                       <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *bufend;          <span class="comment">/* end of buffer */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> skiplen;                <span class="comment">/* bytes to skip before next frame */</span></span><br><span class="line">  <span class="type">int</span> sync;                             <span class="comment">/* stream sync found */</span>        </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> freerate;               <span class="comment">/* free bitrate (fixed) */</span>     </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *this_frame;      <span class="comment">/* start of current frame */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *next_frame;      <span class="comment">/* start of next frame */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mad_bitptr</span> <span class="title">ptr</span>;</span>                <span class="comment">/* current processing bit pointer */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mad_bitptr</span> <span class="title">anc_ptr</span>;</span>            <span class="comment">/* ancillary bits pointer */</span>   </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> anc_bitlen;              <span class="comment">/* number of ancillary bits */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="title function_">char</span> <span class="params">(*main_data)</span>[MAD_BUFFER_MDLEN];                  <span class="comment">/* Layer III main_data() */</span>    </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> md_len;                  <span class="comment">/* bytes in main_data */</span>  </span><br><span class="line">  <span class="type">int</span> options;                          <span class="comment">/* decoding options (see below) */</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_error</span> <span class="title">error</span>;</span>                 <span class="comment">/* error code (see above) */</span>   </span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>该结构体记录了文件的地址、当前所处理的位置和解码前的Bitstream数据</p>
-<p>mad_stream.bufend – mad_stream.next_frame就是剩余的未被解码的 MPEG 帧的数据的字节数量（假设此帧在缓冲区中不完整)</p>
-</li>
-<li><p>mad_header</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_header</span> {</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_layer</span> <span class="title">layer</span>;</span>             <span class="comment">/* audio layer (1, 2, or 3) */</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_mode</span> <span class="title">mode</span>;</span>               <span class="comment">/* channel mode (see above) */</span></span><br><span class="line">  <span class="type">int</span> mode_extension;               <span class="comment">/* additional mode info */</span>                                             <span class="class"><span class="keyword">enum</span> <span class="title">mad_emphasis</span> <span class="title">emphasis</span>;</span>       <span class="comment">/* de-emphasis to use (see above) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> bitrate;            <span class="comment">/* stream bitrate (bps) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> samplerate;          <span class="comment">/* sampling frequency (Hz) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> crc_check;         <span class="comment">/* frame CRC accumulator */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> crc_target;        <span class="comment">/* final target CRC checksum */</span></span><br><span class="line">  <span class="type">int</span> flags;                        <span class="comment">/* flags (see below) */</span></span><br><span class="line">  <span class="type">int</span> private_bits;                 <span class="comment">/* private bits (see below) */</span></span><br><span class="line">  <span class="type">mad_timer_t</span> duration;             <span class="comment">/* audio playing time of frame */</span></span><br><span class="line">};    </span><br></pre></td></tr></tbody></table></figure>
-
-<p>通过注释很容易看出，该结构体记录了MPEG 帧的基本信息，比如MPEG 层数、声道模式、流比特率、采样率、比特率以及某些校验位等等。</p>
-<blockquote>
-<p>Tips：（bitrate % 32） 如果是整数说明该文件格式是CBR（constant bitrate，恒定比特率），否则是VBR（variable bitrate，可变比特率），这对文件播放时长是有影响的。</p>
-</blockquote>
-</li>
-<li><p>mad_pcm</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_pcm</span> {</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> samplerate;          <span class="comment">/* sampling frequency (Hz) */</span>                                           <span class="type">unsigned</span> <span class="type">short</span> channels;          <span class="comment">/* number of channels */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> length;            <span class="comment">/* number of samples per channel */</span></span><br><span class="line">  <span class="type">mad_fixed_t</span> samples[<span class="number">2</span>][<span class="number">1152</span>];     <span class="comment">/* PCM output samples [ch][sample] */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>madlib解码器是以帧为单位进行解码的，mad_pcm每次最多解码出（1152 * channels）个PCM数据，每个采样点用int（32bit）表征但是只用了其中的24bit，至此可以直接输出数据保存文件或者直接调用音频播放的API进行播放。但目前大多数codec支持的是16bit量化分辨率，所以在输出时将数据饱和到16bit进行输出。</p>
-</li>
-<li><p>mad_flow</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">mad_flow</span> {</span></span><br><span class="line">  MAD_FLOW_CONTINUE = <span class="number">0x0000</span>,   <span class="comment">/* continue normally */</span>                                                     MAD_FLOW_STOP     = <span class="number">0x0010</span>,   <span class="comment">/* stop decoding normally */</span></span><br><span class="line">  MAD_FLOW_BREAK    = <span class="number">0x0011</span>,   <span class="comment">/* stop decoding and signal an error */</span></span><br><span class="line">  MAD_FLOW_IGNORE   = <span class="number">0x0020</span>    <span class="comment">/* ignore the current frame */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>所有回调函数的返回值均为该枚举类型，在解码的主流程中会通过不断判断解码器所调用的回调函数的状态来确认下一步的动作</p>
-</li>
-</ol>
-<h1 id="相关调试经验"><a href="#相关调试经验" class="headerlink" title="相关调试经验"></a>相关调试经验</h1><ol>
-<li><p>配置参数未选择</p>
-<p>Q：编译正常通过，流程正确，但是输出的声音能听出是所需要的音频但是整体数据并不正确？</p>
-<p>A：在mad.h中有若干的函数是根据平台的不同有不同的实现，由于编译过程中没有注意警告直接将其注释导致没有选择正确函数实现，导致最终的数据都是错误的。编译时添加相应的平台的参数即可，如果手动写cmake，参考给出的Makefile做参数选择！</p>
-</li>
-<li><p>线程栈空间大小分配不足</p>
-<p>Q：在PC上测试正常播放，但是移植到小系统中经常出现stack overflow？</p>
-<p>A：由于MP3一帧数据的采样点数为1152，使用 int 类型进行存储，所以核心函数 “ Ⅲ_decode” 至少需要6k的栈空间，如果是单独一个线程的话再加上其他的局部变量、函数跳转等等可能就超过8k。</p>
-<p>​	  当时使用c++ 的thread进行的线程创建并不能配置栈空间大小，经过两天左右的debug查到是核心函数栈空间的溢出，最终使用pthread加大栈空间的大小运行即可。</p>
-</li>
-<li><p>动态解码的实现</p>
-<p>Q：刚开始百度libmad的库，很多博客说只能调用一次input回调函数即一次加载所有的源数据，这对于实时控制造成不便？</p>
-<p>A： 深入源码可以看出输入的的数据解码完成只要不返回STOP是可以继续填充数据的，这样临时的buffer就小一些并且可以试试控制完成播放器的功能。（需要注意如果一次输入的数据是几帧多一点，而多出来的需要放保存下次再此进行解码）</p>
-</li>
-<li><p>获得音频参数</p>
-<p>Q：能够很快的获得音频信息？</p>
-<p>A： 对于wav头很容易的可以找到音频的参数，但是MP3文件的信息保存在帧头中，所以可以进行一步预解码。即读入若干（512即可）byte数据解一帧的头就可以获得全部信息，包括：采样率、比特率、声道、音频时长等等。</p>
-</li>
-<li><p>获得播放进度 / 时长出现异常</p>
-<p>Q：使用公式：当前文件位置 / 文件大小 × 文件总时长，获得当前播放时间出现异常？</p>
-<p>A： 对于duration 和 fpos是用int的数据类型进行保存的，但是对于wav文件一般比较大在计算的时候超出了数据类型所能存储的最大长度。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Audio</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Audio-初识</title>
     <url>/2022/08/31/Audio-meet/</url>
     <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
@@ -282,6 +95,211 @@
         <category>Linux</category>
         <category>Audio</category>
       </categories>
+  </entry>
+  <entry>
+    <title>CMake</title>
+    <url>/2022/08/25/cmake/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>官网 : <a href="https://cmake.org/cmake/help/v3.15/">https://cmake.org/cmake/help/v3.15/</a></p>
+</blockquote>
+<p>CMake是跨平台的 免费和开源软件，用于使用独立于编译器的方法构建自动化、测试、打包和安装软件。CMake 本身并不是一个构建系统；它生成另一个系统的构建文件。它支持目录层次结构和依赖于多个库的应用程序。它与原生构建环境结合使用，例如Make、Qt Creator、Ninja、Android Studio、Apple 的Xcode和Microsoft Visual Studio。（摘自Wiki）</p>
+<h1 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h1><h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ol>
+<li><p>cmake要求最低版本(选择性添加)</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">cmake_minimum_required(VERSION <span class="number">3.0</span><span class="number">.0</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>编译工程名</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">project(xxx)</span><br><span class="line"><span class="comment">//会自动创建两个变量，PROJECT_SOURCE_DIR和PROJECT_NAME</span></span><br><span class="line"><span class="comment">//${PROJECT_SOURCE_DIR}：本CMakeLists.txt所在的文件夹路径</span></span><br><span class="line"><span class="comment">//${PROJECT_NAME}：本CMakeLists.txt的project名称</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>给部分文件或路径组合起别名, 通过${变量}获取变量内容</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">set</span>(变量 文件名/路径/...)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>设置c / c++ 编译编译参数</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">set</span> (CMAKE_C_FLAGS <span class="string">"-Wall -O2"</span>)</span><br><span class="line"><span class="built_in">set</span> (CMAKE_CXX_FLAGS <span class="string">"-Wall -std=C++11"</span>)</span><br><span class="line">add_compile_options( -Wall )				<span class="comment">//该命令译选项是针对所有编译器的(包括c和c++编译器)</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>为当前路径以及子目录的源文件加入由-D引入的define flag</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_definitions(-DFOO -DDEBUG ...)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>对子文件夹进行cmake编译</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_subdirectory(子文件夹名) </span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>打印信息</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">message() 			<span class="comment">//直接添加打印的内容和变量即可,不需要双引号</span></span><br><span class="line">message(<span class="string">"PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}"</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>帮助信息 </p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="number">1.</span> 查看cmake默认变量		cmake --help-variable-<span class="built_in">list</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h2 id="判断语句"><a href="#判断语句" class="headerlink" title="判断语句"></a>判断语句</h2><p>用法：根据某个宏确定编译内容。比较字符串，相同返回true</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (CPU_PLATFORM_BIT STREQUAL <span class="string">"64"</span>)</span><br><span class="line">    add_library(mylib generic_64bit.c)</span><br><span class="line"><span class="keyword">else</span>()</span><br><span class="line">    add_library(mylib generic_32bit.c)</span><br><span class="line">endif()  </span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="编译目标"><a href="#编译目标" class="headerlink" title="编译目标"></a>编译目标</h2><h3 id="二进制文件"><a href="#二进制文件" class="headerlink" title="二进制文件"></a>二进制文件</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_executable(目标文件名字xxx 源文件)</span><br><span class="line"><span class="comment">//example: add_executable(${PROJECT_NAME} example_person.cpp)</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="动态-x2F-静态库"><a href="#动态-x2F-静态库" class="headerlink" title="动态 / 静态库"></a>动态 / 静态库</h3><p>将指定的源文件生成链接文件，然后添加到工程中去</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_library(&lt;name&gt; [STATIC | SHARED | MODULE]</span><br><span class="line">[EXCLUDE_FROM_ALL]</span><br><span class="line">[source1] [source2] [...])</span><br><span class="line"></span><br><span class="line"><span class="comment">//&lt;name&gt;表示库文件的名字，该库文件会根据命令里列出的源文件来创建。生成的库自动补全,如libxxx.so </span></span><br><span class="line"><span class="comment">//STATIC、SHARED和MODULE的作用是指定生成的库文件的类型。STATIC库是目标文件的归档文件，在链接其它目标的时候使用。SHARED库会被	动态链接（动态链接库），在运行时会被加载。MODULE库是一种不会被链接到其它目标中的插件，但是可能会在运行时使用dlopen-系列的函数	。默认状态下，库文件将会在于源文件目录树的构建目录树的位置被创建，该命令也会在这里被调用。</span></span><br><span class="line"><span class="comment">//source1 source2分别表示各个源文件</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="链接-x2F-路径"><a href="#链接-x2F-路径" class="headerlink" title="链接/路径"></a>链接/路径</h2><h3 id="头文件路径"><a href="#头文件路径" class="headerlink" title="头文件路径"></a>头文件路径</h3><p>添加头文件的查找路径, 相当于命令行的  <em><strong>-l</strong></em> 参数</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">include_directories(../thirdparty/comm/include)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="链接库路径"><a href="#链接库路径" class="headerlink" title="链接库路径"></a>链接库路径</h3><p>添加需要链接的库文件目录, 相当于命令行 <em><strong>-L</strong></em> 参数</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">link_directories(<span class="string">"/home/server/third/lib"</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="链接库"><a href="#链接库" class="headerlink" title="链接库"></a>链接库</h3><p> 将目标文件与库文件进行链接</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">target_link_libraries(&lt;target&gt; [item1] [item2] [...] [[debug|optimized|general] &lt;item&gt;] ...)</span><br><span class="line"> </span><br><span class="line"><span class="comment">//&lt;target&gt;是指通过add_executable()和add_library()指令生成已经创建的目标文件</span></span><br><span class="line"><span class="comment">//[item]表示库文件没有后缀的名字。默认情况下，库依赖项是传递的。当这个目标链接到另一个目标时，链接到这个目标的库也会出现在另一个目标的连接线上。这个传递的接口存储在interface_link_libraries的目标属性中，可以通过设置该属性直接重写传递接口。</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="安装（Install）"><a href="#安装（Install）" class="headerlink" title="安装（Install）"></a>安装（Install）</h2><ul>
+<li>详情参考：<a href="https://cmake.org/cmake/help/v3.22/command/install.html">https://cmake.org/cmake/help/v3.22/command/install.html</a></li>
+<li>作用：用于定义安装规则，安装内容包括可执行文件，静态库，动态库以及文件，目录，脚本等</li>
+<li>使用方法：make install</li>
+<li>目标安装路径：${CMAKE_INSTALL_PREFIX}指定，默认/usr/local</li>
+</ul>
+<h3 id="目标文件安装"><a href="#目标文件安装" class="headerlink" title="目标文件安装"></a>目标文件安装</h3><p>目标文件指的是我们通过 add_executable / add_library 得到的二进制文件或者库，只有这些文件才可以通过该命令装载到相应的位置</p>
+<ul>
+<li>可执行文件：RUNTIME</li>
+<li>动态库：LIBRARY</li>
+<li>静态库：ARCHIVE</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(TARGETS targets... [EXPORT &lt;export-name&gt;]</span><br><span class="line">        [RUNTIME_DEPENDENCIES args...|RUNTIME_DEPENDENCY_SET &lt;<span class="built_in">set</span>-name&gt;]</span><br><span class="line">        [[ARCHIVE|LIBRARY|RUNTIME|OBJECTS|FRAMEWORK|BUNDLE|</span><br><span class="line">          PRIVATE_HEADER|PUBLIC_HEADER|RESOURCE]</span><br><span class="line">         [DESTINATION &lt;dir&gt;]</span><br><span class="line">         [PERMISSIONS permissions...]</span><br><span class="line">         [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">         [COMPONENT &lt;component&gt;]</span><br><span class="line">         [NAMELINK_COMPONENT &lt;component&gt;]</span><br><span class="line">         [OPTIONAL] [EXCLUDE_FROM_ALL]</span><br><span class="line">         [NAMELINK_ONLY|NAMELINK_SKIP]</span><br><span class="line">        ] [...]</span><br><span class="line">        [INCLUDES DESTINATION [&lt;dir&gt; ...]]</span><br><span class="line">        )</span><br><span class="line">        </span><br><span class="line"><span class="comment">// example:</span></span><br><span class="line">install(TARGETS mybin mystaiclib mydynamiclib</span><br><span class="line">        RUNTIME DESTINATION bin</span><br><span class="line">        ARCHIVE DESTINATION lib</span><br><span class="line">        LIBRARY DESTINATION lib)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="普通文件安装"><a href="#普通文件安装" class="headerlink" title="普通文件安装"></a>普通文件安装</h3><p>普通文件即需要导出的头文件、依赖的三方库等等，该命令同时可以指定导出文件的权限（默认644）</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(&lt;FILES|PROGRAMS&gt; files...</span><br><span class="line">        TYPE &lt;type&gt; | DESTINATION &lt;dir&gt;</span><br><span class="line">        [PERMISSIONS permissions...]</span><br><span class="line">        [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">        [COMPONENT &lt;component&gt;]</span><br><span class="line">        [RENAME &lt;name&gt;] [OPTIONAL] [EXCLUDE_FROM_ALL])</span><br><span class="line">        </span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">install(FILES mylib.h DESTINATION include)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="目录安装"><a href="#目录安装" class="headerlink" title="目录安装"></a>目录安装</h3><p>参数介绍：</p>
+<ul>
+<li>DIRECTORY：后面连接的是所在Source目录的相对路径（结尾是否是”/“对拷贝结果有一定影响）</li>
+<li>PATTERN：使用正则表达式进行过滤</li>
+<li>PERMISSIONS：指定PATTERN过滤后的文件权限。</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(DIRECTORY dirs...</span><br><span class="line">        TYPE &lt;type&gt; | DESTINATION &lt;dir&gt;</span><br><span class="line">        [FILE_PERMISSIONS permissions...]</span><br><span class="line">        [DIRECTORY_PERMISSIONS permissions...]</span><br><span class="line">        [USE_SOURCE_PERMISSIONS] [OPTIONAL] [MESSAGE_NEVER]</span><br><span class="line">        [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">        [COMPONENT &lt;component&gt;] [EXCLUDE_FROM_ALL]</span><br><span class="line">        [FILES_MATCHING]</span><br><span class="line">        [[PATTERN &lt;pattern&gt; | REGEX &lt;regex&gt;]</span><br><span class="line">         [EXCLUDE] [PERMISSIONS permissions...]] [...])</span><br><span class="line"></span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">install(DIRECTORY src/ DESTINATION include/myproj  FILES_MATCHING PATTERN <span class="string">"*.h"</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><ol>
+<li><p>Q: 编译参数添加了-lpthread 参数, 但是还是报undefined reference to `pthread_create’ </p>
+<p>A : 需要使用target_link_libraries( target thread) 在这里链接thread库</p>
+</li>
+<li><p>Q: 如果在多级的目录下编译, 始终找不到问题报 undefine的问题 ?</p>
+<p>A : 看一下是不是链接的库或目标文件格式不同, 一个c 一个c++ , 这样就会导致找不到符号错误</p>
+</li>
+<li><p>Q: undefined reference to `typeinfo for xxxBase_class’ ?</p>
+<p>A: 基类的构造和析构函数需要加{ };  否则就会报这个问题</p>
+</li>
+</ol>
+<h1 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h1><h2 id="通配符"><a href="#通配符" class="headerlink" title="通配符"></a>通配符</h2><table>
+<thead>
+<tr>
+<th>通配符</th>
+<th>使用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*</td>
+<td>匹配0个或者是任意个字符</td>
+</tr>
+<tr>
+<td>?</td>
+<td>匹配任意一个字符</td>
+</tr>
+<tr>
+<td>[]</td>
+<td>我们可以指定匹配的字符放在 “[]” 中</td>
+</tr>
+<tr>
+<td>%</td>
+<td>匹配任意个字符</td>
+</tr>
+</tbody></table>
+<h2 id="自动化变量"><a href="#自动化变量" class="headerlink" title="自动化变量"></a>自动化变量</h2><table>
+<thead>
+<tr>
+<th>自动化变量</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$@</td>
+<td align="center">表示规则的目标文件名。如果目标是一个文档文件（Linux 中，一般成 .a 文件为文档文件，也成为静态的库文件）， 那么它代表这个文档的文件名。在多目标模式规则中，它代表的是触发规则被执行的文件名。</td>
+</tr>
+<tr>
+<td>$%</td>
+<td align="center">当目标文件是一个静态库文件时，代表静态库的一个成员名。</td>
+</tr>
+<tr>
+<td>$&lt;</td>
+<td align="center">规则的第一个依赖的文件名。如果是一个目标文件使用隐含的规则来重建，则它代表由隐含规则加入的第一个依赖文件。</td>
+</tr>
+<tr>
+<td>$?</td>
+<td align="center">所有比目标文件更新的依赖文件列表，空格分隔。如果目标文件时静态库文件，代表的是库文件（.o 文件）。</td>
+</tr>
+<tr>
+<td>$^</td>
+<td align="center">代表的是所有依赖文件列表，使用空格分隔。如果目标是静态库文件，它所代表的只能是所有的库成员（.o 文件）名。 一个文件可重复的出现在目标的依赖中，变量“$”只记录它的第一次引用的情况。就是说变量“$”会去掉重复的依赖文件。</td>
+</tr>
+<tr>
+<td>$+</td>
+<td align="center">类似“$^”，但是它保留了依赖文件中重复出现的文件。主要用在程序链接时库的交叉引用场合。</td>
+</tr>
+<tr>
+<td>$*</td>
+<td align="center">在模式规则和静态模式规则中，代表“茎”。“茎”是目标模式中“%”所代表的部分（当文件名中存在目录时， “茎”也包含目录部分）。</td>
+</tr>
+</tbody></table>
+<h2 id="特殊函数"><a href="#特殊函数" class="headerlink" title="特殊函数"></a>特殊函数</h2><h3 id="添加前缀"><a href="#添加前缀" class="headerlink" title="添加前缀"></a>添加前缀</h3><ul>
+<li>函数名：addprefix( )</li>
+<li>语法：$(addprefix PREFIX/,${NAME…})</li>
+<li>函数功能：为“NAMES…”中的每一个文件名添加前缀“PREFIX”。参数“NAMES…”是空格分割的文件名序列，将“PREFIX”添加到此序列的每一个文件名之前。</li>
+<li>返回值：以单空格分割的添加了前缀“PREFIX”的文件名序列。</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">$(addprefix src/,foo bar)</span><br><span class="line"><span class="comment">//返回值为“src/foo src/bar”</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h3 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h3><ul>
+<li>函数名：filter( )</li>
+<li>语法：$(filter SUFFIX…,$(SOURCES))</li>
+<li>作用：保留字串 “ $(SOURCES)” 中所有符合模式 “ SUFFIX ” 的单词</li>
+</ul>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">sources := main.c AT.txt</span><br><span class="line">foo : $(sources)</span><br><span class="line">    cc $(filter %.c,%.s,$(sources)) -o foo</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="打印"><a href="#打印" class="headerlink" title="打印"></a>打印</h2><p>用于Makefile的Debug，打印分为三个等级：info、warning、error</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">$(info SRC = $(SRC))</span><br><span class="line">$(warning INC = $(INC))</span><br><span class="line"><span class="comment">//注意：执行到error会直接stop退出</span></span><br><span class="line">$(error INC = $(INC))</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Tools</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Hello New World</title>
+    <url>/2022/08/22/hello-world/</url>
+    <content><![CDATA[<blockquote>
+<p>Be all you can be!</p>
+</blockquote>
+<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
+<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
+<ol>
+<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
+<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
+<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
+</ol>
+<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
+<p align="right">2022-8-22/23.38</p>
+
+<p align="right">Lee</p>
+
+]]></content>
+      <categories>
+        <category>Personal</category>
+      </categories>
+      <tags>
+        <tag>开篇</tag>
+      </tags>
   </entry>
   <entry>
     <title>Audio-再遇</title>
@@ -564,76 +582,190 @@
       </categories>
   </entry>
   <entry>
-    <title>硬件随机数测试方法</title>
-    <url>/2022/11/26/DTRNG_Test/</url>
-    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
-<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
-<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
-<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
-</ol>
+    <title>Libmad详解</title>
+    <url>/2022/11/05/Audio-libmad/</url>
+    <content><![CDATA[<p>简单来讲，libmad就是一个MP3文件的解码库。如果想要深入理解其中的实现需要对MP3文件格式有详细的了解，关于MP3文件格式的内容在这里我不赘述，之前的文章当中有过详细的讲解 <a href="https://yanglieee.com/2022/09/05/Audio-meet-1/">click here</a></p>
+<h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><blockquote>
+<p>Libmad 详解：<a href="https://www.underbit.com/products/mad/">https://www.underbit.com/products/mad/</a></p>
+</blockquote>
+<p> libmad 是一个高质量的 MPEG 音频解码器。目前支持  MPEG-1 和 MPEG-2 对较低采样频率的扩展，以及所谓的 MPEG 2.5 格式，三个音频层都在代码上做了实现。优势：</p>
 <ul>
-<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
+<li>24 位 PCM 输出</li>
+<li>100% 定点（整数）计算</li>
+<li>基于 ISO/IEC 标准的全新实施</li>
+<li>根据 GNU 通用公共许可证 (GPL) 的条款分发</li>
+</ul>
+<h1 id="How"><a href="#How" class="headerlink" title="How"></a>How</h1><h2 id="代码下载"><a href="#代码下载" class="headerlink" title="代码下载"></a>代码下载</h2><p><a href="https://sourceforge.net/projects/mad/files/">https://sourceforge.net/projects/mad/files/</a></p>
+<p><a href="https://www.linuxfromscratch.org/blfs/view/svn/multimedia/libmad.html">https://www.linuxfromscratch.org/blfs/view/svn/multimedia/libmad.html</a></p>
+<h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2><p>&lt; 基于 libmad-0.15.1b 版本&gt;</p>
+<table>
+<thead>
+<tr>
+<th>源文件</th>
+<th>bit.c</th>
+<th>decoder.c</th>
+<th>fixed.c</th>
+<th>frame.c</th>
+<th>huffman.c</th>
+<th>layer12.c</th>
+<th>layer3.c</th>
+<th>stream.c</th>
+<th>synth.c</th>
+<th>timer.c</th>
+<th>version.c</th>
+<th>minimad.c(demo)</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>头文件</td>
+<td>bit.h</td>
+<td>decoder.h</td>
+<td>fixed.h</td>
+<td>frame.h</td>
+<td>huffman.h</td>
+<td>layer12.h</td>
+<td>layer3.h</td>
+<td>stream.h</td>
+<td>synth.h</td>
+<td>timer.h</td>
+<td>version.h</td>
+<td>global.h</td>
+<td>mad.h（API）</td>
+</tr>
+<tr>
+<td>dat文件</td>
+<td>sf_table.dat</td>
+<td>imdct_s.dat</td>
+<td>qc_table.dat</td>
+<td>D.dat</td>
+<td>rq_table.dat</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>其他文件</td>
+<td>Makefile</td>
+<td>config</td>
+<td>……</td>
+<td></td>
+<td>大部分内容不参与编译</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>具体使用方法可以参考minimad.c文件，这里面对api的使用有进一步的说明</p>
+<p>同时也可以参考我基于Linux libmad写出来的一个音频播放器，源码链接 <a href="https://github.com/yangLieee/audioplayer">click here</a></p>
+<h1 id="编译方法"><a href="#编译方法" class="headerlink" title="编译方法"></a>编译方法</h1><p>&lt; 仅介绍linux环境下编译方法 &gt; </p>
+<ol>
+<li>手写Makefile / CMakeLists.txt</li>
+<li>系统提供的config<ul>
+<li>执行 <strong>sed -i ‘/-fforce-mem/d’ configure</strong> ， 这条命令是为了适配高版本的gcc，因为高版本的gcc已经将-fforce-mem去除了</li>
+<li>执行 <strong>./configure ,</strong> 文件夹下会生成Makefile</li>
+<li>执行 <strong>sudo make; sudo install;</strong> </li>
+<li>至此静态库和动态库已经生成，目录在/usr/local/lib</li>
+</ul>
 </li>
-<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
+</ol>
+<h1 id="核心API"><a href="#核心API" class="headerlink" title="核心API"></a>核心API</h1><ol>
+<li><p>mad_decoder_init( )</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">mad_decoder_init</span><span class="params">(<span class="keyword">struct</span> mad_decoder *, <span class="type">void</span> *,   </span></span><br><span class="line"><span class="params">           <span class="comment">/* input func  */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* header func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_header <span class="type">const</span> *),                   </span></span><br><span class="line"><span class="params">           <span class="comment">/* filter func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream <span class="type">const</span> *, <span class="keyword">struct</span> mad_frame *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* output func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_header <span class="type">const</span> *, <span class="keyword">struct</span> mad_pcm *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* error func  */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream *, <span class="keyword">struct</span> mad_frame *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* message func*/</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="type">void</span> *, <span class="type">unsigned</span> <span class="type">int</span> *))</span>; </span><br></pre></td></tr></tbody></table></figure>
+
+<p>mad_decoder_init( )是libmad中最终重要的函数之一，其作用是将line3~line8的六个回调函数注册到mad_decoder实例出来的decoder中。</p>
+<ul>
+<li><p><strong>必须自定义的参数：</strong>参数1：用户自己实例的一个解码器结构体；参数2：用户自定义的结构体指针，这个指针将用于整个解码的过程在回调函数之间进行数据的传输；参数3：输入的回调函数，该回调用于用户自定义将数据输入编码器的逻辑；参数6：输出的回调函数，同input callback func。自定义输出的分辨率吧：24bit / 16bit，可以存成文件亦可以直接通过pcm接口播放。Output回调函数在madlib每解码完成一个帧后被调用，直到全部解码完成或出错。参数8（异步工作模式下必选）：输出信息。</p>
 </li>
-<li><p>windows安装</p>
-<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
-<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
-</li>
-<li><p>Linux安装</p>
-<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+<li><p><strong>选择性定义参数：</strong>其他参数属于自定义参数比如进行头解析、过滤筛选的回调函数等等，如果自己没有需求置0即可。</p>
 </li>
 </ul>
-<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
-<ol>
-<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
-<li>Frequency Test within a Block，块内频率检测</li>
-<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
-<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
-<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
-<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
-<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
-<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
-<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
-<li>The Linear Complexity Test，线性复杂度检测</li>
-<li>The Serial Test，序列检测</li>
-<li>The Approximate Entropy Test，近似熵检测</li>
-<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
-<li>The Random Excursions Test，随机游动检测</li>
-<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
+</li>
+<li><p>mad_decoder_run( )</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">mad_decoder_run</span><span class="params">(<span class="keyword">struct</span> mad_decoder *, <span class="keyword">enum</span> mad_decoder_mode)</span>; </span><br></pre></td></tr></tbody></table></figure>
+
+<p>该函数是解码的主流程函数，即解码器的入口函数，如果要追代码可以从此处开始进行剖析。</p>
+<ul>
+<li>参数1：用户自定义实例化并初始化的解码器decoder；</li>
+<li>参数2：选择解码模式（SYNC / ASYNC）深入代码可以发现这个选择使得解码器进入不同的函数进行工作。</li>
+</ul>
+<p>所谓同步方式是指解码函数在解码完一帧后才返回并带回出错信息，异步方式是指解码函数在调用后立即返回，通过消息传递解码状态信息。(故异步方式必须定义message回调函数)</p>
+</li>
+<li><p>mad_decoder_finish( )</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">mad_decoder_finish</span><span class="params">(<span class="keyword">struct</span> mad_decoder *)</span>;</span><br></pre></td></tr></tbody></table></figure>
+
+<p>解码结束，用于清理工作，释放与流相关的任何动态内存。</p>
+</li>
+<li><p>mad_stream_buffer( )</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">mad_stream_buffer</span><span class="params">(<span class="keyword">struct</span> mad_stream *, <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *, <span class="type">unsigned</span> <span class="type">long</span>)</span>; </span><br></pre></td></tr></tbody></table></figure>
+
+<p>该函数是input回调函数中最重要的函数，其作用是按照参数2、参数3即MP3文件在内存映像的起始地址和本次要传递的文件长度与mad_stream进行关联，形成libmad可识别的stream流</p>
+<p>需要注意，这里传递多少数据完全是自定义的。如果一次性送入则整个解码过程调用一次input；如果一次性传递若干，output根据传递的数据进行解码，如果没有数据可解继续调用input。所以自己定义好输入逻辑即可。</p>
+</li>
 </ol>
-<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
-<ol>
-<li>启动程序。**./assess ，**stream length译为流的长度。</li>
-<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
-<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
-<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
-<li>输入比特流的个数。表示有多少个stream</li>
-<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
+<h1 id="重点数据结构"><a href="#重点数据结构" class="headerlink" title="重点数据结构"></a>重点数据结构</h1><ol>
+<li><p>mad_stream</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h &amp;&amp; stream.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_stream</span> {</span>           </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *buffer;          <span class="comment">/* input bitstream buffer */</span>                                       <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *bufend;          <span class="comment">/* end of buffer */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> skiplen;                <span class="comment">/* bytes to skip before next frame */</span></span><br><span class="line">  <span class="type">int</span> sync;                             <span class="comment">/* stream sync found */</span>        </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> freerate;               <span class="comment">/* free bitrate (fixed) */</span>     </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *this_frame;      <span class="comment">/* start of current frame */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *next_frame;      <span class="comment">/* start of next frame */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mad_bitptr</span> <span class="title">ptr</span>;</span>                <span class="comment">/* current processing bit pointer */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mad_bitptr</span> <span class="title">anc_ptr</span>;</span>            <span class="comment">/* ancillary bits pointer */</span>   </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> anc_bitlen;              <span class="comment">/* number of ancillary bits */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="title function_">char</span> <span class="params">(*main_data)</span>[MAD_BUFFER_MDLEN];                  <span class="comment">/* Layer III main_data() */</span>    </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> md_len;                  <span class="comment">/* bytes in main_data */</span>  </span><br><span class="line">  <span class="type">int</span> options;                          <span class="comment">/* decoding options (see below) */</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_error</span> <span class="title">error</span>;</span>                 <span class="comment">/* error code (see above) */</span>   </span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>该结构体记录了文件的地址、当前所处理的位置和解码前的Bitstream数据</p>
+<p>mad_stream.bufend – mad_stream.next_frame就是剩余的未被解码的 MPEG 帧的数据的字节数量（假设此帧在缓冲区中不完整)</p>
+</li>
+<li><p>mad_header</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_header</span> {</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_layer</span> <span class="title">layer</span>;</span>             <span class="comment">/* audio layer (1, 2, or 3) */</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_mode</span> <span class="title">mode</span>;</span>               <span class="comment">/* channel mode (see above) */</span></span><br><span class="line">  <span class="type">int</span> mode_extension;               <span class="comment">/* additional mode info */</span>                                             <span class="class"><span class="keyword">enum</span> <span class="title">mad_emphasis</span> <span class="title">emphasis</span>;</span>       <span class="comment">/* de-emphasis to use (see above) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> bitrate;            <span class="comment">/* stream bitrate (bps) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> samplerate;          <span class="comment">/* sampling frequency (Hz) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> crc_check;         <span class="comment">/* frame CRC accumulator */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> crc_target;        <span class="comment">/* final target CRC checksum */</span></span><br><span class="line">  <span class="type">int</span> flags;                        <span class="comment">/* flags (see below) */</span></span><br><span class="line">  <span class="type">int</span> private_bits;                 <span class="comment">/* private bits (see below) */</span></span><br><span class="line">  <span class="type">mad_timer_t</span> duration;             <span class="comment">/* audio playing time of frame */</span></span><br><span class="line">};    </span><br></pre></td></tr></tbody></table></figure>
+
+<p>通过注释很容易看出，该结构体记录了MPEG 帧的基本信息，比如MPEG 层数、声道模式、流比特率、采样率、比特率以及某些校验位等等。</p>
+<blockquote>
+<p>Tips：（bitrate % 32） 如果是整数说明该文件格式是CBR（constant bitrate，恒定比特率），否则是VBR（variable bitrate，可变比特率），这对文件播放时长是有影响的。</p>
+</blockquote>
+</li>
+<li><p>mad_pcm</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_pcm</span> {</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> samplerate;          <span class="comment">/* sampling frequency (Hz) */</span>                                           <span class="type">unsigned</span> <span class="type">short</span> channels;          <span class="comment">/* number of channels */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> length;            <span class="comment">/* number of samples per channel */</span></span><br><span class="line">  <span class="type">mad_fixed_t</span> samples[<span class="number">2</span>][<span class="number">1152</span>];     <span class="comment">/* PCM output samples [ch][sample] */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>madlib解码器是以帧为单位进行解码的，mad_pcm每次最多解码出（1152 * channels）个PCM数据，每个采样点用int（32bit）表征但是只用了其中的24bit，至此可以直接输出数据保存文件或者直接调用音频播放的API进行播放。但目前大多数codec支持的是16bit量化分辨率，所以在输出时将数据饱和到16bit进行输出。</p>
+</li>
+<li><p>mad_flow</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">mad_flow</span> {</span></span><br><span class="line">  MAD_FLOW_CONTINUE = <span class="number">0x0000</span>,   <span class="comment">/* continue normally */</span>                                                     MAD_FLOW_STOP     = <span class="number">0x0010</span>,   <span class="comment">/* stop decoding normally */</span></span><br><span class="line">  MAD_FLOW_BREAK    = <span class="number">0x0011</span>,   <span class="comment">/* stop decoding and signal an error */</span></span><br><span class="line">  MAD_FLOW_IGNORE   = <span class="number">0x0020</span>    <span class="comment">/* ignore the current frame */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>所有回调函数的返回值均为该枚举类型，在解码的主流程中会通过不断判断解码器所调用的回调函数的状态来确认下一步的动作</p>
+</li>
 </ol>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
-<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
-<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
-<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
+<h1 id="相关调试经验"><a href="#相关调试经验" class="headerlink" title="相关调试经验"></a>相关调试经验</h1><ol>
+<li><p>配置参数未选择</p>
+<p>Q：编译正常通过，流程正确，但是输出的声音能听出是所需要的音频但是整体数据并不正确？</p>
+<p>A：在mad.h中有若干的函数是根据平台的不同有不同的实现，由于编译过程中没有注意警告直接将其注释导致没有选择正确函数实现，导致最终的数据都是错误的。编译时添加相应的平台的参数即可，如果手动写cmake，参考给出的Makefile做参数选择！</p>
+</li>
+<li><p>线程栈空间大小分配不足</p>
+<p>Q：在PC上测试正常播放，但是移植到小系统中经常出现stack overflow？</p>
+<p>A：由于MP3一帧数据的采样点数为1152，使用 int 类型进行存储，所以核心函数 “ Ⅲ_decode” 至少需要6k的栈空间，如果是单独一个线程的话再加上其他的局部变量、函数跳转等等可能就超过8k。</p>
+<p>​	  当时使用c++ 的thread进行的线程创建并不能配置栈空间大小，经过两天左右的debug查到是核心函数栈空间的溢出，最终使用pthread加大栈空间的大小运行即可。</p>
+</li>
+<li><p>动态解码的实现</p>
+<p>Q：刚开始百度libmad的库，很多博客说只能调用一次input回调函数即一次加载所有的源数据，这对于实时控制造成不便？</p>
+<p>A： 深入源码可以看出输入的的数据解码完成只要不返回STOP是可以继续填充数据的，这样临时的buffer就小一些并且可以试试控制完成播放器的功能。（需要注意如果一次输入的数据是几帧多一点，而多出来的需要放保存下次再此进行解码）</p>
+</li>
+<li><p>获得音频参数</p>
+<p>Q：能够很快的获得音频信息？</p>
+<p>A： 对于wav头很容易的可以找到音频的参数，但是MP3文件的信息保存在帧头中，所以可以进行一步预解码。即读入若干（512即可）byte数据解一帧的头就可以获得全部信息，包括：采样率、比特率、声道、音频时长等等。</p>
+</li>
+<li><p>获得播放进度 / 时长出现异常</p>
+<p>Q：使用公式：当前文件位置 / 文件大小 × 文件总时长，获得当前播放时间出现异常？</p>
+<p>A： 对于duration 和 fpos是用int的数据类型进行保存的，但是对于wav文件一般比较大在计算的时候超出了数据类型所能存储的最大长度。</p>
+</li>
 </ol>
-<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
-<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
-<li>Q：Segment fault</li>
-</ol>
-<p> A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
-<ol>
-<li>Q：igamc: UNDERFLOW？</li>
-</ol>
-<p> A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
-<ol>
-<li>Q：P-value全部是0？</li>
-</ol>
-<p> A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
 ]]></content>
       <categories>
-        <category>Third Party</category>
+        <category>Linux</category>
+        <category>Audio</category>
       </categories>
   </entry>
   <entry>
@@ -727,182 +859,75 @@
       </categories>
   </entry>
   <entry>
-    <title>CMake</title>
-    <url>/2022/08/25/cmake/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>官网 : <a href="https://cmake.org/cmake/help/v3.15/">https://cmake.org/cmake/help/v3.15/</a></p>
-</blockquote>
-<p>CMake是跨平台的 免费和开源软件，用于使用独立于编译器的方法构建自动化、测试、打包和安装软件。CMake 本身并不是一个构建系统；它生成另一个系统的构建文件。它支持目录层次结构和依赖于多个库的应用程序。它与原生构建环境结合使用，例如Make、Qt Creator、Ninja、Android Studio、Apple 的Xcode和Microsoft Visual Studio。（摘自Wiki）</p>
-<h1 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h1><h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ol>
-<li><p>cmake要求最低版本(选择性添加)</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">cmake_minimum_required(VERSION <span class="number">3.0</span><span class="number">.0</span>)</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>编译工程名</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">project(xxx)</span><br><span class="line"><span class="comment">//会自动创建两个变量，PROJECT_SOURCE_DIR和PROJECT_NAME</span></span><br><span class="line"><span class="comment">//${PROJECT_SOURCE_DIR}：本CMakeLists.txt所在的文件夹路径</span></span><br><span class="line"><span class="comment">//${PROJECT_NAME}：本CMakeLists.txt的project名称</span></span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>给部分文件或路径组合起别名, 通过${变量}获取变量内容</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">set</span>(变量 文件名/路径/...)</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>设置c / c++ 编译编译参数</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">set</span> (CMAKE_C_FLAGS <span class="string">"-Wall -O2"</span>)</span><br><span class="line"><span class="built_in">set</span> (CMAKE_CXX_FLAGS <span class="string">"-Wall -std=C++11"</span>)</span><br><span class="line">add_compile_options( -Wall )				<span class="comment">//该命令译选项是针对所有编译器的(包括c和c++编译器)</span></span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>为当前路径以及子目录的源文件加入由-D引入的define flag</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_definitions(-DFOO -DDEBUG ...)</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>对子文件夹进行cmake编译</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_subdirectory(子文件夹名) </span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>打印信息</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">message() 			<span class="comment">//直接添加打印的内容和变量即可,不需要双引号</span></span><br><span class="line">message(<span class="string">"PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}"</span>)</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>帮助信息 </p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="number">1.</span> 查看cmake默认变量		cmake --help-variable-<span class="built_in">list</span></span><br></pre></td></tr></tbody></table></figure></li>
+    <title>硬件随机数测试方法</title>
+    <url>/2022/11/26/DTRNG_Test/</url>
+    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
+<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
+<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
+<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
 </ol>
-<h2 id="判断语句"><a href="#判断语句" class="headerlink" title="判断语句"></a>判断语句</h2><p>用法：根据某个宏确定编译内容。比较字符串，相同返回true</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (CPU_PLATFORM_BIT STREQUAL <span class="string">"64"</span>)</span><br><span class="line">    add_library(mylib generic_64bit.c)</span><br><span class="line"><span class="keyword">else</span>()</span><br><span class="line">    add_library(mylib generic_32bit.c)</span><br><span class="line">endif()  </span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="编译目标"><a href="#编译目标" class="headerlink" title="编译目标"></a>编译目标</h2><h3 id="二进制文件"><a href="#二进制文件" class="headerlink" title="二进制文件"></a>二进制文件</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_executable(目标文件名字xxx 源文件)</span><br><span class="line"><span class="comment">//example: add_executable(${PROJECT_NAME} example_person.cpp)</span></span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="动态-x2F-静态库"><a href="#动态-x2F-静态库" class="headerlink" title="动态 / 静态库"></a>动态 / 静态库</h3><p>将指定的源文件生成链接文件，然后添加到工程中去</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_library(&lt;name&gt; [STATIC | SHARED | MODULE]</span><br><span class="line">[EXCLUDE_FROM_ALL]</span><br><span class="line">[source1] [source2] [...])</span><br><span class="line"></span><br><span class="line"><span class="comment">//&lt;name&gt;表示库文件的名字，该库文件会根据命令里列出的源文件来创建。生成的库自动补全,如libxxx.so </span></span><br><span class="line"><span class="comment">//STATIC、SHARED和MODULE的作用是指定生成的库文件的类型。STATIC库是目标文件的归档文件，在链接其它目标的时候使用。SHARED库会被	动态链接（动态链接库），在运行时会被加载。MODULE库是一种不会被链接到其它目标中的插件，但是可能会在运行时使用dlopen-系列的函数	。默认状态下，库文件将会在于源文件目录树的构建目录树的位置被创建，该命令也会在这里被调用。</span></span><br><span class="line"><span class="comment">//source1 source2分别表示各个源文件</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h2 id="链接-x2F-路径"><a href="#链接-x2F-路径" class="headerlink" title="链接/路径"></a>链接/路径</h2><h3 id="头文件路径"><a href="#头文件路径" class="headerlink" title="头文件路径"></a>头文件路径</h3><p>添加头文件的查找路径, 相当于命令行的  <em><strong>-l</strong></em> 参数</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">include_directories(../thirdparty/comm/include)</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="链接库路径"><a href="#链接库路径" class="headerlink" title="链接库路径"></a>链接库路径</h3><p>添加需要链接的库文件目录, 相当于命令行 <em><strong>-L</strong></em> 参数</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">link_directories(<span class="string">"/home/server/third/lib"</span>)</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="链接库"><a href="#链接库" class="headerlink" title="链接库"></a>链接库</h3><p> 将目标文件与库文件进行链接</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">target_link_libraries(&lt;target&gt; [item1] [item2] [...] [[debug|optimized|general] &lt;item&gt;] ...)</span><br><span class="line"> </span><br><span class="line"><span class="comment">//&lt;target&gt;是指通过add_executable()和add_library()指令生成已经创建的目标文件</span></span><br><span class="line"><span class="comment">//[item]表示库文件没有后缀的名字。默认情况下，库依赖项是传递的。当这个目标链接到另一个目标时，链接到这个目标的库也会出现在另一个目标的连接线上。这个传递的接口存储在interface_link_libraries的目标属性中，可以通过设置该属性直接重写传递接口。</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h2 id="安装（Install）"><a href="#安装（Install）" class="headerlink" title="安装（Install）"></a>安装（Install）</h2><ul>
-<li>详情参考：<a href="https://cmake.org/cmake/help/v3.22/command/install.html">https://cmake.org/cmake/help/v3.22/command/install.html</a></li>
-<li>作用：用于定义安装规则，安装内容包括可执行文件，静态库，动态库以及文件，目录，脚本等</li>
-<li>使用方法：make install</li>
-<li>目标安装路径：${CMAKE_INSTALL_PREFIX}指定，默认/usr/local</li>
-</ul>
-<h3 id="目标文件安装"><a href="#目标文件安装" class="headerlink" title="目标文件安装"></a>目标文件安装</h3><p>目标文件指的是我们通过 add_executable / add_library 得到的二进制文件或者库，只有这些文件才可以通过该命令装载到相应的位置</p>
 <ul>
-<li>可执行文件：RUNTIME</li>
-<li>动态库：LIBRARY</li>
-<li>静态库：ARCHIVE</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(TARGETS targets... [EXPORT &lt;export-name&gt;]</span><br><span class="line">        [RUNTIME_DEPENDENCIES args...|RUNTIME_DEPENDENCY_SET &lt;<span class="built_in">set</span>-name&gt;]</span><br><span class="line">        [[ARCHIVE|LIBRARY|RUNTIME|OBJECTS|FRAMEWORK|BUNDLE|</span><br><span class="line">          PRIVATE_HEADER|PUBLIC_HEADER|RESOURCE]</span><br><span class="line">         [DESTINATION &lt;dir&gt;]</span><br><span class="line">         [PERMISSIONS permissions...]</span><br><span class="line">         [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">         [COMPONENT &lt;component&gt;]</span><br><span class="line">         [NAMELINK_COMPONENT &lt;component&gt;]</span><br><span class="line">         [OPTIONAL] [EXCLUDE_FROM_ALL]</span><br><span class="line">         [NAMELINK_ONLY|NAMELINK_SKIP]</span><br><span class="line">        ] [...]</span><br><span class="line">        [INCLUDES DESTINATION [&lt;dir&gt; ...]]</span><br><span class="line">        )</span><br><span class="line">        </span><br><span class="line"><span class="comment">// example:</span></span><br><span class="line">install(TARGETS mybin mystaiclib mydynamiclib</span><br><span class="line">        RUNTIME DESTINATION bin</span><br><span class="line">        ARCHIVE DESTINATION lib</span><br><span class="line">        LIBRARY DESTINATION lib)</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="普通文件安装"><a href="#普通文件安装" class="headerlink" title="普通文件安装"></a>普通文件安装</h3><p>普通文件即需要导出的头文件、依赖的三方库等等，该命令同时可以指定导出文件的权限（默认644）</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(&lt;FILES|PROGRAMS&gt; files...</span><br><span class="line">        TYPE &lt;type&gt; | DESTINATION &lt;dir&gt;</span><br><span class="line">        [PERMISSIONS permissions...]</span><br><span class="line">        [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">        [COMPONENT &lt;component&gt;]</span><br><span class="line">        [RENAME &lt;name&gt;] [OPTIONAL] [EXCLUDE_FROM_ALL])</span><br><span class="line">        </span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">install(FILES mylib.h DESTINATION include)</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="目录安装"><a href="#目录安装" class="headerlink" title="目录安装"></a>目录安装</h3><p>参数介绍：</p>
-<ul>
-<li>DIRECTORY：后面连接的是所在Source目录的相对路径（结尾是否是”/“对拷贝结果有一定影响）</li>
-<li>PATTERN：使用正则表达式进行过滤</li>
-<li>PERMISSIONS：指定PATTERN过滤后的文件权限。</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(DIRECTORY dirs...</span><br><span class="line">        TYPE &lt;type&gt; | DESTINATION &lt;dir&gt;</span><br><span class="line">        [FILE_PERMISSIONS permissions...]</span><br><span class="line">        [DIRECTORY_PERMISSIONS permissions...]</span><br><span class="line">        [USE_SOURCE_PERMISSIONS] [OPTIONAL] [MESSAGE_NEVER]</span><br><span class="line">        [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">        [COMPONENT &lt;component&gt;] [EXCLUDE_FROM_ALL]</span><br><span class="line">        [FILES_MATCHING]</span><br><span class="line">        [[PATTERN &lt;pattern&gt; | REGEX &lt;regex&gt;]</span><br><span class="line">         [EXCLUDE] [PERMISSIONS permissions...]] [...])</span><br><span class="line"></span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">install(DIRECTORY src/ DESTINATION include/myproj  FILES_MATCHING PATTERN <span class="string">"*.h"</span>)</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><ol>
-<li><p>Q: 编译参数添加了-lpthread 参数, 但是还是报undefined reference to `pthread_create’ </p>
-<p>A : 需要使用target_link_libraries( target thread) 在这里链接thread库</p>
+<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
 </li>
-<li><p>Q: 如果在多级的目录下编译, 始终找不到问题报 undefine的问题 ?</p>
-<p>A : 看一下是不是链接的库或目标文件格式不同, 一个c 一个c++ , 这样就会导致找不到符号错误</p>
+<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
 </li>
-<li><p>Q: undefined reference to `typeinfo for xxxBase_class’ ?</p>
-<p>A: 基类的构造和析构函数需要加{ };  否则就会报这个问题</p>
+<li><p>windows安装</p>
+<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
+<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
+</li>
+<li><p>Linux安装</p>
+<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+</li>
+</ul>
+<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
+<ol>
+<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
+<li>Frequency Test within a Block，块内频率检测</li>
+<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
+<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
+<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
+<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
+<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
+<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
+<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
+<li>The Linear Complexity Test，线性复杂度检测</li>
+<li>The Serial Test，序列检测</li>
+<li>The Approximate Entropy Test，近似熵检测</li>
+<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
+<li>The Random Excursions Test，随机游动检测</li>
+<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
+</ol>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
+<ol>
+<li>启动程序。**./assess ，**stream length译为流的长度。</li>
+<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
+<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
+<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
+<li>输入比特流的个数。表示有多少个stream</li>
+<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
+</ol>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
+<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
+<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
+<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
+</ol>
+<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
+<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
+<li><p>Q：Segment fault</p>
+<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
+</li>
+<li><p>Q：igamc: UNDERFLOW？</p>
+<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
+</li>
+<li><p>Q：P-value全部是0？</p>
+<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
 </li>
 </ol>
-<h1 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h1><h2 id="通配符"><a href="#通配符" class="headerlink" title="通配符"></a>通配符</h2><table>
-<thead>
-<tr>
-<th>通配符</th>
-<th>使用说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>*</td>
-<td>匹配0个或者是任意个字符</td>
-</tr>
-<tr>
-<td>?</td>
-<td>匹配任意一个字符</td>
-</tr>
-<tr>
-<td>[]</td>
-<td>我们可以指定匹配的字符放在 “[]” 中</td>
-</tr>
-<tr>
-<td>%</td>
-<td>匹配任意个字符</td>
-</tr>
-</tbody></table>
-<h2 id="自动化变量"><a href="#自动化变量" class="headerlink" title="自动化变量"></a>自动化变量</h2><table>
-<thead>
-<tr>
-<th>自动化变量</th>
-<th align="center">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>$@</td>
-<td align="center">表示规则的目标文件名。如果目标是一个文档文件（Linux 中，一般成 .a 文件为文档文件，也成为静态的库文件）， 那么它代表这个文档的文件名。在多目标模式规则中，它代表的是触发规则被执行的文件名。</td>
-</tr>
-<tr>
-<td>$%</td>
-<td align="center">当目标文件是一个静态库文件时，代表静态库的一个成员名。</td>
-</tr>
-<tr>
-<td>$&lt;</td>
-<td align="center">规则的第一个依赖的文件名。如果是一个目标文件使用隐含的规则来重建，则它代表由隐含规则加入的第一个依赖文件。</td>
-</tr>
-<tr>
-<td>$?</td>
-<td align="center">所有比目标文件更新的依赖文件列表，空格分隔。如果目标文件时静态库文件，代表的是库文件（.o 文件）。</td>
-</tr>
-<tr>
-<td>$^</td>
-<td align="center">代表的是所有依赖文件列表，使用空格分隔。如果目标是静态库文件，它所代表的只能是所有的库成员（.o 文件）名。 一个文件可重复的出现在目标的依赖中，变量“$”只记录它的第一次引用的情况。就是说变量“$”会去掉重复的依赖文件。</td>
-</tr>
-<tr>
-<td>$+</td>
-<td align="center">类似“$^”，但是它保留了依赖文件中重复出现的文件。主要用在程序链接时库的交叉引用场合。</td>
-</tr>
-<tr>
-<td>$*</td>
-<td align="center">在模式规则和静态模式规则中，代表“茎”。“茎”是目标模式中“%”所代表的部分（当文件名中存在目录时， “茎”也包含目录部分）。</td>
-</tr>
-</tbody></table>
-<h2 id="特殊函数"><a href="#特殊函数" class="headerlink" title="特殊函数"></a>特殊函数</h2><h3 id="添加前缀"><a href="#添加前缀" class="headerlink" title="添加前缀"></a>添加前缀</h3><ul>
-<li>函数名：addprefix( )</li>
-<li>语法：$(addprefix PREFIX/,${NAME…})</li>
-<li>函数功能：为“NAMES…”中的每一个文件名添加前缀“PREFIX”。参数“NAMES…”是空格分割的文件名序列，将“PREFIX”添加到此序列的每一个文件名之前。</li>
-<li>返回值：以单空格分割的添加了前缀“PREFIX”的文件名序列。</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">$(addprefix src/,foo bar)</span><br><span class="line"><span class="comment">//返回值为“src/foo src/bar”</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h3 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h3><ul>
-<li>函数名：filter( )</li>
-<li>语法：$(filter SUFFIX…,$(SOURCES))</li>
-<li>作用：保留字串 “ $(SOURCES)” 中所有符合模式 “ SUFFIX ” 的单词</li>
-</ul>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">sources := main.c AT.txt</span><br><span class="line">foo : $(sources)</span><br><span class="line">    cc $(filter %.c,%.s,$(sources)) -o foo</span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h2 id="打印"><a href="#打印" class="headerlink" title="打印"></a>打印</h2><p>用于Makefile的Debug，打印分为三个等级：info、warning、error</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">$(info SRC = $(SRC))</span><br><span class="line">$(warning INC = $(INC))</span><br><span class="line"><span class="comment">//注意：执行到error会直接stop退出</span></span><br><span class="line">$(error INC = $(INC))</span><br></pre></td></tr></tbody></table></figure>
-
-
-
 ]]></content>
       <categories>
-        <category>Linux</category>
-        <category>Tools</category>
+        <category>Third Party</category>
       </categories>
   </entry>
   <entry>
@@ -954,32 +979,6 @@
         <category>Computure System</category>
         <category>GPIO</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Hello New World</title>
-    <url>/2022/08/22/hello-world/</url>
-    <content><![CDATA[<blockquote>
-<p>Be all you can be!</p>
-</blockquote>
-<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
-<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
-<ol>
-<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
-<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
-<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
-</ol>
-<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
-<p align="right">2022-8-22/23.38</p>
-
-<p align="right">Lee</p>
-
-]]></content>
-      <categories>
-        <category>Personal</category>
-      </categories>
-      <tags>
-        <tag>开篇</tag>
-      </tags>
   </entry>
   <entry>
     <title>init.rc语法及解析</title>

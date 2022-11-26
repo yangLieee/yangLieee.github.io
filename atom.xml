@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2022-11-26T14:49:16.907Z</updated>
+  <updated>2022-11-26T14:59:19.699Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://example.com/2022/11/26/DTRNG_Test/"/>
     <id>http://example.com/2022/11/26/DTRNG_Test/</id>
     <published>2022-11-25T16:00:00.000Z</published>
-    <updated>2022-11-26T14:49:16.907Z</updated>
+    <updated>2022-11-26T14:59:19.699Z</updated>
     
     
     <summary type="html">通过对NIST测试套件的说明验证随机种子的真假性</summary>
@@ -150,10 +150,19 @@
     <link href="http://example.com/2022/08/31/Audio-meet/"/>
     <id>http://example.com/2022/08/31/Audio-meet/</id>
     <published>2022-08-30T16:00:00.000Z</published>
-    <updated>2022-09-13T15:14:38.962Z</updated>
+    <updated>2022-09-02T08:45:58.728Z</updated>
     
     
-    <summary type="html">信号的分类引入音频概念，进而讲解AD转换及相关音频参数</summary>
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;跳动的音符，婉转的节奏，悠扬的歌声……&lt;/p&gt;
+&lt;p&gt;音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？&lt;/p&gt;
+&lt;p&gt;下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识&lt;/p&gt;
+&lt;h1</summary>
+        
+      
     
     
     
@@ -169,10 +178,17 @@
     <link href="http://example.com/2022/08/25/cmake/"/>
     <id>http://example.com/2022/08/25/cmake/</id>
     <published>2022-08-24T16:00:00.000Z</published>
-    <updated>2022-09-13T15:02:48.299Z</updated>
+    <updated>2022-08-30T14:19:32.205Z</updated>
     
     
-    <summary type="html">CMakeLists.txt及Makefile的编写方法</summary>
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;官网 : &lt;a</summary>
+        
+      
     
     
     
