@@ -1,6 +1,289 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Libmad详解</title>
+    <url>/2022/11/05/Audio-libmad/</url>
+    <content><![CDATA[<p>简单来讲，libmad就是一个MP3文件的解码库。如果想要深入理解其中的实现需要对MP3文件格式有详细的了解，关于MP3文件格式的内容在这里我不赘述，之前的文章当中有过详细的讲解 <a href="https://yanglieee.com/2022/09/05/Audio-meet-1/">click here</a></p>
+<h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><blockquote>
+<p>Libmad 详解：<a href="https://www.underbit.com/products/mad/">https://www.underbit.com/products/mad/</a></p>
+</blockquote>
+<p> libmad 是一个高质量的 MPEG 音频解码器。目前支持  MPEG-1 和 MPEG-2 对较低采样频率的扩展，以及所谓的 MPEG 2.5 格式，三个音频层都在代码上做了实现。优势：</p>
+<ul>
+<li>24 位 PCM 输出</li>
+<li>100% 定点（整数）计算</li>
+<li>基于 ISO/IEC 标准的全新实施</li>
+<li>根据 GNU 通用公共许可证 (GPL) 的条款分发</li>
+</ul>
+<h1 id="How"><a href="#How" class="headerlink" title="How"></a>How</h1><h2 id="代码下载"><a href="#代码下载" class="headerlink" title="代码下载"></a>代码下载</h2><p><a href="https://sourceforge.net/projects/mad/files/">https://sourceforge.net/projects/mad/files/</a></p>
+<p><a href="https://www.linuxfromscratch.org/blfs/view/svn/multimedia/libmad.html">https://www.linuxfromscratch.org/blfs/view/svn/multimedia/libmad.html</a></p>
+<h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2><p>&lt; 基于 libmad-0.15.1b 版本&gt;</p>
+<table>
+<thead>
+<tr>
+<th>源文件</th>
+<th>bit.c</th>
+<th>decoder.c</th>
+<th>fixed.c</th>
+<th>frame.c</th>
+<th>huffman.c</th>
+<th>layer12.c</th>
+<th>layer3.c</th>
+<th>stream.c</th>
+<th>synth.c</th>
+<th>timer.c</th>
+<th>version.c</th>
+<th>minimad.c(demo)</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>头文件</td>
+<td>bit.h</td>
+<td>decoder.h</td>
+<td>fixed.h</td>
+<td>frame.h</td>
+<td>huffman.h</td>
+<td>layer12.h</td>
+<td>layer3.h</td>
+<td>stream.h</td>
+<td>synth.h</td>
+<td>timer.h</td>
+<td>version.h</td>
+<td>global.h</td>
+<td>mad.h（API）</td>
+</tr>
+<tr>
+<td>dat文件</td>
+<td>sf_table.dat</td>
+<td>imdct_s.dat</td>
+<td>qc_table.dat</td>
+<td>D.dat</td>
+<td>rq_table.dat</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>其他文件</td>
+<td>Makefile</td>
+<td>config</td>
+<td>……</td>
+<td></td>
+<td>大部分内容不参与编译</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>具体使用方法可以参考minimad.c文件，这里面对api的使用有进一步的说明</p>
+<p>同时也可以参考我基于Linux libmad写出来的一个音频播放器，源码链接 <a href="https://github.com/yangLieee/audioplayer">click here</a></p>
+<h1 id="编译方法"><a href="#编译方法" class="headerlink" title="编译方法"></a>编译方法</h1><p>&lt; 仅介绍linux环境下编译方法 &gt; </p>
+<ol>
+<li>手写Makefile / CMakeLists.txt</li>
+<li>系统提供的config<ul>
+<li>执行 <strong>sed -i ‘/-fforce-mem/d’ configure</strong> ， 这条命令是为了适配高版本的gcc，因为高版本的gcc已经将-fforce-mem去除了</li>
+<li>执行 <strong>./configure ,</strong> 文件夹下会生成Makefile</li>
+<li>执行 <strong>sudo make; sudo install;</strong> </li>
+<li>至此静态库和动态库已经生成，目录在/usr/local/lib</li>
+</ul>
+</li>
+</ol>
+<h1 id="核心API"><a href="#核心API" class="headerlink" title="核心API"></a>核心API</h1><ol>
+<li><p>mad_decoder_init( )</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">mad_decoder_init</span><span class="params">(<span class="keyword">struct</span> mad_decoder *, <span class="type">void</span> *,   </span></span><br><span class="line"><span class="params">           <span class="comment">/* input func  */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* header func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_header <span class="type">const</span> *),                   </span></span><br><span class="line"><span class="params">           <span class="comment">/* filter func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream <span class="type">const</span> *, <span class="keyword">struct</span> mad_frame *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* output func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_header <span class="type">const</span> *, <span class="keyword">struct</span> mad_pcm *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* error func  */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream *, <span class="keyword">struct</span> mad_frame *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* message func*/</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="type">void</span> *, <span class="type">unsigned</span> <span class="type">int</span> *))</span>; </span><br></pre></td></tr></tbody></table></figure>
+
+<p>mad_decoder_init( )是libmad中最终重要的函数之一，其作用是将line3~line8的六个回调函数注册到mad_decoder实例出来的decoder中。</p>
+<ul>
+<li><p><strong>必须自定义的参数：</strong>参数1：用户自己实例的一个解码器结构体；参数2：用户自定义的结构体指针，这个指针将用于整个解码的过程在回调函数之间进行数据的传输；参数3：输入的回调函数，该回调用于用户自定义将数据输入编码器的逻辑；参数6：输出的回调函数，同input callback func。自定义输出的分辨率吧：24bit / 16bit，可以存成文件亦可以直接通过pcm接口播放。Output回调函数在madlib每解码完成一个帧后被调用，直到全部解码完成或出错。参数8（异步工作模式下必选）：输出信息。</p>
+</li>
+<li><p><strong>选择性定义参数：</strong>其他参数属于自定义参数比如进行头解析、过滤筛选的回调函数等等，如果自己没有需求置0即可。</p>
+</li>
+</ul>
+</li>
+<li><p>mad_decoder_run( )</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">mad_decoder_run</span><span class="params">(<span class="keyword">struct</span> mad_decoder *, <span class="keyword">enum</span> mad_decoder_mode)</span>; </span><br></pre></td></tr></tbody></table></figure>
+
+<p>该函数是解码的主流程函数，即解码器的入口函数，如果要追代码可以从此处开始进行剖析。</p>
+<ul>
+<li>参数1：用户自定义实例化并初始化的解码器decoder；</li>
+<li>参数2：选择解码模式（SYNC / ASYNC）深入代码可以发现这个选择使得解码器进入不同的函数进行工作。</li>
+</ul>
+<p>所谓同步方式是指解码函数在解码完一帧后才返回并带回出错信息，异步方式是指解码函数在调用后立即返回，通过消息传递解码状态信息。(故异步方式必须定义message回调函数)</p>
+</li>
+<li><p>mad_decoder_finish( )</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">mad_decoder_finish</span><span class="params">(<span class="keyword">struct</span> mad_decoder *)</span>;</span><br></pre></td></tr></tbody></table></figure>
+
+<p>解码结束，用于清理工作，释放与流相关的任何动态内存。</p>
+</li>
+<li><p>mad_stream_buffer( )</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">mad_stream_buffer</span><span class="params">(<span class="keyword">struct</span> mad_stream *, <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *, <span class="type">unsigned</span> <span class="type">long</span>)</span>; </span><br></pre></td></tr></tbody></table></figure>
+
+<p>该函数是input回调函数中最重要的函数，其作用是按照参数2、参数3即MP3文件在内存映像的起始地址和本次要传递的文件长度与mad_stream进行关联，形成libmad可识别的stream流</p>
+<p>需要注意，这里传递多少数据完全是自定义的。如果一次性送入则整个解码过程调用一次input；如果一次性传递若干，output根据传递的数据进行解码，如果没有数据可解继续调用input。所以自己定义好输入逻辑即可。</p>
+</li>
+</ol>
+<h1 id="重点数据结构"><a href="#重点数据结构" class="headerlink" title="重点数据结构"></a>重点数据结构</h1><ol>
+<li><p>mad_stream</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h &amp;&amp; stream.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_stream</span> {</span>           </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *buffer;          <span class="comment">/* input bitstream buffer */</span>                                       <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *bufend;          <span class="comment">/* end of buffer */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> skiplen;                <span class="comment">/* bytes to skip before next frame */</span></span><br><span class="line">  <span class="type">int</span> sync;                             <span class="comment">/* stream sync found */</span>        </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> freerate;               <span class="comment">/* free bitrate (fixed) */</span>     </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *this_frame;      <span class="comment">/* start of current frame */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *next_frame;      <span class="comment">/* start of next frame */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mad_bitptr</span> <span class="title">ptr</span>;</span>                <span class="comment">/* current processing bit pointer */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mad_bitptr</span> <span class="title">anc_ptr</span>;</span>            <span class="comment">/* ancillary bits pointer */</span>   </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> anc_bitlen;              <span class="comment">/* number of ancillary bits */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="title function_">char</span> <span class="params">(*main_data)</span>[MAD_BUFFER_MDLEN];                  <span class="comment">/* Layer III main_data() */</span>    </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> md_len;                  <span class="comment">/* bytes in main_data */</span>  </span><br><span class="line">  <span class="type">int</span> options;                          <span class="comment">/* decoding options (see below) */</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_error</span> <span class="title">error</span>;</span>                 <span class="comment">/* error code (see above) */</span>   </span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>该结构体记录了文件的地址、当前所处理的位置和解码前的Bitstream数据</p>
+<p>mad_stream.bufend – mad_stream.next_frame就是剩余的未被解码的 MPEG 帧的数据的字节数量（假设此帧在缓冲区中不完整)</p>
+</li>
+<li><p>mad_header</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_header</span> {</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_layer</span> <span class="title">layer</span>;</span>             <span class="comment">/* audio layer (1, 2, or 3) */</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_mode</span> <span class="title">mode</span>;</span>               <span class="comment">/* channel mode (see above) */</span></span><br><span class="line">  <span class="type">int</span> mode_extension;               <span class="comment">/* additional mode info */</span>                                             <span class="class"><span class="keyword">enum</span> <span class="title">mad_emphasis</span> <span class="title">emphasis</span>;</span>       <span class="comment">/* de-emphasis to use (see above) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> bitrate;            <span class="comment">/* stream bitrate (bps) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> samplerate;          <span class="comment">/* sampling frequency (Hz) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> crc_check;         <span class="comment">/* frame CRC accumulator */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> crc_target;        <span class="comment">/* final target CRC checksum */</span></span><br><span class="line">  <span class="type">int</span> flags;                        <span class="comment">/* flags (see below) */</span></span><br><span class="line">  <span class="type">int</span> private_bits;                 <span class="comment">/* private bits (see below) */</span></span><br><span class="line">  <span class="type">mad_timer_t</span> duration;             <span class="comment">/* audio playing time of frame */</span></span><br><span class="line">};    </span><br></pre></td></tr></tbody></table></figure>
+
+<p>通过注释很容易看出，该结构体记录了MPEG 帧的基本信息，比如MPEG 层数、声道模式、流比特率、采样率、比特率以及某些校验位等等。</p>
+<blockquote>
+<p>Tips：（bitrate % 32） 如果是整数说明该文件格式是CBR（constant bitrate，恒定比特率），否则是VBR（variable bitrate，可变比特率），这对文件播放时长是有影响的。</p>
+</blockquote>
+</li>
+<li><p>mad_pcm</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_pcm</span> {</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> samplerate;          <span class="comment">/* sampling frequency (Hz) */</span>                                           <span class="type">unsigned</span> <span class="type">short</span> channels;          <span class="comment">/* number of channels */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> length;            <span class="comment">/* number of samples per channel */</span></span><br><span class="line">  <span class="type">mad_fixed_t</span> samples[<span class="number">2</span>][<span class="number">1152</span>];     <span class="comment">/* PCM output samples [ch][sample] */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>madlib解码器是以帧为单位进行解码的，mad_pcm每次最多解码出（1152 * channels）个PCM数据，每个采样点用int（32bit）表征但是只用了其中的24bit，至此可以直接输出数据保存文件或者直接调用音频播放的API进行播放。但目前大多数codec支持的是16bit量化分辨率，所以在输出时将数据饱和到16bit进行输出。</p>
+</li>
+<li><p>mad_flow</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">mad_flow</span> {</span></span><br><span class="line">  MAD_FLOW_CONTINUE = <span class="number">0x0000</span>,   <span class="comment">/* continue normally */</span>                                                     MAD_FLOW_STOP     = <span class="number">0x0010</span>,   <span class="comment">/* stop decoding normally */</span></span><br><span class="line">  MAD_FLOW_BREAK    = <span class="number">0x0011</span>,   <span class="comment">/* stop decoding and signal an error */</span></span><br><span class="line">  MAD_FLOW_IGNORE   = <span class="number">0x0020</span>    <span class="comment">/* ignore the current frame */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>所有回调函数的返回值均为该枚举类型，在解码的主流程中会通过不断判断解码器所调用的回调函数的状态来确认下一步的动作</p>
+</li>
+</ol>
+<h1 id="相关调试经验"><a href="#相关调试经验" class="headerlink" title="相关调试经验"></a>相关调试经验</h1><ol>
+<li><p>配置参数未选择</p>
+<p>Q：编译正常通过，流程正确，但是输出的声音能听出是所需要的音频但是整体数据并不正确？</p>
+<p>A：在mad.h中有若干的函数是根据平台的不同有不同的实现，由于编译过程中没有注意警告直接将其注释导致没有选择正确函数实现，导致最终的数据都是错误的。编译时添加相应的平台的参数即可，如果手动写cmake，参考给出的Makefile做参数选择！</p>
+</li>
+<li><p>线程栈空间大小分配不足</p>
+<p>Q：在PC上测试正常播放，但是移植到小系统中经常出现stack overflow？</p>
+<p>A：由于MP3一帧数据的采样点数为1152，使用 int 类型进行存储，所以核心函数 “ Ⅲ_decode” 至少需要6k的栈空间，如果是单独一个线程的话再加上其他的局部变量、函数跳转等等可能就超过8k。</p>
+<p>​	  当时使用c++ 的thread进行的线程创建并不能配置栈空间大小，经过两天左右的debug查到是核心函数栈空间的溢出，最终使用pthread加大栈空间的大小运行即可。</p>
+</li>
+<li><p>动态解码的实现</p>
+<p>Q：刚开始百度libmad的库，很多博客说只能调用一次input回调函数即一次加载所有的源数据，这对于实时控制造成不便？</p>
+<p>A： 深入源码可以看出输入的的数据解码完成只要不返回STOP是可以继续填充数据的，这样临时的buffer就小一些并且可以试试控制完成播放器的功能。（需要注意如果一次输入的数据是几帧多一点，而多出来的需要放保存下次再此进行解码）</p>
+</li>
+<li><p>获得音频参数</p>
+<p>Q：能够很快的获得音频信息？</p>
+<p>A： 对于wav头很容易的可以找到音频的参数，但是MP3文件的信息保存在帧头中，所以可以进行一步预解码。即读入若干（512即可）byte数据解一帧的头就可以获得全部信息，包括：采样率、比特率、声道、音频时长等等。</p>
+</li>
+<li><p>获得播放进度 / 时长出现异常</p>
+<p>Q：使用公式：当前文件位置 / 文件大小 × 文件总时长，获得当前播放时间出现异常？</p>
+<p>A： 对于duration 和 fpos是用int的数据类型进行保存的，但是对于wav文件一般比较大在计算的时候超出了数据类型所能存储的最大长度。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Audio</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Audio-初识</title>
+    <url>/2022/08/31/Audio-meet/</url>
+    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
+<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
+<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
+<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
+<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
+<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
+<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
+<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
+<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
+<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
+<ul>
+<li>定义：在时间轴上对信号进行离散化</li>
+<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
+</ul>
+<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
+<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
+<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
+<ul>
+<li><p>定义：在幅度轴上对信号进行数字化</p>
+</li>
+<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
+</li>
+</ul>
+<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
+<blockquote>
+<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
+</blockquote>
+<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
+<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
+<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
+</blockquote>
+<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
+<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
+<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
+</ul>
+<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
+<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
+<ul>
+<li><p>WAV编码（波形编码）</p>
+<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
+</li>
+<li><p>MP3编码</p>
+<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
+</li>
+<li><p>AAC编码</p>
+</li>
+</ul>
+<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
+<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
+<ul>
+<li><p>Ogg编码（有损）</p>
+<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
+</li>
+</ul>
+<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
+<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
+<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
+<ul>
+<li>单声道（mono）</li>
+<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
+<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
+<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
+<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
+</ul>
+<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
+<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
+<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
+<ul>
+<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
+<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
+</ul>
+<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
+<li>交错模式：每个声道的样本数据交错存储排布</li>
+<li>平面模式：每个声道的样本数据分开存储</li>
+</ul>
+<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
+<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
+<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
+<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
+<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
+</ul>
+<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
+<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
+<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
+<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Audio</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Audio-再遇</title>
     <url>/2022/09/05/Audio-meet-1/</url>
     <content><![CDATA[<p>本篇内容对一节提到的编码进行扩展，将重点对PCM格式、WAVE格式、MP3格式进行详细解析。</p>
@@ -281,289 +564,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Audio-初识</title>
-    <url>/2022/08/31/Audio-meet/</url>
-    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
-<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
-<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
-<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
-<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
-<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
-<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
-<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
-<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
-<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
-<ul>
-<li>定义：在时间轴上对信号进行离散化</li>
-<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
-</ul>
-<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
-<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
-<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
-<ul>
-<li><p>定义：在幅度轴上对信号进行数字化</p>
-</li>
-<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
-</li>
-</ul>
-<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
-<blockquote>
-<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
-</blockquote>
-<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
-<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
-<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
-</blockquote>
-<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
-<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
-<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
-</ul>
-<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
-<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
-<ul>
-<li><p>WAV编码（波形编码）</p>
-<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
-</li>
-<li><p>MP3编码</p>
-<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
-</li>
-<li><p>AAC编码</p>
-</li>
-</ul>
-<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
-<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
-<ul>
-<li><p>Ogg编码（有损）</p>
-<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
-</li>
-</ul>
-<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
-<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
-<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
-<ul>
-<li>单声道（mono）</li>
-<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
-<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
-<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
-<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
-</ul>
-<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
-<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
-<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
-<ul>
-<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
-<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
-</ul>
-<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
-<li>交错模式：每个声道的样本数据交错存储排布</li>
-<li>平面模式：每个声道的样本数据分开存储</li>
-</ul>
-<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
-<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
-<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
-<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
-<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
-</ul>
-<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
-<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
-<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
-<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Audio</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Libmad详解</title>
-    <url>/2022/11/05/Audio-libmad/</url>
-    <content><![CDATA[<p>简单来讲，libmad就是一个MP3文件的解码库。如果想要深入理解其中的实现需要对MP3文件格式有详细的了解，关于MP3文件格式的内容在这里我不赘述，之前的文章当中有过详细的讲解 <a href="https://yanglieee.com/2022/09/05/Audio-meet-1/">click here</a></p>
-<h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><blockquote>
-<p>Libmad 详解：<a href="https://www.underbit.com/products/mad/">https://www.underbit.com/products/mad/</a></p>
-</blockquote>
-<p> libmad 是一个高质量的 MPEG 音频解码器。目前支持  MPEG-1 和 MPEG-2 对较低采样频率的扩展，以及所谓的 MPEG 2.5 格式，三个音频层都在代码上做了实现。优势：</p>
-<ul>
-<li>24 位 PCM 输出</li>
-<li>100% 定点（整数）计算</li>
-<li>基于 ISO/IEC 标准的全新实施</li>
-<li>根据 GNU 通用公共许可证 (GPL) 的条款分发</li>
-</ul>
-<h1 id="How"><a href="#How" class="headerlink" title="How"></a>How</h1><h2 id="代码下载"><a href="#代码下载" class="headerlink" title="代码下载"></a>代码下载</h2><p><a href="https://sourceforge.net/projects/mad/files/">https://sourceforge.net/projects/mad/files/</a></p>
-<p><a href="https://www.linuxfromscratch.org/blfs/view/svn/multimedia/libmad.html">https://www.linuxfromscratch.org/blfs/view/svn/multimedia/libmad.html</a></p>
-<h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2><p>&lt; 基于 libmad-0.15.1b 版本&gt;</p>
-<table>
-<thead>
-<tr>
-<th>源文件</th>
-<th>bit.c</th>
-<th>decoder.c</th>
-<th>fixed.c</th>
-<th>frame.c</th>
-<th>huffman.c</th>
-<th>layer12.c</th>
-<th>layer3.c</th>
-<th>stream.c</th>
-<th>synth.c</th>
-<th>timer.c</th>
-<th>version.c</th>
-<th>minimad.c(demo)</th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>头文件</td>
-<td>bit.h</td>
-<td>decoder.h</td>
-<td>fixed.h</td>
-<td>frame.h</td>
-<td>huffman.h</td>
-<td>layer12.h</td>
-<td>layer3.h</td>
-<td>stream.h</td>
-<td>synth.h</td>
-<td>timer.h</td>
-<td>version.h</td>
-<td>global.h</td>
-<td>mad.h（API）</td>
-</tr>
-<tr>
-<td>dat文件</td>
-<td>sf_table.dat</td>
-<td>imdct_s.dat</td>
-<td>qc_table.dat</td>
-<td>D.dat</td>
-<td>rq_table.dat</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>其他文件</td>
-<td>Makefile</td>
-<td>config</td>
-<td>……</td>
-<td></td>
-<td>大部分内容不参与编译</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
-<p>具体使用方法可以参考minimad.c文件，这里面对api的使用有进一步的说明</p>
-<p>同时也可以参考我基于Linux libmad写出来的一个音频播放器，源码链接 <a href="https://github.com/yangLieee/audioplayer">click here</a></p>
-<h1 id="编译方法"><a href="#编译方法" class="headerlink" title="编译方法"></a>编译方法</h1><p>&lt; 仅介绍linux环境下编译方法 &gt; </p>
-<ol>
-<li>手写Makefile / CMakeLists.txt</li>
-<li>系统提供的config<ul>
-<li>执行 <strong>sed -i ‘/-fforce-mem/d’ configure</strong> ， 这条命令是为了适配高版本的gcc，因为高版本的gcc已经将-fforce-mem去除了</li>
-<li>执行 <strong>./configure ,</strong> 文件夹下会生成Makefile</li>
-<li>执行 <strong>sudo make; sudo install;</strong> </li>
-<li>至此静态库和动态库已经生成，目录在/usr/local/lib</li>
-</ul>
-</li>
-</ol>
-<h1 id="核心API"><a href="#核心API" class="headerlink" title="核心API"></a>核心API</h1><ol>
-<li><p>mad_decoder_init( )</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">mad_decoder_init</span><span class="params">(<span class="keyword">struct</span> mad_decoder *, <span class="type">void</span> *,   </span></span><br><span class="line"><span class="params">           <span class="comment">/* input func  */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* header func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_header <span class="type">const</span> *),                   </span></span><br><span class="line"><span class="params">           <span class="comment">/* filter func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream <span class="type">const</span> *, <span class="keyword">struct</span> mad_frame *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* output func */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_header <span class="type">const</span> *, <span class="keyword">struct</span> mad_pcm *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* error func  */</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="keyword">struct</span> mad_stream *, <span class="keyword">struct</span> mad_frame *), </span></span><br><span class="line"><span class="params">           <span class="comment">/* message func*/</span>  <span class="keyword">enum</span> mad_flow (*)(<span class="type">void</span> *, <span class="type">void</span> *, <span class="type">unsigned</span> <span class="type">int</span> *))</span>; </span><br></pre></td></tr></tbody></table></figure>
-
-<p>mad_decoder_init( )是libmad中最终重要的函数之一，其作用是将line3~line8的六个回调函数注册到mad_decoder实例出来的decoder中。</p>
-<ul>
-<li><p><strong>必须自定义的参数：</strong>参数1：用户自己实例的一个解码器结构体；参数2：用户自定义的结构体指针，这个指针将用于整个解码的过程在回调函数之间进行数据的传输；参数3：输入的回调函数，该回调用于用户自定义将数据输入编码器的逻辑；参数6：输出的回调函数，同input callback func。自定义输出的分辨率吧：24bit / 16bit，可以存成文件亦可以直接通过pcm接口播放。Output回调函数在madlib每解码完成一个帧后被调用，直到全部解码完成或出错。参数8（异步工作模式下必选）：输出信息。</p>
-</li>
-<li><p><strong>选择性定义参数：</strong>其他参数属于自定义参数比如进行头解析、过滤筛选的回调函数等等，如果自己没有需求置0即可。</p>
-</li>
-</ul>
-</li>
-<li><p>mad_decoder_run( )</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">mad_decoder_run</span><span class="params">(<span class="keyword">struct</span> mad_decoder *, <span class="keyword">enum</span> mad_decoder_mode)</span>; </span><br></pre></td></tr></tbody></table></figure>
-
-<p>该函数是解码的主流程函数，即解码器的入口函数，如果要追代码可以从此处开始进行剖析。</p>
-<ul>
-<li>参数1：用户自定义实例化并初始化的解码器decoder；</li>
-<li>参数2：选择解码模式（SYNC / ASYNC）深入代码可以发现这个选择使得解码器进入不同的函数进行工作。</li>
-</ul>
-<p>所谓同步方式是指解码函数在解码完一帧后才返回并带回出错信息，异步方式是指解码函数在调用后立即返回，通过消息传递解码状态信息。(故异步方式必须定义message回调函数)</p>
-</li>
-<li><p>mad_decoder_finish( )</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">mad_decoder_finish</span><span class="params">(<span class="keyword">struct</span> mad_decoder *)</span>;</span><br></pre></td></tr></tbody></table></figure>
-
-<p>解码结束，用于清理工作，释放与流相关的任何动态内存。</p>
-</li>
-<li><p>mad_stream_buffer( )</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">mad_stream_buffer</span><span class="params">(<span class="keyword">struct</span> mad_stream *, <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *, <span class="type">unsigned</span> <span class="type">long</span>)</span>; </span><br></pre></td></tr></tbody></table></figure>
-
-<p>该函数是input回调函数中最重要的函数，其作用是按照参数2、参数3即MP3文件在内存映像的起始地址和本次要传递的文件长度与mad_stream进行关联，形成libmad可识别的stream流</p>
-<p>需要注意，这里传递多少数据完全是自定义的。如果一次性送入则整个解码过程调用一次input；如果一次性传递若干，output根据传递的数据进行解码，如果没有数据可解继续调用input。所以自己定义好输入逻辑即可。</p>
-</li>
-</ol>
-<h1 id="重点数据结构"><a href="#重点数据结构" class="headerlink" title="重点数据结构"></a>重点数据结构</h1><ol>
-<li><p>mad_stream</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mad.h &amp;&amp; stream.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_stream</span> {</span>           </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *buffer;          <span class="comment">/* input bitstream buffer */</span>                                       <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *bufend;          <span class="comment">/* end of buffer */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> skiplen;                <span class="comment">/* bytes to skip before next frame */</span></span><br><span class="line">  <span class="type">int</span> sync;                             <span class="comment">/* stream sync found */</span>        </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> freerate;               <span class="comment">/* free bitrate (fixed) */</span>     </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *this_frame;      <span class="comment">/* start of current frame */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *next_frame;      <span class="comment">/* start of next frame */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mad_bitptr</span> <span class="title">ptr</span>;</span>                <span class="comment">/* current processing bit pointer */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mad_bitptr</span> <span class="title">anc_ptr</span>;</span>            <span class="comment">/* ancillary bits pointer */</span>   </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> anc_bitlen;              <span class="comment">/* number of ancillary bits */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="title function_">char</span> <span class="params">(*main_data)</span>[MAD_BUFFER_MDLEN];                  <span class="comment">/* Layer III main_data() */</span>    </span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> md_len;                  <span class="comment">/* bytes in main_data */</span>  </span><br><span class="line">  <span class="type">int</span> options;                          <span class="comment">/* decoding options (see below) */</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_error</span> <span class="title">error</span>;</span>                 <span class="comment">/* error code (see above) */</span>   </span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>该结构体记录了文件的地址、当前所处理的位置和解码前的Bitstream数据</p>
-<p>mad_stream.bufend – mad_stream.next_frame就是剩余的未被解码的 MPEG 帧的数据的字节数量（假设此帧在缓冲区中不完整)</p>
-</li>
-<li><p>mad_header</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_header</span> {</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_layer</span> <span class="title">layer</span>;</span>             <span class="comment">/* audio layer (1, 2, or 3) */</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">mad_mode</span> <span class="title">mode</span>;</span>               <span class="comment">/* channel mode (see above) */</span></span><br><span class="line">  <span class="type">int</span> mode_extension;               <span class="comment">/* additional mode info */</span>                                             <span class="class"><span class="keyword">enum</span> <span class="title">mad_emphasis</span> <span class="title">emphasis</span>;</span>       <span class="comment">/* de-emphasis to use (see above) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> bitrate;            <span class="comment">/* stream bitrate (bps) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> samplerate;          <span class="comment">/* sampling frequency (Hz) */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> crc_check;         <span class="comment">/* frame CRC accumulator */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> crc_target;        <span class="comment">/* final target CRC checksum */</span></span><br><span class="line">  <span class="type">int</span> flags;                        <span class="comment">/* flags (see below) */</span></span><br><span class="line">  <span class="type">int</span> private_bits;                 <span class="comment">/* private bits (see below) */</span></span><br><span class="line">  <span class="type">mad_timer_t</span> duration;             <span class="comment">/* audio playing time of frame */</span></span><br><span class="line">};    </span><br></pre></td></tr></tbody></table></figure>
-
-<p>通过注释很容易看出，该结构体记录了MPEG 帧的基本信息，比如MPEG 层数、声道模式、流比特率、采样率、比特率以及某些校验位等等。</p>
-<blockquote>
-<p>Tips：（bitrate % 32） 如果是整数说明该文件格式是CBR（constant bitrate，恒定比特率），否则是VBR（variable bitrate，可变比特率），这对文件播放时长是有影响的。</p>
-</blockquote>
-</li>
-<li><p>mad_pcm</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mad_pcm</span> {</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> samplerate;          <span class="comment">/* sampling frequency (Hz) */</span>                                           <span class="type">unsigned</span> <span class="type">short</span> channels;          <span class="comment">/* number of channels */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> length;            <span class="comment">/* number of samples per channel */</span></span><br><span class="line">  <span class="type">mad_fixed_t</span> samples[<span class="number">2</span>][<span class="number">1152</span>];     <span class="comment">/* PCM output samples [ch][sample] */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>madlib解码器是以帧为单位进行解码的，mad_pcm每次最多解码出（1152 * channels）个PCM数据，每个采样点用int（32bit）表征但是只用了其中的24bit，至此可以直接输出数据保存文件或者直接调用音频播放的API进行播放。但目前大多数codec支持的是16bit量化分辨率，所以在输出时将数据饱和到16bit进行输出。</p>
-</li>
-<li><p>mad_flow</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">mad_flow</span> {</span></span><br><span class="line">  MAD_FLOW_CONTINUE = <span class="number">0x0000</span>,   <span class="comment">/* continue normally */</span>                                                     MAD_FLOW_STOP     = <span class="number">0x0010</span>,   <span class="comment">/* stop decoding normally */</span></span><br><span class="line">  MAD_FLOW_BREAK    = <span class="number">0x0011</span>,   <span class="comment">/* stop decoding and signal an error */</span></span><br><span class="line">  MAD_FLOW_IGNORE   = <span class="number">0x0020</span>    <span class="comment">/* ignore the current frame */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>所有回调函数的返回值均为该枚举类型，在解码的主流程中会通过不断判断解码器所调用的回调函数的状态来确认下一步的动作</p>
-</li>
-</ol>
-<h1 id="相关调试经验"><a href="#相关调试经验" class="headerlink" title="相关调试经验"></a>相关调试经验</h1><ol>
-<li><p>配置参数未选择</p>
-<p>Q：编译正常通过，流程正确，但是输出的声音能听出是所需要的音频但是整体数据并不正确？</p>
-<p>A：在mad.h中有若干的函数是根据平台的不同有不同的实现，由于编译过程中没有注意警告直接将其注释导致没有选择正确函数实现，导致最终的数据都是错误的。编译时添加相应的平台的参数即可，如果手动写cmake，参考给出的Makefile做参数选择！</p>
-</li>
-<li><p>线程栈空间大小分配不足</p>
-<p>Q：在PC上测试正常播放，但是移植到小系统中经常出现stack overflow？</p>
-<p>A：由于MP3一帧数据的采样点数为1152，使用 int 类型进行存储，所以核心函数 “ Ⅲ_decode” 至少需要6k的栈空间，如果是单独一个线程的话再加上其他的局部变量、函数跳转等等可能就超过8k。</p>
-<p>​	  当时使用c++ 的thread进行的线程创建并不能配置栈空间大小，经过两天左右的debug查到是核心函数栈空间的溢出，最终使用pthread加大栈空间的大小运行即可。</p>
-</li>
-<li><p>动态解码的实现</p>
-<p>Q：刚开始百度libmad的库，很多博客说只能调用一次input回调函数即一次加载所有的源数据，这对于实时控制造成不便？</p>
-<p>A： 深入源码可以看出输入的的数据解码完成只要不返回STOP是可以继续填充数据的，这样临时的buffer就小一些并且可以试试控制完成播放器的功能。（需要注意如果一次输入的数据是几帧多一点，而多出来的需要放保存下次再此进行解码）</p>
-</li>
-<li><p>获得音频参数</p>
-<p>Q：能够很快的获得音频信息？</p>
-<p>A： 对于wav头很容易的可以找到音频的参数，但是MP3文件的信息保存在帧头中，所以可以进行一步预解码。即读入若干（512即可）byte数据解一帧的头就可以获得全部信息，包括：采样率、比特率、声道、音频时长等等。</p>
-</li>
-<li><p>获得播放进度 / 时长出现异常</p>
-<p>Q：使用公式：当前文件位置 / 文件大小 × 文件总时长，获得当前播放时间出现异常？</p>
-<p>A： 对于duration 和 fpos是用int的数据类型进行保存的，但是对于wav文件一般比较大在计算的时候超出了数据类型所能存储的最大长度。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Audio</category>
-      </categories>
-  </entry>
-  <entry>
     <title>硬件随机数测试方法</title>
     <url>/2022/11/26/DTRNG_Test/</url>
     <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
@@ -683,6 +683,96 @@
       <categories>
         <category>Computure System</category>
         <category>GPIO</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>理解c/c++ Volatile关键字</title>
+    <url>/2022/11/15/Volatile/</url>
+    <content><![CDATA[<p>网络上对于volatile的解读众说纷纭，而且其中较多的是java内存模型。</p>
+<p>本篇文章将基于自己的学习和实验，针对C/C++语言嵌入式开发场景进行volatile关键字的分析</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>volatile 关键字是 C /C++ 编程语言的一部分，作为一种类型修饰符。我将其作用总结为<em><strong>告诉编译器禁止优化其所修饰对象的读写访存操作及指令顺序，保证变量的可见性</strong></em></p>
+<blockquote>
+<p>可见性：当一个线程修改了共享变量后，其他线程能够立即得知这个修改。</p>
+<p>有序性：程序执行的顺序按照代码的先后顺序执行。</p>
+<p>原子性：一个操作或多个操作要么全部执行，且执行的过程不会被任何因素打断，要么就都不执行。</p>
+</blockquote>
+<p>在《程序员的自我修养》这本书中讲到，volatile基本可以做到两个事情：</p>
+<ol>
+<li>阻止编译器为了提高速度将一个变量缓存到寄存器内而不写回</li>
+<li>阻止编译器调整操作volatile变量的指令顺序</li>
+</ol>
+<p>对于第一个作用volatile是可以很好的做到，而对于第二个作用编译器层面可以保证指令有序但是我们无法阻止cpu动态调整顺序。真正保证有序性是需要通过内存屏障完成的，而volatile并没有内存屏障的功能，gcc 提供了一个内联函数 <em><strong>asm volatile (“” : : : “memory”</strong>)</em> 编译器屏障，具体平台相关内存屏障需要到具体的结构平台去参考</p>
+<h1 id="理解volatile"><a href="#理解volatile" class="headerlink" title="理解volatile"></a>理解volatile</h1><blockquote>
+<p>Collins对于Volatile释义：A situation that is volatile is <strong>likely</strong> to change <strong>suddenly</strong> and <strong>unexpectedly</strong>.</p>
+</blockquote>
+<p><strong>volatile</strong> 本身释义为 <strong>易失的、易变的</strong></p>
+<p>对于用volatile所修饰的对象，在其自身的含义基础上，有三个副词可以很好的对其性质进行诠释：</p>
+<ul>
+<li><p>likely   可能地，指对象的状态可能变化、也可能不变保持状态，强调结果；</p>
+</li>
+<li><p>suddenly:   突然地，指对象状态的瞬时变化，强调过程；</p>
+</li>
+<li><p>unexpectedly:  不可预期地，指对象变化的时间结果都不可预期；</p>
+</li>
+</ul>
+<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>根据含义性质，在嵌入式开发中以下三种场景是一定要考虑使用volatile关键字的（大多数情况一定使用！！！）</p>
+<ol>
+<li>多线程任务读写同一全局变量，</li>
+<li>中断服务程序修改的全局变量</li>
+<li>内存映射外设寄存器</li>
+</ol>
+<h1 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h1><h2 id="中断场景"><a href="#中断场景" class="headerlink" title="中断场景"></a>中断场景</h2><p>下面一段代码，我们所期待的结果是主程序运行，直到crtl+c按键按下程序退出，代码编译执行之后并不是我们所预期的样子。如果sig_done变量不通过volatile修饰程序将永远不会退出，而volatile关键字很好的解决了这一个问题</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> sig_done = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">//static volatile bool sig_done = false;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">handler</span><span class="params">(<span class="type">int</span> sig)</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(sig == SIGINT)</span><br><span class="line">    ┆   sig_done = <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc , <span class="type">char</span> *argv[])</span></span><br><span class="line">{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main start, press ctrl+c go on\n"</span>);</span><br><span class="line">    signal(SIGINT, handler);</span><br><span class="line">    <span class="keyword">while</span>(!sig_done) {</span><br><span class="line">    }   </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main exit\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//编译命令</span></span><br><span class="line">gcc main.c <span class="number">-02</span></span><br><span class="line">objdump -d a.out &gt; a.s</span><br></pre></td></tr></tbody></table></figure>
+
+<p>通过反汇编比较两个程序的异同（左侧volatile，右侧无volatile）</p>
+<p><img src="/images/coding/meld.png" alt="image"></p>
+<p>没有voaltile的while实现方式为：</p>
+<ol>
+<li>比较rip寄存器+0x2f65地址处的值（sig_done）与 0 是否相等</li>
+<li>不相等跳转到main+0x30即上一条指令处</li>
+<li>跳转</li>
+</ol>
+<p>有volatile的while实现方式：</p>
+<ol>
+<li><p>nopl (%rax) 编译器开启优化后使指令按字对齐,减少取指令的时钟周期。</p>
+</li>
+<li><p>将 rip寄存器+0x2f65地址处的值放到eax寄存器中</p>
+<blockquote>
+<p>movzbl指令负责拷贝一个字节，并用0填充其目的操作数中的其余各位，这种扩展方式叫“零扩展”。</p>
+<p>movsbl指令负责拷贝一个字节，并用源操作数的最高位填充其目的操作数中的其余各位，这种扩展方式叫“符号扩展”。</p>
+</blockquote>
+</li>
+<li><p>test   %al,%al 对eax寄存器低位逻辑与</p>
+<blockquote>
+<p>Test命令：将两个操作数进行逻辑与运算，并根据运算结果设置相关的标志位（ze: zero flag）。但是，Test命令的两个操作数不会被改变。运算结果在设置过相关标记位后会被丢弃。</p>
+</blockquote>
+</li>
+<li><p>je   如果ZF（零标志位）=1，零标志位为1（真值）说明结果为0，则转到label所指的指令语句；否则跳过这条语句，执行下条语句</p>
+</li>
+</ol>
+<h2 id="多线程场景"><a href="#多线程场景" class="headerlink" title="多线程场景"></a>多线程场景</h2><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> mstop = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">//static volatile bool mstop = true;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">first_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    <span class="keyword">while</span>(mstop) {</span><br><span class="line">    }</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">second_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">sleep</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    mstop = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}                                                                                                                                                                     </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    std::thread fthread{first_thread};</span><br><span class="line">    std::thread sthread{second_thread};</span><br><span class="line">    fthread.<span class="built_in">join</span>();</span><br><span class="line">	sthread.<span class="built_in">join</span>();</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="外设寄存器"><a href="#外设寄存器" class="headerlink" title="外设寄存器"></a>外设寄存器</h2><p>对于外设通常设置有状态寄存器，我们可以通过循环读取状态寄存器的值来查看对应外设的状态。对于如下示例，如果没有使用volatile关键字，编译器可能生成的代码是读取一个固定地址的值而不会每次都从主存中读取新的值（或者读取n次状态，生成的代码只读取了一次，然后使用n次相同的值）</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//设置寄存器</span></span><br><span class="line">*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR = <span class="number">1</span> &lt;&lt; <span class="number">24</span>; </span><br><span class="line"><span class="comment">//读寄存器</span></span><br><span class="line"><span class="keyword">while</span>(!(*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR)) {</span><br><span class="line">    <span class="comment">// do action</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h1 id="线程安全的单例模式"><a href="#线程安全的单例模式" class="headerlink" title="线程安全的单例模式"></a>线程安全的单例模式</h1><p>该部分不是volatile的使用，而是对内屏屏障的理解</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mp3decoder.h</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">mp3decoder</span> :</span> public decoderImp </span><br><span class="line">{</span><br><span class="line">    public:</span><br><span class="line">    	<span class="type">static</span> mp3decoder* <span class="title function_">getInstance</span><span class="params">()</span>;</span><br><span class="line">    private:</span><br><span class="line">    	mp3decoder();</span><br><span class="line">    	~mp3decoder();</span><br><span class="line">    	<span class="type">static</span> mp3decoder* mdecoder;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="comment">//mp3decoder.cpp</span></span><br><span class="line"><span class="comment">//线程不安全，适用于单线程</span></span><br><span class="line">mp3decoder* mp3decoder::mdecoder = <span class="literal">NULL</span>;</span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，但锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">    unlock();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//Double-Checked Locking Pattern (DCLP 双检查锁)，指令重排序reorder不安全</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">        lock();</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">       		mdecoder = new mp3decoder();</span><br><span class="line">         unlock();</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//内存屏障</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">            mp3decoder *tmp = new mp3decoder();</span><br><span class="line">            MemoryBarrier();</span><br><span class="line">            mdecoder = tmp;</span><br><span class="line">        }</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// mdecoder = new mp3decoder()在cpu层面动作：</span></span><br><span class="line"><span class="comment">// 1. 分配内存</span></span><br><span class="line"><span class="comment">// 2. 调用构造函数</span></span><br><span class="line"><span class="comment">// 3. 将内存地址赋值给mdecoder指针</span></span><br><span class="line"><span class="comment">// 由于2、3对于编译器来讲是有可能进行优化的，即先将指针赋值再调用构造函数，导致线程不安全！！</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<blockquote>
+<p>参考文章：</p>
+<ul>
+<li><a href="https://barrgroup.com/embedded-systems/how-to/c-volatile-keyword">How to Use C’s volatile Keyword</a></li>
+<li><a href="https://barrgroup.com/tech-talks/volatile-c">Pro Tips for Using C’s volatile Keyword</a></li>
+<li><a href="https://liam.page/2018/01/18/volatile-in-C-and-Cpp/">谈谈 c / c++ 中的volatile</a></li>
+</ul>
+</blockquote>
+]]></content>
+      <categories>
+        <category>c/c++</category>
       </categories>
   </entry>
   <entry>
@@ -862,96 +952,6 @@
       <categories>
         <category>Linux</category>
         <category>Tools</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>理解c/c++ Volatile关键字</title>
-    <url>/2022/11/15/Volatile/</url>
-    <content><![CDATA[<p>网络上对于volatile的解读众说纷纭，而且其中较多的是java内存模型。</p>
-<p>本篇文章将基于自己的学习和实验，针对C/C++语言嵌入式开发场景进行volatile关键字的分析</p>
-<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>volatile 关键字是 C /C++ 编程语言的一部分，作为一种类型修饰符。我将其作用总结为<em><strong>告诉编译器禁止优化其所修饰对象的读写访存操作及指令顺序，保证变量的可见性</strong></em></p>
-<blockquote>
-<p>可见性：当一个线程修改了共享变量后，其他线程能够立即得知这个修改。</p>
-<p>有序性：程序执行的顺序按照代码的先后顺序执行。</p>
-<p>原子性：一个操作或多个操作要么全部执行，且执行的过程不会被任何因素打断，要么就都不执行。</p>
-</blockquote>
-<p>在《程序员的自我修养》这本书中讲到，volatile基本可以做到两个事情：</p>
-<ol>
-<li>阻止编译器为了提高速度将一个变量缓存到寄存器内而不写回</li>
-<li>阻止编译器调整操作volatile变量的指令顺序</li>
-</ol>
-<p>对于第一个作用volatile是可以很好的做到，而对于第二个作用编译器层面可以保证指令有序但是我们无法阻止cpu动态调整顺序。真正保证有序性是需要通过内存屏障完成的，而volatile并没有内存屏障的功能，gcc 提供了一个内联函数 <em><strong>asm volatile (“” : : : “memory”</strong>)</em> 编译器屏障，具体平台相关内存屏障需要到具体的结构平台去参考</p>
-<h1 id="理解volatile"><a href="#理解volatile" class="headerlink" title="理解volatile"></a>理解volatile</h1><blockquote>
-<p>Collins对于Volatile释义：A situation that is volatile is <strong>likely</strong> to change <strong>suddenly</strong> and <strong>unexpectedly</strong>.</p>
-</blockquote>
-<p><strong>volatile</strong> 本身释义为 <strong>易失的、易变的</strong></p>
-<p>对于用volatile所修饰的对象，在其自身的含义基础上，有三个副词可以很好的对其性质进行诠释：</p>
-<ul>
-<li><p>likely   可能地，指对象的状态可能变化、也可能不变保持状态，强调结果；</p>
-</li>
-<li><p>suddenly:   突然地，指对象状态的瞬时变化，强调过程；</p>
-</li>
-<li><p>unexpectedly:  不可预期地，指对象变化的时间结果都不可预期；</p>
-</li>
-</ul>
-<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>根据含义性质，在嵌入式开发中以下三种场景是一定要考虑使用volatile关键字的（大多数情况一定使用！！！）</p>
-<ol>
-<li>多线程任务读写同一全局变量，</li>
-<li>中断服务程序修改的全局变量</li>
-<li>内存映射外设寄存器</li>
-</ol>
-<h1 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h1><h2 id="中断场景"><a href="#中断场景" class="headerlink" title="中断场景"></a>中断场景</h2><p>下面一段代码，我们所期待的结果是主程序运行，直到crtl+c按键按下程序退出，代码编译执行之后并不是我们所预期的样子。如果sig_done变量不通过volatile修饰程序将永远不会退出，而volatile关键字很好的解决了这一个问题</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> sig_done = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">//static volatile bool sig_done = false;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">handler</span><span class="params">(<span class="type">int</span> sig)</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(sig == SIGINT)</span><br><span class="line">    ┆   sig_done = <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc , <span class="type">char</span> *argv[])</span></span><br><span class="line">{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main start, press ctrl+c go on\n"</span>);</span><br><span class="line">    signal(SIGINT, handler);</span><br><span class="line">    <span class="keyword">while</span>(!sig_done) {</span><br><span class="line">    }   </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main exit\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//编译命令</span></span><br><span class="line">gcc main.c <span class="number">-02</span></span><br><span class="line">objdump -d a.out &gt; a.s</span><br></pre></td></tr></tbody></table></figure>
-
-<p>通过反汇编比较两个程序的异同（左侧volatile，右侧无volatile）</p>
-<p><img src="/images/coding/meld.png" alt="image"></p>
-<p>没有voaltile的while实现方式为：</p>
-<ol>
-<li>比较rip寄存器+0x2f65地址处的值（sig_done）与 0 是否相等</li>
-<li>不相等跳转到main+0x30即上一条指令处</li>
-<li>跳转</li>
-</ol>
-<p>有volatile的while实现方式：</p>
-<ol>
-<li><p>nopl (%rax) 编译器开启优化后使指令按字对齐,减少取指令的时钟周期。</p>
-</li>
-<li><p>将 rip寄存器+0x2f65地址处的值放到eax寄存器中</p>
-<blockquote>
-<p>movzbl指令负责拷贝一个字节，并用0填充其目的操作数中的其余各位，这种扩展方式叫“零扩展”。</p>
-<p>movsbl指令负责拷贝一个字节，并用源操作数的最高位填充其目的操作数中的其余各位，这种扩展方式叫“符号扩展”。</p>
-</blockquote>
-</li>
-<li><p>test   %al,%al 对eax寄存器低位逻辑与</p>
-<blockquote>
-<p>Test命令：将两个操作数进行逻辑与运算，并根据运算结果设置相关的标志位（ze: zero flag）。但是，Test命令的两个操作数不会被改变。运算结果在设置过相关标记位后会被丢弃。</p>
-</blockquote>
-</li>
-<li><p>je   如果ZF（零标志位）=1，零标志位为1（真值）说明结果为0，则转到label所指的指令语句；否则跳过这条语句，执行下条语句</p>
-</li>
-</ol>
-<h2 id="多线程场景"><a href="#多线程场景" class="headerlink" title="多线程场景"></a>多线程场景</h2><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> mstop = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">//static volatile bool mstop = true;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">first_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    <span class="keyword">while</span>(mstop) {</span><br><span class="line">    }</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">second_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">sleep</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    mstop = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}                                                                                                                                                                     </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    std::thread fthread{first_thread};</span><br><span class="line">    std::thread sthread{second_thread};</span><br><span class="line">    fthread.<span class="built_in">join</span>();</span><br><span class="line">	sthread.<span class="built_in">join</span>();</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="外设寄存器"><a href="#外设寄存器" class="headerlink" title="外设寄存器"></a>外设寄存器</h2><p>对于外设通常设置有状态寄存器，我们可以通过循环读取状态寄存器的值来查看对应外设的状态。对于如下示例，如果没有使用volatile关键字，编译器可能生成的代码是读取一个固定地址的值而不会每次都从主存中读取新的值（或者读取n次状态，生成的代码只读取了一次，然后使用n次相同的值）</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//设置寄存器</span></span><br><span class="line">*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR = <span class="number">1</span> &lt;&lt; <span class="number">24</span>; </span><br><span class="line"><span class="comment">//读寄存器</span></span><br><span class="line"><span class="keyword">while</span>(!(*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR)) {</span><br><span class="line">    <span class="comment">// do action</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h1 id="线程安全的单例模式"><a href="#线程安全的单例模式" class="headerlink" title="线程安全的单例模式"></a>线程安全的单例模式</h1><p>该部分不是volatile的使用，而是对内屏屏障的理解</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mp3decoder.h</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">mp3decoder</span> :</span> public decoderImp </span><br><span class="line">{</span><br><span class="line">    public:</span><br><span class="line">    	<span class="type">static</span> mp3decoder* <span class="title function_">getInstance</span><span class="params">()</span>;</span><br><span class="line">    private:</span><br><span class="line">    	mp3decoder();</span><br><span class="line">    	~mp3decoder();</span><br><span class="line">    	<span class="type">static</span> mp3decoder* mdecoder;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="comment">//mp3decoder.cpp</span></span><br><span class="line"><span class="comment">//线程不安全，适用于单线程</span></span><br><span class="line">mp3decoder* mp3decoder::mdecoder = <span class="literal">NULL</span>;</span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，但锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">    unlock();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//Double-Checked Locking Pattern (DCLP 双检查锁)，指令重排序reorder不安全</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">        lock();</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">       		mdecoder = new mp3decoder();</span><br><span class="line">         unlock();</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//内存屏障</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">            mp3decoder *tmp = new mp3decoder();</span><br><span class="line">            MemoryBarrier();</span><br><span class="line">            mdecoder = tmp;</span><br><span class="line">        }</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// mdecoder = new mp3decoder()在cpu层面动作：</span></span><br><span class="line"><span class="comment">// 1. 分配内存</span></span><br><span class="line"><span class="comment">// 2. 调用构造函数</span></span><br><span class="line"><span class="comment">// 3. 将内存地址赋值给mdecoder指针</span></span><br><span class="line"><span class="comment">// 由于2、3对于编译器来讲是有可能进行优化的，即先将指针赋值再调用构造函数，导致线程不安全！！</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<blockquote>
-<p>参考文章：</p>
-<ul>
-<li><a href="https://barrgroup.com/embedded-systems/how-to/c-volatile-keyword">How to Use C’s volatile Keyword</a></li>
-<li><a href="https://barrgroup.com/tech-talks/volatile-c">Pro Tips for Using C’s volatile Keyword</a></li>
-<li><a href="https://liam.page/2018/01/18/volatile-in-C-and-Cpp/">谈谈 c / c++ 中的volatile</a></li>
-</ul>
-</blockquote>
-]]></content>
-      <categories>
-        <category>c/c++</category>
       </categories>
   </entry>
   <entry>
