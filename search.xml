@@ -188,102 +188,6 @@
       </categories>
   </entry>
   <entry>
-    <title>Audio-初识</title>
-    <url>/2022/08/31/Audio-meet/</url>
-    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
-<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
-<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
-<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
-<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
-<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
-<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
-<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
-<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
-<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
-<ul>
-<li>定义：在时间轴上对信号进行离散化</li>
-<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
-</ul>
-<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
-<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
-<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
-<ul>
-<li><p>定义：在幅度轴上对信号进行数字化</p>
-</li>
-<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
-</li>
-</ul>
-<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
-<blockquote>
-<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
-</blockquote>
-<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
-<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
-<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
-</blockquote>
-<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
-<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
-<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
-</ul>
-<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
-<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
-<ul>
-<li><p>WAV编码（波形编码）</p>
-<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
-</li>
-<li><p>MP3编码</p>
-<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
-</li>
-<li><p>AAC编码</p>
-</li>
-</ul>
-<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
-<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
-<ul>
-<li><p>Ogg编码（有损）</p>
-<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
-</li>
-</ul>
-<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
-<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
-<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
-<ul>
-<li>单声道（mono）</li>
-<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
-<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
-<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
-<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
-</ul>
-<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
-<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
-<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
-<ul>
-<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
-<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
-</ul>
-<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
-<li>交错模式：每个声道的样本数据交错存储排布</li>
-<li>平面模式：每个声道的样本数据分开存储</li>
-</ul>
-<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
-<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
-<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
-<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
-<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
-</ul>
-<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
-<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
-<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
-<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Audio</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Audio-再遇</title>
     <url>/2022/09/05/Audio-meet-1/</url>
     <content><![CDATA[<p>本篇内容对一节提到的编码进行扩展，将重点对PCM格式、WAVE格式、MP3格式进行详细解析。</p>
@@ -564,75 +468,99 @@
       </categories>
   </entry>
   <entry>
-    <title>硬件随机数测试方法</title>
-    <url>/2022/11/26/DTRNG_Test/</url>
-    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
-<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
-<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
-<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
-</ol>
+    <title>Audio-初识</title>
+    <url>/2022/08/31/Audio-meet/</url>
+    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
+<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
+<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
+<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
+<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
+<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
+<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
+<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
+<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
+<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
 <ul>
-<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
+<li>定义：在时间轴上对信号进行离散化</li>
+<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
+</ul>
+<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
+<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
+<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
+<ul>
+<li><p>定义：在幅度轴上对信号进行数字化</p>
 </li>
-<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
-</li>
-<li><p>windows安装</p>
-<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
-<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
-</li>
-<li><p>Linux安装</p>
-<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
 </li>
 </ul>
-<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
-<ol>
-<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
-<li>Frequency Test within a Block，块内频率检测</li>
-<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
-<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
-<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
-<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
-<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
-<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
-<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
-<li>The Linear Complexity Test，线性复杂度检测</li>
-<li>The Serial Test，序列检测</li>
-<li>The Approximate Entropy Test，近似熵检测</li>
-<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
-<li>The Random Excursions Test，随机游动检测</li>
-<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
-</ol>
-<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
-<ol>
-<li>启动程序。**./assess ，**stream length译为流的长度。</li>
-<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
-<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
-<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
-<li>输入比特流的个数。表示有多少个stream</li>
-<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
-</ol>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
-<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
-<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
-<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
-</ol>
-<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
-<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
-<li><p>Q：Segment fault</p>
-<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
+<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
+<blockquote>
+<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
+</blockquote>
+<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
+<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
+<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
+</blockquote>
+<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
+<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
+<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
+</ul>
+<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
+<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
+<ul>
+<li><p>WAV编码（波形编码）</p>
+<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
 </li>
-<li><p>Q：igamc: UNDERFLOW？</p>
-<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
+<li><p>MP3编码</p>
+<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
 </li>
-<li><p>Q：P-value全部是0？</p>
-<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
+<li><p>AAC编码</p>
 </li>
-</ol>
+</ul>
+<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
+<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
+<ul>
+<li><p>Ogg编码（有损）</p>
+<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
+</li>
+</ul>
+<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
+<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
+<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
+<ul>
+<li>单声道（mono）</li>
+<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
+<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
+<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
+<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
+</ul>
+<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
+<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
+<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
+<ul>
+<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
+<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
+</ul>
+<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
+<li>交错模式：每个声道的样本数据交错存储排布</li>
+<li>平面模式：每个声道的样本数据分开存储</li>
+</ul>
+<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
+<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
+<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
+<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
+<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
+</ul>
+<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
+<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
+<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
+<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
 ]]></content>
       <categories>
-        <category>Third Party</category>
+        <category>Linux</category>
+        <category>Audio</category>
       </categories>
   </entry>
   <entry>
@@ -773,185 +701,6 @@
 ]]></content>
       <categories>
         <category>c/c++</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>CMake</title>
-    <url>/2022/08/25/cmake/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>官网 : <a href="https://cmake.org/cmake/help/v3.15/">https://cmake.org/cmake/help/v3.15/</a></p>
-</blockquote>
-<p>CMake是跨平台的 免费和开源软件，用于使用独立于编译器的方法构建自动化、测试、打包和安装软件。CMake 本身并不是一个构建系统；它生成另一个系统的构建文件。它支持目录层次结构和依赖于多个库的应用程序。它与原生构建环境结合使用，例如Make、Qt Creator、Ninja、Android Studio、Apple 的Xcode和Microsoft Visual Studio。（摘自Wiki）</p>
-<h1 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h1><h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ol>
-<li><p>cmake要求最低版本(选择性添加)</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">cmake_minimum_required(VERSION <span class="number">3.0</span><span class="number">.0</span>)</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>编译工程名</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">project(xxx)</span><br><span class="line"><span class="comment">//会自动创建两个变量，PROJECT_SOURCE_DIR和PROJECT_NAME</span></span><br><span class="line"><span class="comment">//${PROJECT_SOURCE_DIR}：本CMakeLists.txt所在的文件夹路径</span></span><br><span class="line"><span class="comment">//${PROJECT_NAME}：本CMakeLists.txt的project名称</span></span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>给部分文件或路径组合起别名, 通过${变量}获取变量内容</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">set</span>(变量 文件名/路径/...)</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>设置c / c++ 编译编译参数</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">set</span> (CMAKE_C_FLAGS <span class="string">"-Wall -O2"</span>)</span><br><span class="line"><span class="built_in">set</span> (CMAKE_CXX_FLAGS <span class="string">"-Wall -std=C++11"</span>)</span><br><span class="line">add_compile_options( -Wall )				<span class="comment">//该命令译选项是针对所有编译器的(包括c和c++编译器)</span></span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>为当前路径以及子目录的源文件加入由-D引入的define flag</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_definitions(-DFOO -DDEBUG ...)</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>对子文件夹进行cmake编译</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_subdirectory(子文件夹名) </span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>打印信息</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">message() 			<span class="comment">//直接添加打印的内容和变量即可,不需要双引号</span></span><br><span class="line">message(<span class="string">"PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}"</span>)</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>帮助信息 </p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="number">1.</span> 查看cmake默认变量		cmake --help-variable-<span class="built_in">list</span></span><br></pre></td></tr></tbody></table></figure></li>
-</ol>
-<h2 id="判断语句"><a href="#判断语句" class="headerlink" title="判断语句"></a>判断语句</h2><p>用法：根据某个宏确定编译内容。比较字符串，相同返回true</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (CPU_PLATFORM_BIT STREQUAL <span class="string">"64"</span>)</span><br><span class="line">    add_library(mylib generic_64bit.c)</span><br><span class="line"><span class="keyword">else</span>()</span><br><span class="line">    add_library(mylib generic_32bit.c)</span><br><span class="line">endif()  </span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="编译目标"><a href="#编译目标" class="headerlink" title="编译目标"></a>编译目标</h2><h3 id="二进制文件"><a href="#二进制文件" class="headerlink" title="二进制文件"></a>二进制文件</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_executable(目标文件名字xxx 源文件)</span><br><span class="line"><span class="comment">//example: add_executable(${PROJECT_NAME} example_person.cpp)</span></span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="动态-x2F-静态库"><a href="#动态-x2F-静态库" class="headerlink" title="动态 / 静态库"></a>动态 / 静态库</h3><p>将指定的源文件生成链接文件，然后添加到工程中去</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_library(&lt;name&gt; [STATIC | SHARED | MODULE]</span><br><span class="line">[EXCLUDE_FROM_ALL]</span><br><span class="line">[source1] [source2] [...])</span><br><span class="line"></span><br><span class="line"><span class="comment">//&lt;name&gt;表示库文件的名字，该库文件会根据命令里列出的源文件来创建。生成的库自动补全,如libxxx.so </span></span><br><span class="line"><span class="comment">//STATIC、SHARED和MODULE的作用是指定生成的库文件的类型。STATIC库是目标文件的归档文件，在链接其它目标的时候使用。SHARED库会被	动态链接（动态链接库），在运行时会被加载。MODULE库是一种不会被链接到其它目标中的插件，但是可能会在运行时使用dlopen-系列的函数	。默认状态下，库文件将会在于源文件目录树的构建目录树的位置被创建，该命令也会在这里被调用。</span></span><br><span class="line"><span class="comment">//source1 source2分别表示各个源文件</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h2 id="链接-x2F-路径"><a href="#链接-x2F-路径" class="headerlink" title="链接/路径"></a>链接/路径</h2><h3 id="头文件路径"><a href="#头文件路径" class="headerlink" title="头文件路径"></a>头文件路径</h3><p>添加头文件的查找路径, 相当于命令行的  <em><strong>-l</strong></em> 参数</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">include_directories(../thirdparty/comm/include)</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="链接库路径"><a href="#链接库路径" class="headerlink" title="链接库路径"></a>链接库路径</h3><p>添加需要链接的库文件目录, 相当于命令行 <em><strong>-L</strong></em> 参数</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">link_directories(<span class="string">"/home/server/third/lib"</span>)</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="链接库"><a href="#链接库" class="headerlink" title="链接库"></a>链接库</h3><p> 将目标文件与库文件进行链接</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">target_link_libraries(&lt;target&gt; [item1] [item2] [...] [[debug|optimized|general] &lt;item&gt;] ...)</span><br><span class="line"> </span><br><span class="line"><span class="comment">//&lt;target&gt;是指通过add_executable()和add_library()指令生成已经创建的目标文件</span></span><br><span class="line"><span class="comment">//[item]表示库文件没有后缀的名字。默认情况下，库依赖项是传递的。当这个目标链接到另一个目标时，链接到这个目标的库也会出现在另一个目标的连接线上。这个传递的接口存储在interface_link_libraries的目标属性中，可以通过设置该属性直接重写传递接口。</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h2 id="安装（Install）"><a href="#安装（Install）" class="headerlink" title="安装（Install）"></a>安装（Install）</h2><ul>
-<li>详情参考：<a href="https://cmake.org/cmake/help/v3.22/command/install.html">https://cmake.org/cmake/help/v3.22/command/install.html</a></li>
-<li>作用：用于定义安装规则，安装内容包括可执行文件，静态库，动态库以及文件，目录，脚本等</li>
-<li>使用方法：make install</li>
-<li>目标安装路径：${CMAKE_INSTALL_PREFIX}指定，默认/usr/local</li>
-</ul>
-<h3 id="目标文件安装"><a href="#目标文件安装" class="headerlink" title="目标文件安装"></a>目标文件安装</h3><p>目标文件指的是我们通过 add_executable / add_library 得到的二进制文件或者库，只有这些文件才可以通过该命令装载到相应的位置</p>
-<ul>
-<li>可执行文件：RUNTIME</li>
-<li>动态库：LIBRARY</li>
-<li>静态库：ARCHIVE</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(TARGETS targets... [EXPORT &lt;export-name&gt;]</span><br><span class="line">        [RUNTIME_DEPENDENCIES args...|RUNTIME_DEPENDENCY_SET &lt;<span class="built_in">set</span>-name&gt;]</span><br><span class="line">        [[ARCHIVE|LIBRARY|RUNTIME|OBJECTS|FRAMEWORK|BUNDLE|</span><br><span class="line">          PRIVATE_HEADER|PUBLIC_HEADER|RESOURCE]</span><br><span class="line">         [DESTINATION &lt;dir&gt;]</span><br><span class="line">         [PERMISSIONS permissions...]</span><br><span class="line">         [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">         [COMPONENT &lt;component&gt;]</span><br><span class="line">         [NAMELINK_COMPONENT &lt;component&gt;]</span><br><span class="line">         [OPTIONAL] [EXCLUDE_FROM_ALL]</span><br><span class="line">         [NAMELINK_ONLY|NAMELINK_SKIP]</span><br><span class="line">        ] [...]</span><br><span class="line">        [INCLUDES DESTINATION [&lt;dir&gt; ...]]</span><br><span class="line">        )</span><br><span class="line">        </span><br><span class="line"><span class="comment">// example:</span></span><br><span class="line">install(TARGETS mybin mystaiclib mydynamiclib</span><br><span class="line">        RUNTIME DESTINATION bin</span><br><span class="line">        ARCHIVE DESTINATION lib</span><br><span class="line">        LIBRARY DESTINATION lib)</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="普通文件安装"><a href="#普通文件安装" class="headerlink" title="普通文件安装"></a>普通文件安装</h3><p>普通文件即需要导出的头文件、依赖的三方库等等，该命令同时可以指定导出文件的权限（默认644）</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(&lt;FILES|PROGRAMS&gt; files...</span><br><span class="line">        TYPE &lt;type&gt; | DESTINATION &lt;dir&gt;</span><br><span class="line">        [PERMISSIONS permissions...]</span><br><span class="line">        [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">        [COMPONENT &lt;component&gt;]</span><br><span class="line">        [RENAME &lt;name&gt;] [OPTIONAL] [EXCLUDE_FROM_ALL])</span><br><span class="line">        </span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">install(FILES mylib.h DESTINATION include)</span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="目录安装"><a href="#目录安装" class="headerlink" title="目录安装"></a>目录安装</h3><p>参数介绍：</p>
-<ul>
-<li>DIRECTORY：后面连接的是所在Source目录的相对路径（结尾是否是”/“对拷贝结果有一定影响）</li>
-<li>PATTERN：使用正则表达式进行过滤</li>
-<li>PERMISSIONS：指定PATTERN过滤后的文件权限。</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(DIRECTORY dirs...</span><br><span class="line">        TYPE &lt;type&gt; | DESTINATION &lt;dir&gt;</span><br><span class="line">        [FILE_PERMISSIONS permissions...]</span><br><span class="line">        [DIRECTORY_PERMISSIONS permissions...]</span><br><span class="line">        [USE_SOURCE_PERMISSIONS] [OPTIONAL] [MESSAGE_NEVER]</span><br><span class="line">        [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">        [COMPONENT &lt;component&gt;] [EXCLUDE_FROM_ALL]</span><br><span class="line">        [FILES_MATCHING]</span><br><span class="line">        [[PATTERN &lt;pattern&gt; | REGEX &lt;regex&gt;]</span><br><span class="line">         [EXCLUDE] [PERMISSIONS permissions...]] [...])</span><br><span class="line"></span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">install(DIRECTORY src/ DESTINATION include/myproj  FILES_MATCHING PATTERN <span class="string">"*.h"</span>)</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><ol>
-<li><p>Q: 编译参数添加了-lpthread 参数, 但是还是报undefined reference to `pthread_create’ </p>
-<p>A : 需要使用target_link_libraries( target thread) 在这里链接thread库</p>
-</li>
-<li><p>Q: 如果在多级的目录下编译, 始终找不到问题报 undefine的问题 ?</p>
-<p>A : 看一下是不是链接的库或目标文件格式不同, 一个c 一个c++ , 这样就会导致找不到符号错误</p>
-</li>
-<li><p>Q: undefined reference to `typeinfo for xxxBase_class’ ?</p>
-<p>A: 基类的构造和析构函数需要加{ };  否则就会报这个问题</p>
-</li>
-</ol>
-<h1 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h1><h2 id="通配符"><a href="#通配符" class="headerlink" title="通配符"></a>通配符</h2><table>
-<thead>
-<tr>
-<th>通配符</th>
-<th>使用说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>*</td>
-<td>匹配0个或者是任意个字符</td>
-</tr>
-<tr>
-<td>?</td>
-<td>匹配任意一个字符</td>
-</tr>
-<tr>
-<td>[]</td>
-<td>我们可以指定匹配的字符放在 “[]” 中</td>
-</tr>
-<tr>
-<td>%</td>
-<td>匹配任意个字符</td>
-</tr>
-</tbody></table>
-<h2 id="自动化变量"><a href="#自动化变量" class="headerlink" title="自动化变量"></a>自动化变量</h2><table>
-<thead>
-<tr>
-<th>自动化变量</th>
-<th align="center">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>$@</td>
-<td align="center">表示规则的目标文件名。如果目标是一个文档文件（Linux 中，一般成 .a 文件为文档文件，也成为静态的库文件）， 那么它代表这个文档的文件名。在多目标模式规则中，它代表的是触发规则被执行的文件名。</td>
-</tr>
-<tr>
-<td>$%</td>
-<td align="center">当目标文件是一个静态库文件时，代表静态库的一个成员名。</td>
-</tr>
-<tr>
-<td>$&lt;</td>
-<td align="center">规则的第一个依赖的文件名。如果是一个目标文件使用隐含的规则来重建，则它代表由隐含规则加入的第一个依赖文件。</td>
-</tr>
-<tr>
-<td>$?</td>
-<td align="center">所有比目标文件更新的依赖文件列表，空格分隔。如果目标文件时静态库文件，代表的是库文件（.o 文件）。</td>
-</tr>
-<tr>
-<td>$^</td>
-<td align="center">代表的是所有依赖文件列表，使用空格分隔。如果目标是静态库文件，它所代表的只能是所有的库成员（.o 文件）名。 一个文件可重复的出现在目标的依赖中，变量“$”只记录它的第一次引用的情况。就是说变量“$”会去掉重复的依赖文件。</td>
-</tr>
-<tr>
-<td>$+</td>
-<td align="center">类似“$^”，但是它保留了依赖文件中重复出现的文件。主要用在程序链接时库的交叉引用场合。</td>
-</tr>
-<tr>
-<td>$*</td>
-<td align="center">在模式规则和静态模式规则中，代表“茎”。“茎”是目标模式中“%”所代表的部分（当文件名中存在目录时， “茎”也包含目录部分）。</td>
-</tr>
-</tbody></table>
-<h2 id="特殊函数"><a href="#特殊函数" class="headerlink" title="特殊函数"></a>特殊函数</h2><h3 id="添加前缀"><a href="#添加前缀" class="headerlink" title="添加前缀"></a>添加前缀</h3><ul>
-<li>函数名：addprefix( )</li>
-<li>语法：$(addprefix PREFIX/,${NAME…})</li>
-<li>函数功能：为“NAMES…”中的每一个文件名添加前缀“PREFIX”。参数“NAMES…”是空格分割的文件名序列，将“PREFIX”添加到此序列的每一个文件名之前。</li>
-<li>返回值：以单空格分割的添加了前缀“PREFIX”的文件名序列。</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">$(addprefix src/,foo bar)</span><br><span class="line"><span class="comment">//返回值为“src/foo src/bar”</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h3 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h3><ul>
-<li>函数名：filter( )</li>
-<li>语法：$(filter SUFFIX…,$(SOURCES))</li>
-<li>作用：保留字串 “ $(SOURCES)” 中所有符合模式 “ SUFFIX ” 的单词</li>
-</ul>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">sources := main.c AT.txt</span><br><span class="line">foo : $(sources)</span><br><span class="line">    cc $(filter %.c,%.s,$(sources)) -o foo</span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h2 id="打印"><a href="#打印" class="headerlink" title="打印"></a>打印</h2><p>用于Makefile的Debug，打印分为三个等级：info、warning、error</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">$(info SRC = $(SRC))</span><br><span class="line">$(warning INC = $(INC))</span><br><span class="line"><span class="comment">//注意：执行到error会直接stop退出</span></span><br><span class="line">$(error INC = $(INC))</span><br></pre></td></tr></tbody></table></figure>
-
-
-
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Tools</category>
       </categories>
   </entry>
   <entry>
@@ -1141,6 +890,596 @@
       <categories>
         <category>Linux</category>
         <category>搭建虚拟机</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>硬件随机数测试方法</title>
+    <url>/2022/11/26/third-party/DTRNG_Test/</url>
+    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
+<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
+<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
+<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
+</ol>
+<ul>
+<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
+</li>
+<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
+</li>
+<li><p>windows安装</p>
+<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
+<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
+</li>
+<li><p>Linux安装</p>
+<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+</li>
+</ul>
+<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
+<ol>
+<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
+<li>Frequency Test within a Block，块内频率检测</li>
+<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
+<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
+<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
+<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
+<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
+<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
+<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
+<li>The Linear Complexity Test，线性复杂度检测</li>
+<li>The Serial Test，序列检测</li>
+<li>The Approximate Entropy Test，近似熵检测</li>
+<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
+<li>The Random Excursions Test，随机游动检测</li>
+<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
+</ol>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
+<ol>
+<li>启动程序。**./assess ，**stream length译为流的长度。</li>
+<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
+<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
+<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
+<li>输入比特流的个数。表示有多少个stream</li>
+<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
+</ol>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
+<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
+<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
+<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
+</ol>
+<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
+<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
+<li><p>Q：Segment fault</p>
+<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
+</li>
+<li><p>Q：igamc: UNDERFLOW？</p>
+<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
+</li>
+<li><p>Q：P-value全部是0？</p>
+<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Third Party</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>CMake</title>
+    <url>/2022/08/25/third-party/cmake/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>官网 : <a href="https://cmake.org/cmake/help/v3.15/">https://cmake.org/cmake/help/v3.15/</a></p>
+</blockquote>
+<p>CMake是跨平台的 免费和开源软件，用于使用独立于编译器的方法构建自动化、测试、打包和安装软件。CMake 本身并不是一个构建系统；它生成另一个系统的构建文件。它支持目录层次结构和依赖于多个库的应用程序。它与原生构建环境结合使用，例如Make、Qt Creator、Ninja、Android Studio、Apple 的Xcode和Microsoft Visual Studio。（摘自Wiki）</p>
+<h1 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h1><h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ol>
+<li><p>cmake要求最低版本(选择性添加)</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">cmake_minimum_required(VERSION <span class="number">3.0</span><span class="number">.0</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>编译工程名</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">project(xxx)</span><br><span class="line"><span class="comment">//会自动创建两个变量，PROJECT_SOURCE_DIR和PROJECT_NAME</span></span><br><span class="line"><span class="comment">//${PROJECT_SOURCE_DIR}：本CMakeLists.txt所在的文件夹路径</span></span><br><span class="line"><span class="comment">//${PROJECT_NAME}：本CMakeLists.txt的project名称</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>给部分文件或路径组合起别名, 通过${变量}获取变量内容</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">set</span>(变量 文件名/路径/...)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>设置c / c++ 编译编译参数</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">set</span> (CMAKE_C_FLAGS <span class="string">"-Wall -O2"</span>)</span><br><span class="line"><span class="built_in">set</span> (CMAKE_CXX_FLAGS <span class="string">"-Wall -std=C++11"</span>)</span><br><span class="line">add_compile_options( -Wall )				<span class="comment">//该命令译选项是针对所有编译器的(包括c和c++编译器)</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>为当前路径以及子目录的源文件加入由-D引入的define flag</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_definitions(-DFOO -DDEBUG ...)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>对子文件夹进行cmake编译</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_subdirectory(子文件夹名) </span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>打印信息</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">message() 			<span class="comment">//直接添加打印的内容和变量即可,不需要双引号</span></span><br><span class="line">message(<span class="string">"PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}"</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>帮助信息 </p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="number">1.</span> 查看cmake默认变量		cmake --help-variable-<span class="built_in">list</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h2 id="判断语句"><a href="#判断语句" class="headerlink" title="判断语句"></a>判断语句</h2><p>用法：根据某个宏确定编译内容。比较字符串，相同返回true</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (CPU_PLATFORM_BIT STREQUAL <span class="string">"64"</span>)</span><br><span class="line">    add_library(mylib generic_64bit.c)</span><br><span class="line"><span class="keyword">else</span>()</span><br><span class="line">    add_library(mylib generic_32bit.c)</span><br><span class="line">endif()  </span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="编译目标"><a href="#编译目标" class="headerlink" title="编译目标"></a>编译目标</h2><h3 id="二进制文件"><a href="#二进制文件" class="headerlink" title="二进制文件"></a>二进制文件</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_executable(目标文件名字xxx 源文件)</span><br><span class="line"><span class="comment">//example: add_executable(${PROJECT_NAME} example_person.cpp)</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="动态-x2F-静态库"><a href="#动态-x2F-静态库" class="headerlink" title="动态 / 静态库"></a>动态 / 静态库</h3><p>将指定的源文件生成链接文件，然后添加到工程中去</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">add_library(&lt;name&gt; [STATIC | SHARED | MODULE]</span><br><span class="line">[EXCLUDE_FROM_ALL]</span><br><span class="line">[source1] [source2] [...])</span><br><span class="line"></span><br><span class="line"><span class="comment">//&lt;name&gt;表示库文件的名字，该库文件会根据命令里列出的源文件来创建。生成的库自动补全,如libxxx.so </span></span><br><span class="line"><span class="comment">//STATIC、SHARED和MODULE的作用是指定生成的库文件的类型。STATIC库是目标文件的归档文件，在链接其它目标的时候使用。SHARED库会被	动态链接（动态链接库），在运行时会被加载。MODULE库是一种不会被链接到其它目标中的插件，但是可能会在运行时使用dlopen-系列的函数	。默认状态下，库文件将会在于源文件目录树的构建目录树的位置被创建，该命令也会在这里被调用。</span></span><br><span class="line"><span class="comment">//source1 source2分别表示各个源文件</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="链接-x2F-路径"><a href="#链接-x2F-路径" class="headerlink" title="链接/路径"></a>链接/路径</h2><h3 id="头文件路径"><a href="#头文件路径" class="headerlink" title="头文件路径"></a>头文件路径</h3><p>添加头文件的查找路径, 相当于命令行的  <em><strong>-l</strong></em> 参数</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">include_directories(../thirdparty/comm/include)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="链接库路径"><a href="#链接库路径" class="headerlink" title="链接库路径"></a>链接库路径</h3><p>添加需要链接的库文件目录, 相当于命令行 <em><strong>-L</strong></em> 参数</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">link_directories(<span class="string">"/home/server/third/lib"</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="链接库"><a href="#链接库" class="headerlink" title="链接库"></a>链接库</h3><p> 将目标文件与库文件进行链接</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">target_link_libraries(&lt;target&gt; [item1] [item2] [...] [[debug|optimized|general] &lt;item&gt;] ...)</span><br><span class="line"> </span><br><span class="line"><span class="comment">//&lt;target&gt;是指通过add_executable()和add_library()指令生成已经创建的目标文件</span></span><br><span class="line"><span class="comment">//[item]表示库文件没有后缀的名字。默认情况下，库依赖项是传递的。当这个目标链接到另一个目标时，链接到这个目标的库也会出现在另一个目标的连接线上。这个传递的接口存储在interface_link_libraries的目标属性中，可以通过设置该属性直接重写传递接口。</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="安装（Install）"><a href="#安装（Install）" class="headerlink" title="安装（Install）"></a>安装（Install）</h2><ul>
+<li>详情参考：<a href="https://cmake.org/cmake/help/v3.22/command/install.html">https://cmake.org/cmake/help/v3.22/command/install.html</a></li>
+<li>作用：用于定义安装规则，安装内容包括可执行文件，静态库，动态库以及文件，目录，脚本等</li>
+<li>使用方法：make install</li>
+<li>目标安装路径：${CMAKE_INSTALL_PREFIX}指定，默认/usr/local</li>
+</ul>
+<h3 id="目标文件安装"><a href="#目标文件安装" class="headerlink" title="目标文件安装"></a>目标文件安装</h3><p>目标文件指的是我们通过 add_executable / add_library 得到的二进制文件或者库，只有这些文件才可以通过该命令装载到相应的位置</p>
+<ul>
+<li>可执行文件：RUNTIME</li>
+<li>动态库：LIBRARY</li>
+<li>静态库：ARCHIVE</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(TARGETS targets... [EXPORT &lt;export-name&gt;]</span><br><span class="line">        [RUNTIME_DEPENDENCIES args...|RUNTIME_DEPENDENCY_SET &lt;<span class="built_in">set</span>-name&gt;]</span><br><span class="line">        [[ARCHIVE|LIBRARY|RUNTIME|OBJECTS|FRAMEWORK|BUNDLE|</span><br><span class="line">          PRIVATE_HEADER|PUBLIC_HEADER|RESOURCE]</span><br><span class="line">         [DESTINATION &lt;dir&gt;]</span><br><span class="line">         [PERMISSIONS permissions...]</span><br><span class="line">         [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">         [COMPONENT &lt;component&gt;]</span><br><span class="line">         [NAMELINK_COMPONENT &lt;component&gt;]</span><br><span class="line">         [OPTIONAL] [EXCLUDE_FROM_ALL]</span><br><span class="line">         [NAMELINK_ONLY|NAMELINK_SKIP]</span><br><span class="line">        ] [...]</span><br><span class="line">        [INCLUDES DESTINATION [&lt;dir&gt; ...]]</span><br><span class="line">        )</span><br><span class="line">        </span><br><span class="line"><span class="comment">// example:</span></span><br><span class="line">install(TARGETS mybin mystaiclib mydynamiclib</span><br><span class="line">        RUNTIME DESTINATION bin</span><br><span class="line">        ARCHIVE DESTINATION lib</span><br><span class="line">        LIBRARY DESTINATION lib)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="普通文件安装"><a href="#普通文件安装" class="headerlink" title="普通文件安装"></a>普通文件安装</h3><p>普通文件即需要导出的头文件、依赖的三方库等等，该命令同时可以指定导出文件的权限（默认644）</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(&lt;FILES|PROGRAMS&gt; files...</span><br><span class="line">        TYPE &lt;type&gt; | DESTINATION &lt;dir&gt;</span><br><span class="line">        [PERMISSIONS permissions...]</span><br><span class="line">        [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">        [COMPONENT &lt;component&gt;]</span><br><span class="line">        [RENAME &lt;name&gt;] [OPTIONAL] [EXCLUDE_FROM_ALL])</span><br><span class="line">        </span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">install(FILES mylib.h DESTINATION include)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="目录安装"><a href="#目录安装" class="headerlink" title="目录安装"></a>目录安装</h3><p>参数介绍：</p>
+<ul>
+<li>DIRECTORY：后面连接的是所在Source目录的相对路径（结尾是否是”/“对拷贝结果有一定影响）</li>
+<li>PATTERN：使用正则表达式进行过滤</li>
+<li>PERMISSIONS：指定PATTERN过滤后的文件权限。</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">install(DIRECTORY dirs...</span><br><span class="line">        TYPE &lt;type&gt; | DESTINATION &lt;dir&gt;</span><br><span class="line">        [FILE_PERMISSIONS permissions...]</span><br><span class="line">        [DIRECTORY_PERMISSIONS permissions...]</span><br><span class="line">        [USE_SOURCE_PERMISSIONS] [OPTIONAL] [MESSAGE_NEVER]</span><br><span class="line">        [CONFIGURATIONS [Debug|Release|...]]</span><br><span class="line">        [COMPONENT &lt;component&gt;] [EXCLUDE_FROM_ALL]</span><br><span class="line">        [FILES_MATCHING]</span><br><span class="line">        [[PATTERN &lt;pattern&gt; | REGEX &lt;regex&gt;]</span><br><span class="line">         [EXCLUDE] [PERMISSIONS permissions...]] [...])</span><br><span class="line"></span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">install(DIRECTORY src/ DESTINATION include/myproj  FILES_MATCHING PATTERN <span class="string">"*.h"</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><ol>
+<li><p>Q: 编译参数添加了-lpthread 参数, 但是还是报undefined reference to `pthread_create’ </p>
+<p>A : 需要使用target_link_libraries( target thread) 在这里链接thread库</p>
+</li>
+<li><p>Q: 如果在多级的目录下编译, 始终找不到问题报 undefine的问题 ?</p>
+<p>A : 看一下是不是链接的库或目标文件格式不同, 一个c 一个c++ , 这样就会导致找不到符号错误</p>
+</li>
+<li><p>Q: undefined reference to `typeinfo for xxxBase_class’ ?</p>
+<p>A: 基类的构造和析构函数需要加{ };  否则就会报这个问题</p>
+</li>
+</ol>
+<h1 id="Makefile"><a href="#Makefile" class="headerlink" title="Makefile"></a>Makefile</h1><h2 id="通配符"><a href="#通配符" class="headerlink" title="通配符"></a>通配符</h2><table>
+<thead>
+<tr>
+<th>通配符</th>
+<th>使用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*</td>
+<td>匹配0个或者是任意个字符</td>
+</tr>
+<tr>
+<td>?</td>
+<td>匹配任意一个字符</td>
+</tr>
+<tr>
+<td>[]</td>
+<td>我们可以指定匹配的字符放在 “[]” 中</td>
+</tr>
+<tr>
+<td>%</td>
+<td>匹配任意个字符</td>
+</tr>
+</tbody></table>
+<h2 id="自动化变量"><a href="#自动化变量" class="headerlink" title="自动化变量"></a>自动化变量</h2><table>
+<thead>
+<tr>
+<th>自动化变量</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$@</td>
+<td align="center">表示规则的目标文件名。如果目标是一个文档文件（Linux 中，一般成 .a 文件为文档文件，也成为静态的库文件）， 那么它代表这个文档的文件名。在多目标模式规则中，它代表的是触发规则被执行的文件名。</td>
+</tr>
+<tr>
+<td>$%</td>
+<td align="center">当目标文件是一个静态库文件时，代表静态库的一个成员名。</td>
+</tr>
+<tr>
+<td>$&lt;</td>
+<td align="center">规则的第一个依赖的文件名。如果是一个目标文件使用隐含的规则来重建，则它代表由隐含规则加入的第一个依赖文件。</td>
+</tr>
+<tr>
+<td>$?</td>
+<td align="center">所有比目标文件更新的依赖文件列表，空格分隔。如果目标文件时静态库文件，代表的是库文件（.o 文件）。</td>
+</tr>
+<tr>
+<td>$^</td>
+<td align="center">代表的是所有依赖文件列表，使用空格分隔。如果目标是静态库文件，它所代表的只能是所有的库成员（.o 文件）名。 一个文件可重复的出现在目标的依赖中，变量“$”只记录它的第一次引用的情况。就是说变量“$”会去掉重复的依赖文件。</td>
+</tr>
+<tr>
+<td>$+</td>
+<td align="center">类似“$^”，但是它保留了依赖文件中重复出现的文件。主要用在程序链接时库的交叉引用场合。</td>
+</tr>
+<tr>
+<td>$*</td>
+<td align="center">在模式规则和静态模式规则中，代表“茎”。“茎”是目标模式中“%”所代表的部分（当文件名中存在目录时， “茎”也包含目录部分）。</td>
+</tr>
+</tbody></table>
+<h2 id="特殊函数"><a href="#特殊函数" class="headerlink" title="特殊函数"></a>特殊函数</h2><h3 id="添加前缀"><a href="#添加前缀" class="headerlink" title="添加前缀"></a>添加前缀</h3><ul>
+<li>函数名：addprefix( )</li>
+<li>语法：$(addprefix PREFIX/,${NAME…})</li>
+<li>函数功能：为“NAMES…”中的每一个文件名添加前缀“PREFIX”。参数“NAMES…”是空格分割的文件名序列，将“PREFIX”添加到此序列的每一个文件名之前。</li>
+<li>返回值：以单空格分割的添加了前缀“PREFIX”的文件名序列。</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">$(addprefix src/,foo bar)</span><br><span class="line"><span class="comment">//返回值为“src/foo src/bar”</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h3 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h3><ul>
+<li>函数名：filter( )</li>
+<li>语法：$(filter SUFFIX…,$(SOURCES))</li>
+<li>作用：保留字串 “ $(SOURCES)” 中所有符合模式 “ SUFFIX ” 的单词</li>
+</ul>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">sources := main.c AT.txt</span><br><span class="line">foo : $(sources)</span><br><span class="line">    cc $(filter %.c,%.s,$(sources)) -o foo</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="打印"><a href="#打印" class="headerlink" title="打印"></a>打印</h2><p>用于Makefile的Debug，打印分为三个等级：info、warning、error</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">$(info SRC = $(SRC))</span><br><span class="line">$(warning INC = $(INC))</span><br><span class="line"><span class="comment">//注意：执行到error会直接stop退出</span></span><br><span class="line">$(error INC = $(INC))</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Tools</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>LwIP协议栈</title>
+    <url>/2022/11/30/third-party/lwip/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>Lwip官网：<a href="https://savannah.nongnu.org/projects/lwip/">https://savannah.nongnu.org/projects/lwip/</a></p>
+</blockquote>
+<p>LWIP（light weight ip）轻型IP协议，有无操作系统的支持都可以运行。LwIP实现的重点是在保持TCP协议主要功能的基础上减少对RAM 的占用，它只需十几KB的RAM和40K左右的ROM就可以运行，这使LwIP协议栈适合在低端的嵌入式系统中使用。</p>
+<p>LWIP支持的协议种类：</p>
+<ul>
+<li>DNS，域名解析；</li>
+<li>SNMP，简单网络管理协议；</li>
+<li>DHCP，动态主机配置协议；</li>
+<li>UDP 协议，用户数据报协议；</li>
+<li>TCP 协议，支持 TCP 拥塞控制， RTT 估计，快速恢复与重传等；</li>
+<li>IP 协议，包括 IPv4 和 IPv6，支持 IP 分片与重装，支持多网络接口下数据转发；</li>
+<li>AUTOIP， IP 地址自动配置；</li>
+<li>ICMP 协议，用于网络调试与维护；</li>
+<li>IGMP 协议，用于网络组管理，可以实现多播数据的接收；</li>
+<li>ARP 协议，以太网地址解析协议；</li>
+<li>PPP，点对点协议，支持 PPPoE</li>
+</ul>
+<h1 id="LwIP架构"><a href="#LwIP架构" class="headerlink" title="LwIP架构"></a>LwIP架构</h1><p>LwIP 符合 TCP/IP 模型架构，规定了数据的格式、传输、路由和接收，以实现端到端的通信。 此模型包括四个抽象层，用于根据涉及的网络范围，对所有相关协议排序。这几 层从低到高依次为：</p>
+<ul>
+<li><p>链路层包含了局域网的单网段 （链路）通信技术</p>
+</li>
+<li><p>网际层 （IP）将独立的网络连接起来，建立互联</p>
+</li>
+<li><p>传输层处理主机端口到主机端口的通信</p>
+</li>
+<li><p>应用层在实现多个应用进程相互通信的同时，完成应用所需的服务 （例如：数据处理）</p>
+<p><img src="/images/third-party/lwip.png"></p>
+</li>
+</ul>
+<h1 id="编程模式"><a href="#编程模式" class="headerlink" title="编程模式"></a>编程模式</h1><h2 id="RAW-API"><a href="#RAW-API" class="headerlink" title="RAW API"></a>RAW API</h2><p>内核回调型API，当初始化应用时，用户需要为不同内核事件注册所需的回调函数 （例如 TCP_Sent、 TCP_error…）。当相应事件发生时， LwIP 会自发地调用相关的回调函数。<em>没有操作系统支持中，只能使用RAW API开发</em></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TCP连接建立</td>
+<td>tcp_new</td>
+<td>建立一个新的 TCP PCB （协议控制块）。</td>
+</tr>
+<tr>
+<td></td>
+<td>tcp_bind</td>
+<td>将 TCP PCB 绑定到本地 IP 地址和端口。</td>
+</tr>
+<tr>
+<td></td>
+<td>tcp_listen</td>
+<td>启动 TCP PCB 上的监听进程。</td>
+</tr>
+<tr>
+<td></td>
+<td>tcp_accept</td>
+<td>注册回调函数，连接成功建立后调用。</td>
+</tr>
+<tr>
+<td></td>
+<td>tcp_connect</td>
+<td>发送连接建立请求。</td>
+</tr>
+<tr>
+<td>发送TCP数据</td>
+<td>tcp_write</td>
+<td>将发送数据写入 TCP 缓冲区中。</td>
+</tr>
+<tr>
+<td></td>
+<td>tcp_sent</td>
+<td>注册回调函数，数据发送成功后调用。</td>
+</tr>
+<tr>
+<td></td>
+<td>tcp_output</td>
+<td>发送 TCP 缓冲区中的数据</td>
+</tr>
+<tr>
+<td>接收TCP数据</td>
+<td>tcp_recv</td>
+<td>注册回调函数， TCP 接收到数据后调用</td>
+</tr>
+<tr>
+<td>应用轮询</td>
+<td>tcp_poll</td>
+<td>注册回调函数，TCP慢定时器调用（500ms一次）。</td>
+</tr>
+<tr>
+<td>关闭并终止连接</td>
+<td>tcp_close</td>
+<td>主动关闭。</td>
+</tr>
+<tr>
+<td></td>
+<td>tcp_err</td>
+<td>注册回调函数，出错时调用。</td>
+</tr>
+<tr>
+<td></td>
+<td>tcp_abort</td>
+<td>中止连接，向远程主机发送 RST。</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>udp_new</td>
+<td>创建新的 UDP PCB。</td>
+</tr>
+<tr>
+<td></td>
+<td>udp_remove</td>
+<td>移除 UDP PCB 并释放相关资源。</td>
+</tr>
+<tr>
+<td></td>
+<td>udp_bind</td>
+<td>将 UDP PCB 与本地 IP 地址和端口绑定。</td>
+</tr>
+<tr>
+<td></td>
+<td>udp_connect</td>
+<td>建立 UDP PCB 远程 IP 地址和端口。</td>
+</tr>
+<tr>
+<td></td>
+<td>udp_disconnect</td>
+<td>移除 UDP PCB 远程 IP 和端口。</td>
+</tr>
+<tr>
+<td></td>
+<td>udp_send</td>
+<td>发送 UDP 数据</td>
+</tr>
+<tr>
+<td></td>
+<td>udp_recv</td>
+<td>注册回调函数，当收到新数据报时即对其调用。</td>
+</tr>
+</tbody></table>
+<h2 id="Netconn-API"><a href="#Netconn-API" class="headerlink" title="Netconn API"></a>Netconn API</h2><p>Netconn API 为高层有序 API，其执行模型基于典型的阻塞式打开 - 读 - 写 - 关闭机制。 若要正常工作，此 API 必须处于多线程工作模式，该模式需为 LwIP TCP/IP 栈实现专用线程， 并 / 或为应用实现多个线程。</p>
+<p>基于操作系统的IPC机制（即信号量和邮箱机制）实现的，将LWIP内核代码和网络应用程序分离成了独立的线程，因此LWIP内核线程就只负责数据包的TCP/IP封装和拆封，而不用进行数据的应用层处理，大大提高了系统对网络数据包的处理效率</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>netconn_new</td>
+<td>创建一个新连接。</td>
+</tr>
+<tr>
+<td>netconn_delete</td>
+<td>删除一个已有连接。</td>
+</tr>
+<tr>
+<td>netconn_bind</td>
+<td>将连接绑定到本地 IP 地址和端口。</td>
+</tr>
+<tr>
+<td>netconn_connect</td>
+<td>连接远程 IP 地址和端口。</td>
+</tr>
+<tr>
+<td>netconn_send</td>
+<td>通过 UDP 发送数据。</td>
+</tr>
+<tr>
+<td>netconn_recv</td>
+<td>接收数据。</td>
+</tr>
+<tr>
+<td>netconn_listen</td>
+<td>置 TCP netconn 处于监听模式。</td>
+</tr>
+<tr>
+<td>netconn_accept</td>
+<td>接受正在监听状态的 TCP 连接上的传入连接。</td>
+</tr>
+<tr>
+<td>netconn_write</td>
+<td>通过 TCP 数据 （将数据写入 TCP 缓冲区）。</td>
+</tr>
+<tr>
+<td>netconn_close</td>
+<td>主动关闭 TCP netconn。</td>
+</tr>
+</tbody></table>
+<h2 id="Socket-API"><a href="#Socket-API" class="headerlink" title="Socket API"></a>Socket API</h2><p>了标准 BSD 套接字 API。它是有序 API，在内部构建于 Netconn API 之上，对网络连接进行了高级的抽象，使得用户可以像操作文件一样操作网络连接	</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>socket</td>
+<td>创建一个新套接字。</td>
+</tr>
+<tr>
+<td>bind</td>
+<td>将套接字绑定到 IP 地址和端口。</td>
+</tr>
+<tr>
+<td>listen</td>
+<td>监听套接字连接。</td>
+</tr>
+<tr>
+<td>connect</td>
+<td>将套接字连接到远程主机 IP 地址和端口。</td>
+</tr>
+<tr>
+<td>accept</td>
+<td>在套接字上接受新连接。</td>
+</tr>
+<tr>
+<td>read</td>
+<td>从套接字读取数据。</td>
+</tr>
+<tr>
+<td>write</td>
+<td>向套接字写入数据。</td>
+</tr>
+<tr>
+<td>close</td>
+<td>关闭套接字 （删除套接字）。</td>
+</tr>
+</tbody></table>
+<h1 id="LwIP配置"><a href="#LwIP配置" class="headerlink" title="LwIP配置"></a>LwIP配置</h1><p>lwipopts.h 文件允许用户充分配置栈及其所有模块。用户不需要定义 所有 LwIP 选项：如果未定义某选项，则使用 opt.h 文件中定义的默认值。因此， lwipopts.h 提供了覆盖许多 lwIP 行为的方法。</p>
+<table>
+<thead>
+<tr>
+<th><strong>Lwip 内存选项</strong></th>
+<th><strong>含义</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MEM_SIZE</td>
+<td>LwIP 堆内存大小：用于所有 LwIP 动态内存分配</td>
+</tr>
+<tr>
+<td>MEMP_NUM_PBUF</td>
+<td>MEM_REF 和 MEM_ROM pbuf 总数</td>
+</tr>
+<tr>
+<td>MEMP_NUM_UDP_PCB</td>
+<td>UDP PCB 结构体的总数</td>
+</tr>
+<tr>
+<td>MEMP_NUM_TCP_PCB</td>
+<td>TCP PCB 结构体的总数</td>
+</tr>
+<tr>
+<td>MEMP_NUM_TCP_PCB_LISTEN</td>
+<td>处于监听状态的 TCP PCB 总数</td>
+</tr>
+<tr>
+<td>MEMP_NUM_TCP_SEG</td>
+<td>最多同时在 TCP 缓冲队列中的报文段数量</td>
+</tr>
+<tr>
+<td>PBUF_POOL_SIZE</td>
+<td>PBUF_POOL 类型的 pbuf 总数</td>
+</tr>
+<tr>
+<td>PBUF_POOL_BUFSIZE</td>
+<td>PBUF_POOL 类型 pbuf 的大小</td>
+</tr>
+<tr>
+<td>TCP_MSS</td>
+<td>最大 TCP 报文段 （MTU - IP 报头大小 - TCP 报头大小）</td>
+</tr>
+<tr>
+<td>TCP_SND_BUF</td>
+<td>对于一个连接， TCP 的发送缓冲空间</td>
+</tr>
+<tr>
+<td>TCP_SND_QUEUELEN</td>
+<td>TCP 发送队列中 pbuf 的最大数</td>
+</tr>
+<tr>
+<td>TCP_WND</td>
+<td>TCP 接收窗大小</td>
+</tr>
+</tbody></table>
+<h1 id="LwIP内存管理"><a href="#LwIP内存管理" class="headerlink" title="LwIP内存管理"></a>LwIP内存管理</h1><p>LwIP有两种内存管理方式：内存池、内存堆</p>
+<p>参考链接：<a href="https://blog.csdn.net/jiangjunjie_2005/article/details/26051399#t9">https://blog.csdn.net/jiangjunjie_2005/article/details/26051399#t9</a></p>
+<h1 id="实现TCP服务器"><a href="#实现TCP服务器" class="headerlink" title="实现TCP服务器"></a>实现TCP服务器</h1><blockquote>
+<p>echoserver实现：<a href="https://github.com/yangLieee/codebackup/tree/master/iperf">https://github.com/yangLieee/codebackup/tree/master/iperf</a></p>
+</blockquote>
+<ol>
+<li><p>新建控制块 </p>
+<p>使用tcp_new()函数建立一个TCP控制块。</p>
+</li>
+<li><p>绑定控制块</p>
+<p>对于服务器来说，新建一个控制快后，需要在控制块上绑定本地IP和端口，以方便客户端的连接。</p>
+</li>
+<li><p>控制块侦听</p>
+<p>使用tcp_listen函数，对于服务器来说，需要显性调用tcp_listen函数以使控制块进入监听状态，等待客户端的连接请求。</p>
+</li>
+<li><p>建立连接</p>
+<p>在tcp_listen函数进入服务器监听状态后，需要马上使用tcp_accept函数来注册一个接收处理函数，因为一旦有客户端连接请求被成功建立后，服务器就会调用这个处理函数。</p>
+</li>
+<li><p>接受并处理数据</p>
+<p>一旦连接成功，accept回调函数会调用tcp_recv函数注册一个接收完成的处理函数。对于服务器来说，接收到了客户端的数据或操作要求，就会调用这一回调函数进行处理。这其实是一个复杂的过程：接收到数据后，首先通知更新接受窗口（使用tcp_recved函数），处理并发送数据（使用tcp_write函数），数据发送成功则清除已发送的数据（使用tcp_sent函数），最后关闭连接（使用函数tcp_close）。</p>
+</li>
+</ol>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li><p>Q：<a href="https://blog.csdn.net/tanmx219/article/details/105930028">tcp_recvd正确调用方法</a>？</p>
+<p>A：很多源码是在tcp_server_sent发送函数中调tcp_recvd，如果用户不是用来echo（立即发回相同的报文），而是真正要处理事务的时候，这种用法是错误的：此时，接收窗口大小由发送窗口决定，如果没有发送新数据，接收窗口就会越来越小，直到最后无法接收数据。<strong>正确的用法是：在收到数据后，应用层调用tcp_recved函数恢复原来的窗口大小；而在发送函数中，不用管窗口的事！</strong></p>
+</li>
+<li><p>Q：调用lwip iperf接口，无法关闭server?</p>
+<p>A：lwip iperf只是实现当client断开连接删除掉其相关pcb结构体，而没有断开tcp连接没有释放监听端口，仿照lwiperf_tcp_close函数实现一个新的针对server关闭的接口即可</p>
+</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ol>
+<li><a href="https://www.kancloud.cn/jiejietop/tcpip/988613">LwIP应用开发指南</a></li>
+<li><a href="https://blog.csdn.net/weixin_54217950/article/details/121344759">网络基础之协议栈</a></li>
+<li><a href="https://www.st.com/resource/zh/user_manual/um1713-developing-applications-on-stm32cube-with-lwip-tcpip-stack-stmicroelectronics.pdf">使用 LwIP TCP/IP 栈在 STM32Cube 上开发应用</a></li>
+<li><a href="https://blog.51cto.com/u_15262460/2883223">LwIP使用经验</a></li>
+<li><a href="https://blog.csdn.net/zhzht19861011/article/details/125322654">TCP回调函数是何时调用的</a></li>
+<li><a href="https://blog.csdn.net/zhzht19861011/article/details/125278742">协议栈什么情况下发送 RST 标志</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Third Party</category>
       </categories>
   </entry>
 </search>

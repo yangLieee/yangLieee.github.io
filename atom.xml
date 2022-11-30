@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2022-11-26T14:59:19.699Z</updated>
+  <updated>2022-11-30T15:12:51.983Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,9 +17,26 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>LwIP协议栈</title>
+    <link href="http://yanglieee.com/2022/11/30/third-party/lwip/"/>
+    <id>http://yanglieee.com/2022/11/30/third-party/lwip/</id>
+    <published>2022-11-29T16:00:00.000Z</published>
+    <updated>2022-11-30T15:12:51.983Z</updated>
+    
+    
+    <summary type="html">介绍lwip协议栈及编程接口总结开发经验</summary>
+    
+    
+    
+    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>硬件随机数测试方法</title>
-    <link href="http://yanglieee.com/2022/11/26/DTRNG_Test/"/>
-    <id>http://yanglieee.com/2022/11/26/DTRNG_Test/</id>
+    <link href="http://yanglieee.com/2022/11/26/third-party/DTRNG_Test/"/>
+    <id>http://yanglieee.com/2022/11/26/third-party/DTRNG_Test/</id>
     <published>2022-11-25T16:00:00.000Z</published>
     <updated>2022-11-26T14:59:19.699Z</updated>
     
@@ -150,19 +167,10 @@
     <link href="http://yanglieee.com/2022/08/31/Audio-meet/"/>
     <id>http://yanglieee.com/2022/08/31/Audio-meet/</id>
     <published>2022-08-30T16:00:00.000Z</published>
-    <updated>2022-11-26T15:22:03.161Z</updated>
+    <updated>2022-11-27T13:35:12.153Z</updated>
     
     
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;跳动的音符，婉转的节奏，悠扬的歌声……&lt;/p&gt;
-&lt;p&gt;音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？&lt;/p&gt;
-&lt;p&gt;下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识&lt;/p&gt;
-&lt;h1</summary>
-        
-      
+    <summary type="html">AD转换及音频参数详解</summary>
     
     
     
@@ -175,20 +183,13 @@
   
   <entry>
     <title>CMake</title>
-    <link href="http://yanglieee.com/2022/08/25/cmake/"/>
-    <id>http://yanglieee.com/2022/08/25/cmake/</id>
+    <link href="http://yanglieee.com/2022/08/25/third-party/cmake/"/>
+    <id>http://yanglieee.com/2022/08/25/third-party/cmake/</id>
     <published>2022-08-24T16:00:00.000Z</published>
-    <updated>2022-11-26T15:22:03.163Z</updated>
+    <updated>2022-11-27T13:35:39.532Z</updated>
     
     
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;blockquote&gt;
-&lt;p&gt;官网 : &lt;a</summary>
-        
-      
+    <summary type="html">CmakeLists.txt使用方法</summary>
     
     
     
