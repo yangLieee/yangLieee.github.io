@@ -186,6 +186,9 @@
         <category>Linux</category>
         <category>Audio</category>
       </categories>
+      <tags>
+        <tag>libmad</tag>
+      </tags>
   </entry>
   <entry>
     <title>Audio-再遇</title>
@@ -614,122 +617,6 @@
       </categories>
   </entry>
   <entry>
-    <title>理解c/c++ Volatile关键字</title>
-    <url>/2022/11/15/Volatile/</url>
-    <content><![CDATA[<p>网络上对于volatile的解读众说纷纭，而且其中较多的是java内存模型。</p>
-<p>本篇文章将基于自己的学习和实验，针对C/C++语言嵌入式开发场景进行volatile关键字的分析</p>
-<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>volatile 关键字是 C /C++ 编程语言的一部分，作为一种类型修饰符。我将其作用总结为<em><strong>告诉编译器禁止优化其所修饰对象的读写访存操作及指令顺序，保证变量的可见性</strong></em></p>
-<blockquote>
-<p>可见性：当一个线程修改了共享变量后，其他线程能够立即得知这个修改。</p>
-<p>有序性：程序执行的顺序按照代码的先后顺序执行。</p>
-<p>原子性：一个操作或多个操作要么全部执行，且执行的过程不会被任何因素打断，要么就都不执行。</p>
-</blockquote>
-<p>在《程序员的自我修养》这本书中讲到，volatile基本可以做到两个事情：</p>
-<ol>
-<li>阻止编译器为了提高速度将一个变量缓存到寄存器内而不写回</li>
-<li>阻止编译器调整操作volatile变量的指令顺序</li>
-</ol>
-<p>对于第一个作用volatile是可以很好的做到，而对于第二个作用编译器层面可以保证指令有序但是我们无法阻止cpu动态调整顺序。真正保证有序性是需要通过内存屏障完成的，而volatile并没有内存屏障的功能，gcc 提供了一个内联函数 <em><strong>asm volatile (“” : : : “memory”</strong>)</em> 编译器屏障，具体平台相关内存屏障需要到具体的结构平台去参考</p>
-<h1 id="理解volatile"><a href="#理解volatile" class="headerlink" title="理解volatile"></a>理解volatile</h1><blockquote>
-<p>Collins对于Volatile释义：A situation that is volatile is <strong>likely</strong> to change <strong>suddenly</strong> and <strong>unexpectedly</strong>.</p>
-</blockquote>
-<p><strong>volatile</strong> 本身释义为 <strong>易失的、易变的</strong></p>
-<p>对于用volatile所修饰的对象，在其自身的含义基础上，有三个副词可以很好的对其性质进行诠释：</p>
-<ul>
-<li><p>likely   可能地，指对象的状态可能变化、也可能不变保持状态，强调结果；</p>
-</li>
-<li><p>suddenly:   突然地，指对象状态的瞬时变化，强调过程；</p>
-</li>
-<li><p>unexpectedly:  不可预期地，指对象变化的时间结果都不可预期；</p>
-</li>
-</ul>
-<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>根据含义性质，在嵌入式开发中以下三种场景是一定要考虑使用volatile关键字的（大多数情况一定使用！！！）</p>
-<ol>
-<li>多线程任务读写同一全局变量，</li>
-<li>中断服务程序修改的全局变量</li>
-<li>内存映射外设寄存器</li>
-</ol>
-<h1 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h1><h2 id="中断场景"><a href="#中断场景" class="headerlink" title="中断场景"></a>中断场景</h2><p>下面一段代码，我们所期待的结果是主程序运行，直到crtl+c按键按下程序退出，代码编译执行之后并不是我们所预期的样子。如果sig_done变量不通过volatile修饰程序将永远不会退出，而volatile关键字很好的解决了这一个问题</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> sig_done = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">//static volatile bool sig_done = false;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">handler</span><span class="params">(<span class="type">int</span> sig)</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(sig == SIGINT)</span><br><span class="line">    ┆   sig_done = <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc , <span class="type">char</span> *argv[])</span></span><br><span class="line">{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main start, press ctrl+c go on\n"</span>);</span><br><span class="line">    signal(SIGINT, handler);</span><br><span class="line">    <span class="keyword">while</span>(!sig_done) {</span><br><span class="line">    }   </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main exit\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//编译命令</span></span><br><span class="line">gcc main.c <span class="number">-02</span></span><br><span class="line">objdump -d a.out &gt; a.s</span><br></pre></td></tr></tbody></table></figure>
-
-<p>通过反汇编比较两个程序的异同（左侧volatile，右侧无volatile）</p>
-<p><img src="/images/coding/meld.png" alt="image"></p>
-<p>没有voaltile的while实现方式为：</p>
-<ol>
-<li>比较rip寄存器+0x2f65地址处的值（sig_done）与 0 是否相等</li>
-<li>不相等跳转到main+0x30即上一条指令处</li>
-<li>跳转</li>
-</ol>
-<p>有volatile的while实现方式：</p>
-<ol>
-<li><p>nopl (%rax) 编译器开启优化后使指令按字对齐,减少取指令的时钟周期。</p>
-</li>
-<li><p>将 rip寄存器+0x2f65地址处的值放到eax寄存器中</p>
-<blockquote>
-<p>movzbl指令负责拷贝一个字节，并用0填充其目的操作数中的其余各位，这种扩展方式叫“零扩展”。</p>
-<p>movsbl指令负责拷贝一个字节，并用源操作数的最高位填充其目的操作数中的其余各位，这种扩展方式叫“符号扩展”。</p>
-</blockquote>
-</li>
-<li><p>test   %al,%al 对eax寄存器低位逻辑与</p>
-<blockquote>
-<p>Test命令：将两个操作数进行逻辑与运算，并根据运算结果设置相关的标志位（ze: zero flag）。但是，Test命令的两个操作数不会被改变。运算结果在设置过相关标记位后会被丢弃。</p>
-</blockquote>
-</li>
-<li><p>je   如果ZF（零标志位）=1，零标志位为1（真值）说明结果为0，则转到label所指的指令语句；否则跳过这条语句，执行下条语句</p>
-</li>
-</ol>
-<h2 id="多线程场景"><a href="#多线程场景" class="headerlink" title="多线程场景"></a>多线程场景</h2><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> mstop = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">//static volatile bool mstop = true;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">first_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    <span class="keyword">while</span>(mstop) {</span><br><span class="line">    }</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">second_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">sleep</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    mstop = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}                                                                                                                                                                     </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    std::thread fthread{first_thread};</span><br><span class="line">    std::thread sthread{second_thread};</span><br><span class="line">    fthread.<span class="built_in">join</span>();</span><br><span class="line">	sthread.<span class="built_in">join</span>();</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="外设寄存器"><a href="#外设寄存器" class="headerlink" title="外设寄存器"></a>外设寄存器</h2><p>对于外设通常设置有状态寄存器，我们可以通过循环读取状态寄存器的值来查看对应外设的状态。对于如下示例，如果没有使用volatile关键字，编译器可能生成的代码是读取一个固定地址的值而不会每次都从主存中读取新的值（或者读取n次状态，生成的代码只读取了一次，然后使用n次相同的值）</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//设置寄存器</span></span><br><span class="line">*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR = <span class="number">1</span> &lt;&lt; <span class="number">24</span>; </span><br><span class="line"><span class="comment">//读寄存器</span></span><br><span class="line"><span class="keyword">while</span>(!(*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR)) {</span><br><span class="line">    <span class="comment">// do action</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h1 id="线程安全的单例模式"><a href="#线程安全的单例模式" class="headerlink" title="线程安全的单例模式"></a>线程安全的单例模式</h1><p>该部分不是volatile的使用，而是对内屏屏障的理解</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mp3decoder.h</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">mp3decoder</span> :</span> public decoderImp </span><br><span class="line">{</span><br><span class="line">    public:</span><br><span class="line">    	<span class="type">static</span> mp3decoder* <span class="title function_">getInstance</span><span class="params">()</span>;</span><br><span class="line">    private:</span><br><span class="line">    	mp3decoder();</span><br><span class="line">    	~mp3decoder();</span><br><span class="line">    	<span class="type">static</span> mp3decoder* mdecoder;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="comment">//mp3decoder.cpp</span></span><br><span class="line"><span class="comment">//线程不安全，适用于单线程</span></span><br><span class="line">mp3decoder* mp3decoder::mdecoder = <span class="literal">NULL</span>;</span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，但锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">    unlock();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//Double-Checked Locking Pattern (DCLP 双检查锁)，指令重排序reorder不安全</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">        lock();</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">       		mdecoder = new mp3decoder();</span><br><span class="line">         unlock();</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//内存屏障</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">            mp3decoder *tmp = new mp3decoder();</span><br><span class="line">            MemoryBarrier();</span><br><span class="line">            mdecoder = tmp;</span><br><span class="line">        }</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// mdecoder = new mp3decoder()在cpu层面动作：</span></span><br><span class="line"><span class="comment">// 1. 分配内存</span></span><br><span class="line"><span class="comment">// 2. 调用构造函数</span></span><br><span class="line"><span class="comment">// 3. 将内存地址赋值给mdecoder指针</span></span><br><span class="line"><span class="comment">// 由于2、3对于编译器来讲是有可能进行优化的，即先将指针赋值再调用构造函数，导致线程不安全！！</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<blockquote>
-<p>参考文章：</p>
-<ul>
-<li><a href="https://barrgroup.com/embedded-systems/how-to/c-volatile-keyword">How to Use C’s volatile Keyword</a></li>
-<li><a href="https://barrgroup.com/tech-talks/volatile-c">Pro Tips for Using C’s volatile Keyword</a></li>
-<li><a href="https://liam.page/2018/01/18/volatile-in-C-and-Cpp/">谈谈 c / c++ 中的volatile</a></li>
-</ul>
-</blockquote>
-]]></content>
-      <categories>
-        <category>c/c++</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Hello New World</title>
-    <url>/2022/08/22/hello-world/</url>
-    <content><![CDATA[<blockquote>
-<p>Be all you can be!</p>
-</blockquote>
-<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
-<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
-<ol>
-<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
-<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
-<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
-</ol>
-<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
-<p align="right">2022-8-22/23.38</p>
-
-<p align="right">Lee</p>
-
-]]></content>
-      <categories>
-        <category>Personal</category>
-      </categories>
-      <tags>
-        <tag>开篇</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>init.rc语法及解析</title>
     <url>/2022/11/16/init.rc/</url>
     <content><![CDATA[<p>在linux设备上输入“pstree”命令我们便会看到一棵进程树，不同状态不同设备树上进程名字进程号可能不完全一致，但进程号pid=1的进程一定是init进程！对于Android系统来讲，其实际是运行于Linux内核之上的一系列“服务进程”，而这些服务进程的“老祖宗”就是init，它是Android中第一个被启动的进程，所有服务都是通过解析init.rc文件得到的（部分可以执行程序通过init.d/文件夹下的脚本启动）</p>
@@ -850,6 +737,125 @@
       </categories>
   </entry>
   <entry>
+    <title>Hello New World</title>
+    <url>/2022/08/22/hello-world/</url>
+    <content><![CDATA[<blockquote>
+<p>Be all you can be!</p>
+</blockquote>
+<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
+<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
+<ol>
+<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
+<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
+<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
+</ol>
+<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
+<p align="right">2022-8-22/23.38</p>
+
+<p align="right">Lee</p>
+
+]]></content>
+      <categories>
+        <category>Personal</category>
+      </categories>
+      <tags>
+        <tag>开篇</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>理解c/c++ Volatile关键字</title>
+    <url>/2022/11/15/Volatile/</url>
+    <content><![CDATA[<p>网络上对于volatile的解读众说纷纭，而且其中较多的是java内存模型。</p>
+<p>本篇文章将基于自己的学习和实验，针对C/C++语言嵌入式开发场景进行volatile关键字的分析</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>volatile 关键字是 C /C++ 编程语言的一部分，作为一种类型修饰符。我将其作用总结为<em><strong>告诉编译器禁止优化其所修饰对象的读写访存操作及指令顺序，保证变量的可见性</strong></em></p>
+<blockquote>
+<p>可见性：当一个线程修改了共享变量后，其他线程能够立即得知这个修改。</p>
+<p>有序性：程序执行的顺序按照代码的先后顺序执行。</p>
+<p>原子性：一个操作或多个操作要么全部执行，且执行的过程不会被任何因素打断，要么就都不执行。</p>
+</blockquote>
+<p>在《程序员的自我修养》这本书中讲到，volatile基本可以做到两个事情：</p>
+<ol>
+<li>阻止编译器为了提高速度将一个变量缓存到寄存器内而不写回</li>
+<li>阻止编译器调整操作volatile变量的指令顺序</li>
+</ol>
+<p>对于第一个作用volatile是可以很好的做到，而对于第二个作用编译器层面可以保证指令有序但是我们无法阻止cpu动态调整顺序。真正保证有序性是需要通过内存屏障完成的，而volatile并没有内存屏障的功能，gcc 提供了一个内联函数 <em><strong>asm volatile (“” : : : “memory”</strong>)</em> 编译器屏障，具体平台相关内存屏障需要到具体的结构平台去参考</p>
+<h1 id="理解volatile"><a href="#理解volatile" class="headerlink" title="理解volatile"></a>理解volatile</h1><blockquote>
+<p>Collins对于Volatile释义：A situation that is volatile is <strong>likely</strong> to change <strong>suddenly</strong> and <strong>unexpectedly</strong>.</p>
+</blockquote>
+<p><strong>volatile</strong> 本身释义为 <strong>易失的、易变的</strong></p>
+<p>对于用volatile所修饰的对象，在其自身的含义基础上，有三个副词可以很好的对其性质进行诠释：</p>
+<ul>
+<li><p>likely   可能地，指对象的状态可能变化、也可能不变保持状态，强调结果；</p>
+</li>
+<li><p>suddenly:   突然地，指对象状态的瞬时变化，强调过程；</p>
+</li>
+<li><p>unexpectedly:  不可预期地，指对象变化的时间结果都不可预期；</p>
+</li>
+</ul>
+<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>根据含义性质，在嵌入式开发中以下三种场景是一定要考虑使用volatile关键字的（大多数情况一定使用！！！）</p>
+<ol>
+<li>多线程任务读写同一全局变量，</li>
+<li>中断服务程序修改的全局变量</li>
+<li>内存映射外设寄存器</li>
+</ol>
+<h1 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h1><h2 id="中断场景"><a href="#中断场景" class="headerlink" title="中断场景"></a>中断场景</h2><p>下面一段代码，我们所期待的结果是主程序运行，直到crtl+c按键按下程序退出，代码编译执行之后并不是我们所预期的样子。如果sig_done变量不通过volatile修饰程序将永远不会退出，而volatile关键字很好的解决了这一个问题</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> sig_done = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">//static volatile bool sig_done = false;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">handler</span><span class="params">(<span class="type">int</span> sig)</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(sig == SIGINT)</span><br><span class="line">    ┆   sig_done = <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc , <span class="type">char</span> *argv[])</span></span><br><span class="line">{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main start, press ctrl+c go on\n"</span>);</span><br><span class="line">    signal(SIGINT, handler);</span><br><span class="line">    <span class="keyword">while</span>(!sig_done) {</span><br><span class="line">    }   </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main exit\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//编译命令</span></span><br><span class="line">gcc main.c <span class="number">-02</span></span><br><span class="line">objdump -d a.out &gt; a.s</span><br></pre></td></tr></tbody></table></figure>
+
+<p>通过反汇编比较两个程序的异同（左侧volatile，右侧无volatile）</p>
+<p><img src="/images/coding/meld.png" alt="image"></p>
+<p>没有voaltile的while实现方式为：</p>
+<ol>
+<li>比较rip寄存器+0x2f65地址处的值（sig_done）与 0 是否相等</li>
+<li>不相等跳转到main+0x30即上一条指令处</li>
+<li>跳转</li>
+</ol>
+<p>有volatile的while实现方式：</p>
+<ol>
+<li><p>nopl (%rax) 编译器开启优化后使指令按字对齐,减少取指令的时钟周期。</p>
+</li>
+<li><p>将 rip寄存器+0x2f65地址处的值放到eax寄存器中</p>
+<blockquote>
+<p>movzbl指令负责拷贝一个字节，并用0填充其目的操作数中的其余各位，这种扩展方式叫“零扩展”。</p>
+<p>movsbl指令负责拷贝一个字节，并用源操作数的最高位填充其目的操作数中的其余各位，这种扩展方式叫“符号扩展”。</p>
+</blockquote>
+</li>
+<li><p>test   %al,%al 对eax寄存器低位逻辑与</p>
+<blockquote>
+<p>Test命令：将两个操作数进行逻辑与运算，并根据运算结果设置相关的标志位（ze: zero flag）。但是，Test命令的两个操作数不会被改变。运算结果在设置过相关标记位后会被丢弃。</p>
+</blockquote>
+</li>
+<li><p>je   如果ZF（零标志位）=1，零标志位为1（真值）说明结果为0，则转到label所指的指令语句；否则跳过这条语句，执行下条语句</p>
+</li>
+</ol>
+<h2 id="多线程场景"><a href="#多线程场景" class="headerlink" title="多线程场景"></a>多线程场景</h2><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> mstop = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">//static volatile bool mstop = true;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">first_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    <span class="keyword">while</span>(mstop) {</span><br><span class="line">    }</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">second_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">sleep</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    mstop = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}                                                                                                                                                                     </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    std::thread fthread{first_thread};</span><br><span class="line">    std::thread sthread{second_thread};</span><br><span class="line">    fthread.<span class="built_in">join</span>();</span><br><span class="line">	sthread.<span class="built_in">join</span>();</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="外设寄存器"><a href="#外设寄存器" class="headerlink" title="外设寄存器"></a>外设寄存器</h2><p>对于外设通常设置有状态寄存器，我们可以通过循环读取状态寄存器的值来查看对应外设的状态。对于如下示例，如果没有使用volatile关键字，编译器可能生成的代码是读取一个固定地址的值而不会每次都从主存中读取新的值（或者读取n次状态，生成的代码只读取了一次，然后使用n次相同的值）</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//设置寄存器</span></span><br><span class="line">*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR = <span class="number">1</span> &lt;&lt; <span class="number">24</span>; </span><br><span class="line"><span class="comment">//读寄存器</span></span><br><span class="line"><span class="keyword">while</span>(!(*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR)) {</span><br><span class="line">    <span class="comment">// do action</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h1 id="线程安全的单例模式"><a href="#线程安全的单例模式" class="headerlink" title="线程安全的单例模式"></a>线程安全的单例模式</h1><p>该部分不是volatile的使用，而是对内屏屏障的理解</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mp3decoder.h</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">mp3decoder</span> :</span> public decoderImp </span><br><span class="line">{</span><br><span class="line">    public:</span><br><span class="line">    	<span class="type">static</span> mp3decoder* <span class="title function_">getInstance</span><span class="params">()</span>;</span><br><span class="line">    private:</span><br><span class="line">    	mp3decoder();</span><br><span class="line">    	~mp3decoder();</span><br><span class="line">    	<span class="type">static</span> mp3decoder* mdecoder;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="comment">//mp3decoder.cpp</span></span><br><span class="line"><span class="comment">//线程不安全，适用于单线程</span></span><br><span class="line">mp3decoder* mp3decoder::mdecoder = <span class="literal">NULL</span>;</span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，但锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">    unlock();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//Double-Checked Locking Pattern (DCLP 双检查锁)，指令重排序reorder不安全</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">        lock();</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">       		mdecoder = new mp3decoder();</span><br><span class="line">         unlock();</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//内存屏障</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">            mp3decoder *tmp = new mp3decoder();</span><br><span class="line">            MemoryBarrier();</span><br><span class="line">            mdecoder = tmp;</span><br><span class="line">        }</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// mdecoder = new mp3decoder()在cpu层面动作：</span></span><br><span class="line"><span class="comment">// 1. 分配内存</span></span><br><span class="line"><span class="comment">// 2. 调用构造函数</span></span><br><span class="line"><span class="comment">// 3. 将内存地址赋值给mdecoder指针</span></span><br><span class="line"><span class="comment">// 由于2、3对于编译器来讲是有可能进行优化的，即先将指针赋值再调用构造函数，导致线程不安全！！</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<blockquote>
+<p>参考文章：</p>
+<ul>
+<li><a href="https://barrgroup.com/embedded-systems/how-to/c-volatile-keyword">How to Use C’s volatile Keyword</a></li>
+<li><a href="https://barrgroup.com/tech-talks/volatile-c">Pro Tips for Using C’s volatile Keyword</a></li>
+<li><a href="https://liam.page/2018/01/18/volatile-in-C-and-Cpp/">谈谈 c / c++ 中的volatile</a></li>
+</ul>
+</blockquote>
+]]></content>
+      <categories>
+        <category>c/c++</category>
+      </categories>
+      <tags>
+        <tag>volatile</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>搭建Ubuntu虚拟机</title>
     <url>/2022/10/22/ubuntu-create/</url>
     <content><![CDATA[<h1 id="Linux-简介"><a href="#Linux-简介" class="headerlink" title="Linux 简介"></a>Linux 简介</h1><p>linus自传《只是为了好玩》中这样定义：</p>
@@ -890,6 +896,172 @@
       <categories>
         <category>Linux</category>
         <category>搭建虚拟机</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>51job爬虫项目</title>
+    <url>/2022/12/03/item/51job/</url>
+    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>紧接着豆瓣爬虫的项目，该项目作为其后的练习和扩展，算是一个较为不错的上手练习。本文所涉及的是对于51job数据的爬取、解析和保存。对于数据可视化操作，在后续会持续更新，请关注！<br>在下面代码中有些函数内部调用了其他函数，需要补全各个部分的函数。如果需要源码请私信或者评论。</p>
+<blockquote>
+<p>具体关于库的操作我选择了一些官方文档和较好理解的解读文章做链接，知识点比较全面请参考下列表。</p>
+</blockquote>
+<ul>
+<li><p><a href="https://python-selenium-zh.readthedocs.io/zh_CN/latest/">详情页URL获取模块：selenium</a></p>
+</li>
+<li><p><a href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></p>
+</li>
+<li><p><a href="https://www.jianshu.com/p/9135d7833d6d">数据提取etree模块：lxml</a></p>
+</li>
+<li><p><a href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></p>
+</li>
+</ul>
+<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="详情页链接的获取：selenium"><a href="#详情页链接的获取：selenium" class="headerlink" title="详情页链接的获取：selenium"></a>详情页链接的获取：selenium</h2><p>selenium作为web自动化测试工具，目前在python爬虫中应用也越来越广泛。其主要应用原理是：通过完全模拟浏览器的操作，比如输入框输入、点击超链接元素、下拉滚动条等等来拿到js渲染之后的代码。<br>必要性：之前用的requests是对一个页面发送请求，只能获得当前加载出来的部分页面即最初的源代码，动态加载的数据是获取不到的，比如js渲染后的代码、下拉滚轮得到的数据和一些框内隐藏元素等等。<br>对于selenium的解读，<a href="https://blog.csdn.net/heartbeat196/article/details/113831482">请点击click</a>！</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">#获得所有网页详情页链接</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_link</span>():</span><br><span class="line">    linklist = []</span><br><span class="line">    <span class="comment">#创建驱动器对象</span></span><br><span class="line">    wd = webdriver.Chrome(<span class="string">r'C:\Program Files\Google\Chrome\Application\chromedriver.exe'</span>)</span><br><span class="line">    wd.implicitly_wait(<span class="number">5</span>)</span><br><span class="line">    <span class="comment">#访问51job网站</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">21</span>):</span><br><span class="line">        wd.get(<span class="string">f"https://search.51job.com/list/010000,000000,0000,00,9,99,keyword,2,<span class="subst">{i}</span>.html?"</span>)</span><br><span class="line">        <span class="comment">#查找每每一条信息链接进入详情页</span></span><br><span class="line">        joblists = wd.find_elements_by_xpath(<span class="string">'//div[@class="j_joblist"]/div/a'</span>)</span><br><span class="line">        <span class="keyword">for</span> joblist <span class="keyword">in</span> joblists:</span><br><span class="line">            con_link = joblist.get_attribute(<span class="string">"href"</span>)</span><br><span class="line">            linklist.append(con_link)</span><br><span class="line">    wd.quit()</span><br><span class="line">    <span class="keyword">return</span> linklist</span><br></pre></td></tr></tbody></table></figure>
+
+<blockquote>
+<p>注释：</p>
+<ol>
+<li>代码中的 webdriver.Chrome，后面是自己所用的驱动器的本地地址。</li>
+<li>webdriver对象wd，调用 get方法，后面括号内为自己所要访问的网页链接地址。</li>
+</ol>
+</blockquote>
+<h2 id="数据爬取与解析：xpath"><a href="#数据爬取与解析：xpath" class="headerlink" title="数据爬取与解析：xpath"></a>数据爬取与解析：xpath</h2><p>由于自己习惯于使用xpath方法解析，在此只做xpath解析的方法，如果需要re正则表达式或者BeautifulSoup解析，评论后续会更新。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_data</span>():</span><br><span class="line">    job_information = []</span><br><span class="line">    url_lists = get_link()</span><br><span class="line">    <span class="keyword">for</span> i,url <span class="keyword">in</span> <span class="built_in">enumerate</span>(url_lists):</span><br><span class="line">        datalist=[]</span><br><span class="line">        header = {</span><br><span class="line">            <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0(Windows NT 10.0;Win64;x64)AppleWebKit/537.36(KHTML,likeGecko)Chrome/88.0.4324.150Safari/537.36"</span></span><br><span class="line">        }</span><br><span class="line">        response = requests.get(url, headers=header)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            html = response.content.decode(<span class="string">"gbk"</span>)</span><br><span class="line">            data = etree.HTML(html)</span><br><span class="line">            link = url</span><br><span class="line">            datalist.append(link)		<span class="comment">#存入岗位链接</span></span><br><span class="line">            title = data.xpath(<span class="string">r'//div[@class="cn"]/h1/@title'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(title)		<span class="comment">#存入岗位名称</span></span><br><span class="line">            salary = data.xpath(<span class="string">r'//div[@class="cn"]/strong/text()'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(salary)</span><br><span class="line">            information = data.xpath(<span class="string">r'//p[@class="msg ltype"]/@title'</span>)[<span class="number">0</span>]</span><br><span class="line">            information = re.sub(<span class="string">r"\s+"</span>, <span class="string">""</span>, information)  <span class="comment"># 去除空白格</span></span><br><span class="line">            experience = information.split(<span class="string">"|"</span>)[<span class="number">1</span>]</span><br><span class="line">            datalist.append(experience)</span><br><span class="line">            education = information.split(<span class="string">"|"</span>)[<span class="number">2</span>]</span><br><span class="line">            datalist.append(education)</span><br><span class="line">            num = information.split(<span class="string">"|"</span>)[<span class="number">3</span>]</span><br><span class="line">            datalist.append(num)</span><br><span class="line">            place = data.xpath(<span class="string">r'//p[@class="fp"]/text()'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(place)</span><br><span class="line">            treatment = data.xpath(<span class="string">r'//span[@class="sp4"]/text()'</span>)</span><br><span class="line">            treatment = <span class="string">" "</span>.join(treatment)</span><br><span class="line">            datalist.append(treatment)</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"-----第{}条------"</span>.<span class="built_in">format</span>(i))</span><br><span class="line">            job_information.append(datalist)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"-----第{}条出错，原因是{}------"</span>.<span class="built_in">format</span>(i,e))</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="comment">#print(job_information)		#测试</span></span><br><span class="line">    <span class="keyword">return</span> job_information</span><br></pre></td></tr></tbody></table></figure>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="Excel本地保存"><a href="#Excel本地保存" class="headerlink" title="Excel本地保存"></a>Excel本地保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_data_excel</span>(<span class="params">datalist</span>):</span><br><span class="line">    workbook = xlwt.Workbook(encoding=<span class="string">"gbk"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">    worksheet = workbook.add_sheet(<span class="string">"python"</span>)</span><br><span class="line">    col = [<span class="string">"链接"</span>, <span class="string">"岗位名称"</span>, <span class="string">"薪资"</span>, <span class="string">"工作经验"</span>, <span class="string">"学历"</span>, <span class="string">"招聘人数"</span>, <span class="string">"工作地点"</span>, <span class="string">"福利"</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">            worksheet.write(i+<span class="number">1</span>,j,datalist[i][j])</span><br><span class="line">    workbook.save(<span class="string">"北京-python工作.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="Excel数据保存结果展示"><a href="#Excel数据保存结果展示" class="headerlink" title="Excel数据保存结果展示"></a>Excel数据保存结果展示</h2><p><img src="/images/item/51job.png" alt="在这里插入图片描述"></p>
+<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><p>在此部分只写了数据库保存的工作，数据库的初始化创建需函数sql_init需要添加即可使用。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_data_sql</span>(<span class="params">datalist,dbpath</span>):</span><br><span class="line">    sql_init(dbpath)</span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">            data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        insert into job_information(</span></span><br><span class="line"><span class="string">            link,title,salary,experience,education,num,place,treatment)</span></span><br><span class="line"><span class="string">            values(%s)'''</span>%<span class="string">","</span>.join(data)</span><br><span class="line">        <span class="comment">#print(sql)     #测试sql语句是否正确</span></span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="sqlite数据库保存结果展示"><a href="#sqlite数据库保存结果展示" class="headerlink" title="sqlite数据库保存结果展示"></a>sqlite数据库保存结果展示</h2><p><img src="https://img-blog.csdnimg.cn/20210217094737662.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2hlYXJ0YmVhdDE5Ng==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><p>null</p>
+]]></content>
+      <categories>
+        <category>Item</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>智能家居模型设计</title>
+    <url>/2022/12/03/item/smartHome/</url>
+    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>伴随着通信技术的不断发展和社会环境的进步，人们对更智能化的生活有了更高的追求。物联网智能家居已经不能算是新鲜的名词了，其单品及互联应用也都已经非常广泛了。本设计基于STM32单片机，通过ESP8266无线通信模块以及连接相应的传感器及外设对智能家居的场景进行模拟。本文最初写于今年6月，现在从事嵌入式工作一段时间后现在再次将我的毕业设计重新进行整理和思考，希望能对读者有所帮助！</p>
+<h1 id="设计思路"><a href="#设计思路" class="headerlink" title="设计思路"></a>设计思路</h1><p>对于任何一个项目或者工程的开始第一步永远是先明确需求，知道自己做成什么样子的东西。在我参考了一些资料并阅读了几篇文献后，对其有了初认识。我理解的智能家居就是从感知层出发对环境进行监测，通过传输层遵从一定的网络协议对数据进行传输同时通过软件对数据进行整理分析，并在应用层（家具状态）做出相应的动作。最终我将该流程整理成下图所示的实物模拟，进而对其进行模块的抽象。基于此，进行下面的硬件设计选型及软件实现等等。<br><img src="/images/item/smarthome-1.png"></p>
+<h1 id="硬件设计"><a href="#硬件设计" class="headerlink" title="硬件设计"></a>硬件设计</h1><h2 id="硬件选型原则"><a href="#硬件选型原则" class="headerlink" title="硬件选型原则"></a>硬件选型原则</h2><p>由于该项目是模型设计，对于硬件的选型整体上是以==低成本、低功耗、高集成、高仿真度==为原则的。</p>
+<ul>
+<li>满足功能及性能需求。本设计的侧重点不在于数据的精确和控制的灵敏，故没有严格参数要求。</li>
+<li>易上手的“大众”产品。对于这些元件我们可以很容易的找到相关资料，而且避免踩坑。</li>
+<li>兼容性。由于是模块化设计，对于部分模块的兼容性是要有一定的要求的。</li>
+</ul>
+<h2 id="硬件选型"><a href="#硬件选型" class="headerlink" title="硬件选型"></a>硬件选型</h2><p>如下是对于硬件的选型及相关介绍，最后附有一张所有用到的硬件的图片。</p>
+<p><em><strong>1. 主控模块—-STM32F103C8T6</strong></em></p>
+<p>   我相信51应该是大部分电子同学入手的第一款单片机。诚然，51有其灵活轻巧之处，但是stm32具有强大外设接口和较高的运行速度（STM32F103的CPU最高速度达72 MHz，具有16KB ~ 1MB Flash、多种控制外设、USB全速接口和CAN；多达112个快速I/O口、11个定时器和13个通信接口） 此外STM32还提供了三种省电模式和两种调试方式。其灵活的调试方法、多样的功能特点和较优的性能参数同样也是选择STM32作为主控芯片的原因。  </p>
+<p><em><strong>2. 无线通信模块—-ESP01S无线通信模块</strong></em></p>
+<p>   基于此模块首先考虑的是通信方式，如果不谈应用场景，比较传输速度、传输距离和安全性，zigbee和蓝牙会是更好的选择。但是在智能家居的场景下，wifi无疑会是更优选，因为当下wifi已经基本普及到了每个家庭，模拟还原度会更高。接下来是具体芯片的选择，安信可的ESP8266模组很多都可以在该场景下应用，其具体的区分主要体现在封装方式、硬件配置、资源引脚等等方面。具体的区分可以参考安信可官网给出的文档说明，<a href="https://www.ai-thinker.com/product/esp8266">please click</a>！</p>
+<p><em><strong>3. 环境监测模块</strong></em></p>
+<ul>
+<li><p>温湿度监测—-DHT11</p>
+<blockquote>
+<p>  DHT11是一款有已校准数字信号输出的温湿度传感器。此传感器使用起来简单，精度和性能参数足够满足环境监测的场景。其遵从单总线协议，有严格的时序要求。主机先要发送一个至少18ms的低电平，在这个过程中，DHT11内部完成AD转换等操作，当主机拉高后，有20-40us时间，这个时间用于主机做输入输出切换，当主机释放总线控制权（此时主机为输入状态，总线被上拉电阻拉高），DHT11尝试将总线拉低，成功拉低后就开始准备发送数据了，再拉高一次就开始传输数据了。</p>
+</blockquote>
+</li>
+<li><p>空气质量监测—-MQ135<br> &gt; MQ系列传感器是监测空气环境最常用的传感器，大概十几个都是针对不同污染物进行检测的，本次实验我们采用的是MQ135，主要针对氨气、苯、酒精、烟雾颗粒进行空气质量检测，同样根据自己的需求可以选择其他型号的传感器吧，比如烟雾、酒精、一氧化碳等等。</p>
+</li>
+<li><p>光照监测—-BH1750</p>
+<blockquote>
+<p> BH1750传感器有接近视觉灵敏度的光谱灵敏度特性，它支持I2CBUS接口，支持1.8v逻辑输入接口。传感器有两种可选的I2Cslave地址，无需其他外部件。光源依赖性弱，受红外线影响很小。传感器通过降低功率功能，实现低电流化。</p>
+</blockquote>
+</li>
+</ul>
+<p><em><strong>4. 数据展示模块—-OLED</strong></em></p>
+<p>   数据显示无非就是OLED、LCD、TFT屏幕等等。该模块的作用是对监测到的环境数据及家具的状态进行实时显示。OLED相较于LCD屏幕则不需要背光层，同样也不需要发出光亮的液晶层；而相较于TFT有更高的性价比，最终选择了0.96寸OLED屏幕。</p>
+<p><em><strong>5. 家具模拟模块</strong></em></p>
+<p>   家具模拟模块主要是模拟到了门、窗、灯和风扇。具体是通过步进电机、舵机、LED灯和风扇模块实现的。而应用也很简单，配置IO口的工作模式，控制GPIO口输出的高低电平即可。<br>   <img src="/images/item/smarthome-2.png"></p>
+<h2 id="PCB设计"><a href="#PCB设计" class="headerlink" title="PCB设计"></a>PCB设计</h2><p>对于以上众多元件和模块，如果用导线直接连接起来的话，我只能想到一个词形容：一团乱麻！因此设计PCB板就成了解决该问题的最好方法。可能有的同学在大学期间学习过如何画板打板，有些同学没有接触过，以我自己的经验来讲，学习一两周时间对于绘制该项目PCB已经绰绰有余。该项目并不需要在板子上有各个电路的设计（有能力的同学可以设计一个电源电路），因此只需要布局布线即可还是比较简单的，以下是我所设计的板子 。</p>
+<p>该部分的设计让自己对于整个硬件资源的了解及使用有一个新的认识。在主控芯片有限的硬件资源、有限空间的电路板上，如何能充分利用每个元件的形状大小和性能特点来做到彼此之间的交互是该部分的重难点。<br>==Tips：阅读每根pin的功能，分配好主控芯片的各个管脚资源==</p>
+<p><img src="/images/item/smarthome-3.png"></p>
+<h1 id="软件设计"><a href="#软件设计" class="headerlink" title="软件设计"></a>软件设计</h1><p>整个代码工程内容相对较大，在此就不进行详细的展示了如果有需要可以私信我。在此只展示部分主函数代码和相关头文件等，除此之外，数据上云格式定义、命令下发、各个模块的驱动函数同样重要！</p>
+<h2 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"stm32f10x.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"stdio.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"math.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"delay.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"string.h"</span>	</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"dht11.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"BH1750.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"adc.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"led.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"OLED_I2C.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"usart.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"timer.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"exti.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"key.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"door_bsp.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"fan.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"esp8266.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"MqttKit.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"onenet.h"</span></span></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="主函数"><a href="#主函数" class="headerlink" title="主函数"></a>主函数</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>{</span>					<span class="comment">//定义结构体</span></span><br><span class="line">	<span class="type">uint8_t</span> temp;				<span class="comment">//温度</span></span><br><span class="line">	<span class="type">uint8_t</span> humi;				<span class="comment">//湿度</span></span><br><span class="line">	<span class="type">float</span> mq;					<span class="comment">//MQ135传感器</span></span><br><span class="line">	<span class="type">float</span> sun;					<span class="comment">//光照强度传感器</span></span><br><span class="line">	<span class="type">uint8_t</span> LED_FLAG;			<span class="comment">//LED</span></span><br><span class="line">	<span class="type">uint8_t</span> FAN_FLAG;			<span class="comment">//风扇</span></span><br><span class="line">	<span class="type">uint8_t</span> DOOR_FLAG;			<span class="comment">//步进电机</span></span><br><span class="line">	<span class="type">uint8_t</span> WARNING_FLAG;		<span class="comment">//步进电机</span></span><br><span class="line">}SendData;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> SendData send_data;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">uint8_t</span> cmd_rev_flag;</span><br><span class="line">SendData send_data = {<span class="number">0</span>, <span class="number">0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0</span> , <span class="number">0</span> , <span class="number">0</span> ,<span class="number">0</span>};	<span class="comment">//初始化</span></span><br><span class="line"><span class="type">uint8_t</span> cmd_rev_flag = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">char</span> *data_ptr = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">short</span> timeCount = <span class="number">0</span>;	<span class="comment">//发送间隔变量</span></span><br><span class="line">	Hardware_Init();</span><br><span class="line">	Net_Init();</span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	{  		</span><br><span class="line">		<span class="keyword">if</span>(++timeCount &gt;= <span class="number">200</span> || (cmd_rev_flag == <span class="number">1</span>))	</span><br><span class="line">{	</span><br><span class="line">			DHT11_Read_Data(&amp;send_data.temp,&amp;send_data.humi);</span><br><span class="line">			send_data.mq=(<span class="type">float</span>)(Get_Adc_Average(ADC_Channel_1,<span class="number">10</span>))*(<span class="number">3.3</span>/<span class="number">4096</span>);	</span><br><span class="line">			send_data.sun = LIght_Intensity();										 </span><br><span class="line">			OneNet_SendData();	<span class="comment">//发送数据</span></span><br><span class="line">			timeCount = <span class="number">0</span>;</span><br><span class="line">			cmd_rev_flag=<span class="number">0</span>;</span><br><span class="line">			ESP8266_Clear();</span><br><span class="line">		}</span><br><span class="line">		data_ptr = ESP8266_GetIPD(<span class="number">0</span>);		<span class="comment">//检查是否有下发指定</span></span><br><span class="line">		<span class="keyword">if</span>(data_ptr != <span class="literal">NULL</span>)</span><br><span class="line">			OneNet_RevPro(data_ptr);</span><br><span class="line">		delay_ms(<span class="number">10</span>);</span><br><span class="line">	}		 </span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="硬件初始化"><a href="#硬件初始化" class="headerlink" title="硬件初始化"></a>硬件初始化</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">Hardware_Init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">	delay_init();	    		<span class="comment">//延时函数初始化</span></span><br><span class="line">	TIM2_Int_Init(<span class="number">4999</span>,<span class="number">7199</span>);  	<span class="comment">//用于OLED显示</span></span><br><span class="line">	Usart1_Init(<span class="number">115200</span>);		<span class="comment">//串口调试</span></span><br><span class="line">	Usart2_Init(<span class="number">115200</span>);		<span class="comment">//esp8266--stm32通信</span></span><br><span class="line">	OLED_Init();				<span class="comment">//OLED初始化</span></span><br><span class="line">	OLED_CLS();</span><br><span class="line">	KEY_Init();					<span class="comment">//按键初始化</span></span><br><span class="line">	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);</span><br><span class="line">								<span class="comment">//设置中断优先级分组2，为后面外部中断做基础</span></span><br><span class="line">	EXTIX_Init();				<span class="comment">//判断键值执行操作</span></span><br><span class="line">	DHT11_Init();				<span class="comment">//温湿度传感器初始化</span></span><br><span class="line">	Adc_Init();					<span class="comment">//空气检测初始化</span></span><br><span class="line">	BH1750_Init();				<span class="comment">//光照</span></span><br><span class="line">	TIM3_Int_Init(<span class="number">4999</span>,<span class="number">7199</span>);  	<span class="comment">//报警显示</span></span><br><span class="line">	ESP8266_Init();				<span class="comment">//初始化ESP8266</span></span><br><span class="line">	<span class="keyword">while</span>(OneNet_DevLink())		<span class="comment">//接入OneNET</span></span><br><span class="line">	delay_ms(<span class="number">500</span>);</span><br><span class="line">}	</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="云平台选择"><a href="#云平台选择" class="headerlink" title="云平台选择"></a>云平台选择</h1><p>本设计还有一个重要的部分就是对于云平台的选择，本项目选择的是中国移动物联网云平台OneNET。当然，如果有能力的同学自己做个app更好。</p>
+<p>目前很多云平台厂商都支持了对于个人开发者的物联网应用的需求，我见到用到最多的包括阿里云、腾讯云、机智云、OneNET等等。这些平台对对于个人开发者还是很有好的，有着比较完善的流程。我个人使用过机智云和OneNET，对此做出以下建议。</p>
+<ul>
+<li>OneNET：更适合已有工程文件，在此基础之上进行通信部分的开发。其对于最终的界面设计很开放，可以自行设计图标及显示方式等；</li>
+<li>机智云：适合没有工程文件，从刚开始就选择使用该物联网云平台。可以在平台上生成代码包进行开发；</li>
+</ul>
+<h1 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h1><h2 id="实物图与手机界面"><a href="#实物图与手机界面" class="headerlink" title="实物图与手机界面"></a>实物图与手机界面</h2><p><img src="/images/item/smarthome-4.png"></p>
+<h2 id="云平台数据可视化界面"><a href="#云平台数据可视化界面" class="headerlink" title="云平台数据可视化界面"></a>云平台数据可视化界面</h2><p><img src="/images/item/smarthome-5.png"></p>
+<h2 id="云平台控制界面"><a href="#云平台控制界面" class="headerlink" title="云平台控制界面"></a>云平台控制界面</h2><p><img src="/images/item/smarthome-6.png"></p>
+<h1 id="实现功能及扩展"><a href="#实现功能及扩展" class="headerlink" title="实现功能及扩展"></a>实现功能及扩展</h1><h2 id="实现功能"><a href="#实现功能" class="headerlink" title="实现功能"></a>实现功能</h2><ul>
+<li><p>监测：空气中温度、湿度、光照和空气质量等环境因素；</p>
+</li>
+<li><p>控制：模拟的“家居”：门、灯、窗帘、风扇；</p>
+</li>
+<li><p>显示：OLED显示、手机显示、电脑显示；</p>
+</li>
+<li><p>控制方式：按键控制、手机控制、电脑控制；</p>
+</li>
+<li><p>报警：设置环境因素阈值，超标开发板的灯亮起（可改成蜂鸣器）</p>
+</li>
+<li><p>以上所有环境及家具状态都可以可视化显示</p>
+</li>
+</ul>
+<h2 id="可扩展功能"><a href="#可扩展功能" class="headerlink" title="可扩展功能"></a>可扩展功能</h2><p>该系统具有很高的扩展性，做出基础模型之后可以进行二次开发。需要注意的是将硬件资源分配好。</p>
+<ul>
+<li>语音模块。语音控制智能家居的状态。</li>
+<li>安防系统。添加指纹、RFID、面部识别等开门方式。</li>
+<li>告警系统。目前只是遇到告警平台自动提醒，可以添加短信通知功能。</li>
+<li>模式选择。居家多种模式自动切换，娱乐模式、休息模式、离家模式等等，家具可以对应着不同状态。</li>
+<li>……</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本设计对于智能家居控制系统的模拟从传统到智能、从前端到后端，覆盖面、还原度还是比较高的；其次，系统的兼容性和可扩展移植性较高，基于此可以进行二次开发，可以扩展的内容我在上面也有总结。我认为相对容易上手的就是对于监测到的数据进行进一步分析应用。最后就是其应用性，当自己设计好电源模块可以独立供电后就可以直接应用到生活中，即使不做毕设diy一个环境监测的系统也是不错的。整体来说，本设计实现的功能是：四测三显两控一平台，基本实现了智能家居模拟的基本的要求。同样该项目还可以应用到环境监测等方面的，但是其侧重点更要偏向数据的分析和处理。</p>
+<p>行文至此就结束啦，如果有不足之处或者更好的想法可以一起交流 ~</p>
+]]></content>
+      <categories>
+        <category>Item</category>
+      </categories>
+      <tags>
+        <tag>毕业设计</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
+    <url>/2022/12/03/item/doubanTop250Spider/</url>
+    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在爬虫学习中，一套完整的项目实战对于代码和计算机思维能力有很大的提升。本文基于B站视频<a href="https://www.bilibili.com/video/BV12E411A7ZQ?from=search&amp;seid=4741588992451392787">《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》</a>关于 “豆瓣电影Top250” 项目做出的总结、拓展与分享。<br>在本文中，只展示数据爬取到数据保存的工作，数据可视化部分只做部分分析和结果展示。具体关于库的操作我选择了一些官方文档做链接，知识点比较全面请参考下列表。如果想要项目源代码，请评论或私信。</p>
+<ul>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/urllib.html?highlight=urllib">URL处理系统模块：urllib</a></li>
+<li><a href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></li>
+<li><a href="https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/">数据提取bs4模块：BeautifulSoup</a></li>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/re.html">数据提取正则表达式模块：re</a></li>
+<li><a href="https://www.jianshu.com/p/9135d7833d6d">数据提取模块 ：lxml</a></li>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></li>
+<li><a href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></li>
+</ul>
+<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="数据爬取"><a href="#数据爬取" class="headerlink" title="数据爬取"></a>数据爬取</h2><p>数据爬取工作是整个工程的第一步，这一阶段所要做的工作是将网页上带有我们需要的信息的网页源码抓取下来。<strong>建议在此步骤时，如果数据量不大全部抓取保存到本地；如果数据量很大，则先保存一组到多组数据到本地</strong>。在接下的数据解析时通过本地文件解析，这样做会避免后面多次访问网站而被封ip，当然针对被封ip有相应的解决办法，但是这些内容涉及到网络知识，建议后面再学。</p>
+<h3 id="urllib方法"><a href="#urllib方法" class="headerlink" title="urllib方法"></a>urllib方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line"><span class="comment">#构建请求</span></span><br><span class="line">req = urllib.request.Request(url=base_url,headers=header)</span><br><span class="line"><span class="comment">#得到响应</span></span><br><span class="line">response = urllib.request.urlopen(req)</span><br><span class="line">html = response.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(html)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="requests方法"><a href="#requests方法" class="headerlink" title="requests方法"></a>requests方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line">response = requests.get(url=base_url,headers=header)</span><br><span class="line">data = response.content.decode()</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(data)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="数据解析"><a href="#数据解析" class="headerlink" title="数据解析"></a>数据解析</h2><p>数据解析作为第二步是整个工程的核心，这一步直接决定了 我们是否能够在海量的数据中只得到我们想要的数据。爬虫中三种重要的数据解析的方法分别是：BeautifulSoup、re正则表达式和xpath，三种方法没有优劣好坏，按照我前面给出的文档，自己用好一种即可满足需求，当然三种方法根据场景使用是最高效的，如果你是大佬的话👍。<br>我自己常用的是xpath方法。第一，xpath路径可以直接在网页上进行复制；第二，可以通过<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">XPath Helper工具</a>进行更好的测试，我在之前的博客有提到可以<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">点击</a>查看。下面我用三种不同的方法对保存到本地的一页上的数据进行了解析。</p>
+<h3 id="BeaufifulSoup"><a href="#BeaufifulSoup" class="headerlink" title="BeaufifulSoup"></a>BeaufifulSoup</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line"><span class="comment">#构建BeautifulSoup对象</span></span><br><span class="line">soup = BeautifulSoup(html,<span class="string">"html.parser"</span>)</span><br><span class="line"><span class="comment">#得到每一块的内容</span></span><br><span class="line">blocks = soup.select(<span class="string">".grid_view .item"</span>)</span><br><span class="line"><span class="comment">#构建电影列表</span></span><br><span class="line">movie_list = []</span><br><span class="line"><span class="comment">#电影链接和电影图片链接</span></span><br><span class="line"><span class="keyword">for</span> index,block <span class="keyword">in</span> <span class="built_in">enumerate</span>(blocks):</span><br><span class="line">    movie_dict = {}</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = block.select(<span class="string">"a"</span>)[<span class="number">0</span>].get(<span class="string">"href"</span>)       <span class="comment">#电影详情页链接</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = block.select(<span class="string">"img"</span>)[<span class="number">0</span>].get(<span class="string">"src"</span>)        <span class="comment">#电影链接</span></span><br><span class="line">    title = block.select(<span class="string">".title"</span>)                      <span class="comment">#电影名字</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        o_title = block.select(<span class="string">".title"</span>)[<span class="number">1</span>].text            <span class="comment"># 电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = o_title.replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span>                                       <span class="comment">#电影外文名字</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = block.select(<span class="string">".star .rating_num"</span>)[<span class="number">0</span>].text        <span class="comment">#电影评分</span></span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = block.select(<span class="string">".star span"</span>)[<span class="number">3</span>].text[:-<span class="number">3</span>]         <span class="comment">#评分人数</span></span><br><span class="line">    bd = block.select(<span class="string">".bd p"</span>)[<span class="number">0</span>].text</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = re.sub(<span class="string">" "</span>,<span class="string">""</span>,bd)</span><br><span class="line">    movie_dict[<span class="string">"inq"</span>] = block.select(<span class="string">".quote .inq"</span>)[<span class="number">0</span>].text.replace(<span class="string">"。"</span>,<span class="string">""</span>)</span><br><span class="line">    movie_list.append(movie_dict)</span><br><span class="line"><span class="comment">#打印测试</span></span><br><span class="line"><span class="built_in">print</span>(movie_list)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="xpath"><a href="#xpath" class="headerlink" title="xpath"></a>xpath</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="comment">#构建etree对象</span></span><br><span class="line">data = etree.HTML(content)</span><br><span class="line"><span class="comment">#获取多个电影信息列表</span></span><br><span class="line">divs = data.xpath(<span class="string">'//div[@class="item"]'</span>)</span><br><span class="line"><span class="keyword">for</span> div <span class="keyword">in</span> divs:</span><br><span class="line">    movie_dict = { }</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]/a/@href'</span>)</span><br><span class="line">    <span class="comment">#print(movie_href)          #测试</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]//img/@src'</span>)</span><br><span class="line">    <span class="comment">#print(pic_href)           #测试</span></span><br><span class="line">    title = div.xpath(<span class="string">'div[@class="info"]//a/span[@class="title"]/text()'</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        o_title = title[<span class="number">1</span>].replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">""</span>.join(o_title.split())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span></span><br><span class="line">    <span class="comment">#print(c_title,o_title)      #测试</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = div.xpath(<span class="string">'div//div[2]/div/span[2]/text()'</span>)</span><br><span class="line">    <span class="comment">#print(rate)                #测试</span></span><br><span class="line">    judge = div.xpath(<span class="string">'div//div[2]/div/span[4]/text()'</span>)</span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = (<span class="built_in">str</span>(judge))[<span class="number">2</span>:-<span class="number">5</span>]</span><br><span class="line">    <span class="comment">#print(judge)                #测试</span></span><br><span class="line">    bd = <span class="built_in">str</span>(div.xpath(<span class="string">'div//div[@class="bd"]/p[1]/text()'</span>))</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = bd.replace(<span class="string">" "</span>,<span class="string">""</span>).replace(<span class="string">r"\xa0"</span>,<span class="string">""</span>).replace(<span class="string">r"\r"</span>,<span class="string">""</span>).replace(<span class="string">r"\n"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="comment">#print(bd)                   #测试</span></span><br><span class="line">    <span class="built_in">print</span>(movie_dict)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="re正则表达式"><a href="#re正则表达式" class="headerlink" title="re正则表达式"></a>re正则表达式</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="comment">#影片详情链接规则</span></span><br><span class="line">findLink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;a href="(.*?)"&gt;'</span>)        <span class="comment">#创建正则表达式对象，表示规则（字符串的模式）</span></span><br><span class="line"><span class="comment">#影片图片规则</span></span><br><span class="line">findSrclink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;img.*src="(.*?)"'</span>,re.S)</span><br><span class="line"><span class="comment">#影片片名规则</span></span><br><span class="line">findTitle = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="title"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片的评分规则</span></span><br><span class="line">findGrade = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="rating_num" property="v:average"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#评价人数规则</span></span><br><span class="line">findJud = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span&gt;(.*)人评价&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#找到概况</span></span><br><span class="line">findInq = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="inq"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片相关内容</span></span><br><span class="line">findBd = re.<span class="built_in">compile</span>(<span class="string">r'&lt;p class=""&gt;(.*?)&lt;/p&gt;'</span>,re.S)</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line">datalist = []</span><br><span class="line">soup = BeautifulSoup(content, <span class="string">"html.parser"</span>)</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> soup.find_all(<span class="string">"div"</span>,class_ = <span class="string">"item"</span>):</span><br><span class="line">    item = <span class="built_in">str</span>(item)</span><br><span class="line">    <span class="comment">#print(html)                                             #测试电影信息的一小段有没有内解析拿到</span></span><br><span class="line">    data = [ ]</span><br><span class="line">    title = re.findall(findTitle,item)</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">len</span>(title)==<span class="number">2</span>):</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = title[<span class="number">1</span>]</span><br><span class="line">        Ftitle = title[<span class="number">1</span>].replace(<span class="string">"/"</span>, <span class="string">""</span>)</span><br><span class="line">        Ftitle = <span class="string">""</span>.join(Ftitle.split())</span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = <span class="string">" "</span></span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    link = re.findall(findLink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(link)</span><br><span class="line">    srclink = re.findall(findSrclink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(srclink)</span><br><span class="line">    grade = re.findall(findGrade,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(grade)</span><br><span class="line">    judge = re.findall(findJud,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(judge)</span><br><span class="line">    inq = re.findall(findInq,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(inq)</span><br><span class="line">    bd = re.findall(findBd,item)[<span class="number">0</span>]</span><br><span class="line">    bd = re.sub(<span class="string">'&lt;br(\s+)?/&gt;(\s+)?'</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = re.sub(<span class="string">"/"</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = <span class="string">""</span>.join(bd.split())</span><br><span class="line">    data.append(bd)</span><br><span class="line">    datalist.append(data)</span><br><span class="line"><span class="built_in">print</span>(datalist)            <span class="comment">#测试所有列表是否被打印</span></span><br></pre></td></tr></tbody></table></figure>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="本地excel保存"><a href="#本地excel保存" class="headerlink" title="本地excel保存"></a>本地excel保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> xlwt</span><br><span class="line">workbook = xlwt.Workbook(encoding=<span class="string">"utf-8"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">worksheet = workbook.add_sheet(<span class="string">"豆瓣电影250"</span>)</span><br><span class="line">col = [<span class="string">"中文名"</span>, <span class="string">"外文名"</span>, <span class="string">"电影链接"</span>, <span class="string">"图片链接"</span>, <span class="string">"评分"</span>, <span class="string">"评价人数"</span>, <span class="string">"概评"</span>, <span class="string">"概述"</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">    worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(i + <span class="number">1</span>, j, datalist[i][j])</span><br><span class="line">workbook.save(<span class="string">"豆瓣top250_firstPage.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sqlite3</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">init_db</span>(<span class="params">dbpath</span>):</span><br><span class="line">    sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        create table movie250 </span></span><br><span class="line"><span class="string">        (</span></span><br><span class="line"><span class="string">        id integer primary key autoincrement,</span></span><br><span class="line"><span class="string">        info_link text,</span></span><br><span class="line"><span class="string">        pic_link text,</span></span><br><span class="line"><span class="string">        cname varchar,</span></span><br><span class="line"><span class="string">        ename varchar,</span></span><br><span class="line"><span class="string">        score numeric ,</span></span><br><span class="line"><span class="string">        rated numeric ,</span></span><br><span class="line"><span class="string">        instroduction text,</span></span><br><span class="line"><span class="string">        info text</span></span><br><span class="line"><span class="string">        )</span></span><br><span class="line"><span class="string">    '''</span>  <span class="comment"># 创建数据表</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cursor = conn.cursor()</span><br><span class="line">    cursor.execute(sql)</span><br><span class="line">    conn.commit()</span><br><span class="line">    conn.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">saveData2DB</span>(<span class="params">datalist, dbpath</span>):</span><br><span class="line">    <span class="comment">#init_db(dbpath)</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        	data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">                insert into movie250 (</span></span><br><span class="line"><span class="string">                info_link,pic_link,cname,ename,score,rated,instroduction,info) </span></span><br><span class="line"><span class="string">                values(%s)'''</span> % <span class="string">","</span>.join(data)</span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br><span class="line">saveData2DB(datalist,<span class="string">"movie.db"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h3><p><img src="/images/item/douban-1.png" alt="在这里插入图片描述"><br><img src="/images/item/douban-2.png" alt="在这里插入图片描述"></p>
+<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><h2 id="Flask"><a href="#Flask" class="headerlink" title="Flask"></a><a href="https://dormousehole.readthedocs.io/en/latest/">Flask</a></h2><p>Flask 是一个微型的 Python 开发的 Web 框架，基于Werkzeug WSGI工具箱和Jinja2 模板引擎。 Flask使用BSD授权。 Flask也被称为“microframework”，因为它使用简单的核心，用extension增加其他功能。Flask没有默认使用的数据库、窗体验证工具。<br>简单来说在此项目中，Flask框架给我们提供了一个本地网页平台展示数据。我们根据不同的路由地址进行到不同的页面访问。如下图是首界面，通过不同的链接地址可以实现页面跳转，当然只是本地！<br><img src="/images/item/douban-3.png" alt="在这里插入图片描述"></p>
+<h2 id="Echarts"><a href="#Echarts" class="headerlink" title="Echarts"></a><a href="https://echarts.apache.org/en/index.html">Echarts</a></h2><p>Echarts是一个纯基于js的图表库，可以流畅的运行在 PC 和移动设备上。在本项目中可以将数据进行统计分类从而用不同的展示方法进行展现。在Echarts中可以支持的图表类型有很多，同时其有一个很好的点在于它能满足我们实时修改查看，最终形成自己想要的图，便将js代码复制粘贴到我们所需要的网页代码的地方。<br>由于在页面内有动态显示，所以不在进行展示。</p>
+<h2 id="WordCloud"><a href="#WordCloud" class="headerlink" title="WordCloud"></a>WordCloud</h2><p>词云展示方法是近些年来较为常用的数据可视化方法。其主要是通过分词技术将一篇文章或者一段话分成若干单词，然后统计这些词出现的频率，我们根据自定义化设置画布和这些词出现的颜色大小等等来得到某个词云。词云中重要的是画布的配置、自己所要定义的形式是什么样子，其他更多的是某些固定的方法。下图为我通过爬取毛不易的歌词内容获得毛不易的歌词词云图，如果需要此项目源码或者方法请私信。<br><img src="/images/item/douban-4.png" alt="在这里插入图片描述"></p>
+<h1 id="新手问题总结与解决方法"><a href="#新手问题总结与解决方法" class="headerlink" title="新手问题总结与解决方法"></a>新手问题总结与解决方法</h1><h2 id="ip被封"><a href="#ip被封" class="headerlink" title="ip被封"></a>ip被封</h2><p>ip被封可能是新手在爬虫学习阶段遇到的最大的问题。首先如果是初学想要尽快实现一些成果时，建议在合理范围内减少爬取次数，如果我们能获得网页内容了首先将其存到本地文件夹下进行后续的测试和解析。俗话说：上有政策下有对策，面对ip被封：基础阶段我们可以添加请求头，尽可能的进行伪装像一个浏览器在访问；再进一步我们可以自己构建代理ip函数，仿照源码添加免费ip，构建handler处理器使用opener方法也可以；如果有能力的话，可以学习代理ip池的方法来解决该问题。<br>当然，爬虫我们是要在合法范围内进行抓取，如果某些数据是机密或者不能访问的，我们还一直访问可能就很快有自己的小手镯子了🔓。我们只爬取我们可以访问到的，爬虫只是提高效率，不是翻过禁墙。</p>
+<h2 id="查看网页源码和”F12-Elements”后不一致"><a href="#查看网页源码和”F12-Elements”后不一致" class="headerlink" title="查看网页源码和”F12 Elements”后不一致"></a>查看网页源码和”F12 Elements”后不一致</h2><p>该问题可以总结为用一般方法有些需要的元素抓取不到。在本次项目中我们爬取的页面是静态网页所以可以直接抓取，但是对于动态网页就会无能为力。<br>查看网页源码：最原始的代码，指的是服务器直接发送到浏览器的代码。<br>F12检查元素：js渲染后的代码。而确实的部分就是js所渲染的。<br>如果我们想要抓取这部分代码可以采取以下两种方法：</p>
+<ol>
+<li>在页面上进行抓包，获取表单的元素和js链接提交请求</li>
+<li>通过selenium技术，模拟用户打开网页，进行自动化的抓取。</li>
+</ol>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><p>以上两个问题是我在这个项目中所遇到的，当然在面对更复杂的爬虫工作时，会有更加繁琐的问题出现。还有一些其他问题，我将其总结为基础知识问题。在很多初学的时候，我们获得的数据往往以不同的格式进行存储，但是某些方法只能针对某些固定数据格式，这些需要我们提起注意；还有就是我们不可避免的马虎问题，关键词拼写错误，变量书写错误等等，这些最好的解决办法就是孰能生巧。<br>最后就是建议大家在完成一个项目时选择分块按照不同的模块去练习测试，最终完成项目。</p>
+]]></content>
+      <categories>
+        <category>Item</category>
       </categories>
   </entry>
   <entry>
@@ -1142,6 +1314,10 @@
         <category>Linux</category>
         <category>Tools</category>
       </categories>
+      <tags>
+        <tag>Makefile</tag>
+        <tag>CmakeLists.txt</tag>
+      </tags>
   </entry>
   <entry>
     <title>LwIP协议栈</title>
@@ -1477,6 +1653,37 @@
 <li><a href="https://blog.csdn.net/zhzht19861011/article/details/125322654">TCP回调函数是何时调用的</a></li>
 <li><a href="https://blog.csdn.net/zhzht19861011/article/details/125278742">协议栈什么情况下发送 RST 标志</a></li>
 </ol>
+]]></content>
+      <categories>
+        <category>Third Party</category>
+      </categories>
+      <tags>
+        <tag>lwip</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>XPath Helper安装及使用</title>
+    <url>/2022/12/03/third-party/xpath/</url>
+    <content><![CDATA[<h1 id="引语"><a href="#引语" class="headerlink" title="引语"></a>引语</h1><p><em>在爬虫各个应用场景下，数据解析为其中重要的一环。而在数据解析中，BeautifulSoup、Xpath以及正则表达式等多种方法均为利器，在实际应用中根据不同场景选择不同的方法是最高效的，但是对各个方法的掌握程度要求很高。事实上，精通一种方法就已经满足需要了，再此基础之上，用辅助工具帮助理解提高效率。<br>本文将提供给“爬虫大师们”使用xpath方法的辅助工具XPath Helper插件。</em></p>
+<h1 id="XPath-Helper简介"><a href="#XPath-Helper简介" class="headerlink" title="XPath Helper简介"></a>XPath Helper简介</h1><p>XPath即为XML路径语言，它是一种用来确定XML(标准通用标记语言的子集)文档中某部分位置的语言。XPath基于XML的树状结构，提供在数据结构树中找寻节点的能力。起初XPath的提出的初衷是将其作为一个通用的、介于XPointer与XSL间的语法模型。<br>XPath Helper是一款专用于chrome内核浏览器的实用型爬虫网页解析工具。XPath Helper插件功能强劲，支持进行XPath查询功能。XPath Help插件可以帮助用户在各类网站上通过按shift键选择想要查看的页面元素来提取查询其代码，同时还支持用户对查询出来的代码进行编辑，而编辑出的结果将立即显示在旁边的结果框中。</p>
+<h1 id="XPath-Helper安装方法"><a href="#XPath-Helper安装方法" class="headerlink" title="XPath Helper安装方法"></a>XPath Helper安装方法</h1><ol>
+<li>根据下面的链接将文件下载到本地。<br>链接：<a href="https://pan.baidu.com/s/18_Ws5qjHW9skhE1cb1jtYA">https://pan.baidu.com/s/18_Ws5qjHW9skhE1cb1jtYA</a><br>提取码：x0no</li>
+<li>下载完成后，将文件的后缀名改为“.zip”，并进行解压。</li>
+<li>解压之后有两个文件，将文件名为“2.0.2_0.crx”后缀名改为“.zip”，并对其进行二次解压。<br>==至此，所有弹出的提示语句全部选择  是==</li>
+<li>二次解压完成，获得如下图所示的文件夹。如果红色框内文件夹如图所示，将“_metadata”改为“metadata”。如果默认就是“metadata”则不需要做任何操作。<br><img src="/images/third-party/xpath-1.png"></li>
+<li>进入自己对应的浏览器。在此，我以Google浏览器为基础操作。<br><strong>点击谷歌右上角的三个点的按钮<br>选择更多工具——&gt;选择扩展程序<br>进入，打开开发者模式，加载已解压的扩展程序，选择相应的已解压的文件，确认！<br>重启浏览器，确认可以正常使用</strong></li>
+<li>如下图表示创建成功。<img src="/!%5B%5D(/images/third-party/xpath-2.png)" alt="在这里插入图片描述"></li>
+</ol>
+<h1 id="XPath-Helper简单使用方法"><a href="#XPath-Helper简单使用方法" class="headerlink" title="XPath Helper简单使用方法"></a>XPath Helper简单使用方法</h1><h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><ol>
+<li>获取页面元素的xpath地址。</li>
+<li>验证用户自己写的xpath地址是否正确。</li>
+</ol>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><ul>
+<li>打开/关闭XPath Helper快捷键：Ctrl+Shift+x</li>
+<li>打开Xpath Helper后的结果如下图所示<br> <img src="/!%5B%5D(/images/third-party/xpath-3.png)" alt="在这里插入图片描述"></li>
+<li>打开该插件的情况下，按住Shift在页面内进行移动，鼠标所经过之处会有黄色方框显示，下图为在CSDN首页，选中标题引导框的结果。左侧的query框内即为选中内容的xpath地址。<br><img src="/!%5B%5D(/images/third-party/xpath-4.png)" alt="在这里插入图片描述"></li>
+<li>如果作为验证的方法，在query框内写入自己写入xpath地址，看result框内是否是自己想要抓取的元素，如果不正确，可以实时在query内进行修改，直至获得正确xpath地址。<br><img src="/!%5B%5D(/images/third-party/xpath-5.png)" alt="在这里插入图片描述"></li>
+</ul>
 ]]></content>
       <categories>
         <category>Third Party</category>
