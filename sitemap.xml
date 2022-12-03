@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yanglieee.com/2022/12/03/item/51job/</loc>
+    
+    <lastmod>2022-12-03</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://yanglieee.com/2022/12/03/third-party/xpath/</loc>
     
     <lastmod>2022-12-03</lastmod>
@@ -48,15 +57,6 @@
   
   <url>
     <loc>http://yanglieee.com/2022/12/03/item/smartHome/</loc>
-    
-    <lastmod>2022-12-03</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://yanglieee.com/2022/12/03/item/51job/</loc>
     
     <lastmod>2022-12-03</lastmod>
     
@@ -189,6 +189,13 @@
   </url>
   
   <url>
+    <loc>http://yanglieee.com/tags/volatile/</loc>
+    <lastmod>2022-12-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>http://yanglieee.com/tags/%E5%BC%80%E7%AF%87/</loc>
     <lastmod>2022-12-03</lastmod>
     <changefreq>weekly</changefreq>
@@ -196,7 +203,7 @@
   </url>
   
   <url>
-    <loc>http://yanglieee.com/tags/volatile/</loc>
+    <loc>http://yanglieee.com/tags/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/</loc>
     <lastmod>2022-12-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -223,13 +230,6 @@
     <priority>0.2</priority>
   </url>
   
-  <url>
-    <loc>http://yanglieee.com/tags/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/</loc>
-    <lastmod>2022-12-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
 
   
   <url>
@@ -241,6 +241,13 @@
   
   <url>
     <loc>http://yanglieee.com/categories/Computure-System/</loc>
+    <lastmod>2022-12-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/categories/c-c/</loc>
     <lastmod>2022-12-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -261,7 +268,14 @@
   </url>
   
   <url>
-    <loc>http://yanglieee.com/categories/c-c/</loc>
+    <loc>http://yanglieee.com/categories/Linux/Andriod/</loc>
+    <lastmod>2022-12-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/</loc>
     <lastmod>2022-12-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -275,7 +289,7 @@
   </url>
   
   <url>
-    <loc>http://yanglieee.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/</loc>
+    <loc>http://yanglieee.com/categories/Item/</loc>
     <lastmod>2022-12-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -290,20 +304,6 @@
   
   <url>
     <loc>http://yanglieee.com/categories/Linux/Tools/</loc>
-    <lastmod>2022-12-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://yanglieee.com/categories/Linux/Andriod/</loc>
-    <lastmod>2022-12-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://yanglieee.com/categories/Item/</loc>
     <lastmod>2022-12-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
