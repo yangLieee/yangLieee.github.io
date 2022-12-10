@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2022-12-03T10:02:28.076Z</updated>
+  <updated>2022-12-10T19:13:15.389Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,6 +17,25 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>《曾国藩传》</title>
+    <link href="http://yanglieee.com/2022/12/11/Reading/%E6%9B%BE%E5%9B%BD%E8%97%A9%E4%BC%A0/"/>
+    <id>http://yanglieee.com/2022/12/11/Reading/%E6%9B%BE%E5%9B%BD%E8%97%A9%E4%BC%A0/</id>
+    <published>2022-12-10T16:00:00.000Z</published>
+    <updated>2022-12-10T19:13:15.389Z</updated>
+    
+    
+    <summary type="html">对《曾国藩传》一书的心得</summary>
+    
+    
+    
+    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
+    
+    
+    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
     <title>51job爬虫项目</title>
     <link href="http://yanglieee.com/2022/12/03/item/51job/"/>
     <id>http://yanglieee.com/2022/12/03/item/51job/</id>
@@ -25,6 +44,23 @@
     
     
     <summary type="html">本文所涉及的是对于51job数据的爬取、解析和保存</summary>
+    
+    
+    
+    <category term="Item" scheme="http://yanglieee.com/categories/Item/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
+    <link href="http://yanglieee.com/2022/12/03/item/doubanTop250Spider/"/>
+    <id>http://yanglieee.com/2022/12/03/item/doubanTop250Spider/</id>
+    <published>2022-12-02T16:00:00.000Z</published>
+    <updated>2022-12-03T08:43:07.130Z</updated>
+    
+    
+    <summary type="html">本文基于B站视频《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》关于 &quot;豆瓣电影Top250&quot; 项目做出的总结、拓展与分享。</summary>
     
     
     
@@ -49,23 +85,6 @@
     
     
     <category term="毕业设计" scheme="http://yanglieee.com/tags/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
-    <link href="http://yanglieee.com/2022/12/03/item/doubanTop250Spider/"/>
-    <id>http://yanglieee.com/2022/12/03/item/doubanTop250Spider/</id>
-    <published>2022-12-02T16:00:00.000Z</published>
-    <updated>2022-12-03T08:43:07.130Z</updated>
-    
-    
-    <summary type="html">本文基于B站视频《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》关于 &quot;豆瓣电影Top250&quot; 项目做出的总结、拓展与分享。</summary>
-    
-    
-    
-    <category term="Item" scheme="http://yanglieee.com/categories/Item/"/>
-    
     
   </entry>
   
