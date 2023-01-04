@@ -1,8 +1,340 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>GPIO</title>
+    <url>/2022/09/22/GPIO/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
+<p><img src="/images/system/GPIO-1.png" alt="image"></p>
+<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
+<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
+<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
+<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
+<li>下拉输入：IO口输入设定为低电平输入（0）</li>
+<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
+</ol>
+<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
+<li>推挽输出：输出高低电平</li>
+<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
+<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
+<li>复用开漏输出：普通i2c处于该模式</li>
+</ol>
+<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
+<ul>
+<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
+<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
+<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
+<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
+<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
+<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
+<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
+</ul>
+<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
+<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>注意事项</p>
+<ul>
+<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
+<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
+<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
+<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
+</ul>
+<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖始终，故可以配置IO作为中断源对CPU进行唤醒</p>
+]]></content>
+      <categories>
+        <category>Computure System</category>
+        <category>GPIO</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Hello New World</title>
+    <url>/2022/08/22/hello-world/</url>
+    <content><![CDATA[<blockquote>
+<p>Be all you can be!</p>
+</blockquote>
+<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
+<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
+<ol>
+<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
+<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
+<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
+</ol>
+<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
+<p align="right">2022-8-22/23.38</p>
+
+<p align="right">Lee</p>
+
+]]></content>
+      <categories>
+        <category>Personal</category>
+      </categories>
+      <tags>
+        <tag>开篇</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>理解c/c++ Volatile关键字</title>
+    <url>/2022/11/15/Volatile/</url>
+    <content><![CDATA[<p>网络上对于volatile的解读众说纷纭，而且其中较多的是java内存模型。</p>
+<p>本篇文章将基于自己的学习和实验，针对C/C++语言嵌入式开发场景进行volatile关键字的分析</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>volatile 关键字是 C /C++ 编程语言的一部分，作为一种类型修饰符。我将其作用总结为<em><strong>告诉编译器禁止优化其所修饰对象的读写访存操作及指令顺序，保证变量的可见性</strong></em></p>
+<blockquote>
+<p>可见性：当一个线程修改了共享变量后，其他线程能够立即得知这个修改。</p>
+<p>有序性：程序执行的顺序按照代码的先后顺序执行。</p>
+<p>原子性：一个操作或多个操作要么全部执行，且执行的过程不会被任何因素打断，要么就都不执行。</p>
+</blockquote>
+<p>在《程序员的自我修养》这本书中讲到，volatile基本可以做到两个事情：</p>
+<ol>
+<li>阻止编译器为了提高速度将一个变量缓存到寄存器内而不写回</li>
+<li>阻止编译器调整操作volatile变量的指令顺序</li>
+</ol>
+<p>对于第一个作用volatile是可以很好的做到，而对于第二个作用编译器层面可以保证指令有序但是我们无法阻止cpu动态调整顺序。真正保证有序性是需要通过内存屏障完成的，而volatile并没有内存屏障的功能，gcc 提供了一个内联函数 <em><strong>asm volatile (“” : : : “memory”</strong>)</em> 编译器屏障，具体平台相关内存屏障需要到具体的结构平台去参考</p>
+<h1 id="理解volatile"><a href="#理解volatile" class="headerlink" title="理解volatile"></a>理解volatile</h1><blockquote>
+<p>Collins对于Volatile释义：A situation that is volatile is <strong>likely</strong> to change <strong>suddenly</strong> and <strong>unexpectedly</strong>.</p>
+</blockquote>
+<p><strong>volatile</strong> 本身释义为 <strong>易失的、易变的</strong></p>
+<p>对于用volatile所修饰的对象，在其自身的含义基础上，有三个副词可以很好的对其性质进行诠释：</p>
+<ul>
+<li><p>likely   可能地，指对象的状态可能变化、也可能不变保持状态，强调结果；</p>
+</li>
+<li><p>suddenly:   突然地，指对象状态的瞬时变化，强调过程；</p>
+</li>
+<li><p>unexpectedly:  不可预期地，指对象变化的时间结果都不可预期；</p>
+</li>
+</ul>
+<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>根据含义性质，在嵌入式开发中以下三种场景是一定要考虑使用volatile关键字的（大多数情况一定使用！！！）</p>
+<ol>
+<li>多线程任务读写同一全局变量，</li>
+<li>中断服务程序修改的全局变量</li>
+<li>内存映射外设寄存器</li>
+</ol>
+<h1 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h1><h2 id="中断场景"><a href="#中断场景" class="headerlink" title="中断场景"></a>中断场景</h2><p>下面一段代码，我们所期待的结果是主程序运行，直到crtl+c按键按下程序退出，代码编译执行之后并不是我们所预期的样子。如果sig_done变量不通过volatile修饰程序将永远不会退出，而volatile关键字很好的解决了这一个问题</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> sig_done = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">//static volatile bool sig_done = false;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">handler</span><span class="params">(<span class="type">int</span> sig)</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(sig == SIGINT)</span><br><span class="line">    ┆   sig_done = <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc , <span class="type">char</span> *argv[])</span></span><br><span class="line">{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main start, press ctrl+c go on\n"</span>);</span><br><span class="line">    signal(SIGINT, handler);</span><br><span class="line">    <span class="keyword">while</span>(!sig_done) {</span><br><span class="line">    }   </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main exit\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//编译命令</span></span><br><span class="line">gcc main.c <span class="number">-02</span></span><br><span class="line">objdump -d a.out &gt; a.s</span><br></pre></td></tr></tbody></table></figure>
+
+<p>通过反汇编比较两个程序的异同（左侧volatile，右侧无volatile）</p>
+<p><img src="/images/coding/meld.png" alt="image"></p>
+<p>没有voaltile的while实现方式为：</p>
+<ol>
+<li>比较rip寄存器+0x2f65地址处的值（sig_done）与 0 是否相等</li>
+<li>不相等跳转到main+0x30即上一条指令处</li>
+<li>跳转</li>
+</ol>
+<p>有volatile的while实现方式：</p>
+<ol>
+<li><p>nopl (%rax) 编译器开启优化后使指令按字对齐,减少取指令的时钟周期。</p>
+</li>
+<li><p>将 rip寄存器+0x2f65地址处的值放到eax寄存器中</p>
+<blockquote>
+<p>movzbl指令负责拷贝一个字节，并用0填充其目的操作数中的其余各位，这种扩展方式叫“零扩展”。</p>
+<p>movsbl指令负责拷贝一个字节，并用源操作数的最高位填充其目的操作数中的其余各位，这种扩展方式叫“符号扩展”。</p>
+</blockquote>
+</li>
+<li><p>test   %al,%al 对eax寄存器低位逻辑与</p>
+<blockquote>
+<p>Test命令：将两个操作数进行逻辑与运算，并根据运算结果设置相关的标志位（ze: zero flag）。但是，Test命令的两个操作数不会被改变。运算结果在设置过相关标记位后会被丢弃。</p>
+</blockquote>
+</li>
+<li><p>je   如果ZF（零标志位）=1，零标志位为1（真值）说明结果为0，则转到label所指的指令语句；否则跳过这条语句，执行下条语句</p>
+</li>
+</ol>
+<h2 id="多线程场景"><a href="#多线程场景" class="headerlink" title="多线程场景"></a>多线程场景</h2><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> mstop = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">//static volatile bool mstop = true;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">first_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    <span class="keyword">while</span>(mstop) {</span><br><span class="line">    }</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">second_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">sleep</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    mstop = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}                                                                                                                                                                     </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    std::thread fthread{first_thread};</span><br><span class="line">    std::thread sthread{second_thread};</span><br><span class="line">    fthread.<span class="built_in">join</span>();</span><br><span class="line">	sthread.<span class="built_in">join</span>();</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="外设寄存器"><a href="#外设寄存器" class="headerlink" title="外设寄存器"></a>外设寄存器</h2><p>对于外设通常设置有状态寄存器，我们可以通过循环读取状态寄存器的值来查看对应外设的状态。对于如下示例，如果没有使用volatile关键字，编译器可能生成的代码是读取一个固定地址的值而不会每次都从主存中读取新的值（或者读取n次状态，生成的代码只读取了一次，然后使用n次相同的值）</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//设置寄存器</span></span><br><span class="line">*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR = <span class="number">1</span> &lt;&lt; <span class="number">24</span>; </span><br><span class="line"><span class="comment">//读寄存器</span></span><br><span class="line"><span class="keyword">while</span>(!(*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR)) {</span><br><span class="line">    <span class="comment">// do action</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h1 id="线程安全的单例模式"><a href="#线程安全的单例模式" class="headerlink" title="线程安全的单例模式"></a>线程安全的单例模式</h1><p>该部分不是volatile的使用，而是对内屏屏障的理解</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mp3decoder.h</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">mp3decoder</span> :</span> public decoderImp </span><br><span class="line">{</span><br><span class="line">    public:</span><br><span class="line">    	<span class="type">static</span> mp3decoder* <span class="title function_">getInstance</span><span class="params">()</span>;</span><br><span class="line">    private:</span><br><span class="line">    	mp3decoder();</span><br><span class="line">    	~mp3decoder();</span><br><span class="line">    	<span class="type">static</span> mp3decoder* mdecoder;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="comment">//mp3decoder.cpp</span></span><br><span class="line"><span class="comment">//线程不安全，适用于单线程</span></span><br><span class="line">mp3decoder* mp3decoder::mdecoder = <span class="literal">NULL</span>;</span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，但锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">    unlock();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//Double-Checked Locking Pattern (DCLP 双检查锁)，指令重排序reorder不安全</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">        lock();</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">       		mdecoder = new mp3decoder();</span><br><span class="line">         unlock();</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//内存屏障</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">            mp3decoder *tmp = new mp3decoder();</span><br><span class="line">            MemoryBarrier();</span><br><span class="line">            mdecoder = tmp;</span><br><span class="line">        }</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// mdecoder = new mp3decoder()在cpu层面动作：</span></span><br><span class="line"><span class="comment">// 1. 分配内存</span></span><br><span class="line"><span class="comment">// 2. 调用构造函数</span></span><br><span class="line"><span class="comment">// 3. 将内存地址赋值给mdecoder指针</span></span><br><span class="line"><span class="comment">// 由于2、3对于编译器来讲是有可能进行优化的，即先将指针赋值再调用构造函数，导致线程不安全！！</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<blockquote>
+<p>参考文章：</p>
+<ul>
+<li><a href="https://barrgroup.com/embedded-systems/how-to/c-volatile-keyword">How to Use C’s volatile Keyword</a></li>
+<li><a href="https://barrgroup.com/tech-talks/volatile-c">Pro Tips for Using C’s volatile Keyword</a></li>
+<li><a href="https://liam.page/2018/01/18/volatile-in-C-and-Cpp/">谈谈 c / c++ 中的volatile</a></li>
+</ul>
+</blockquote>
+]]></content>
+      <categories>
+        <category>c/c++</category>
+      </categories>
+      <tags>
+        <tag>volatile</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>init.rc语法及解析</title>
+    <url>/2022/11/16/init.rc/</url>
+    <content><![CDATA[<p>在linux设备上输入“pstree”命令我们便会看到一棵进程树，不同状态不同设备树上进程名字进程号可能不完全一致，但进程号pid=1的进程一定是init进程！对于Android系统来讲，其实际是运行于Linux内核之上的一系列“服务进程”，而这些服务进程的“老祖宗”就是init，它是Android中第一个被启动的进程，所有服务都是通过解析init.rc文件得到的（部分可以执行程序通过init.d/文件夹下的脚本启动）</p>
+<p>本篇文章将对init.rc文件语法进行解析</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>查看andriod源码：<a href="http://androidxref.com/">http://androidxref.com/</a></p>
+</blockquote>
+<p>init.rc是系统启动的第一个程序所加载的语法文件。init.rc文件是以“块”(section)为单位服务的，一个“块”(section)可以包含多行，而一行中包含多个tokens(符号)。“块”(section)分成两大类：一类称为”动作(action)”，另一类称为“服务(service)”。而一个init.rc脚本由四个类型的声明组成：</p>
+<ol>
+<li>动作 ：Actions，以关键字“on”开始</li>
+<li>命令 ：Commands，以关键字“start”“restart”“stop”开始</li>
+<li>服务 ：Services</li>
+<li>选项 ：Options</li>
+</ol>
+<h1 id="Actions"><a href="#Actions" class="headerlink" title="Actions"></a>Actions</h1><p>Actions就是响应某个事件的过程。如下所示当满足trigger触发条件时依次执行Commands命令。源码会依次将这些命令添加到“命令执行队列尾部”，系统对这些命令顺序执行。所以服务启动的根本就是on类型的section被执行的过程</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on &lt;trigger&gt;        //触发条件</span><br><span class="line">    &lt;command1&gt;      //命令1</span><br><span class="line">    &lt;command2&gt;      //命令2</span><br><span class="line">    &lt;command3&gt;      //命令3</span><br></pre></td></tr></tbody></table></figure>
+
+<p>对于trigger（触发器）来讲，常见的有两种形式：</p>
+<ol>
+<li>单纯的字符串。例如：on boot</li>
+<li>键值匹配，格式为“ on property <key> = <value> ”。例如：on property:init.svc.wifi = stopped</value></key></li>
+</ol>
+<p>此外还有两种形式：</p>
+<ol>
+<li>device-added/removed-<patch> 当设备节点添加/删除时触发此事件</patch></li>
+<li>sevice-exited-<name> 当指定服务<name> 存在时触发</name></name></li>
+</ol>
+<h2 id="Actions解析后执行顺序"><a href="#Actions解析后执行顺序" class="headerlink" title="Actions解析后执行顺序"></a>Actions解析后执行顺序</h2><figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on early-init           #在初始化早期阶段触发</span><br><span class="line">on init                 #初始化阶段触发。这里会执行完属性服务，接下来就可以设置属性了</span><br><span class="line">on late-init            #在初始化晚期触发。在这里会通过trigger来执行其他的action,以下均是</span><br><span class="line">on early-fs</span><br><span class="line">on fs</span><br><span class="line">on post-fs</span><br><span class="line">on post-fs-data</span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">on early-boot</span><br><span class="line">on boot`</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="Commands"><a href="#Commands" class="headerlink" title="Commands"></a>Commands</h1><table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>start <service></service></td>
+<td>启动一个服务，如果它没有处于运行状态的话</td>
+</tr>
+<tr>
+<td>stop <service></service></td>
+<td>停止一个服务，如果当前它处于运行状态的话</td>
+</tr>
+<tr>
+<td>restart <service></service></td>
+<td></td>
+</tr>
+<tr>
+<td>setprop <name> <value></value></name></td>
+<td>设置<name>的属性值为<value></value></name></td>
+</tr>
+<tr>
+<td>trigger <event></event></td>
+<td>触发一个事件</td>
+</tr>
+<tr>
+<td>export <name> <value></value></name></td>
+<td>设置<name>环境变量的值为<value>，全局有效</value></name></td>
+</tr>
+<tr>
+<td>mount <type> <device> <dir> [<mountoption>]*</mountoption></dir></device></type></td>
+<td>尝试在指定路径上挂载一个设备</td>
+</tr>
+</tbody></table>
+<h1 id="Services"><a href="#Services" class="headerlink" title="Services"></a>Services</h1><p>实际上每一个service就是一个可执行程序，它们在特定选项的约束下是被init程序运行或者重启(service可以在配置中指定是否需要退出重启，这样当service出现异常crash时就可以有机会复原)</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">service &lt;name&gt; &lt;pathname&gt; [ &lt;argument&gt; ]*</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        ...</span><br><span class="line"># &lt;name&gt;       service服务的名字</span><br><span class="line"># &lt;pathname&gt;   service路径，一般对应可执行程序或者脚本</span><br><span class="line"># &lt;argument&gt;   启动pathname下的service所需要的参数</span><br><span class="line"># &lt;option&gt;     service的约束项</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h1><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>disable</td>
+<td>隐式声明，默认不会自动启动该服务，需要显式调用</td>
+</tr>
+<tr>
+<td>oneshot</td>
+<td>字面意思一次性，即服务退出时，不要主动重启该服务</td>
+</tr>
+<tr>
+<td>onrestart</td>
+<td>当服务重启时，执行某些命令（需要理解）</td>
+</tr>
+<tr>
+<td>class <name></name></td>
+<td>指定该服务属于<name>class类，默认class名为default（注：同一个class所有服务必须是同时启动或停止）</name></td>
+</tr>
+<tr>
+<td>socket <name> <type> <perm> [<user> [<group>] ]</group></user></perm></type></name></td>
+<td>创建一个名为dev/socket/<name>的 socket，然后将它的fd值传给启动它的进，有效的<type>值包括dgram,stream 和seqpacket。ueser 和group 的默认值为0。</type></name></td>
+</tr>
+<tr>
+<td>critical</td>
+<td>表明这是对设备至关重要的服务；如果它在四分钟内退出超过四次，则设备将进入Recovery 模式</td>
+</tr>
+<tr>
+<td>group <groupname> [<groupname>]*</groupname></groupname></td>
+<td>在启动服务前将用户组切换至<groupname></groupname></td>
+</tr>
+<tr>
+<td>setenv <name> <value></value></name></td>
+<td>设置环境变量<name> 为值<value></value></name></td>
+</tr>
+</tbody></table>
+<h1 id="Notice"><a href="#Notice" class="headerlink" title="Notice"></a>Notice</h1><ol>
+<li>service和Actions都是有唯一的名字的。如果有重名的情况会作为错误忽略。</li>
+<li>无论是动作还是服务，并不是按照文件的编排顺序执行的。</li>
+<li>该文件中注释以“#”开始；反斜杠“\”在行尾表示下面一行是同一行</li>
+</ol>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">/* </span><br><span class="line"> * copy from http://androidxref.com/6.0.0_r5/xref/bootable/recovery/etc/init.rc</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">import /init.recovery.${ro.hardware}.rc</span><br><span class="line"></span><br><span class="line">on early-init</span><br><span class="line">    start ueventd</span><br><span class="line">    start healthd</span><br><span class="line"></span><br><span class="line">on init</span><br><span class="line">    export PATH /sbin:/system/bin</span><br><span class="line">    export ANDROID_ROOT /system</span><br><span class="line">    export ANDROID_DATA /data</span><br><span class="line">    export EXTERNAL_STORAGE /sdcard</span><br><span class="line"></span><br><span class="line">    symlink /system/etc /etc</span><br><span class="line"></span><br><span class="line">    mkdir /sdcard</span><br><span class="line">    mkdir /system</span><br><span class="line">    mkdir /data</span><br><span class="line">    mkdir /cache</span><br><span class="line">    mkdir /sideload</span><br><span class="line">    mount tmpfs tmpfs /tmp</span><br><span class="line"></span><br><span class="line">    chown root shell /tmp</span><br><span class="line">    chmod 0775 /tmp</span><br><span class="line"></span><br><span class="line">    write /proc/sys/kernel/panic_on_oops 1</span><br><span class="line">    write /proc/sys/vm/max_map_count 1000000</span><br><span class="line"></span><br><span class="line">on fs</span><br><span class="line">    mkdir /dev/usb-ffs 0770 shell shell</span><br><span class="line">    mkdir /dev/usb-ffs/adb 0770 shell shell</span><br><span class="line">    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=2000</span><br><span class="line"></span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    write /sys/class/android_usb/android0/idVendor 18D1</span><br><span class="line">    write /sys/class/android_usb/android0/idProduct D001</span><br><span class="line">    write /sys/class/android_usb/android0/f_ffs/aliases adb</span><br><span class="line">    write /sys/class/android_usb/android0/functions adb</span><br><span class="line">    write /sys/class/android_usb/android0/iManufacturer ${ro.product.manufacturer}</span><br><span class="line">    write /sys/class/android_usb/android0/iProduct ${ro.product.model}</span><br><span class="line">    write /sys/class/android_usb/android0/iSerial ${ro.serialno}</span><br><span class="line"></span><br><span class="line">on boot</span><br><span class="line">    ifup lo</span><br><span class="line">    hostname localhost</span><br><span class="line">    domainname localdomain</span><br><span class="line"></span><br><span class="line">    class_start default</span><br><span class="line"></span><br><span class="line"># Load properties from /system/ + /factory after fs mount.</span><br><span class="line">on load_all_props_action</span><br><span class="line">    load_all_props</span><br><span class="line"></span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">   rm /dev/.booting</span><br><span class="line"></span><br><span class="line"># Mount filesystems and start core system services.</span><br><span class="line">on late-init</span><br><span class="line">    trigger early-fs</span><br><span class="line">    trigger fs</span><br><span class="line">    trigger post-fs</span><br><span class="line">    trigger post-fs-data</span><br><span class="line"></span><br><span class="line">    # Load properties from /system/ + /factory after fs mount. Place</span><br><span class="line">    # this in another action so that the load will be scheduled after the prior</span><br><span class="line">    # issued fs triggers have completed.</span><br><span class="line">    trigger load_all_props_action</span><br><span class="line"></span><br><span class="line">    # Remove a file to wake up anything waiting for firmware</span><br><span class="line">    trigger firmware_mounts_complete</span><br><span class="line"></span><br><span class="line">    trigger early-boot</span><br><span class="line">    trigger boot</span><br><span class="line"></span><br><span class="line">on property:sys.powerctl=*</span><br><span class="line">   powerctl ${sys.powerctl}</span><br><span class="line"></span><br><span class="line">service ueventd /sbin/ueventd</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:ueventd:s0</span><br><span class="line"></span><br><span class="line">service healthd /sbin/healthd -r</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:healthd:s0</span><br><span class="line"></span><br><span class="line">service recovery /sbin/recovery</span><br><span class="line">    seclabel u:r:recovery:s0</span><br><span class="line"></span><br><span class="line">service adbd /sbin/adbd --root_seclabel=u:r:su:s0 --device_banner=recovery</span><br><span class="line">    disabled</span><br><span class="line">    socket adbd stream 660 system system</span><br><span class="line">    seclabel u:r:adbd:s0</span><br><span class="line"></span><br><span class="line"># Always start adbd on userdebug and eng builds</span><br><span class="line">on property:ro.debuggable=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br><span class="line">    start adbd</span><br><span class="line"></span><br><span class="line"># Restart adbd so it can run as root</span><br><span class="line">on property:service.adb.root=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    restart adbd</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br></pre></td></tr></tbody></table></figure>]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Andriod</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>搭建Ubuntu虚拟机</title>
+    <url>/2022/10/22/ubuntu-create/</url>
+    <content><![CDATA[<h1 id="Linux-简介"><a href="#Linux-简介" class="headerlink" title="Linux 简介"></a>Linux 简介</h1><p>linus自传《只是为了好玩》中这样定义：</p>
+<ul>
+<li><p>类Unix操作系统</p>
+</li>
+<li><p>开放源代码方式协作开发</p>
+</li>
+<li><p>采用GPL通用许可证维权</p>
+</li>
+<li><p>主要用于超级电脑、企业级服务器、嵌入式设备等</p>
+</li>
+</ul>
+<h1 id="Ubuntu-简介"><a href="#Ubuntu-简介" class="headerlink" title="Ubuntu 简介"></a>Ubuntu 简介</h1><ul>
+<li>桌面应用为主的Linux操作系统</li>
+<li>操作简单、方便使用</li>
+<li>系统安全性高，默认user权限登录</li>
+<li>Ubuntu中文网站：<a href="http://www.wubantu.co/">http://www.wubantu.co</a></li>
+<li>Ubuntu中文社区：<a href="http://www.ubuntu.org.cn/">http://www.ubuntu.org.cn</a></li>
+<li>Ubuntu技术：<a href="http://wiki.ubuntu.org.cn/">http://wiki.ubuntu.org.cn</a></li>
+</ul>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><ul>
+<li>物理主机</li>
+<li>iso镜像</li>
+<li>vmware / VirtualBox</li>
+</ul>
+<p>网盘中我准备了ubuntu20.04.4-iso、ubuntu16.04.7-iso、Vmware-16.2.3安装包及密钥和一份linux命令大全！</p>
+<p>密钥对于不同版本可能有差异可以都进行尝试，其只是对于个人学习使用，建议购买正版！</p>
+<p>同时附上相关官网链接：</p>
+<ul>
+<li>ubuntu各版本镜像：<a href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/">https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/</a></li>
+<li>vmware官网：<a href="https://www.vmware.com/cn/products/workstation-pro.html">https://www.vmware.com/cn/products/workstation-pro.html</a></li>
+<li>VirtualBox：<a href="https://www.virtualbox.org/">https://www.virtualbox.org</a></li>
+<li>资源网盘链接：<a href="https://pan.baidu.com/s/18vxScuvFp2Vf4g28nRSC5w">https://pan.baidu.com/s/18vxScuvFp2Vf4g28nRSC5w</a><br>提取码：f8uo</li>
+</ul>
+<h1 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h1><p>参考视频：<a href="https://www.bilibili.com/video/BV1hd4y127HY">https://www.bilibili.com/video/BV1hd4y127HY</a></p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>搭建虚拟机</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Libmad详解</title>
-    <url>/2022/11/05/Audio-libmad/</url>
+    <url>/2022/11/05/Audio/Audio-libmad/</url>
     <content><![CDATA[<p>简单来讲，libmad就是一个MP3文件的解码库。如果想要深入理解其中的实现需要对MP3文件格式有详细的了解，关于MP3文件格式的内容在这里我不赘述，之前的文章当中有过详细的讲解 <a href="https://yanglieee.com/2022/09/05/Audio-meet-1/">click here</a></p>
 <h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><blockquote>
 <p>Libmad 详解：<a href="https://www.underbit.com/products/mad/">https://www.underbit.com/products/mad/</a></p>
@@ -192,7 +524,7 @@
   </entry>
   <entry>
     <title>Audio-再遇</title>
-    <url>/2022/09/05/Audio-meet-1/</url>
+    <url>/2022/09/05/Audio/Audio-meet-1/</url>
     <content><![CDATA[<p>本篇内容对一节提到的编码进行扩展，将重点对PCM格式、WAVE格式、MP3格式进行详细解析。</p>
 <h1 id="PCM"><a href="#PCM" class="headerlink" title="PCM"></a>PCM</h1><p>PCM : Pulse-Code Modulation 脉冲调制编码</p>
 <p>PCM 本是一种调制方法的名称，进而通过该方法得到的音频数据也称作PCM数据，即裸数据。该数据是我们通过codec得到的最原始的数据！</p>
@@ -472,7 +804,7 @@
   </entry>
   <entry>
     <title>Audio-初识</title>
-    <url>/2022/08/31/Audio-meet/</url>
+    <url>/2022/08/31/Audio/Audio-meet/</url>
     <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
 <p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
 <p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
@@ -567,336 +899,174 @@
       </categories>
   </entry>
   <entry>
-    <title>GPIO</title>
-    <url>/2022/09/22/GPIO/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
-<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
-<p><img src="/images/system/GPIO-1.png" alt="image"></p>
-<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
-<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
-<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
-<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
-<li>下拉输入：IO口输入设定为低电平输入（0）</li>
-<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
-</ol>
-<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
-<li>推挽输出：输出高低电平</li>
-<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
-<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
-<li>复用开漏输出：普通i2c处于该模式</li>
-</ol>
-<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
+    <title>Opus Ogg详解</title>
+    <url>/2023/01/04/Audio/Audio-opus/</url>
+    <content><![CDATA[<h1 id="opus是什么"><a href="#opus是什么" class="headerlink" title="opus是什么"></a>opus是什么</h1><blockquote>
+<p>以下内容取自opus官网：<a href="https://www.opus-codec.org/">https://www.opus-codec.org</a></p>
+</blockquote>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>Opus 是一种完全开放、免版税、用途广泛的音频编解码器。 Opus 在 Internet 上的交互式语音和音乐传输方面无与伦比，但也适用于存储和流媒体应用。它被互联网工程任务组 (IETF) 标准化为 RFC 6716，它结合了 Skype 的 SILK 编解码器和 Xiph.Org 的 CELT 编解码器的技术。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>Opus 可以处理范围广泛的音频应用，包括 IP 语音、视频会议、游戏内聊天，甚至远程现场音乐表演。它可以从低比特率窄带语音扩展到非常高质量的立体声音乐。支持的功能有：</p>
 <ul>
-<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
-<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
-<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
-<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
-<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
-<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
-<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
+<li>比特率从 6 kb/s 到 510 kb/s</li>
+<li>采样率从 8 kHz（窄带）到 48 kHz（全带）</li>
+<li>帧大小从 2.5 ms 到 60 ms</li>
+<li>支持恒定比特率 (CBR) 和可变比特率 (VBR)</li>
+<li>从窄带到全带的音频带宽</li>
+<li>支持语音和音乐</li>
+<li>支持单声道和立体声</li>
+<li>支持多达 255 个通道（多流帧）</li>
+<li>动态可调比特率、音频带宽和帧大小</li>
+<li>良好的丢包鲁棒性和丢包隐藏 (PLC)</li>
+<li>浮点和定点实现</li>
 </ul>
-<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
-<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
-
-<p>注意事项</p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><p>音频带宽。Opus编码器覆盖了低频段到高频段的全带音频</p>
+</li>
+<li><p>低延迟。延迟依赖于帧规格，Opus最低帧规格2.5ms，非常适合实时音视频场景</p>
+</li>
+</ul>
+<h1 id="opus库"><a href="#opus库" class="headerlink" title="opus库"></a>opus库</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
+<p>编解码器libopus: <a href="https://www.opus-codec.org/docs/opus_api-1.2/index.html">https://www.opus-codec.org/docs/opus_api-1.2/index.html</a></p>
+<p>封装器opusfile：<a href="https://www.opus-codec.org/docs/opusfile_api-0.7/index.html">https://www.opus-codec.org/docs/opusfile_api-0.7/index.html</a></p>
+</blockquote>
+<p>opus库包括三部分：libopus、opus-tools、opusfile</p>
 <ul>
-<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
-<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
-<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
-<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
+<li>libopus：opus编解码的源码和可执行文件（注意：这里编码出来的opus文件是播放不了的，并且解码也必须用那种播放不了的opus文件,后面解释为什么）</li>
+<li>opus-tools：工具包，其中包含了libogg（.wav2.opus  /  .opus2.wav）</li>
+<li>opusfile：将可播放的opus文件解码成wav的工具，可分析出这个可播放的opus文件的信息，其中包含了libogg</li>
 </ul>
-<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖始终，故可以配置IO作为中断源对CPU进行唤醒</p>
-]]></content>
-      <categories>
-        <category>Computure System</category>
-        <category>GPIO</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Hello New World</title>
-    <url>/2022/08/22/hello-world/</url>
-    <content><![CDATA[<blockquote>
-<p>Be all you can be!</p>
-</blockquote>
-<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
-<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
-<ol>
-<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
-<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
-<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
-</ol>
-<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
-<p align="right">2022-8-22/23.38</p>
-
-<p align="right">Lee</p>
-
-]]></content>
-      <categories>
-        <category>Personal</category>
-      </categories>
-      <tags>
-        <tag>开篇</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>理解c/c++ Volatile关键字</title>
-    <url>/2022/11/15/Volatile/</url>
-    <content><![CDATA[<p>网络上对于volatile的解读众说纷纭，而且其中较多的是java内存模型。</p>
-<p>本篇文章将基于自己的学习和实验，针对C/C++语言嵌入式开发场景进行volatile关键字的分析</p>
-<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>volatile 关键字是 C /C++ 编程语言的一部分，作为一种类型修饰符。我将其作用总结为<em><strong>告诉编译器禁止优化其所修饰对象的读写访存操作及指令顺序，保证变量的可见性</strong></em></p>
-<blockquote>
-<p>可见性：当一个线程修改了共享变量后，其他线程能够立即得知这个修改。</p>
-<p>有序性：程序执行的顺序按照代码的先后顺序执行。</p>
-<p>原子性：一个操作或多个操作要么全部执行，且执行的过程不会被任何因素打断，要么就都不执行。</p>
-</blockquote>
-<p>在《程序员的自我修养》这本书中讲到，volatile基本可以做到两个事情：</p>
-<ol>
-<li>阻止编译器为了提高速度将一个变量缓存到寄存器内而不写回</li>
-<li>阻止编译器调整操作volatile变量的指令顺序</li>
-</ol>
-<p>对于第一个作用volatile是可以很好的做到，而对于第二个作用编译器层面可以保证指令有序但是我们无法阻止cpu动态调整顺序。真正保证有序性是需要通过内存屏障完成的，而volatile并没有内存屏障的功能，gcc 提供了一个内联函数 <em><strong>asm volatile (“” : : : “memory”</strong>)</em> 编译器屏障，具体平台相关内存屏障需要到具体的结构平台去参考</p>
-<h1 id="理解volatile"><a href="#理解volatile" class="headerlink" title="理解volatile"></a>理解volatile</h1><blockquote>
-<p>Collins对于Volatile释义：A situation that is volatile is <strong>likely</strong> to change <strong>suddenly</strong> and <strong>unexpectedly</strong>.</p>
-</blockquote>
-<p><strong>volatile</strong> 本身释义为 <strong>易失的、易变的</strong></p>
-<p>对于用volatile所修饰的对象，在其自身的含义基础上，有三个副词可以很好的对其性质进行诠释：</p>
+<h2 id="可播放opus与不可播放opus文件"><a href="#可播放opus与不可播放opus文件" class="headerlink" title="可播放opus与不可播放opus文件"></a>可播放opus与不可播放opus文件</h2><p>ogg文件里面包含了opus编码的音频，相当于MP4文件中包含了aac</p>
 <ul>
-<li><p>likely   可能地，指对象的状态可能变化、也可能不变保持状态，强调结果；</p>
-</li>
-<li><p>suddenly:   突然地，指对象状态的瞬时变化，强调过程；</p>
-</li>
-<li><p>unexpectedly:  不可预期地，指对象变化的时间结果都不可预期；</p>
-</li>
+<li>不可播放opus：只有编码层opus数据的音频（没有ogg的封装只经过libopus编码），后缀名是.opus</li>
+<li>可播放的opus：opus编码的音频外部套用了一层ogg的封装（经过ogg的封装，opus-tools编码的文件），后缀名可以是.opus也可以是.ogg</li>
 </ul>
-<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>根据含义性质，在嵌入式开发中以下三种场景是一定要考虑使用volatile关键字的（大多数情况一定使用！！！）</p>
-<ol>
-<li>多线程任务读写同一全局变量，</li>
-<li>中断服务程序修改的全局变量</li>
-<li>内存映射外设寄存器</li>
-</ol>
-<h1 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h1><h2 id="中断场景"><a href="#中断场景" class="headerlink" title="中断场景"></a>中断场景</h2><p>下面一段代码，我们所期待的结果是主程序运行，直到crtl+c按键按下程序退出，代码编译执行之后并不是我们所预期的样子。如果sig_done变量不通过volatile修饰程序将永远不会退出，而volatile关键字很好的解决了这一个问题</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> sig_done = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">//static volatile bool sig_done = false;</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">handler</span><span class="params">(<span class="type">int</span> sig)</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(sig == SIGINT)</span><br><span class="line">    ┆   sig_done = <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc , <span class="type">char</span> *argv[])</span></span><br><span class="line">{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main start, press ctrl+c go on\n"</span>);</span><br><span class="line">    signal(SIGINT, handler);</span><br><span class="line">    <span class="keyword">while</span>(!sig_done) {</span><br><span class="line">    }   </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"main exit\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//编译命令</span></span><br><span class="line">gcc main.c <span class="number">-02</span></span><br><span class="line">objdump -d a.out &gt; a.s</span><br></pre></td></tr></tbody></table></figure>
-
-<p>通过反汇编比较两个程序的异同（左侧volatile，右侧无volatile）</p>
-<p><img src="/images/coding/meld.png" alt="image"></p>
-<p>没有voaltile的while实现方式为：</p>
-<ol>
-<li>比较rip寄存器+0x2f65地址处的值（sig_done）与 0 是否相等</li>
-<li>不相等跳转到main+0x30即上一条指令处</li>
-<li>跳转</li>
-</ol>
-<p>有volatile的while实现方式：</p>
-<ol>
-<li><p>nopl (%rax) 编译器开启优化后使指令按字对齐,减少取指令的时钟周期。</p>
-</li>
-<li><p>将 rip寄存器+0x2f65地址处的值放到eax寄存器中</p>
-<blockquote>
-<p>movzbl指令负责拷贝一个字节，并用0填充其目的操作数中的其余各位，这种扩展方式叫“零扩展”。</p>
-<p>movsbl指令负责拷贝一个字节，并用源操作数的最高位填充其目的操作数中的其余各位，这种扩展方式叫“符号扩展”。</p>
-</blockquote>
-</li>
-<li><p>test   %al,%al 对eax寄存器低位逻辑与</p>
-<blockquote>
-<p>Test命令：将两个操作数进行逻辑与运算，并根据运算结果设置相关的标志位（ze: zero flag）。但是，Test命令的两个操作数不会被改变。运算结果在设置过相关标记位后会被丢弃。</p>
-</blockquote>
-</li>
-<li><p>je   如果ZF（零标志位）=1，零标志位为1（真值）说明结果为0，则转到label所指的指令语句；否则跳过这条语句，执行下条语句</p>
-</li>
-</ol>
-<h2 id="多线程场景"><a href="#多线程场景" class="headerlink" title="多线程场景"></a>多线程场景</h2><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> mstop = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">//static volatile bool mstop = true;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">first_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    <span class="keyword">while</span>(mstop) {</span><br><span class="line">    }</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">second_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="built_in">sleep</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s start\n"</span>, __func__);</span><br><span class="line">    mstop = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%s exit\n"</span>, __func__);</span><br><span class="line">}                                                                                                                                                                     </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    std::thread fthread{first_thread};</span><br><span class="line">    std::thread sthread{second_thread};</span><br><span class="line">    fthread.<span class="built_in">join</span>();</span><br><span class="line">	sthread.<span class="built_in">join</span>();</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="外设寄存器"><a href="#外设寄存器" class="headerlink" title="外设寄存器"></a>外设寄存器</h2><p>对于外设通常设置有状态寄存器，我们可以通过循环读取状态寄存器的值来查看对应外设的状态。对于如下示例，如果没有使用volatile关键字，编译器可能生成的代码是读取一个固定地址的值而不会每次都从主存中读取新的值（或者读取n次状态，生成的代码只读取了一次，然后使用n次相同的值）</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//设置寄存器</span></span><br><span class="line">*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR = <span class="number">1</span> &lt;&lt; <span class="number">24</span>; </span><br><span class="line"><span class="comment">//读寄存器</span></span><br><span class="line"><span class="keyword">while</span>(!(*(<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> *) STATUS_BASE_ADDR)) {</span><br><span class="line">    <span class="comment">// do action</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h1 id="线程安全的单例模式"><a href="#线程安全的单例模式" class="headerlink" title="线程安全的单例模式"></a>线程安全的单例模式</h1><p>该部分不是volatile的使用，而是对内屏屏障的理解</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//mp3decoder.h</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">mp3decoder</span> :</span> public decoderImp </span><br><span class="line">{</span><br><span class="line">    public:</span><br><span class="line">    	<span class="type">static</span> mp3decoder* <span class="title function_">getInstance</span><span class="params">()</span>;</span><br><span class="line">    private:</span><br><span class="line">    	mp3decoder();</span><br><span class="line">    	~mp3decoder();</span><br><span class="line">    	<span class="type">static</span> mp3decoder* mdecoder;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="comment">//mp3decoder.cpp</span></span><br><span class="line"><span class="comment">//线程不安全，适用于单线程</span></span><br><span class="line">mp3decoder* mp3decoder::mdecoder = <span class="literal">NULL</span>;</span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，但锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程安全，锁的代价太高</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    lock();</span><br><span class="line">    <span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">        mdecoder = new mp3decoder();</span><br><span class="line">    <span class="keyword">return</span> mdecoder;</span><br><span class="line">    unlock();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//Double-Checked Locking Pattern (DCLP 双检查锁)，指令重排序reorder不安全</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">        lock();</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>)</span><br><span class="line">       		mdecoder = new mp3decoder();</span><br><span class="line">         unlock();</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//内存屏障</span></span><br><span class="line">mp3decoder* <span class="title function_">mp3decoder::getInstance</span><span class="params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">if</span> (mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">    	<span class="keyword">if</span>(mdecoder == <span class="literal">NULL</span>) {</span><br><span class="line">            mp3decoder *tmp = new mp3decoder();</span><br><span class="line">            MemoryBarrier();</span><br><span class="line">            mdecoder = tmp;</span><br><span class="line">        }</span><br><span class="line">    	<span class="keyword">return</span> mdecoder;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// mdecoder = new mp3decoder()在cpu层面动作：</span></span><br><span class="line"><span class="comment">// 1. 分配内存</span></span><br><span class="line"><span class="comment">// 2. 调用构造函数</span></span><br><span class="line"><span class="comment">// 3. 将内存地址赋值给mdecoder指针</span></span><br><span class="line"><span class="comment">// 由于2、3对于编译器来讲是有可能进行优化的，即先将指针赋值再调用构造函数，导致线程不安全！！</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<blockquote>
-<p>参考文章：</p>
-<ul>
-<li><a href="https://barrgroup.com/embedded-systems/how-to/c-volatile-keyword">How to Use C’s volatile Keyword</a></li>
-<li><a href="https://barrgroup.com/tech-talks/volatile-c">Pro Tips for Using C’s volatile Keyword</a></li>
-<li><a href="https://liam.page/2018/01/18/volatile-in-C-and-Cpp/">谈谈 c / c++ 中的volatile</a></li>
-</ul>
-</blockquote>
-]]></content>
-      <categories>
-        <category>c/c++</category>
-      </categories>
-      <tags>
-        <tag>volatile</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>搭建Ubuntu虚拟机</title>
-    <url>/2022/10/22/ubuntu-create/</url>
-    <content><![CDATA[<h1 id="Linux-简介"><a href="#Linux-简介" class="headerlink" title="Linux 简介"></a>Linux 简介</h1><p>linus自传《只是为了好玩》中这样定义：</p>
-<ul>
-<li><p>类Unix操作系统</p>
-</li>
-<li><p>开放源代码方式协作开发</p>
-</li>
-<li><p>采用GPL通用许可证维权</p>
-</li>
-<li><p>主要用于超级电脑、企业级服务器、嵌入式设备等</p>
-</li>
-</ul>
-<h1 id="Ubuntu-简介"><a href="#Ubuntu-简介" class="headerlink" title="Ubuntu 简介"></a>Ubuntu 简介</h1><ul>
-<li>桌面应用为主的Linux操作系统</li>
-<li>操作简单、方便使用</li>
-<li>系统安全性高，默认user权限登录</li>
-<li>Ubuntu中文网站：<a href="http://www.wubantu.co/">http://www.wubantu.co</a></li>
-<li>Ubuntu中文社区：<a href="http://www.ubuntu.org.cn/">http://www.ubuntu.org.cn</a></li>
-<li>Ubuntu技术：<a href="http://wiki.ubuntu.org.cn/">http://wiki.ubuntu.org.cn</a></li>
-</ul>
-<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><ul>
-<li>物理主机</li>
-<li>iso镜像</li>
-<li>vmware / VirtualBox</li>
-</ul>
-<p>网盘中我准备了ubuntu20.04.4-iso、ubuntu16.04.7-iso、Vmware-16.2.3安装包及密钥和一份linux命令大全！</p>
-<p>密钥对于不同版本可能有差异可以都进行尝试，其只是对于个人学习使用，建议购买正版！</p>
-<p>同时附上相关官网链接：</p>
-<ul>
-<li>ubuntu各版本镜像：<a href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/">https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/</a></li>
-<li>vmware官网：<a href="https://www.vmware.com/cn/products/workstation-pro.html">https://www.vmware.com/cn/products/workstation-pro.html</a></li>
-<li>VirtualBox：<a href="https://www.virtualbox.org/">https://www.virtualbox.org</a></li>
-<li>资源网盘链接：<a href="https://pan.baidu.com/s/18vxScuvFp2Vf4g28nRSC5w">https://pan.baidu.com/s/18vxScuvFp2Vf4g28nRSC5w</a><br>提取码：f8uo</li>
-</ul>
-<h1 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h1><p>参考视频：<a href="https://www.bilibili.com/video/BV1hd4y127HY">https://www.bilibili.com/video/BV1hd4y127HY</a></p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>搭建虚拟机</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>init.rc语法及解析</title>
-    <url>/2022/11/16/init.rc/</url>
-    <content><![CDATA[<p>在linux设备上输入“pstree”命令我们便会看到一棵进程树，不同状态不同设备树上进程名字进程号可能不完全一致，但进程号pid=1的进程一定是init进程！对于Android系统来讲，其实际是运行于Linux内核之上的一系列“服务进程”，而这些服务进程的“老祖宗”就是init，它是Android中第一个被启动的进程，所有服务都是通过解析init.rc文件得到的（部分可以执行程序通过init.d/文件夹下的脚本启动）</p>
-<p>本篇文章将对init.rc文件语法进行解析</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>查看andriod源码：<a href="http://androidxref.com/">http://androidxref.com/</a></p>
-</blockquote>
-<p>init.rc是系统启动的第一个程序所加载的语法文件。init.rc文件是以“块”(section)为单位服务的，一个“块”(section)可以包含多行，而一行中包含多个tokens(符号)。“块”(section)分成两大类：一类称为”动作(action)”，另一类称为“服务(service)”。而一个init.rc脚本由四个类型的声明组成：</p>
-<ol>
-<li>动作 ：Actions，以关键字“on”开始</li>
-<li>命令 ：Commands，以关键字“start”“restart”“stop”开始</li>
-<li>服务 ：Services</li>
-<li>选项 ：Options</li>
-</ol>
-<h1 id="Actions"><a href="#Actions" class="headerlink" title="Actions"></a>Actions</h1><p>Actions就是响应某个事件的过程。如下所示当满足trigger触发条件时依次执行Commands命令。源码会依次将这些命令添加到“命令执行队列尾部”，系统对这些命令顺序执行。所以服务启动的根本就是on类型的section被执行的过程</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on &lt;trigger&gt;        //触发条件</span><br><span class="line">    &lt;command1&gt;      //命令1</span><br><span class="line">    &lt;command2&gt;      //命令2</span><br><span class="line">    &lt;command3&gt;      //命令3</span><br></pre></td></tr></tbody></table></figure>
-
-<p>对于trigger（触发器）来讲，常见的有两种形式：</p>
-<ol>
-<li>单纯的字符串。例如：on boot</li>
-<li>键值匹配，格式为“ on property <key> = <value> ”。例如：on property:init.svc.wifi = stopped</value></key></li>
-</ol>
-<p>此外还有两种形式：</p>
-<ol>
-<li>device-added/removed-<patch> 当设备节点添加/删除时触发此事件</patch></li>
-<li>sevice-exited-<name> 当指定服务<name> 存在时触发</name></name></li>
-</ol>
-<h2 id="Actions解析后执行顺序"><a href="#Actions解析后执行顺序" class="headerlink" title="Actions解析后执行顺序"></a>Actions解析后执行顺序</h2><figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on early-init           #在初始化早期阶段触发</span><br><span class="line">on init                 #初始化阶段触发。这里会执行完属性服务，接下来就可以设置属性了</span><br><span class="line">on late-init            #在初始化晚期触发。在这里会通过trigger来执行其他的action,以下均是</span><br><span class="line">on early-fs</span><br><span class="line">on fs</span><br><span class="line">on post-fs</span><br><span class="line">on post-fs-data</span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">on early-boot</span><br><span class="line">on boot`</span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="Commands"><a href="#Commands" class="headerlink" title="Commands"></a>Commands</h1><table>
+<h1 id="opus结构"><a href="#opus结构" class="headerlink" title="opus结构"></a>opus结构</h1><p>每个 Opus 包以一个 TOC （Table of Contents）字节开头</p>
+<table>
 <thead>
 <tr>
-<th>Command</th>
-<th>Description</th>
+<th>配置数（config）</th>
+<th>编码模式</th>
+<th>音频带宽</th>
+<th>帧长度</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>start <service></service></td>
-<td>启动一个服务，如果它没有处于运行状态的话</td>
+<td>0…3</td>
+<td>SILK-only</td>
+<td>NB</td>
+<td>10, 20, 40, 60 ms</td>
 </tr>
 <tr>
-<td>stop <service></service></td>
-<td>停止一个服务，如果当前它处于运行状态的话</td>
+<td>4…7</td>
+<td>SILK-only</td>
+<td>MB</td>
+<td>10, 20, 40, 60 ms</td>
 </tr>
 <tr>
-<td>restart <service></service></td>
-<td></td>
+<td>8…11</td>
+<td>SILK-only</td>
+<td>WB</td>
+<td>10, 20, 40, 60 ms</td>
 </tr>
 <tr>
-<td>setprop <name> <value></value></name></td>
-<td>设置<name>的属性值为<value></value></name></td>
+<td>12…13</td>
+<td>Hybrid</td>
+<td>SWB</td>
+<td>10, 20 ms</td>
 </tr>
 <tr>
-<td>trigger <event></event></td>
-<td>触发一个事件</td>
+<td>14…15</td>
+<td>Hybrid</td>
+<td>FB</td>
+<td>10, 20 ms</td>
 </tr>
 <tr>
-<td>export <name> <value></value></name></td>
-<td>设置<name>环境变量的值为<value>，全局有效</value></name></td>
+<td>16…19</td>
+<td>CELT-only</td>
+<td>NB</td>
+<td>2.5, 5, 10, 20 ms</td>
 </tr>
 <tr>
-<td>mount <type> <device> <dir> [<mountoption>]*</mountoption></dir></device></type></td>
-<td>尝试在指定路径上挂载一个设备</td>
+<td>20…23</td>
+<td>CELT-only</td>
+<td>WB</td>
+<td>2.5, 5, 10, 20 ms</td>
+</tr>
+<tr>
+<td>24…27</td>
+<td>CELT-only</td>
+<td>SWB</td>
+<td>2.5, 5, 10, 20 ms</td>
+</tr>
+<tr>
+<td>28…31</td>
+<td>CELT-only</td>
+<td>FB</td>
+<td>2.5, 5, 10, 20 ms</td>
 </tr>
 </tbody></table>
-<h1 id="Services"><a href="#Services" class="headerlink" title="Services"></a>Services</h1><p>实际上每一个service就是一个可执行程序，它们在特定选项的约束下是被init程序运行或者重启(service可以在配置中指定是否需要退出重启，这样当service出现异常crash时就可以有机会复原)</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">service &lt;name&gt; &lt;pathname&gt; [ &lt;argument&gt; ]*</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        ...</span><br><span class="line"># &lt;name&gt;       service服务的名字</span><br><span class="line"># &lt;pathname&gt;   service路径，一般对应可执行程序或者脚本</span><br><span class="line"># &lt;argument&gt;   启动pathname下的service所需要的参数</span><br><span class="line"># &lt;option&gt;     service的约束项</span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h1><table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>disable</td>
-<td>隐式声明，默认不会自动启动该服务，需要显式调用</td>
-</tr>
-<tr>
-<td>oneshot</td>
-<td>字面意思一次性，即服务退出时，不要主动重启该服务</td>
-</tr>
-<tr>
-<td>onrestart</td>
-<td>当服务重启时，执行某些命令（需要理解）</td>
-</tr>
-<tr>
-<td>class <name></name></td>
-<td>指定该服务属于<name>class类，默认class名为default（注：同一个class所有服务必须是同时启动或停止）</name></td>
-</tr>
-<tr>
-<td>socket <name> <type> <perm> [<user> [<group>] ]</group></user></perm></type></name></td>
-<td>创建一个名为dev/socket/<name>的 socket，然后将它的fd值传给启动它的进，有效的<type>值包括dgram,stream 和seqpacket。ueser 和group 的默认值为0。</type></name></td>
-</tr>
-<tr>
-<td>critical</td>
-<td>表明这是对设备至关重要的服务；如果它在四分钟内退出超过四次，则设备将进入Recovery 模式</td>
-</tr>
-<tr>
-<td>group <groupname> [<groupname>]*</groupname></groupname></td>
-<td>在启动服务前将用户组切换至<groupname></groupname></td>
-</tr>
-<tr>
-<td>setenv <name> <value></value></name></td>
-<td>设置环境变量<name> 为值<value></value></name></td>
-</tr>
-</tbody></table>
-<h1 id="Notice"><a href="#Notice" class="headerlink" title="Notice"></a>Notice</h1><ol>
-<li>service和Actions都是有唯一的名字的。如果有重名的情况会作为错误忽略。</li>
-<li>无论是动作还是服务，并不是按照文件的编排顺序执行的。</li>
-<li>该文件中注释以“#”开始；反斜杠“\”在行尾表示下面一行是同一行</li>
+<p>立体声标志位（s）取值 0 表示单声道，1 表示多声道立体声。</p>
+<p>TOC 中最后两位（c）表示：</p>
+<ul>
+<li>0：一个包中只有一帧音频。</li>
+<li>1：一个包中有两帧音频，并且大小相同。</li>
+<li>2：一个包中有两帧音频，但是大小不同。</li>
+</ul>
+<h1 id="opusfile-API"><a href="#opusfile-API" class="headerlink" title="opusfile API"></a>opusfile API</h1><blockquote>
+<p>opusfile高级API官方文档：<a href="https://opus-codec.org/docs/opusfile_api-0.12/">https://opus-codec.org/docs/opusfile_api-0.12/</a></p>
+<p>参考文档：</p>
+<p>​	<a href="https://juejin.cn/post/6844903998831460360">https://juejin.cn/post/6844903998831460360</a></p>
+<p>​	<a href="https://chenliang.org/2020/04/17/ogg-encapsulation-for-opus/">https://chenliang.org/2020/04/17/ogg-encapsulation-for-opus/</a></p>
+</blockquote>
+<ol>
+<li><p><strong>op_open_file() / op_free()</strong></p>
+<p>打开/关闭一个解码器</p>
+</li>
+<li><p><strong>op_head() / op_tags()</strong></p>
+</li>
 </ol>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">/* </span><br><span class="line"> * copy from http://androidxref.com/6.0.0_r5/xref/bootable/recovery/etc/init.rc</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">import /init.recovery.${ro.hardware}.rc</span><br><span class="line"></span><br><span class="line">on early-init</span><br><span class="line">    start ueventd</span><br><span class="line">    start healthd</span><br><span class="line"></span><br><span class="line">on init</span><br><span class="line">    export PATH /sbin:/system/bin</span><br><span class="line">    export ANDROID_ROOT /system</span><br><span class="line">    export ANDROID_DATA /data</span><br><span class="line">    export EXTERNAL_STORAGE /sdcard</span><br><span class="line"></span><br><span class="line">    symlink /system/etc /etc</span><br><span class="line"></span><br><span class="line">    mkdir /sdcard</span><br><span class="line">    mkdir /system</span><br><span class="line">    mkdir /data</span><br><span class="line">    mkdir /cache</span><br><span class="line">    mkdir /sideload</span><br><span class="line">    mount tmpfs tmpfs /tmp</span><br><span class="line"></span><br><span class="line">    chown root shell /tmp</span><br><span class="line">    chmod 0775 /tmp</span><br><span class="line"></span><br><span class="line">    write /proc/sys/kernel/panic_on_oops 1</span><br><span class="line">    write /proc/sys/vm/max_map_count 1000000</span><br><span class="line"></span><br><span class="line">on fs</span><br><span class="line">    mkdir /dev/usb-ffs 0770 shell shell</span><br><span class="line">    mkdir /dev/usb-ffs/adb 0770 shell shell</span><br><span class="line">    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=2000</span><br><span class="line"></span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    write /sys/class/android_usb/android0/idVendor 18D1</span><br><span class="line">    write /sys/class/android_usb/android0/idProduct D001</span><br><span class="line">    write /sys/class/android_usb/android0/f_ffs/aliases adb</span><br><span class="line">    write /sys/class/android_usb/android0/functions adb</span><br><span class="line">    write /sys/class/android_usb/android0/iManufacturer ${ro.product.manufacturer}</span><br><span class="line">    write /sys/class/android_usb/android0/iProduct ${ro.product.model}</span><br><span class="line">    write /sys/class/android_usb/android0/iSerial ${ro.serialno}</span><br><span class="line"></span><br><span class="line">on boot</span><br><span class="line">    ifup lo</span><br><span class="line">    hostname localhost</span><br><span class="line">    domainname localdomain</span><br><span class="line"></span><br><span class="line">    class_start default</span><br><span class="line"></span><br><span class="line"># Load properties from /system/ + /factory after fs mount.</span><br><span class="line">on load_all_props_action</span><br><span class="line">    load_all_props</span><br><span class="line"></span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">   rm /dev/.booting</span><br><span class="line"></span><br><span class="line"># Mount filesystems and start core system services.</span><br><span class="line">on late-init</span><br><span class="line">    trigger early-fs</span><br><span class="line">    trigger fs</span><br><span class="line">    trigger post-fs</span><br><span class="line">    trigger post-fs-data</span><br><span class="line"></span><br><span class="line">    # Load properties from /system/ + /factory after fs mount. Place</span><br><span class="line">    # this in another action so that the load will be scheduled after the prior</span><br><span class="line">    # issued fs triggers have completed.</span><br><span class="line">    trigger load_all_props_action</span><br><span class="line"></span><br><span class="line">    # Remove a file to wake up anything waiting for firmware</span><br><span class="line">    trigger firmware_mounts_complete</span><br><span class="line"></span><br><span class="line">    trigger early-boot</span><br><span class="line">    trigger boot</span><br><span class="line"></span><br><span class="line">on property:sys.powerctl=*</span><br><span class="line">   powerctl ${sys.powerctl}</span><br><span class="line"></span><br><span class="line">service ueventd /sbin/ueventd</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:ueventd:s0</span><br><span class="line"></span><br><span class="line">service healthd /sbin/healthd -r</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:healthd:s0</span><br><span class="line"></span><br><span class="line">service recovery /sbin/recovery</span><br><span class="line">    seclabel u:r:recovery:s0</span><br><span class="line"></span><br><span class="line">service adbd /sbin/adbd --root_seclabel=u:r:su:s0 --device_banner=recovery</span><br><span class="line">    disabled</span><br><span class="line">    socket adbd stream 660 system system</span><br><span class="line">    seclabel u:r:adbd:s0</span><br><span class="line"></span><br><span class="line"># Always start adbd on userdebug and eng builds</span><br><span class="line">on property:ro.debuggable=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br><span class="line">    start adbd</span><br><span class="line"></span><br><span class="line"># Restart adbd so it can run as root</span><br><span class="line">on property:service.adb.root=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    restart adbd</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br></pre></td></tr></tbody></table></figure>]]></content>
+<ul>
+<li><p>op_head函数可用于获取channels、samplerate等参数</p>
+</li>
+<li><p>op_tags函数可获得用户自定义参数，例如：标题、歌手、编码方式标准等等，其中tags-&gt;user_comments[i]可获取用户自定义的信息</p>
+</li>
+</ul>
+<ol start="3">
+<li><strong>op_pcm_total() / op_pcm_tell() / op_pcm_seek()</strong></li>
+</ol>
+<ul>
+<li>op_pcm_total 可以返回该opus文件转换成pcm文件后的总的pcm长度</li>
+<li>op_pcm_tell 可以放回目前文件已经播放的pcm的长度</li>
+<li>op_pcm_seek 可以通过参数指定让音频进行跳转播放</li>
+</ul>
+<ol start="4">
+<li><strong>op_pcm_read()</strong></li>
+</ol>
+<p>   从op_open_file打开的文件流中读取pcm数据进行播放。注意解码的数量并不等于传入buffer的大小，需要使用到该函数的返回值</p>
+<h1 id="Ogg"><a href="#Ogg" class="headerlink" title="Ogg"></a>Ogg</h1><blockquote>
+<p> 参考 : <a href="https://juejin.cn/post/6844904016254599175">https://juejin.cn/post/6844904016254599175</a></p>
+</blockquote>
+<p>全称：OGGVobis(oggVorbis) 一个自由且开放标准的容器格式，“.ogg”结尾命名</p>
+<p>OGG是以页（page）为单位将逻辑流组织链接起来，每个页都有pageheader和pagedata。</p>
+<ol>
+<li>capture_pattern页标识：ASCII字符，0x4f ‘O’ 0x67 ‘g’ 0x67 ‘g’ 0x53 ‘S’，4个字节大小，它标识着一个页的开始。</li>
+<li>stream_structure_version版本id：一般当前版本默认为0，1个字节。</li>
+<li>header_type_flag类型标识：标识当前的页的类型，1个字节， - 0x01：本页媒体编码数据与前一页属于同一个逻辑流的同一个packet，若此位没有设，表示本页是以一个新的packet开始的； - 0x02：表示该页为逻辑流的第一页，bos标识，如果此位未设置，那表示不是第一页； - 0x04：表示该页位逻辑流的最后一页，eos标识，如果此位未设置，那表示本页不是最后一页。</li>
+<li>granule_position：媒体编码相关的参数信息，8个字节，对于音频流来说，它存储着到本页为止逻辑流在PCM输出中采样码的数目，可以由它来算得时间戳。对于视频流来说，它存储着到本页为止视频帧编码的数目。若此值为-1，那表示截止到本页，逻辑流的packet未结束。(小端)</li>
+<li>serial_number：当前页中的流的id，4个字节，它是区分本页所属逻辑流与其他逻辑流的序号，我们可以通过这个值来划分流。(小端)</li>
+<li>page_seguence_number：本页在逻辑流的序号，4个字节。</li>
+<li>CRC_cbecksum：循环冗余效验码效验，4个字节，用来效验每页的有效性。</li>
+<li>number_page_segments：给定本页在segment_table域中出现的segement个数，1个字节。</li>
+<li>segment_table：从字面看它就是一个表，表示着每个segment的长度，取值范围是0~255。由segment（1个segment就是1个字节）可以得到packet的值，每个packet的大小是以最后一个不等于255的segment结束的，从页头中的segment_table可以得到每个packet长度，举例：如果一组segment依次顺序为FF 45 FF FF FF 40FF 05FF FF FF 66（共4个packet，含12个segment，每个packet的长度是：FF 45【324】；FF FF FF 40【829】；FF 05【260】；FF FF FF 66【847】），那么第一个packet的长度为255+69 = 324,第二个packet大小829，同理。</li>
+</ol>
+]]></content>
       <categories>
         <category>Linux</category>
-        <category>Andriod</category>
+        <category>Audio</category>
       </categories>
+      <tags>
+        <tag>opus</tag>
+      </tags>
   </entry>
   <entry>
     <title>《曾国藩传》</title>
@@ -905,7 +1075,7 @@
 <p>近几年，曾国藩倍受成功学的推崇，关于他的书也是铺天盖地。偶然间看到老俞（俞敏洪）在推荐这本书，带着浓厚的兴趣开始对这本书的探索。《曾国藩传》是中国知名历史学家张宏杰先生的作品，除了这本《曾国藩传》他还著有《曾国藩的正面与侧面》《饥饿的盛世》《大明王朝的七张面孔》等等。整本书通读下来，作者按照时间顺序，以曾国藩日记及各种历史参考文献为史实基础进行了深度解读，将曾国藩国之重臣的形象立体的展现在了我们的眼前。</p>
 <p>本篇也无所谓是读书笔记、读后感亦或者是书评了，便想到哪里写到哪里吧。</p>
 <h1 id="故事自述"><a href="#故事自述" class="headerlink" title="故事自述"></a>故事自述</h1><p>曾国藩历任晚清四朝，生于嘉庆、文于道光、武于咸丰、卒于同治，我这里的文、武分别指其京官时代和领导湘军阶段。</p>
-<p>老曾家本是一个殷实的小地主家庭，奈何祖坟一直没冒青烟，祖辈上没有一个读书人。在爷爷曾玉屏的影响下，小小的曾子城（该时期曾国藩未改名）开启了他的读书生涯。屡战屡败、屡败屡战，落榜六次之后，院试中秀才、乡试中举人、会试中进士，也就是在此正式更名为曾国藩，寄以”国之藩篱“之意，此时他才二十八岁。在此之后在京十年中，曾国藩立下学做圣人的宏愿并坚韧不拔地沿着这条仕途之道前进，步步升迁到二品官位。十年七迁，连跃十级。直至1852年充任江西乡试正考官才结束了他的京官生涯。</p>
+<p>老曾家本是一个殷实的小地主家庭，奈何祖坟一直没冒青烟，祖辈上没有一个读书人。在爷爷曾玉屏的影响下，小小的曾子城（该时期曾国藩未改名）开启了他的读书生涯。屡战屡败、屡败屡战，落榜六次之后，院试中秀才、乡试中举人、会试中进士，也就是在此正式更名为曾国藩，寄以“国之藩篱“之意，此时他才二十八岁。在此之后在京十年中，曾国藩立下学做圣人的宏愿并坚韧不拔地沿着这条仕途之道前进，步步升迁到二品官位。十年七迁，连跃十级。直至1852年充任江西乡试正考官才结束了他的京官生涯。</p>
 <p>在曾国藩春风得意之际，却突然收到母亲去世的噩耗，致使他不得不改变自己的行程回家守孝。此时太平天国运动轰轰烈烈席卷半个中国，而清军主力八旗和绿营早已腐败不堪，咸丰皇帝不得不颁布兴办团练的诏书。曾国藩起初内心是拒绝的，但是心系国家的他最终还是决定应诏，以团为表，以军为里组建起了湘军，殊不知这支军队成了日后抵抗太平军的主力。没有任何军事经验、初来乍到再加上曾国藩此时直率的性格特征，组建一支像样且有战斗力的军队的难度可想而知，克服重重困难湘军算是建立起来了。抱着首战必胜的心理曾国藩决定出兵靖港，未曾可知迎来一场大败，这也让他的信心跌落谷底一度跳江自杀，幸被救下。随后大大小小战斗经历无数，湘潭大捷、九江大败…… 1857年父亲去世，他向皇帝请求回家奔丧三个月，未曾想再想复出却被皇帝解除了兵权。</p>
 <p>塞翁失马焉知非福？也正是接下来两年的蛰伏让曾国藩完成了脱胎换骨的变化，他开始变得通人情世故，适应晚清官场的环境，但面对自己时仍然选择做圣人。趁着太平军内讧石达开的出走，好兄弟胡林翼给曾国藩争取来了再度出山的机会，之后两人联手攻克了安庆，期间何桂清弃城逃跑也成就了曾国藩得到了梦寐以求的两江总督的职位。水到渠成地1864年正月，攻破天京，结束叛乱。</p>
 <p>此时曾国藩任两江总督，后面应该就是被大众所熟知的部分——主办洋务。首先他和自己的接班人李鸿章联手剿灭了北方黄淮一带的捻军起义，随后便是兴办洋务，建立安庆军械所、江南制造总局，翻译大量外文书籍等等。1868年升任直隶总督处理完天津教案事件因备受指责再次担任两江总督，四年后中国传统文化最后一个偶像曾国藩去世。</p>
@@ -924,6 +1094,41 @@
 <h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>曾国藩这一生是失败的。为天地立心、为生民立命、为往圣继绝学、为万世开太平。曾国藩用他的一生来践行张载的横渠四句，但可惜生不逢时终究是没有完成全部的理想，无奈成为追日的夸父、填海的精卫。在这里引用一下杨耀在”得到“APP解读李鸿章一书中提到的：时势能够造英雄，而英雄也可以改变时势。而显然传统保守的思想让曾国藩注定只能成为时势造的英雄，而不能成为改变时势的英雄。这不是他一个人的失败，而是整个腐朽政权的失败！</p>
 <p>曾国藩这一生又是成功的。立功、立德、立言三不朽的境界他全部做到了。立功而言，他从一介书生起家，创建军队，挽狂澜于既倒，扶大厦之将倾，使中国传统文化免遭毁灭之灾，让清朝又可以在历史上浓墨重彩的多写几笔；立德而言，他以圣贤为标准要求自己，道德修养近乎纯粹；立言而言，我一个普通人能在这里写这篇文章感受曾国藩的风采，其影响力便不言而喻，洋洋洒洒数百万字全集让人受益匪浅。</p>
 <p>一万个人有一万个哈姆雷特，同样也会有一万个曾国藩，每个人切入角度不同读出的人物自然不同，但带给我们每个人的力量却是永恒且相同的！</p>
+]]></content>
+      <categories>
+        <category>Reading</category>
+      </categories>
+      <tags>
+        <tag>读书笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>《格局》</title>
+    <url>/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</url>
+    <content><![CDATA[<p><img src="/images/reading/GeJu.jpg" alt="img"></p>
+<h1 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h1><p>《格局》一书是吴军博士2019年出版的。吴军博士头衔可谓众多，“文津图书奖”得主、硅谷投资人、约翰·霍普金斯大学工学院董事、原腾讯副总裁，出版过《数学之美》《浪潮之巅》《文明之光》《硅谷之谜》等等不同品类的书籍。</p>
+<p>我自己对于”格局“一词的理解是一个人对于世界认知的边界以及对事物认知的范围。整书通读下来给我的感觉更像是吴军博士对于自己生活经验及基于某些历史事件的规律总结，甚至有些章节的内容前后都没有很关联，对于本书大部分内容无感的本质原因我认为是自己的经历没有那么丰富无法做到感同身受亦或者是自己对于这本书没有完全读懂。那便写下自己感兴趣的部分的心得吧</p>
+<h1 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h1><h2 id="技术是手段-不是目的"><a href="#技术是手段-不是目的" class="headerlink" title="技术是手段 不是目的"></a>技术是手段 不是目的</h2><p>互联网飞速发展，新的技术理论得到迅速且广泛的传播。对于一名技术从业者来讲，要想在职场行业内始终保持竞争力，需要不断的去学习新的内容来保证自己不会被时代所淘汰。但实际上，技术从来都是手段而不是目的，如果搞不清楚这一点，就会为了技术而研发技术。2022年AI、IOT可能是时代的潮流，但10年后一切都未曾可知而可以肯定的是计算机的底层原理及知识仍然不会落伍。可见洞察一件事情的本质并去学习探索才是真正的硬道理。</p>
+<h2 id="未来的特征"><a href="#未来的特征" class="headerlink" title="未来的特征"></a>未来的特征</h2><ul>
+<li>不对称性。新技术的产生，最早掌握新技术的少数人可以利用新技术颠覆过去在相关领域中占据统治地位的组织或机构；</li>
+<li>复杂性。当下的知识体系非常复杂，通常都是跨学科的而不是单一维度的；</li>
+<li>不确定性。没有人能够预测未来</li>
+</ul>
+<ol>
+<li>不过度依赖过去的权威</li>
+<li>拉力由于推力（主动获取而不是被动接收）</li>
+<li>指南针优于地图（改变一直存在，掌握本质，求渔不求鱼）</li>
+<li>拥抱风险</li>
+<li>叛逆精神（打破规则）</li>
+<li>通才胜于专才（前提一定是已经在某一方面已经是专才）</li>
+<li>韧性优于力量</li>
+<li>强调整体性</li>
+</ol>
+<h2 id="以正和，以奇胜"><a href="#以正和，以奇胜" class="headerlink" title="以正和，以奇胜"></a>以正和，以奇胜</h2><p>面对不断变化的未来，把握好常态是关键，而正是常态，奇是非常态。《孙子兵法 兵势篇》中写到：凡战者，以正和，以奇胜。这句话的意思是：作战，要先把正面的兵排好，排的不偏斜合乎法则，此为正；如果这时候还有多余的兵力你就赢了，在现代汉语字典中也可以理解为：出奇制胜。”以正和，以奇胜”更应该是一个人做事的准则，在做好正的基础上出奇制胜，不要相信所谓的弯道超车，这一定是不稳定的。</p>
+<h2 id="被信息放大的悲观"><a href="#被信息放大的悲观" class="headerlink" title="被信息放大的悲观"></a>被信息放大的悲观</h2><p>我们明显能够感觉到现在的年轻人普遍会更焦虑，他们仿佛对这个世界充满悲观情绪。xxx飞机失事、xxx公司大规模裁员、xxx地区洪水或火山爆发，这些新闻在现在真的是屡见不鲜，也正是这些新闻的广泛传播给我们造成了很大的焦虑情绪。但实际上飞机其实是比汽车更安全、在大范围内就业形式是向好的、火山喷发地正是处于板块交界地带。可以发现真正广泛传播的言论实际上大多是悲观的，从信息论的角度来讲，越是与众不同的说法信息量越大。相反宣传乐观主义的观点论文不仅没有人看甚至是无法发表的。因为没有人会关心一篇”今年经济持续向好“的文章，大家都知道也自然就不会过多关注。面对各种各样的新闻，适当保持忧患意识是必要的，但请不应过度的悲观！</p>
+<h2 id="人立于天地之间必有出路"><a href="#人立于天地之间必有出路" class="headerlink" title="人立于天地之间必有出路"></a>人立于天地之间必有出路</h2><p>面对生活、工作、家庭的压力，我们总是使自己处于一个很忙碌的状态之中，面对未来可能发生的问题我们也常说：车到山前必有路、船到桥头自然直。确实，对于未来的不确定性，我们始终要坚信人立与天地之前必有出路。</p>
+<h1 id="语录"><a href="#语录" class="headerlink" title="语录"></a>语录</h1><p>自己花了精力做的事情要尽可能的对自己未来有帮助。</p>
+<p>过分追求物质可能会成为生活的负担。</p>
 ]]></content>
       <categories>
         <category>Reading</category>
@@ -1097,6 +1302,78 @@
       <tags>
         <tag>毕业设计</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>硬件随机数测试方法</title>
+    <url>/2022/11/26/third-party/DTRNG_Test/</url>
+    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
+<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
+<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
+<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
+</ol>
+<ul>
+<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
+</li>
+<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
+</li>
+<li><p>windows安装</p>
+<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
+<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
+</li>
+<li><p>Linux安装</p>
+<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+</li>
+</ul>
+<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
+<ol>
+<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
+<li>Frequency Test within a Block，块内频率检测</li>
+<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
+<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
+<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
+<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
+<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
+<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
+<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
+<li>The Linear Complexity Test，线性复杂度检测</li>
+<li>The Serial Test，序列检测</li>
+<li>The Approximate Entropy Test，近似熵检测</li>
+<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
+<li>The Random Excursions Test，随机游动检测</li>
+<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
+</ol>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
+<ol>
+<li>启动程序。**./assess ，**stream length译为流的长度。</li>
+<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
+<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
+<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
+<li>输入比特流的个数。表示有多少个stream</li>
+<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
+</ol>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
+<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
+<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
+<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
+</ol>
+<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
+<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
+<li><p>Q：Segment fault</p>
+<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
+</li>
+<li><p>Q：igamc: UNDERFLOW？</p>
+<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
+</li>
+<li><p>Q：P-value全部是0？</p>
+<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Third Party</category>
+      </categories>
   </entry>
   <entry>
     <title>CMake</title>
@@ -1280,78 +1557,6 @@
         <tag>Makefile</tag>
         <tag>CmakeLists.txt</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>硬件随机数测试方法</title>
-    <url>/2022/11/26/third-party/DTRNG_Test/</url>
-    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
-<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
-<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
-<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
-</ol>
-<ul>
-<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
-</li>
-<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
-</li>
-<li><p>windows安装</p>
-<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
-<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
-</li>
-<li><p>Linux安装</p>
-<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
-</li>
-</ul>
-<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
-<ol>
-<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
-<li>Frequency Test within a Block，块内频率检测</li>
-<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
-<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
-<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
-<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
-<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
-<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
-<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
-<li>The Linear Complexity Test，线性复杂度检测</li>
-<li>The Serial Test，序列检测</li>
-<li>The Approximate Entropy Test，近似熵检测</li>
-<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
-<li>The Random Excursions Test，随机游动检测</li>
-<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
-</ol>
-<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
-<ol>
-<li>启动程序。**./assess ，**stream length译为流的长度。</li>
-<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
-<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
-<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
-<li>输入比特流的个数。表示有多少个stream</li>
-<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
-</ol>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
-<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
-<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
-<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
-</ol>
-<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
-<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
-<li><p>Q：Segment fault</p>
-<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
-</li>
-<li><p>Q：igamc: UNDERFLOW？</p>
-<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
-</li>
-<li><p>Q：P-value全部是0？</p>
-<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Third Party</category>
-      </categories>
   </entry>
   <entry>
     <title>LwIP协议栈</title>
