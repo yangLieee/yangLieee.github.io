@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-01-04T15:07:08.708Z</updated>
+  <updated>2023-02-06T15:41:25.491Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,23 +17,21 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Opus Ogg详解</title>
-    <link href="http://yanglieee.com/2023/01/04/Audio/Audio-opus/"/>
-    <id>http://yanglieee.com/2023/01/04/Audio/Audio-opus/</id>
-    <published>2023-01-03T16:00:00.000Z</published>
-    <updated>2023-01-04T15:07:08.708Z</updated>
+    <title>《Google工作法》</title>
+    <link href="http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/"/>
+    <id>http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</id>
+    <published>2023-02-05T16:00:00.000Z</published>
+    <updated>2023-02-06T15:41:25.491Z</updated>
     
     
-    <summary type="html">对什么是opus以及libopus库做详细介绍及使用说明</summary>
+    <summary type="html">《Google工作法》读书笔记</summary>
     
     
     
-    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
-    
-    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
+    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
     
     
-    <category term="opus" scheme="http://yanglieee.com/tags/opus/"/>
+    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -53,6 +51,27 @@
     
     
     <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Opus Ogg详解</title>
+    <link href="http://yanglieee.com/2023/01/04/Audio/Audio-opus/"/>
+    <id>http://yanglieee.com/2023/01/04/Audio/Audio-opus/</id>
+    <published>2023-01-03T16:00:00.000Z</published>
+    <updated>2023-01-04T15:07:08.708Z</updated>
+    
+    
+    <summary type="html">对什么是opus以及libopus库做详细介绍及使用说明</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
+    
+    
+    <category term="opus" scheme="http://yanglieee.com/tags/opus/"/>
     
   </entry>
   
