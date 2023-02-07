@@ -1,82 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>GPIO</title>
-    <url>/2022/09/22/GPIO/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
-<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
-<p><img src="/images/system/GPIO-1.png" alt="image"></p>
-<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
-<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
-<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
-<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
-<li>下拉输入：IO口输入设定为低电平输入（0）</li>
-<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
-</ol>
-<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
-<li>推挽输出：输出高低电平</li>
-<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
-<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
-<li>复用开漏输出：普通i2c处于该模式</li>
-</ol>
-<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
-<ul>
-<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
-<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
-<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
-<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
-<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
-<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
-<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
-</ul>
-<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
-<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
-
-<p>注意事项</p>
-<ul>
-<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
-<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
-<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
-<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
-</ul>
-<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖始终，故可以配置IO作为中断源对CPU进行唤醒</p>
-]]></content>
-      <categories>
-        <category>Computure System</category>
-        <category>GPIO</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Hello New World</title>
-    <url>/2022/08/22/hello-world/</url>
-    <content><![CDATA[<blockquote>
-<p>Be all you can be!</p>
-</blockquote>
-<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
-<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
-<ol>
-<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
-<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
-<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
-</ol>
-<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
-<p align="right">2022-8-22/23.38</p>
-
-<p align="right">Lee</p>
-
-]]></content>
-      <categories>
-        <category>Personal</category>
-      </categories>
-      <tags>
-        <tag>开篇</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>理解c/c++ Volatile关键字</title>
     <url>/2022/11/15/Volatile/</url>
     <content><![CDATA[<p>网络上对于volatile的解读众说纷纭，而且其中较多的是java内存模型。</p>
@@ -167,6 +91,32 @@
       </categories>
       <tags>
         <tag>volatile</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello New World</title>
+    <url>/2022/08/22/hello-world/</url>
+    <content><![CDATA[<blockquote>
+<p>Be all you can be!</p>
+</blockquote>
+<p>Hello World 是程序员进入编程世界后看到的第一道风景，我也十分乐意这作为第一篇博文的标题，对我来讲可能是：你好新世界！</p>
+<p>笔者是一名嵌入式软件工程师，未来更多的内容将会是关于Linux、Android等相关内容，编程语言方面将会是以C / C++为主。做这个博客有三个目的：</p>
+<ol>
+<li>记录自己在工作中遇到的问题及相关解决办法。帮助自己积累调试经验同时帮助其他可能遇到同样问题的朋友，避免踩很多坑；</li>
+<li>总结自己近期学到的新的知识和内容。这部分不一定是最全面的但对于处于相同阶段的我们一定是最实用的，后面再不断的完善更新；</li>
+<li>最后可能就是简单的记录并安利一些实用的工具或者比较好的文章，能够以通俗的语言帮助我们理解某一个点或者看清楚某一个面。</li>
+</ol>
+<p>目前我只搭建了主页基础模块，后面随着文章的不断输出也会添砖加瓦的。我也希望后续能写一些读书笔记或者生活经验来做记录做分享！博客更新频率暂定1~2周至少一篇内容也一定是和工作生活相关的。如果有错误还请指正共同进步呀<span class="github-emoji" style="display:inline;vertical-align:middle"><span>😃</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f603.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span>!</p>
+<p align="right">2022-8-22/23.38</p>
+
+<p align="right">Lee</p>
+
+]]></content>
+      <categories>
+        <category>Personal</category>
+      </categories>
+      <tags>
+        <tag>开篇</tag>
       </tags>
   </entry>
   <entry>
@@ -523,13 +473,279 @@
       </tags>
   </entry>
   <entry>
+    <title>Audio-初识</title>
+    <url>/2022/08/31/Audio/Audio-meet/</url>
+    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
+<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
+<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
+<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
+<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
+<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
+<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
+<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
+<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
+<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
+<ul>
+<li>定义：在时间轴上对信号进行离散化</li>
+<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
+</ul>
+<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
+<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
+<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
+<ul>
+<li><p>定义：在幅度轴上对信号进行数字化</p>
+</li>
+<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
+</li>
+</ul>
+<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
+<blockquote>
+<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
+</blockquote>
+<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
+<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
+<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
+</blockquote>
+<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
+<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
+<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
+</ul>
+<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
+<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
+<ul>
+<li><p>WAV编码（波形编码）</p>
+<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
+</li>
+<li><p>MP3编码</p>
+<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
+</li>
+<li><p>AAC编码</p>
+</li>
+</ul>
+<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
+<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
+<ul>
+<li><p>Ogg编码（有损）</p>
+<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
+</li>
+</ul>
+<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
+<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
+<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
+<ul>
+<li>单声道（mono）</li>
+<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
+<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
+<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
+<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
+</ul>
+<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
+<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
+<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
+<ul>
+<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
+<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
+</ul>
+<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
+<li>交错模式：每个声道的样本数据交错存储排布</li>
+<li>平面模式：每个声道的样本数据分开存储</li>
+</ul>
+<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
+<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
+<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
+<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
+<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
+</ul>
+<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
+<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
+<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
+<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Audio</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Opus Ogg详解</title>
+    <url>/2023/01/04/Audio/Audio-opus/</url>
+    <content><![CDATA[<h1 id="opus是什么"><a href="#opus是什么" class="headerlink" title="opus是什么"></a>opus是什么</h1><blockquote>
+<p>以下内容取自opus官网：<a href="https://www.opus-codec.org/">https://www.opus-codec.org</a></p>
+</blockquote>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>Opus 是一种完全开放、免版税、用途广泛的音频编解码器。 Opus 在 Internet 上的交互式语音和音乐传输方面无与伦比，但也适用于存储和流媒体应用。它被互联网工程任务组 (IETF) 标准化为 RFC 6716，它结合了 Skype 的 SILK 编解码器和 Xiph.Org 的 CELT 编解码器的技术。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>Opus 可以处理范围广泛的音频应用，包括 IP 语音、视频会议、游戏内聊天，甚至远程现场音乐表演。它可以从低比特率窄带语音扩展到非常高质量的立体声音乐。支持的功能有：</p>
+<ul>
+<li>比特率从 6 kb/s 到 510 kb/s</li>
+<li>采样率从 8 kHz（窄带）到 48 kHz（全带）</li>
+<li>帧大小从 2.5 ms 到 60 ms</li>
+<li>支持恒定比特率 (CBR) 和可变比特率 (VBR)</li>
+<li>从窄带到全带的音频带宽</li>
+<li>支持语音和音乐</li>
+<li>支持单声道和立体声</li>
+<li>支持多达 255 个通道（多流帧）</li>
+<li>动态可调比特率、音频带宽和帧大小</li>
+<li>良好的丢包鲁棒性和丢包隐藏 (PLC)</li>
+<li>浮点和定点实现</li>
+</ul>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li><p>音频带宽。Opus编码器覆盖了低频段到高频段的全带音频</p>
+</li>
+<li><p>低延迟。延迟依赖于帧规格，Opus最低帧规格2.5ms，非常适合实时音视频场景</p>
+</li>
+</ul>
+<h1 id="opus库"><a href="#opus库" class="headerlink" title="opus库"></a>opus库</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
+<p>编解码器libopus: <a href="https://www.opus-codec.org/docs/opus_api-1.2/index.html">https://www.opus-codec.org/docs/opus_api-1.2/index.html</a></p>
+<p>封装器opusfile：<a href="https://www.opus-codec.org/docs/opusfile_api-0.7/index.html">https://www.opus-codec.org/docs/opusfile_api-0.7/index.html</a></p>
+</blockquote>
+<p>opus库包括三部分：libopus、opus-tools、opusfile</p>
+<ul>
+<li>libopus：opus编解码的源码和可执行文件（注意：这里编码出来的opus文件是播放不了的，并且解码也必须用那种播放不了的opus文件,后面解释为什么）</li>
+<li>opus-tools：工具包，其中包含了libogg（.wav2.opus  /  .opus2.wav）</li>
+<li>opusfile：将可播放的opus文件解码成wav的工具，可分析出这个可播放的opus文件的信息，其中包含了libogg</li>
+</ul>
+<h2 id="可播放opus与不可播放opus文件"><a href="#可播放opus与不可播放opus文件" class="headerlink" title="可播放opus与不可播放opus文件"></a>可播放opus与不可播放opus文件</h2><p>ogg文件里面包含了opus编码的音频，相当于MP4文件中包含了aac</p>
+<ul>
+<li>不可播放opus：只有编码层opus数据的音频（没有ogg的封装只经过libopus编码），后缀名是.opus</li>
+<li>可播放的opus：opus编码的音频外部套用了一层ogg的封装（经过ogg的封装，opus-tools编码的文件），后缀名可以是.opus也可以是.ogg</li>
+</ul>
+<h1 id="opus结构"><a href="#opus结构" class="headerlink" title="opus结构"></a>opus结构</h1><p>每个 Opus 包以一个 TOC （Table of Contents）字节开头</p>
+<table>
+<thead>
+<tr>
+<th>配置数（config）</th>
+<th>编码模式</th>
+<th>音频带宽</th>
+<th>帧长度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0…3</td>
+<td>SILK-only</td>
+<td>NB</td>
+<td>10, 20, 40, 60 ms</td>
+</tr>
+<tr>
+<td>4…7</td>
+<td>SILK-only</td>
+<td>MB</td>
+<td>10, 20, 40, 60 ms</td>
+</tr>
+<tr>
+<td>8…11</td>
+<td>SILK-only</td>
+<td>WB</td>
+<td>10, 20, 40, 60 ms</td>
+</tr>
+<tr>
+<td>12…13</td>
+<td>Hybrid</td>
+<td>SWB</td>
+<td>10, 20 ms</td>
+</tr>
+<tr>
+<td>14…15</td>
+<td>Hybrid</td>
+<td>FB</td>
+<td>10, 20 ms</td>
+</tr>
+<tr>
+<td>16…19</td>
+<td>CELT-only</td>
+<td>NB</td>
+<td>2.5, 5, 10, 20 ms</td>
+</tr>
+<tr>
+<td>20…23</td>
+<td>CELT-only</td>
+<td>WB</td>
+<td>2.5, 5, 10, 20 ms</td>
+</tr>
+<tr>
+<td>24…27</td>
+<td>CELT-only</td>
+<td>SWB</td>
+<td>2.5, 5, 10, 20 ms</td>
+</tr>
+<tr>
+<td>28…31</td>
+<td>CELT-only</td>
+<td>FB</td>
+<td>2.5, 5, 10, 20 ms</td>
+</tr>
+</tbody></table>
+<p>立体声标志位（s）取值 0 表示单声道，1 表示多声道立体声。</p>
+<p>TOC 中最后两位（c）表示：</p>
+<ul>
+<li>0：一个包中只有一帧音频。</li>
+<li>1：一个包中有两帧音频，并且大小相同。</li>
+<li>2：一个包中有两帧音频，但是大小不同。</li>
+</ul>
+<h1 id="opusfile-API"><a href="#opusfile-API" class="headerlink" title="opusfile API"></a>opusfile API</h1><blockquote>
+<p>opusfile高级API官方文档：<a href="https://opus-codec.org/docs/opusfile_api-0.12/">https://opus-codec.org/docs/opusfile_api-0.12/</a></p>
+<p>参考文档：</p>
+<p>​	<a href="https://juejin.cn/post/6844903998831460360">https://juejin.cn/post/6844903998831460360</a></p>
+<p>​	<a href="https://chenliang.org/2020/04/17/ogg-encapsulation-for-opus/">https://chenliang.org/2020/04/17/ogg-encapsulation-for-opus/</a></p>
+</blockquote>
+<ol>
+<li><p><strong>op_open_file() / op_free()</strong></p>
+<p>打开/关闭一个解码器</p>
+</li>
+<li><p><strong>op_head() / op_tags()</strong></p>
+</li>
+</ol>
+<ul>
+<li><p>op_head函数可用于获取channels、samplerate等参数</p>
+</li>
+<li><p>op_tags函数可获得用户自定义参数，例如：标题、歌手、编码方式标准等等，其中tags-&gt;user_comments[i]可获取用户自定义的信息</p>
+</li>
+</ul>
+<ol start="3">
+<li><strong>op_pcm_total() / op_pcm_tell() / op_pcm_seek()</strong></li>
+</ol>
+<ul>
+<li>op_pcm_total 可以返回该opus文件转换成pcm文件后的总的pcm长度</li>
+<li>op_pcm_tell 可以放回目前文件已经播放的pcm的长度</li>
+<li>op_pcm_seek 可以通过参数指定让音频进行跳转播放</li>
+</ul>
+<ol start="4">
+<li><strong>op_pcm_read()</strong></li>
+</ol>
+<p>   从op_open_file打开的文件流中读取pcm数据进行播放。注意解码的数量并不等于传入buffer的大小，需要使用到该函数的返回值</p>
+<h1 id="Ogg"><a href="#Ogg" class="headerlink" title="Ogg"></a>Ogg</h1><blockquote>
+<p> 参考 : <a href="https://juejin.cn/post/6844904016254599175">https://juejin.cn/post/6844904016254599175</a></p>
+</blockquote>
+<p>全称：OGGVobis(oggVorbis) 一个自由且开放标准的容器格式，“.ogg”结尾命名</p>
+<p>OGG是以页（page）为单位将逻辑流组织链接起来，每个页都有pageheader和pagedata。</p>
+<ol>
+<li>capture_pattern页标识：ASCII字符，0x4f ‘O’ 0x67 ‘g’ 0x67 ‘g’ 0x53 ‘S’，4个字节大小，它标识着一个页的开始。</li>
+<li>stream_structure_version版本id：一般当前版本默认为0，1个字节。</li>
+<li>header_type_flag类型标识：标识当前的页的类型，1个字节， - 0x01：本页媒体编码数据与前一页属于同一个逻辑流的同一个packet，若此位没有设，表示本页是以一个新的packet开始的； - 0x02：表示该页为逻辑流的第一页，bos标识，如果此位未设置，那表示不是第一页； - 0x04：表示该页位逻辑流的最后一页，eos标识，如果此位未设置，那表示本页不是最后一页。</li>
+<li>granule_position：媒体编码相关的参数信息，8个字节，对于音频流来说，它存储着到本页为止逻辑流在PCM输出中采样码的数目，可以由它来算得时间戳。对于视频流来说，它存储着到本页为止视频帧编码的数目。若此值为-1，那表示截止到本页，逻辑流的packet未结束。(小端)</li>
+<li>serial_number：当前页中的流的id，4个字节，它是区分本页所属逻辑流与其他逻辑流的序号，我们可以通过这个值来划分流。(小端)</li>
+<li>page_seguence_number：本页在逻辑流的序号，4个字节。</li>
+<li>CRC_cbecksum：循环冗余效验码效验，4个字节，用来效验每页的有效性。</li>
+<li>number_page_segments：给定本页在segment_table域中出现的segement个数，1个字节。</li>
+<li>segment_table：从字面看它就是一个表，表示着每个segment的长度，取值范围是0~255。由segment（1个segment就是1个字节）可以得到packet的值，每个packet的大小是以最后一个不等于255的segment结束的，从页头中的segment_table可以得到每个packet长度，举例：如果一组segment依次顺序为FF 45 FF FF FF 40FF 05FF FF FF 66（共4个packet，含12个segment，每个packet的长度是：FF 45【324】；FF FF FF 40【829】；FF 05【260】；FF FF FF 66【847】），那么第一个packet的长度为255+69 = 324,第二个packet大小829，同理。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Audio</category>
+      </categories>
+      <tags>
+        <tag>opus</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>《Google工作法》</title>
     <url>/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</url>
     <content><![CDATA[<p><img src="/images/reading/GoogleWork.jpg" alt="img"></p>
 <p>《google工作法》作者是彼得·费利克斯·格日瓦奇，针对google的一些工作方法论和个人经验的进行著书。我认为对于这类书籍的正确使用是通读全篇，二次阅读针对部分内容自己进行场景的带入，此类工具书籍可以经常来进行翻看对自己日常生活工作方式的判断</p>
 <p>针对每个细分章节，总结并进行自己的思考</p>
 <h1 id="Faster（※）"><a href="#Faster（※）" class="headerlink" title="Faster（※）"></a>Faster（※）</h1><h2 id="一次结束，当场做完"><a href="#一次结束，当场做完" class="headerlink" title="一次结束，当场做完"></a>一次结束，当场做完</h2><p>作者认为决定工作效率的关键在于对 现在 的使用方法。对于一件事情如果能够当场做完就不要推迟到以后，对于一项决定如果当场确定就不要推迟到未来。如果当时没有进行就解决或决定就需要做出相应的计划：要想解决这个问题，需要收集哪些必要的资源。具体策略如下：</p>
-<p>==P11 表格==</p>
+<p><img src="/images/reading/google-0.jpg" alt="img"></p>
 <p>对自己来讲，我曾经负责某个项目，客户在问我一个技术相关的问题的时候，我当时的做法可能就没有很恰当。现在来看我认为正确的流程应该是：将我自己已知的内容对客户进行反馈；将自己不知道的内容如实告诉客户并询问他目前是否有空我去找一下相关负责人来解答他这个问题（<strong>如果现在有必要的话，现在就联系；如果现在应该决定的话，现在就决定</strong>），如果中途遇到其它问题不知道谁是负责人或者负责人不在，也必须做到相关解决方案做到有切实进展（活用身边的人/回来之后第一时间反馈等等），在第一时间内将问题进行解决，不拖延！！！</p>
 <h2 id="设置deadline"><a href="#设置deadline" class="headerlink" title="设置deadline"></a>设置deadline</h2><p>能当场解决的问题一定要一次解决，而不能解决的问题一定要设置deadline，要有一种 如果现在不做那要什么时候做 的观念。对于纷杂的工作需要明确优先级、精细程度等因素。将自己的期限提前是提高效率的有效方法。</p>
 <p>对于自己来讲，如果领导要求一项工作周五之前完成。那自己的deadline要设置在周三周四做好一个demo给领导查看。在工作进行之前需要明确事情的紧急程度、完成验收的标准、是否有其它注意事项等等</p>
@@ -624,7 +840,7 @@
 <li>反馈：事后的反思与经验总结</li>
 </ul>
 <p>要想获取有用的信息，提问的</p>
-<p>==P143 表格==</p>
+<p><img src="/images/reading/google-1.jpg" alt="img"></p>
 <h2 id="多参加交流会"><a href="#多参加交流会" class="headerlink" title="多参加交流会"></a>多参加交流会</h2><p>为了保证自己的生存，最好多参加交流，不论是非正式聚会、公司外部会议等等，给自己多创造几个立足点。</p>
 <p>同行业、同年龄的人呆在一起，谈论的事情都是相似的话题，无法从中获取到跟多有用的信息。在交流过程中，也要时刻思考“我应该给对方提供什么样的信息”，输出自己的价值</p>
 <h1 id="Relax-Work"><a href="#Relax-Work" class="headerlink" title="Relax Work"></a>Relax Work</h1><h2 id="一分钟冥想"><a href="#一分钟冥想" class="headerlink" title="一分钟冥想"></a>一分钟冥想</h2><p>关闭电脑，将所有注意力都集中在自己的呼吸上，安静的坐在座位上</p>
@@ -676,6 +892,41 @@
 <li><p>找到在巨变洪流中发挥自己能力并且赚取利润的方法</p>
 </li>
 </ol>
+]]></content>
+      <categories>
+        <category>Reading</category>
+      </categories>
+      <tags>
+        <tag>读书笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>《格局》</title>
+    <url>/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</url>
+    <content><![CDATA[<p><img src="/images/reading/GeJu.jpg" alt="img"></p>
+<h1 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h1><p>《格局》一书是吴军博士2019年出版的。吴军博士头衔可谓众多，“文津图书奖”得主、硅谷投资人、约翰·霍普金斯大学工学院董事、原腾讯副总裁，出版过《数学之美》《浪潮之巅》《文明之光》《硅谷之谜》等等不同品类的书籍。</p>
+<p>我自己对于”格局“一词的理解是一个人对于世界认知的边界以及对事物认知的范围。整书通读下来给我的感觉更像是吴军博士对于自己生活经验及基于某些历史事件的规律总结，甚至有些章节的内容前后都没有很关联，对于本书大部分内容无感的本质原因我认为是自己的经历没有那么丰富无法做到感同身受亦或者是自己对于这本书没有完全读懂。那便写下自己感兴趣的部分的心得吧</p>
+<h1 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h1><h2 id="技术是手段-不是目的"><a href="#技术是手段-不是目的" class="headerlink" title="技术是手段 不是目的"></a>技术是手段 不是目的</h2><p>互联网飞速发展，新的技术理论得到迅速且广泛的传播。对于一名技术从业者来讲，要想在职场行业内始终保持竞争力，需要不断的去学习新的内容来保证自己不会被时代所淘汰。但实际上，技术从来都是手段而不是目的，如果搞不清楚这一点，就会为了技术而研发技术。2022年AI、IOT可能是时代的潮流，但10年后一切都未曾可知而可以肯定的是计算机的底层原理及知识仍然不会落伍。可见洞察一件事情的本质并去学习探索才是真正的硬道理。</p>
+<h2 id="未来的特征"><a href="#未来的特征" class="headerlink" title="未来的特征"></a>未来的特征</h2><ul>
+<li>不对称性。新技术的产生，最早掌握新技术的少数人可以利用新技术颠覆过去在相关领域中占据统治地位的组织或机构；</li>
+<li>复杂性。当下的知识体系非常复杂，通常都是跨学科的而不是单一维度的；</li>
+<li>不确定性。没有人能够预测未来</li>
+</ul>
+<ol>
+<li>不过度依赖过去的权威</li>
+<li>拉力由于推力（主动获取而不是被动接收）</li>
+<li>指南针优于地图（改变一直存在，掌握本质，求渔不求鱼）</li>
+<li>拥抱风险</li>
+<li>叛逆精神（打破规则）</li>
+<li>通才胜于专才（前提一定是已经在某一方面已经是专才）</li>
+<li>韧性优于力量</li>
+<li>强调整体性</li>
+</ol>
+<h2 id="以正和，以奇胜"><a href="#以正和，以奇胜" class="headerlink" title="以正和，以奇胜"></a>以正和，以奇胜</h2><p>面对不断变化的未来，把握好常态是关键，而正是常态，奇是非常态。《孙子兵法 兵势篇》中写到：凡战者，以正和，以奇胜。这句话的意思是：作战，要先把正面的兵排好，排的不偏斜合乎法则，此为正；如果这时候还有多余的兵力你就赢了，在现代汉语字典中也可以理解为：出奇制胜。”以正和，以奇胜”更应该是一个人做事的准则，在做好正的基础上出奇制胜，不要相信所谓的弯道超车，这一定是不稳定的。</p>
+<h2 id="被信息放大的悲观"><a href="#被信息放大的悲观" class="headerlink" title="被信息放大的悲观"></a>被信息放大的悲观</h2><p>我们明显能够感觉到现在的年轻人普遍会更焦虑，他们仿佛对这个世界充满悲观情绪。xxx飞机失事、xxx公司大规模裁员、xxx地区洪水或火山爆发，这些新闻在现在真的是屡见不鲜，也正是这些新闻的广泛传播给我们造成了很大的焦虑情绪。但实际上飞机其实是比汽车更安全、在大范围内就业形式是向好的、火山喷发地正是处于板块交界地带。可以发现真正广泛传播的言论实际上大多是悲观的，从信息论的角度来讲，越是与众不同的说法信息量越大。相反宣传乐观主义的观点论文不仅没有人看甚至是无法发表的。因为没有人会关心一篇”今年经济持续向好“的文章，大家都知道也自然就不会过多关注。面对各种各样的新闻，适当保持忧患意识是必要的，但请不应过度的悲观！</p>
+<h2 id="人立于天地之间必有出路"><a href="#人立于天地之间必有出路" class="headerlink" title="人立于天地之间必有出路"></a>人立于天地之间必有出路</h2><p>面对生活、工作、家庭的压力，我们总是使自己处于一个很忙碌的状态之中，面对未来可能发生的问题我们也常说：车到山前必有路、船到桥头自然直。确实，对于未来的不确定性，我们始终要坚信人立与天地之前必有出路。</p>
+<h1 id="语录"><a href="#语录" class="headerlink" title="语录"></a>语录</h1><p>自己花了精力做的事情要尽可能的对自己未来有帮助。</p>
+<p>过分追求物质可能会成为生活的负担。</p>
 ]]></content>
       <categories>
         <category>Reading</category>
@@ -999,307 +1250,6 @@
       </tags>
   </entry>
   <entry>
-    <title>《格局》</title>
-    <url>/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</url>
-    <content><![CDATA[<p><img src="/images/reading/GeJu.jpg" alt="img"></p>
-<h1 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h1><p>《格局》一书是吴军博士2019年出版的。吴军博士头衔可谓众多，“文津图书奖”得主、硅谷投资人、约翰·霍普金斯大学工学院董事、原腾讯副总裁，出版过《数学之美》《浪潮之巅》《文明之光》《硅谷之谜》等等不同品类的书籍。</p>
-<p>我自己对于”格局“一词的理解是一个人对于世界认知的边界以及对事物认知的范围。整书通读下来给我的感觉更像是吴军博士对于自己生活经验及基于某些历史事件的规律总结，甚至有些章节的内容前后都没有很关联，对于本书大部分内容无感的本质原因我认为是自己的经历没有那么丰富无法做到感同身受亦或者是自己对于这本书没有完全读懂。那便写下自己感兴趣的部分的心得吧</p>
-<h1 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h1><h2 id="技术是手段-不是目的"><a href="#技术是手段-不是目的" class="headerlink" title="技术是手段 不是目的"></a>技术是手段 不是目的</h2><p>互联网飞速发展，新的技术理论得到迅速且广泛的传播。对于一名技术从业者来讲，要想在职场行业内始终保持竞争力，需要不断的去学习新的内容来保证自己不会被时代所淘汰。但实际上，技术从来都是手段而不是目的，如果搞不清楚这一点，就会为了技术而研发技术。2022年AI、IOT可能是时代的潮流，但10年后一切都未曾可知而可以肯定的是计算机的底层原理及知识仍然不会落伍。可见洞察一件事情的本质并去学习探索才是真正的硬道理。</p>
-<h2 id="未来的特征"><a href="#未来的特征" class="headerlink" title="未来的特征"></a>未来的特征</h2><ul>
-<li>不对称性。新技术的产生，最早掌握新技术的少数人可以利用新技术颠覆过去在相关领域中占据统治地位的组织或机构；</li>
-<li>复杂性。当下的知识体系非常复杂，通常都是跨学科的而不是单一维度的；</li>
-<li>不确定性。没有人能够预测未来</li>
-</ul>
-<ol>
-<li>不过度依赖过去的权威</li>
-<li>拉力由于推力（主动获取而不是被动接收）</li>
-<li>指南针优于地图（改变一直存在，掌握本质，求渔不求鱼）</li>
-<li>拥抱风险</li>
-<li>叛逆精神（打破规则）</li>
-<li>通才胜于专才（前提一定是已经在某一方面已经是专才）</li>
-<li>韧性优于力量</li>
-<li>强调整体性</li>
-</ol>
-<h2 id="以正和，以奇胜"><a href="#以正和，以奇胜" class="headerlink" title="以正和，以奇胜"></a>以正和，以奇胜</h2><p>面对不断变化的未来，把握好常态是关键，而正是常态，奇是非常态。《孙子兵法 兵势篇》中写到：凡战者，以正和，以奇胜。这句话的意思是：作战，要先把正面的兵排好，排的不偏斜合乎法则，此为正；如果这时候还有多余的兵力你就赢了，在现代汉语字典中也可以理解为：出奇制胜。”以正和，以奇胜”更应该是一个人做事的准则，在做好正的基础上出奇制胜，不要相信所谓的弯道超车，这一定是不稳定的。</p>
-<h2 id="被信息放大的悲观"><a href="#被信息放大的悲观" class="headerlink" title="被信息放大的悲观"></a>被信息放大的悲观</h2><p>我们明显能够感觉到现在的年轻人普遍会更焦虑，他们仿佛对这个世界充满悲观情绪。xxx飞机失事、xxx公司大规模裁员、xxx地区洪水或火山爆发，这些新闻在现在真的是屡见不鲜，也正是这些新闻的广泛传播给我们造成了很大的焦虑情绪。但实际上飞机其实是比汽车更安全、在大范围内就业形式是向好的、火山喷发地正是处于板块交界地带。可以发现真正广泛传播的言论实际上大多是悲观的，从信息论的角度来讲，越是与众不同的说法信息量越大。相反宣传乐观主义的观点论文不仅没有人看甚至是无法发表的。因为没有人会关心一篇”今年经济持续向好“的文章，大家都知道也自然就不会过多关注。面对各种各样的新闻，适当保持忧患意识是必要的，但请不应过度的悲观！</p>
-<h2 id="人立于天地之间必有出路"><a href="#人立于天地之间必有出路" class="headerlink" title="人立于天地之间必有出路"></a>人立于天地之间必有出路</h2><p>面对生活、工作、家庭的压力，我们总是使自己处于一个很忙碌的状态之中，面对未来可能发生的问题我们也常说：车到山前必有路、船到桥头自然直。确实，对于未来的不确定性，我们始终要坚信人立与天地之前必有出路。</p>
-<h1 id="语录"><a href="#语录" class="headerlink" title="语录"></a>语录</h1><p>自己花了精力做的事情要尽可能的对自己未来有帮助。</p>
-<p>过分追求物质可能会成为生活的负担。</p>
-]]></content>
-      <categories>
-        <category>Reading</category>
-      </categories>
-      <tags>
-        <tag>读书笔记</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Audio-初识</title>
-    <url>/2022/08/31/Audio/Audio-meet/</url>
-    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
-<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
-<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
-<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
-<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
-<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
-<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
-<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
-<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
-<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
-<ul>
-<li>定义：在时间轴上对信号进行离散化</li>
-<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
-</ul>
-<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
-<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
-<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
-<ul>
-<li><p>定义：在幅度轴上对信号进行数字化</p>
-</li>
-<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
-</li>
-</ul>
-<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
-<blockquote>
-<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
-</blockquote>
-<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
-<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
-<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
-</blockquote>
-<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
-<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
-<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
-</ul>
-<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
-<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
-<ul>
-<li><p>WAV编码（波形编码）</p>
-<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
-</li>
-<li><p>MP3编码</p>
-<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
-</li>
-<li><p>AAC编码</p>
-</li>
-</ul>
-<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
-<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
-<ul>
-<li><p>Ogg编码（有损）</p>
-<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
-</li>
-</ul>
-<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
-<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
-<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
-<ul>
-<li>单声道（mono）</li>
-<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
-<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
-<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
-<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
-</ul>
-<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
-<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
-<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
-<ul>
-<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
-<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
-</ul>
-<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
-<li>交错模式：每个声道的样本数据交错存储排布</li>
-<li>平面模式：每个声道的样本数据分开存储</li>
-</ul>
-<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
-<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
-<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
-<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
-<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
-</ul>
-<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
-<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
-<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
-<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Audio</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Opus Ogg详解</title>
-    <url>/2023/01/04/Audio/Audio-opus/</url>
-    <content><![CDATA[<h1 id="opus是什么"><a href="#opus是什么" class="headerlink" title="opus是什么"></a>opus是什么</h1><blockquote>
-<p>以下内容取自opus官网：<a href="https://www.opus-codec.org/">https://www.opus-codec.org</a></p>
-</blockquote>
-<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>Opus 是一种完全开放、免版税、用途广泛的音频编解码器。 Opus 在 Internet 上的交互式语音和音乐传输方面无与伦比，但也适用于存储和流媒体应用。它被互联网工程任务组 (IETF) 标准化为 RFC 6716，它结合了 Skype 的 SILK 编解码器和 Xiph.Org 的 CELT 编解码器的技术。</p>
-<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>Opus 可以处理范围广泛的音频应用，包括 IP 语音、视频会议、游戏内聊天，甚至远程现场音乐表演。它可以从低比特率窄带语音扩展到非常高质量的立体声音乐。支持的功能有：</p>
-<ul>
-<li>比特率从 6 kb/s 到 510 kb/s</li>
-<li>采样率从 8 kHz（窄带）到 48 kHz（全带）</li>
-<li>帧大小从 2.5 ms 到 60 ms</li>
-<li>支持恒定比特率 (CBR) 和可变比特率 (VBR)</li>
-<li>从窄带到全带的音频带宽</li>
-<li>支持语音和音乐</li>
-<li>支持单声道和立体声</li>
-<li>支持多达 255 个通道（多流帧）</li>
-<li>动态可调比特率、音频带宽和帧大小</li>
-<li>良好的丢包鲁棒性和丢包隐藏 (PLC)</li>
-<li>浮点和定点实现</li>
-</ul>
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
-<li><p>音频带宽。Opus编码器覆盖了低频段到高频段的全带音频</p>
-</li>
-<li><p>低延迟。延迟依赖于帧规格，Opus最低帧规格2.5ms，非常适合实时音视频场景</p>
-</li>
-</ul>
-<h1 id="opus库"><a href="#opus库" class="headerlink" title="opus库"></a>opus库</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
-<p>编解码器libopus: <a href="https://www.opus-codec.org/docs/opus_api-1.2/index.html">https://www.opus-codec.org/docs/opus_api-1.2/index.html</a></p>
-<p>封装器opusfile：<a href="https://www.opus-codec.org/docs/opusfile_api-0.7/index.html">https://www.opus-codec.org/docs/opusfile_api-0.7/index.html</a></p>
-</blockquote>
-<p>opus库包括三部分：libopus、opus-tools、opusfile</p>
-<ul>
-<li>libopus：opus编解码的源码和可执行文件（注意：这里编码出来的opus文件是播放不了的，并且解码也必须用那种播放不了的opus文件,后面解释为什么）</li>
-<li>opus-tools：工具包，其中包含了libogg（.wav2.opus  /  .opus2.wav）</li>
-<li>opusfile：将可播放的opus文件解码成wav的工具，可分析出这个可播放的opus文件的信息，其中包含了libogg</li>
-</ul>
-<h2 id="可播放opus与不可播放opus文件"><a href="#可播放opus与不可播放opus文件" class="headerlink" title="可播放opus与不可播放opus文件"></a>可播放opus与不可播放opus文件</h2><p>ogg文件里面包含了opus编码的音频，相当于MP4文件中包含了aac</p>
-<ul>
-<li>不可播放opus：只有编码层opus数据的音频（没有ogg的封装只经过libopus编码），后缀名是.opus</li>
-<li>可播放的opus：opus编码的音频外部套用了一层ogg的封装（经过ogg的封装，opus-tools编码的文件），后缀名可以是.opus也可以是.ogg</li>
-</ul>
-<h1 id="opus结构"><a href="#opus结构" class="headerlink" title="opus结构"></a>opus结构</h1><p>每个 Opus 包以一个 TOC （Table of Contents）字节开头</p>
-<table>
-<thead>
-<tr>
-<th>配置数（config）</th>
-<th>编码模式</th>
-<th>音频带宽</th>
-<th>帧长度</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0…3</td>
-<td>SILK-only</td>
-<td>NB</td>
-<td>10, 20, 40, 60 ms</td>
-</tr>
-<tr>
-<td>4…7</td>
-<td>SILK-only</td>
-<td>MB</td>
-<td>10, 20, 40, 60 ms</td>
-</tr>
-<tr>
-<td>8…11</td>
-<td>SILK-only</td>
-<td>WB</td>
-<td>10, 20, 40, 60 ms</td>
-</tr>
-<tr>
-<td>12…13</td>
-<td>Hybrid</td>
-<td>SWB</td>
-<td>10, 20 ms</td>
-</tr>
-<tr>
-<td>14…15</td>
-<td>Hybrid</td>
-<td>FB</td>
-<td>10, 20 ms</td>
-</tr>
-<tr>
-<td>16…19</td>
-<td>CELT-only</td>
-<td>NB</td>
-<td>2.5, 5, 10, 20 ms</td>
-</tr>
-<tr>
-<td>20…23</td>
-<td>CELT-only</td>
-<td>WB</td>
-<td>2.5, 5, 10, 20 ms</td>
-</tr>
-<tr>
-<td>24…27</td>
-<td>CELT-only</td>
-<td>SWB</td>
-<td>2.5, 5, 10, 20 ms</td>
-</tr>
-<tr>
-<td>28…31</td>
-<td>CELT-only</td>
-<td>FB</td>
-<td>2.5, 5, 10, 20 ms</td>
-</tr>
-</tbody></table>
-<p>立体声标志位（s）取值 0 表示单声道，1 表示多声道立体声。</p>
-<p>TOC 中最后两位（c）表示：</p>
-<ul>
-<li>0：一个包中只有一帧音频。</li>
-<li>1：一个包中有两帧音频，并且大小相同。</li>
-<li>2：一个包中有两帧音频，但是大小不同。</li>
-</ul>
-<h1 id="opusfile-API"><a href="#opusfile-API" class="headerlink" title="opusfile API"></a>opusfile API</h1><blockquote>
-<p>opusfile高级API官方文档：<a href="https://opus-codec.org/docs/opusfile_api-0.12/">https://opus-codec.org/docs/opusfile_api-0.12/</a></p>
-<p>参考文档：</p>
-<p>​	<a href="https://juejin.cn/post/6844903998831460360">https://juejin.cn/post/6844903998831460360</a></p>
-<p>​	<a href="https://chenliang.org/2020/04/17/ogg-encapsulation-for-opus/">https://chenliang.org/2020/04/17/ogg-encapsulation-for-opus/</a></p>
-</blockquote>
-<ol>
-<li><p><strong>op_open_file() / op_free()</strong></p>
-<p>打开/关闭一个解码器</p>
-</li>
-<li><p><strong>op_head() / op_tags()</strong></p>
-</li>
-</ol>
-<ul>
-<li><p>op_head函数可用于获取channels、samplerate等参数</p>
-</li>
-<li><p>op_tags函数可获得用户自定义参数，例如：标题、歌手、编码方式标准等等，其中tags-&gt;user_comments[i]可获取用户自定义的信息</p>
-</li>
-</ul>
-<ol start="3">
-<li><strong>op_pcm_total() / op_pcm_tell() / op_pcm_seek()</strong></li>
-</ol>
-<ul>
-<li>op_pcm_total 可以返回该opus文件转换成pcm文件后的总的pcm长度</li>
-<li>op_pcm_tell 可以放回目前文件已经播放的pcm的长度</li>
-<li>op_pcm_seek 可以通过参数指定让音频进行跳转播放</li>
-</ul>
-<ol start="4">
-<li><strong>op_pcm_read()</strong></li>
-</ol>
-<p>   从op_open_file打开的文件流中读取pcm数据进行播放。注意解码的数量并不等于传入buffer的大小，需要使用到该函数的返回值</p>
-<h1 id="Ogg"><a href="#Ogg" class="headerlink" title="Ogg"></a>Ogg</h1><blockquote>
-<p> 参考 : <a href="https://juejin.cn/post/6844904016254599175">https://juejin.cn/post/6844904016254599175</a></p>
-</blockquote>
-<p>全称：OGGVobis(oggVorbis) 一个自由且开放标准的容器格式，“.ogg”结尾命名</p>
-<p>OGG是以页（page）为单位将逻辑流组织链接起来，每个页都有pageheader和pagedata。</p>
-<ol>
-<li>capture_pattern页标识：ASCII字符，0x4f ‘O’ 0x67 ‘g’ 0x67 ‘g’ 0x53 ‘S’，4个字节大小，它标识着一个页的开始。</li>
-<li>stream_structure_version版本id：一般当前版本默认为0，1个字节。</li>
-<li>header_type_flag类型标识：标识当前的页的类型，1个字节， - 0x01：本页媒体编码数据与前一页属于同一个逻辑流的同一个packet，若此位没有设，表示本页是以一个新的packet开始的； - 0x02：表示该页为逻辑流的第一页，bos标识，如果此位未设置，那表示不是第一页； - 0x04：表示该页位逻辑流的最后一页，eos标识，如果此位未设置，那表示本页不是最后一页。</li>
-<li>granule_position：媒体编码相关的参数信息，8个字节，对于音频流来说，它存储着到本页为止逻辑流在PCM输出中采样码的数目，可以由它来算得时间戳。对于视频流来说，它存储着到本页为止视频帧编码的数目。若此值为-1，那表示截止到本页，逻辑流的packet未结束。(小端)</li>
-<li>serial_number：当前页中的流的id，4个字节，它是区分本页所属逻辑流与其他逻辑流的序号，我们可以通过这个值来划分流。(小端)</li>
-<li>page_seguence_number：本页在逻辑流的序号，4个字节。</li>
-<li>CRC_cbecksum：循环冗余效验码效验，4个字节，用来效验每页的有效性。</li>
-<li>number_page_segments：给定本页在segment_table域中出现的segement个数，1个字节。</li>
-<li>segment_table：从字面看它就是一个表，表示着每个segment的长度，取值范围是0~255。由segment（1个segment就是1个字节）可以得到packet的值，每个packet的大小是以最后一个不等于255的segment结束的，从页头中的segment_table可以得到每个packet长度，举例：如果一组segment依次顺序为FF 45 FF FF FF 40FF 05FF FF FF 66（共4个packet，含12个segment，每个packet的长度是：FF 45【324】；FF FF FF 40【829】；FF 05【260】；FF FF FF 66【847】），那么第一个packet的长度为255+69 = 324,第二个packet大小829，同理。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Audio</category>
-      </categories>
-      <tags>
-        <tag>opus</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>51job爬虫项目</title>
     <url>/2022/12/03/item/51job/</url>
     <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>紧接着豆瓣爬虫的项目，该项目作为其后的练习和扩展，算是一个较为不错的上手练习。本文所涉及的是对于51job数据的爬取、解析和保存。对于数据可视化操作，在后续会持续更新，请关注！<br>在下面代码中有些函数内部调用了其他函数，需要补全各个部分的函数。如果需要源码请私信或者评论。</p>
@@ -1342,6 +1292,63 @@
       </categories>
   </entry>
   <entry>
+    <title>计算机存储体系</title>
+    <url>/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/</url>
+    <content><![CDATA[<p>作为计算机五大核心功能（运算、存储、控制、输入、输出）之一的存储，无疑在整个计算机体系结构中有着举足轻重的地位。</p>
+<p>存储器属于计算机的记忆装置，用于存放程序和数据。在我看来程序是作为计算机的灵魂而存在的，它指导了计算机的一切行为，而数据则是这一切行为的基石。</p>
+<p>本文将基于存储器对计算机的存储系统做简要介绍</p>
+<h1 id="存储器分类"><a href="#存储器分类" class="headerlink" title="存储器分类"></a>存储器分类</h1><p><img src="/images/computerSystem/storage/storage-0.png" alt="image"></p>
+<h1 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h1><p><img src="/images/computerSystem/storage/storage-1.png" alt="image"></p>
+<h2 id="设计目的"><a href="#设计目的" class="headerlink" title="设计目的"></a>设计目的</h2><p>通过存储器分类图不难看出存储器的种类繁多，而如何合理的使用每一种存储器组成庞大的存储体系结构无不体现着工程师们的智慧。</p>
+<p>存储系统设计的核心问题在于：<strong>成本（存储1bit）、容量、速度三者平衡</strong>。恰好这三者之间又是相互矛盾的，主要体现在：容量越高，成本越低，而速度越慢；速度越块，成本就越高（其它情况可根据 2.2金字塔章节 理解），因此平衡成了关键。因此存储体系结构设计目的可总结为：将各种不同的器件组合成一个体系，让各种器件扬长避短，从而形成一种快速、大容量、低成本的内存系统</p>
+<p>通过优化存储系统的组织来使得针对典型应用平均访存时间最短</p>
+<h2 id="金字塔"><a href="#金字塔" class="headerlink" title="金字塔"></a>金字塔</h2><p><img src="/images/computerSystem/storage/storage-2.png" alt="image"></p>
+<p>越靠近金字塔顶，距离处理器越近，访问速度就越快，造价也就越高，同时容量也会更小</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>存储器种类</th>
+<th>硬件（存储1bit）</th>
+<th>速度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>寄存器</td>
+<td>触发器</td>
+<td>十几个晶体管</td>
+<td>300ps</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>sram</td>
+<td>6个晶体管</td>
+<td>L1-1ns；L2-10ns</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>dram</td>
+<td>1个mos管+1个电容</td>
+<td>100ns</td>
+</tr>
+<tr>
+<td>硬盘</td>
+<td>flash/磁性存储…</td>
+<td>/</td>
+<td>SSD-25us；HDD-5ms</td>
+</tr>
+</tbody></table>
+<p>通过表格可以发现内存的组成有电容的存在，因此不再是单纯的逻辑电路更不能用CMOS工艺制造，而SRAM却可以。这也就是为什么缓存可以集成到芯片内部，而内存是和芯片分开制造的。</p>
+]]></content>
+      <categories>
+        <category>Computure System</category>
+        <category>Storage</category>
+      </categories>
+      <tags>
+        <tag>storage system</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
     <url>/2022/12/03/item/doubanTop250Spider/</url>
     <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在爬虫学习中，一套完整的项目实战对于代码和计算机思维能力有很大的提升。本文基于B站视频<a href="https://www.bilibili.com/video/BV12E411A7ZQ?from=search&amp;seid=4741588992451392787">《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》</a>关于 “豆瓣电影Top250” 项目做出的总结、拓展与分享。<br>在本文中，只展示数据爬取到数据保存的工作，数据可视化部分只做部分分析和结果展示。具体关于库的操作我选择了一些官方文档做链接，知识点比较全面请参考下列表。如果想要项目源代码，请评论或私信。</p>
@@ -1377,6 +1384,78 @@
 ]]></content>
       <categories>
         <category>Item</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>硬件随机数测试方法</title>
+    <url>/2022/11/26/third-party/DTRNG_Test/</url>
+    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
+<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
+<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
+<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
+</ol>
+<ul>
+<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
+</li>
+<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
+</li>
+<li><p>windows安装</p>
+<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
+<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
+</li>
+<li><p>Linux安装</p>
+<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+</li>
+</ul>
+<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
+<ol>
+<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
+<li>Frequency Test within a Block，块内频率检测</li>
+<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
+<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
+<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
+<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
+<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
+<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
+<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
+<li>The Linear Complexity Test，线性复杂度检测</li>
+<li>The Serial Test，序列检测</li>
+<li>The Approximate Entropy Test，近似熵检测</li>
+<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
+<li>The Random Excursions Test，随机游动检测</li>
+<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
+</ol>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
+<ol>
+<li>启动程序。**./assess ，**stream length译为流的长度。</li>
+<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
+<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
+<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
+<li>输入比特流的个数。表示有多少个stream</li>
+<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
+</ol>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
+<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
+<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
+<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
+</ol>
+<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
+<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
+<li><p>Q：Segment fault</p>
+<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
+</li>
+<li><p>Q：igamc: UNDERFLOW？</p>
+<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
+</li>
+<li><p>Q：P-value全部是0？</p>
+<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Third Party</category>
       </categories>
   </entry>
   <entry>
@@ -1464,78 +1543,6 @@
       <tags>
         <tag>毕业设计</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>硬件随机数测试方法</title>
-    <url>/2022/11/26/third-party/DTRNG_Test/</url>
-    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
-<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
-<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
-<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
-</ol>
-<ul>
-<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
-</li>
-<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
-</li>
-<li><p>windows安装</p>
-<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
-<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
-</li>
-<li><p>Linux安装</p>
-<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
-</li>
-</ul>
-<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
-<ol>
-<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
-<li>Frequency Test within a Block，块内频率检测</li>
-<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
-<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
-<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
-<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
-<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
-<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
-<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
-<li>The Linear Complexity Test，线性复杂度检测</li>
-<li>The Serial Test，序列检测</li>
-<li>The Approximate Entropy Test，近似熵检测</li>
-<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
-<li>The Random Excursions Test，随机游动检测</li>
-<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
-</ol>
-<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
-<ol>
-<li>启动程序。**./assess ，**stream length译为流的长度。</li>
-<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
-<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
-<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
-<li>输入比特流的个数。表示有多少个stream</li>
-<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
-</ol>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
-<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
-<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
-<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
-</ol>
-<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
-<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
-<li><p>Q：Segment fault</p>
-<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
-</li>
-<li><p>Q：igamc: UNDERFLOW？</p>
-<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
-</li>
-<li><p>Q：P-value全部是0？</p>
-<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Third Party</category>
-      </categories>
   </entry>
   <entry>
     <title>CMake</title>
@@ -2088,6 +2095,56 @@
 ]]></content>
       <categories>
         <category>Third Party</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>GPIO</title>
+    <url>/2022/09/22/computerSystem/Peripherals/GPIO/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
+<p><img src="/images/computerSystem/Peripherals/GPIO-1.png" alt="image"></p>
+<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
+<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
+<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
+<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
+<li>下拉输入：IO口输入设定为低电平输入（0）</li>
+<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
+</ol>
+<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
+<li>推挽输出：输出高低电平</li>
+<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
+<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
+<li>复用开漏输出：普通i2c处于该模式</li>
+</ol>
+<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
+<ul>
+<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
+<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
+<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
+<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
+<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
+<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
+<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
+</ul>
+<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
+<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>注意事项</p>
+<ul>
+<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
+<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
+<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
+<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
+</ul>
+<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖始终，故可以配置IO作为中断源对CPU进行唤醒</p>
+]]></content>
+      <categories>
+        <category>Computure System</category>
+        <category>GPIO</category>
       </categories>
   </entry>
 </search>

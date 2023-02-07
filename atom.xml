@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-02-06T15:41:25.491Z</updated>
+  <updated>2023-02-07T15:10:34.418Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,33 +17,35 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>《Google工作法》</title>
-    <link href="http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/"/>
-    <id>http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</id>
-    <published>2023-02-05T16:00:00.000Z</published>
-    <updated>2023-02-06T15:41:25.491Z</updated>
+    <title>计算机存储体系</title>
+    <link href="http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/"/>
+    <id>http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/</id>
+    <published>2023-02-06T16:00:00.000Z</published>
+    <updated>2023-02-07T15:10:34.418Z</updated>
     
     
-    <summary type="html">《Google工作法》读书笔记</summary>
+    <summary type="html">计算机存储体系架构介绍</summary>
     
     
     
-    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
     
     
-    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
     
   </entry>
   
   <entry>
-    <title>《格局》</title>
-    <link href="http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/"/>
-    <id>http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</id>
-    <published>2023-01-03T16:00:00.000Z</published>
-    <updated>2023-01-04T14:56:15.682Z</updated>
+    <title>《Google工作法》</title>
+    <link href="http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/"/>
+    <id>http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</id>
+    <published>2023-02-05T16:00:00.000Z</published>
+    <updated>2023-02-07T14:20:40.946Z</updated>
     
     
-    <summary type="html">对《格局》一书的心得</summary>
+    <summary type="html">《Google工作法》读书笔记</summary>
     
     
     
@@ -72,6 +74,25 @@
     
     
     <category term="opus" scheme="http://yanglieee.com/tags/opus/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>《格局》</title>
+    <link href="http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/"/>
+    <id>http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</id>
+    <published>2023-01-03T16:00:00.000Z</published>
+    <updated>2023-01-04T14:56:15.682Z</updated>
+    
+    
+    <summary type="html">对《格局》一书的心得</summary>
+    
+    
+    
+    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
+    
+    
+    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -280,10 +301,10 @@
   
   <entry>
     <title>GPIO</title>
-    <link href="http://yanglieee.com/2022/09/22/GPIO/"/>
-    <id>http://yanglieee.com/2022/09/22/GPIO/</id>
+    <link href="http://yanglieee.com/2022/09/22/computerSystem/Peripherals/GPIO/"/>
+    <id>http://yanglieee.com/2022/09/22/computerSystem/Peripherals/GPIO/</id>
     <published>2022-09-21T16:00:00.000Z</published>
-    <updated>2022-09-22T14:41:26.222Z</updated>
+    <updated>2023-02-07T15:15:06.550Z</updated>
     
     
     <summary type="html">GPIO基础原理</summary>

@@ -20,21 +20,24 @@
     var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="GPIO基础原理">
+  <meta name="description" content="计算机存储体系架构介绍">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GPIO">
-<meta property="og:url" content="http://yanglieee.com/2022/09/22/GPIO/index.html">
+<meta property="og:title" content="计算机存储体系">
+<meta property="og:url" content="http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/index.html">
 <meta property="og:site_name" content="yangLieee">
-<meta property="og:description" content="GPIO基础原理">
+<meta property="og:description" content="计算机存储体系架构介绍">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://yanglieee.com/images/system/GPIO-1.png">
-<meta property="article:published_time" content="2022-09-21T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-09-22T14:41:26.222Z">
+<meta property="og:image" content="http://yanglieee.com/images/computerSystem/storage/storage-0.png">
+<meta property="og:image" content="http://yanglieee.com/images/computerSystem/storage/storage-1.png">
+<meta property="og:image" content="http://yanglieee.com/images/computerSystem/storage/storage-2.png">
+<meta property="article:published_time" content="2023-02-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-02-07T15:10:34.418Z">
 <meta property="article:author" content="Lee">
+<meta property="article:tag" content="storage system">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yanglieee.com/images/system/GPIO-1.png">
+<meta name="twitter:image" content="http://yanglieee.com/images/computerSystem/storage/storage-0.png">
 
-<link rel="canonical" href="http://yanglieee.com/2022/09/22/GPIO/">
+<link rel="canonical" href="http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/">
 
 
 <script id="page-configurations">
@@ -47,7 +50,7 @@
   };
 </script>
 
-  <title>GPIO | yangLieee</title>
+  <title>计算机存储体系 | yangLieee</title>
   
 
 
@@ -203,7 +206,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2022/09/22/GPIO/">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -216,7 +219,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          GPIO
+          计算机存储体系
         </h1>
 
         <div class="post-meta">
@@ -227,7 +230,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-09-22 00:00:00 / 修改时间：22:41:26" itemprop="dateCreated datePublished" datetime="2022-09-22T00:00:00+08:00">2022-09-22</time>
+              <time title="创建时间：2023-02-07 00:00:00 / 修改时间：23:10:34" itemprop="dateCreated datePublished" datetime="2023-02-07T00:00:00+08:00">2023-02-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -239,7 +242,7 @@
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Computure-System/GPIO/" itemprop="url" rel="index"><span itemprop="name">GPIO</span></a>
+                  <a href="/categories/Computure-System/Storage/" itemprop="url" rel="index"><span itemprop="name">Storage</span></a>
                 </span>
             </span>
 
@@ -252,8 +255,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2022/09/22/GPIO/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2022/09/22/GPIO/" itemprop="commentCount"></span>
+    <a title="valine" href="/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -263,16 +266,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.2k</span>
+              <span>675</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>1 分钟</span>
             </span>
-            <div class="post-description">GPIO基础原理</div>
+            <div class="post-description">计算机存储体系架构介绍</div>
 
         </div>
       </header>
@@ -283,47 +286,51 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
-<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
-<p><img src="/images/system/GPIO-1.png" alt="image"></p>
-<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
-<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
-<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
-<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
-<li>下拉输入：IO口输入设定为低电平输入（0）</li>
-<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
-</ol>
-<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
-<li>推挽输出：输出高低电平</li>
-<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
-<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
-<li>复用开漏输出：普通i2c处于该模式</li>
-</ol>
-<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
-<ul>
-<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
-<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
-<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
-<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
-<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
-<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
-<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
-</ul>
-<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
-<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
-<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
-
-<p>注意事项</p>
-<ul>
-<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
-<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
-<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
-<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
-</ul>
-<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
-<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖始终，故可以配置IO作为中断源对CPU进行唤醒</p>
+        <p>作为计算机五大核心功能（运算、存储、控制、输入、输出）之一的存储，无疑在整个计算机体系结构中有着举足轻重的地位。</p>
+<p>存储器属于计算机的记忆装置，用于存放程序和数据。在我看来程序是作为计算机的灵魂而存在的，它指导了计算机的一切行为，而数据则是这一切行为的基石。</p>
+<p>本文将基于存储器对计算机的存储系统做简要介绍</p>
+<h1 id="存储器分类"><a href="#存储器分类" class="headerlink" title="存储器分类"></a>存储器分类</h1><p><img src="/images/computerSystem/storage/storage-0.png" alt="image"></p>
+<h1 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h1><p><img src="/images/computerSystem/storage/storage-1.png" alt="image"></p>
+<h2 id="设计目的"><a href="#设计目的" class="headerlink" title="设计目的"></a>设计目的</h2><p>通过存储器分类图不难看出存储器的种类繁多，而如何合理的使用每一种存储器组成庞大的存储体系结构无不体现着工程师们的智慧。</p>
+<p>存储系统设计的核心问题在于：<strong>成本（存储1bit）、容量、速度三者平衡</strong>。恰好这三者之间又是相互矛盾的，主要体现在：容量越高，成本越低，而速度越慢；速度越块，成本就越高（其它情况可根据 2.2金字塔章节 理解），因此平衡成了关键。因此存储体系结构设计目的可总结为：将各种不同的器件组合成一个体系，让各种器件扬长避短，从而形成一种快速、大容量、低成本的内存系统</p>
+<p>通过优化存储系统的组织来使得针对典型应用平均访存时间最短</p>
+<h2 id="金字塔"><a href="#金字塔" class="headerlink" title="金字塔"></a>金字塔</h2><p><img src="/images/computerSystem/storage/storage-2.png" alt="image"></p>
+<p>越靠近金字塔顶，距离处理器越近，访问速度就越快，造价也就越高，同时容量也会更小</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>存储器种类</th>
+<th>硬件（存储1bit）</th>
+<th>速度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>寄存器</td>
+<td>触发器</td>
+<td>十几个晶体管</td>
+<td>300ps</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>sram</td>
+<td>6个晶体管</td>
+<td>L1-1ns；L2-10ns</td>
+</tr>
+<tr>
+<td>内存</td>
+<td>dram</td>
+<td>1个mos管+1个电容</td>
+<td>100ns</td>
+</tr>
+<tr>
+<td>硬盘</td>
+<td>flash/磁性存储…</td>
+<td>/</td>
+<td>SSD-25us；HDD-5ms</td>
+</tr>
+</tbody></table>
+<p>通过表格可以发现内存的组成有电容的存在，因此不再是单纯的逻辑电路更不能用CMOS工艺制造，而SRAM却可以。这也就是为什么缓存可以集成到芯片内部，而内存是和芯片分开制造的。</p>
 
     </div>
 
@@ -339,7 +346,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://yanglieee.com/2022/09/22/GPIO/" title="GPIO">http://yanglieee.com/2022/09/22/GPIO/</a>
+    <a href="http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/" title="计算机存储体系">http://yanglieee.com/2023/02/07/computerSystem/存储体系/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -349,6 +356,9 @@
 
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/storage-system/" rel="tag"><i class="fa fa-tag"></i> storage system</a>
+          </div>
 
         
 
@@ -356,13 +366,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/09/05/Audio/Audio-meet-1/" rel="prev" title="Audio-再遇">
-      <i class="fa fa-chevron-left"></i> Audio-再遇
+    <a href="/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/" rel="prev" title="《Google工作法》">
+      <i class="fa fa-chevron-left"></i> 《Google工作法》
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/10/22/ubuntu-create/" rel="next" title="搭建Ubuntu虚拟机">
-      搭建Ubuntu虚拟机 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -422,7 +429,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">基本结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">工作模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%EF%BC%884%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">输入（4）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%EF%BC%884%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">输出（4）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPIO%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">GPIO寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">通用寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GPIO-Shadow"><span class="nav-number">4.2.</span> <span class="nav-text">GPIO Shadow</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E5%B1%82%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">用户层应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEGPIO"><span class="nav-number">5.1.</span> <span class="nav-text">配置GPIO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8BGPIO%E9%85%8D%E7%BD%AE"><span class="nav-number">5.2.</span> <span class="nav-text">查看GPIO配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%8A%9F%E8%83%BD"><span class="nav-number">6.</span> <span class="nav-text">相关功能</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%99%A8%E5%88%86%E7%B1%BB"><span class="nav-number">1.</span> <span class="nav-text">存储器分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%9B%AE%E7%9A%84"><span class="nav-number">2.1.</span> <span class="nav-text">设计目的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%91%E5%AD%97%E5%A1%94"><span class="nav-number">2.2.</span> <span class="nav-text">金字塔</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -436,20 +443,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -505,12 +512,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">74k</span>
+    <span title="站点总字数">75k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:07</span>
+    <span title="站点阅读时长">1:08</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

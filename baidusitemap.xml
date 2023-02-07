@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://yanglieee.com/2022/09/22/computerSystem/Peripherals/GPIO/</loc>
+    <lastmod>2023-02-07</lastmod>
+  </url>
+  <url>
+    <loc>http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/</loc>
+    <lastmod>2023-02-07</lastmod>
+  </url>
+  <url>
     <loc>http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</loc>
-    <lastmod>2023-02-06</lastmod>
+    <lastmod>2023-02-07</lastmod>
   </url>
   <url>
     <loc>http://yanglieee.com/2023/01/04/Audio/Audio-opus/</loc>
@@ -63,10 +71,6 @@
   <url>
     <loc>http://yanglieee.com/2022/10/22/ubuntu-create/</loc>
     <lastmod>2022-10-22</lastmod>
-  </url>
-  <url>
-    <loc>http://yanglieee.com/2022/09/22/GPIO/</loc>
-    <lastmod>2022-09-22</lastmod>
   </url>
   <url>
     <loc>http://yanglieee.com/2022/09/05/Audio/Audio-meet-1/</loc>
