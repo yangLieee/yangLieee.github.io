@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-02-07T15:10:34.418Z</updated>
+  <updated>2023-02-15T15:04:53.272Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,56 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Cache原理</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
+    <published>2023-02-14T16:00:00.000Z</published>
+    <updated>2023-02-15T15:04:53.272Z</updated>
+    
+    
+    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
+    
+    <category term="Cache" scheme="http://yanglieee.com/categories/Computure-System/Storage/Cache/"/>
+    
+    
+    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
+    
+    <category term="Cache" scheme="http://yanglieee.com/tags/Cache/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Cache简介</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
+    <published>2023-02-14T16:00:00.000Z</published>
+    <updated>2023-02-15T15:02:13.432Z</updated>
+    
+    
+    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache结构做简要剖析</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
+    
+    <category term="Cache" scheme="http://yanglieee.com/categories/Computure-System/Storage/Cache/"/>
+    
+    
+    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
+    
+    <category term="Cache" scheme="http://yanglieee.com/tags/Cache/"/>
+    
+  </entry>
   
   <entry>
     <title>计算机存储体系</title>
@@ -57,6 +107,25 @@
   </entry>
   
   <entry>
+    <title>《格局》</title>
+    <link href="http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/"/>
+    <id>http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</id>
+    <published>2023-01-03T16:00:00.000Z</published>
+    <updated>2023-01-04T14:56:15.682Z</updated>
+    
+    
+    <summary type="html">对《格局》一书的心得</summary>
+    
+    
+    
+    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
+    
+    
+    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Opus Ogg详解</title>
     <link href="http://yanglieee.com/2023/01/04/Audio/Audio-opus/"/>
     <id>http://yanglieee.com/2023/01/04/Audio/Audio-opus/</id>
@@ -74,25 +143,6 @@
     
     
     <category term="opus" scheme="http://yanglieee.com/tags/opus/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>《格局》</title>
-    <link href="http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/"/>
-    <id>http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</id>
-    <published>2023-01-03T16:00:00.000Z</published>
-    <updated>2023-01-04T14:56:15.682Z</updated>
-    
-    
-    <summary type="html">对《格局》一书的心得</summary>
-    
-    
-    
-    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
-    
-    
-    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -116,18 +166,18 @@
   </entry>
   
   <entry>
-    <title>51job爬虫项目</title>
-    <link href="http://yanglieee.com/2022/12/03/item/51job/"/>
-    <id>http://yanglieee.com/2022/12/03/item/51job/</id>
+    <title>XPath Helper安装及使用</title>
+    <link href="http://yanglieee.com/2022/12/03/third-party/xpath/"/>
+    <id>http://yanglieee.com/2022/12/03/third-party/xpath/</id>
     <published>2022-12-02T16:00:00.000Z</published>
-    <updated>2022-12-03T10:02:28.076Z</updated>
+    <updated>2022-12-03T09:32:48.843Z</updated>
     
     
-    <summary type="html">本文所涉及的是对于51job数据的爬取、解析和保存</summary>
+    <summary type="html">介绍爬虫正则表达式解析工具xpath helper使用</summary>
     
     
     
-    <category term="Item" scheme="http://yanglieee.com/categories/Item/"/>
+    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
     
     
   </entry>
@@ -141,6 +191,23 @@
     
     
     <summary type="html">本文基于B站视频《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》关于 &quot;豆瓣电影Top250&quot; 项目做出的总结、拓展与分享。</summary>
+    
+    
+    
+    <category term="Item" scheme="http://yanglieee.com/categories/Item/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>51job爬虫项目</title>
+    <link href="http://yanglieee.com/2022/12/03/item/51job/"/>
+    <id>http://yanglieee.com/2022/12/03/item/51job/</id>
+    <published>2022-12-02T16:00:00.000Z</published>
+    <updated>2022-12-03T10:02:28.076Z</updated>
+    
+    
+    <summary type="html">本文所涉及的是对于51job数据的爬取、解析和保存</summary>
     
     
     
@@ -165,23 +232,6 @@
     
     
     <category term="毕业设计" scheme="http://yanglieee.com/tags/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>XPath Helper安装及使用</title>
-    <link href="http://yanglieee.com/2022/12/03/third-party/xpath/"/>
-    <id>http://yanglieee.com/2022/12/03/third-party/xpath/</id>
-    <published>2022-12-02T16:00:00.000Z</published>
-    <updated>2022-12-03T09:32:48.843Z</updated>
-    
-    
-    <summary type="html">介绍爬虫正则表达式解析工具xpath helper使用</summary>
-    
-    
-    
-    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
-    
     
   </entry>
   
@@ -304,7 +354,7 @@
     <link href="http://yanglieee.com/2022/09/22/computerSystem/Peripherals/GPIO/"/>
     <id>http://yanglieee.com/2022/09/22/computerSystem/Peripherals/GPIO/</id>
     <published>2022-09-21T16:00:00.000Z</published>
-    <updated>2023-02-07T15:15:06.550Z</updated>
+    <updated>2023-02-07T15:22:41.810Z</updated>
     
     
     <summary type="html">GPIO基础原理</summary>
@@ -353,57 +403,6 @@
     
     <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>CMake</title>
-    <link href="http://yanglieee.com/2022/08/25/third-party/cmake/"/>
-    <id>http://yanglieee.com/2022/08/25/third-party/cmake/</id>
-    <published>2022-08-24T16:00:00.000Z</published>
-    <updated>2022-12-03T09:06:33.292Z</updated>
-    
-    
-    <summary type="html">CmakeLists.txt使用方法</summary>
-    
-    
-    
-    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
-    
-    <category term="Tools" scheme="http://yanglieee.com/categories/Linux/Tools/"/>
-    
-    
-    <category term="Makefile" scheme="http://yanglieee.com/tags/Makefile/"/>
-    
-    <category term="CmakeLists.txt" scheme="http://yanglieee.com/tags/CmakeLists-txt/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hello New World</title>
-    <link href="http://yanglieee.com/2022/08/22/hello-world/"/>
-    <id>http://yanglieee.com/2022/08/22/hello-world/</id>
-    <published>2022-08-21T16:00:00.000Z</published>
-    <updated>2022-08-23T15:42:46.710Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;Be all you can be!&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;Hello World</summary>
-        
-      
-    
-    
-    
-    <category term="Personal" scheme="http://yanglieee.com/categories/Personal/"/>
-    
-    
-    <category term="开篇" scheme="http://yanglieee.com/tags/%E5%BC%80%E7%AF%87/"/>
     
   </entry>
   
