@@ -20,19 +20,19 @@
     var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="通过对NIST测试套件的说明验证随机种子的真假性">
+  <meta name="description" content="曾经在项目中为Mplayer添加过MV12视频格式的旋转功能，基于此对将自己对于Mplayer的相关开发说明及经验进行总结。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="硬件随机数测试方法">
-<meta property="og:url" content="http://yanglieee.com/2022/11/26/third-party/DTRNG_Test/index.html">
+<meta property="og:title" content="Mplayer编译及使用说明">
+<meta property="og:url" content="http://yanglieee.com/2023/03/07/third-party/mplayer/index.html">
 <meta property="og:site_name" content="yangLieee">
-<meta property="og:description" content="通过对NIST测试套件的说明验证随机种子的真假性">
+<meta property="og:description" content="曾经在项目中为Mplayer添加过MV12视频格式的旋转功能，基于此对将自己对于Mplayer的相关开发说明及经验进行总结。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-11-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-11-26T14:59:19.699Z">
+<meta property="article:published_time" content="2023-03-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-03-07T14:56:58.222Z">
 <meta property="article:author" content="Lee">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yanglieee.com/2022/11/26/third-party/DTRNG_Test/">
+<link rel="canonical" href="http://yanglieee.com/2023/03/07/third-party/mplayer/">
 
 
 <script id="page-configurations">
@@ -45,7 +45,7 @@
   };
 </script>
 
-  <title>硬件随机数测试方法 | yangLieee</title>
+  <title>Mplayer编译及使用说明 | yangLieee</title>
   
 
 
@@ -201,7 +201,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2022/11/26/third-party/DTRNG_Test/">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/03/07/third-party/mplayer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -214,7 +214,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          硬件随机数测试方法
+          Mplayer编译及使用说明
         </h1>
 
         <div class="post-meta">
@@ -225,7 +225,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-11-26 00:00:00 / 修改时间：22:59:19" itemprop="dateCreated datePublished" datetime="2022-11-26T00:00:00+08:00">2022-11-26</time>
+              <time title="创建时间：2023-03-07 00:00:00 / 修改时间：22:56:58" itemprop="dateCreated datePublished" datetime="2023-03-07T00:00:00+08:00">2023-03-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -246,8 +246,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2022/11/26/third-party/DTRNG_Test/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2022/11/26/third-party/DTRNG_Test/" itemprop="commentCount"></span>
+    <a title="valine" href="/2023/03/07/third-party/mplayer/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/03/07/third-party/mplayer/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -257,16 +257,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.4k</span>
+              <span>2.9k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>3 分钟</span>
             </span>
-            <div class="post-description">通过对NIST测试套件的说明验证随机种子的真假性</div>
+            <div class="post-description">曾经在项目中为Mplayer添加过MV12视频格式的旋转功能，基于此对将自己对于Mplayer的相关开发说明及经验进行总结。</div>
 
         </div>
       </header>
@@ -277,70 +277,198 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
-<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
-<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
-<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>官网：<a target="_blank" rel="noopener" href="http://www.mplayerhq.hu/design7/news.html">http://www.mplayerhq.hu/design7/news.html</a></p>
+</blockquote>
+<p><strong>MPlayer</strong>是一款开源的多媒体播放器，以GNU通用公共许可证发布。此款软件可在各主流操作系统使用，例如Linux和其他类Unix操作系统、微软Windows系统及苹果电脑的Mac OS 系统。MPlayer是建基于命令行界面，在各操作系统可选择安装不同的图形界面。</p>
+<h1 id="ubuntu下编译过程"><a href="#ubuntu下编译过程" class="headerlink" title="ubuntu下编译过程"></a>ubuntu下编译过程</h1><ol>
+<li><p>下载并解压源码文件<a target="_blank" rel="noopener" href="http://www.mplayerhq.hu/design7/news.html">click here</a></p>
+</li>
+<li><p>生成配置文件（目前直接走默认参数选项）</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">直接执行./configure错误，--yasm=<span class="string">''</span>参数是根据提示没有找到yasm，可通过该命令直接执行</span></span><br><span class="line">./configure --yasm=''</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>编译</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">make完成既可看到文件夹下存在mplayer可执行文件</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>安装</p>
+</li>
 </ol>
-<ul>
-<li><p>源码链接：<a target="_blank" rel="noopener" href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
+   <figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将mplayer及依赖的库文件进行安装, 不安装也可以进行使用</span></span><br><span class="line">sudo make install</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="源码文件"><a href="#源码文件" class="headerlink" title="源码文件"></a>源码文件</h1><ul>
+<li><p>vd__*	</p>
+<p><strong>video decode</strong>  与解码相关的,解码器只是负责把解码完成的帧传输给vo，如何显示是vo的函数实现;</p>
 </li>
-<li><p>文档链接：<a target="_blank" rel="noopener" href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
+<li><p>vf__*  </p>
+<p><strong>video filter</strong>  所有过滤器的定义，当命令行输入-vf的参数，规则会去相应的filter函数解析。例如： -vf rotate=2,vf_rotate.c的函数进行进行rotate函数的解析。</p>
 </li>
-<li><p>windows安装</p>
-<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a target="_blank" rel="noopener" href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
-<p>可以参考博客：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
+<li><p>vo_*</p>
+<p><strong>video output</strong>   输出的函数定义，每一个函数对应实现一种或几种的功能。例如：vo_md5sum.c得到md5的一个值</p>
 </li>
-<li><p>Linux安装</p>
-<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+<li><p>DOCS 文档</p>
 </li>
 </ul>
-<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a target="_blank" rel="noopener" href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
-<ol>
-<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
-<li>Frequency Test within a Block，块内频率检测</li>
-<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
-<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
-<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
-<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
-<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
-<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
-<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
-<li>The Linear Complexity Test，线性复杂度检测</li>
-<li>The Serial Test，序列检测</li>
-<li>The Approximate Entropy Test，近似熵检测</li>
-<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
-<li>The Random Excursions Test，随机游动检测</li>
-<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
-</ol>
-<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
-<ol>
-<li>启动程序。**./assess ，**stream length译为流的长度。</li>
-<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
-<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
-<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
-<li>输入比特流的个数。表示有多少个stream</li>
-<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
-</ol>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
-<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
-<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
-<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
-</ol>
-<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
-<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
-<li><p>Q：Segment fault</p>
-<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
+<h1 id="mplayer流程"><a href="#mplayer流程" class="headerlink" title="mplayer流程"></a>mplayer流程</h1><ol>
+<li><p>调用 AddExcept（）注册异常处理函数</p>
 </li>
-<li><p>Q：igamc: UNDERFLOW？</p>
-<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
+<li><p>initmplayer();   //初始化，创建快进和暂停的信号量</p>
 </li>
-<li><p>Q：P-value全部是0？</p>
-<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
+<li><p>InitTimer();初始化计时器</p>
+</li>
+<li><p>mp_msg_init();初始化消息系统</p>
+</li>
+<li><p>set_path_env();设置路径、环境</p>
+</li>
+<li><p>ipu_image_start();ipu初始化</p>
+</li>
+<li><p>mplayer_showmode(1);设置显示模式</p>
+</li>
+<li><p>parse_codec_cfg(NULL);解析codec配置寄存器</p>
+</li>
+<li><p>打开数据流</p>
+</li>
+<li><p>分析播放树</p>
+</li>
+<li><p>添加播放树列表</p>
+</li>
+<li><p>初始化预填充缓存</p>
+</li>
+<li><p>打开播放的文件</p>
+</li>
+<li><p>创建buffer</p>
+</li>
+<li><p>打开数据流</p>
+</li>
+<li><p>检测数据流类型（音频格式和视频格式）</p>
+</li>
+<li><p>分析音频流视频流的信息（原始视频尺寸、分辨率、帧频率、码流大小）</p>
+</li>
+<li><p>启动相应的分离器</p>
+</li>
+<li><p>分析剪辑信息</p>
+</li>
+<li><p>初始化codec（多媒体数字信号编解码器）</p>
+</li>
+<li><p>选择打开相应的视频解码器</p>
+</li>
+<li><p>初始化视频解码器，分析视频流信息</p>
+</li>
+<li><p>选择打开相应的音频解码器</p>
+</li>
+<li><p>初始化音频解码器、PCM，分析音频信息</p>
+</li>
+<li><p>同步音频视频输出</p>
+</li>
+<li><p>开始播放</p>
 </li>
 </ol>
+<h1 id="命令行参数"><a href="#命令行参数" class="headerlink" title="命令行参数"></a>命令行参数</h1><ul>
+<li><p>-list-options 打 印 所有 可 用 的 选 项</p>
+</li>
+<li><p>-vf   选择视频相关参数</p>
+<ul>
+<li><p>format 选择解码之后的格式输出</p>
+</li>
+<li><ul>
+<li>NV12  /  NV21</li>
+<li>BGRA</li>
+<li>RGB</li>
+</ul>
+</li>
+<li><p>rotate  选择旋转的角度输出</p>
+</li>
+<li><ul>
+<li>1  顺时针旋转90</li>
+<li>2  顺时针旋转270</li>
+<li>4  旋转0度</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>-slave  从模式，mplayer会从标准输入读一个换行符（/n）分隔开的命令。</p>
+</li>
+<li><p>-quiet   去除杂项信息, 使 控制屏幕输出简略；尤其是阻止显示状态行（即 A: 0.7 V: 0.6 A-V: 0.068 …）</p>
+</li>
+<li><p>-speed &lt;0.01 - 100&gt;选择播放速率</p>
+</li>
+<li><p>-vo 指定视频输出驱动的优先级列表</p>
+</li>
+<li><p>-vc  选择编解码器，  -vc help 可以列出所有视频解码器，其中中括号里面是.dll的是我们无法使用的</p>
+</li>
+<li><ul>
+<li>ffm264   264软解码</li>
+<li>ffh264v4l2m2m  264硬解码</li>
+</ul>
+</li>
+<li><p>-ao 指定音频输出驱动的优先级列表</p>
+</li>
+<li><p>-ac 指定音频解码器优先级列表</p>
+</li>
+<li><p>-zoom -x 800 -y 400 指令播放窗体的大小</p>
+</li>
+<li><p>-input  输入</p>
+</li>
+<li><ul>
+<li>cmdlist  列出所有可绑定按键的命令</li>
+<li>file 命令输入通道。制定输入fifo的名字，写入控制命令，与slave参数一起使用</li>
+</ul>
+</li>
+</ul>
+<h1 id="slave模式"><a href="#slave模式" class="headerlink" title="slave模式"></a>slave模式</h1><h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>MPlayer为后台运行其他程序，不再截获键盘事件，MPlayer会从标准输入读一个换行符（/n）分隔开的命令。</p>
+<p>大多数slave模式命令相当于命令行选项。</p>
+<ul>
+<li><p>命令行播放通过 -input file= 参数监听某个管道</p>
+</li>
+<li><p>另起一个线程，创建同名管道并输入6.2所示控制参数即可达到控制mplayer的效果</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">mkfifo</span> /tmp/fifofile</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mplayer -slave -input file=/tmp/fifofile &lt;movie&gt;</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+<p>具体使用说明可以参考源文件下DOCS/tech/slave.txt</p>
+<h2 id="控制参数"><a href="#控制参数" class="headerlink" title="控制参数"></a>控制参数</h2><p><strong>mplayer -input cmdlist</strong> 命令可以打印出一份可以输入清单</p>
+<ul>
+<li>get_file_name  打印当前文件名</li>
+<li>get_percent_pos   打印出文件中的当前位置为整数百分比(0-100）</li>
+<li>get_time_length   打印当前文件长度用秒表示</li>
+<li>get_time_pos   打印文件当前位置用秒表示</li>
+<li>seek  定位电影的某些地方<ul>
+<li>0 是一个相对定位+/- （默认值）</li>
+<li>1 是定位％在电影里</li>
+<li>2 是寻求一个绝对位置的秒。</li>
+</ul>
+</li>
+<li>quit   推出mplayer进程</li>
+<li>stop   停止播放</li>
+<li>exit   从OSD菜单退出控制台。不像’quit’，不退出MPlayer的</li>
+</ul>
+<h2 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h2><p>针对slave使用方法，简单写了几个函数作为参考示例</p>
+<p>github仓库（mplayerInterface文件夹）：<a target="_blank" rel="noopener" href="https://github.com/yangLieee/codebackup.git">click here</a></p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li><p>MPlayer interrupted by signal 13 in module: key_events ？</p>
+<p>因为Mplayer是通过换行符(“\n”)来分隔不同的命令，所以我们在编程中不管是写入到管道文件还是写入到QT的进程中在命令后面一定要加入换行符(“\n”),这样Mplayer才能辨别。</p>
+</li>
+<li><p>只有在串口有输出，adb shell没有输出 </p>
+<p>错误信息：Cannot find HOME directory.</p>
+<p>解决方法：setenv(“HOME”，“/”，“1”)</p>
+</li>
+<li><p>在vo部分添加 rotate功能 之后, 只有一个方向可以正常显示?</p>
+</li>
+</ol>
+<p>   对于nv12格式的图片和数据, uv_stride和stride这两个参数影响LCD最终显示的效果. 在旋转之后需要将对应的宽高对应到相应的stride中, 最终可以正常显示</p>
+<ol start="4">
+<li><p>mpi被mplayer用来存储解码之后的图像（mp_image.h中定义），得到mpi之后，vf被调用，整个filter链上钉filter都被调用了一遍包括最后的vo; 在vo的put_image里把图像输出到显示器上。这个时候需要考虑图像的存储方法，即用哪种颜色空间。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/willand1981/article/details/5783107">https://blog.csdn.net/willand1981/article/details/5783107</a></p>
+</li>
+</ol>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="http://www.mplayerhq.hu/DOCS/man/zh_CN/mplayer.1.html">Mplayer和mencoder使用文档简介</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.mplayerhq.hu/DOCS/HTML/zh_CN/index.html">Mplayer使用文档</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qizheguang/article/details/50552810">mplayer流程及相关函数说明</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/liangkaiming/article/details/5790893">slave 模式文档</a></p>
+</li>
+</ul>
 
     </div>
 
@@ -356,7 +484,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://yanglieee.com/2022/11/26/third-party/DTRNG_Test/" title="硬件随机数测试方法">http://yanglieee.com/2022/11/26/third-party/DTRNG_Test/</a>
+    <a href="http://yanglieee.com/2023/03/07/third-party/mplayer/" title="Mplayer编译及使用说明">http://yanglieee.com/2023/03/07/third-party/mplayer/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -373,13 +501,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/11/16/init.rc/" rel="prev" title="init.rc语法及解析">
-      <i class="fa fa-chevron-left"></i> init.rc语法及解析
+    <a href="/2023/03/06/work-expericence/%E7%94%B5%E6%B1%A0%E7%94%B5%E9%87%8F%E6%A3%80%E6%B5%8B/" rel="prev" title="电池电量检测">
+      <i class="fa fa-chevron-left"></i> 电池电量检测
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/11/30/third-party/lwip/" rel="next" title="LwIP协议栈">
-      LwIP协议栈 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -439,7 +564,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">测试方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E6%B5%8B%E8%AF%95%E9%A1%B9"><span class="nav-number">3.</span> <span class="nav-text">随机测试项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">使用方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">5.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E6%A0%87%E5%87%86"><span class="nav-number">6.</span> <span class="nav-text">检测标准</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">7.</span> <span class="nav-text">Q&amp;A</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ubuntu%E4%B8%8B%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">ubuntu下编译过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E6%96%87%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">源码文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mplayer%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">mplayer流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%8F%82%E6%95%B0"><span class="nav-number">5.</span> <span class="nav-text">命令行参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#slave%E6%A8%A1%E5%BC%8F"><span class="nav-number">6.</span> <span class="nav-text">slave模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E"><span class="nav-number">6.1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E5%8F%82%E6%95%B0"><span class="nav-number">6.2.</span> <span class="nav-text">控制参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#demo"><span class="nav-number">6.3.</span> <span class="nav-text">demo</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">7.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">8.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

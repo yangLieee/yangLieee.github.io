@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-03-06T15:13:04.542Z</updated>
+  <updated>2023-03-07T14:56:58.222Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,14 +17,31 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Mplayer编译及使用说明</title>
+    <link href="http://yanglieee.com/2023/03/07/third-party/mplayer/"/>
+    <id>http://yanglieee.com/2023/03/07/third-party/mplayer/</id>
+    <published>2023-03-06T16:00:00.000Z</published>
+    <updated>2023-03-07T14:56:58.222Z</updated>
+    
+    
+    <summary type="html">曾经在项目中为Mplayer添加过MV12视频格式的旋转功能，基于此对将自己对于Mplayer的相关开发说明及经验进行总结。</summary>
+    
+    
+    
+    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>电池电量检测</title>
     <link href="http://yanglieee.com/2023/03/06/work-expericence/%E7%94%B5%E6%B1%A0%E7%94%B5%E9%87%8F%E6%A3%80%E6%B5%8B/"/>
     <id>http://yanglieee.com/2023/03/06/work-expericence/%E7%94%B5%E6%B1%A0%E7%94%B5%E9%87%8F%E6%A3%80%E6%B5%8B/</id>
     <published>2023-03-05T16:00:00.000Z</published>
-    <updated>2023-03-06T15:13:04.542Z</updated>
+    <updated>2023-03-06T15:29:28.528Z</updated>
     
     
-    <summary type="html">基于正在做的电池电量检测的工作内容，对该部分内容做进一步扩展延申和经验总结</summary>
+    <summary type="html">基于正在做的电池电量检测的工作内容，对该部分内容做进一步扩展延伸和经验总结</summary>
     
     
     
@@ -84,14 +101,14 @@
   </entry>
   
   <entry>
-    <title>Cache简介</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
+    <title>Cache原理</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
     <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-15T15:06:42.493Z</updated>
+    <updated>2023-02-22T14:53:12.501Z</updated>
     
     
-    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
+    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
     
     
     
@@ -109,14 +126,14 @@
   </entry>
   
   <entry>
-    <title>Cache原理</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
+    <title>Cache简介</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/cache/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
     <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-22T14:53:12.501Z</updated>
+    <updated>2023-02-15T15:06:42.493Z</updated>
     
     
-    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
+    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
     
     
     
@@ -174,6 +191,25 @@
   </entry>
   
   <entry>
+    <title>《格局》</title>
+    <link href="http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/"/>
+    <id>http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</id>
+    <published>2023-01-03T16:00:00.000Z</published>
+    <updated>2023-01-04T14:56:15.682Z</updated>
+    
+    
+    <summary type="html">对《格局》一书的心得</summary>
+    
+    
+    
+    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
+    
+    
+    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Opus Ogg详解</title>
     <link href="http://yanglieee.com/2023/01/04/Audio/Audio-opus/"/>
     <id>http://yanglieee.com/2023/01/04/Audio/Audio-opus/</id>
@@ -191,25 +227,6 @@
     
     
     <category term="opus" scheme="http://yanglieee.com/tags/opus/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>《格局》</title>
-    <link href="http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/"/>
-    <id>http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</id>
-    <published>2023-01-03T16:00:00.000Z</published>
-    <updated>2023-01-04T14:56:15.682Z</updated>
-    
-    
-    <summary type="html">对《格局》一书的心得</summary>
-    
-    
-    
-    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
-    
-    
-    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -394,25 +411,6 @@
     
     
     <category term="libmad" scheme="http://yanglieee.com/tags/libmad/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>搭建Ubuntu虚拟机</title>
-    <link href="http://yanglieee.com/2022/10/22/ubuntu-create/"/>
-    <id>http://yanglieee.com/2022/10/22/ubuntu-create/</id>
-    <published>2022-10-21T16:00:00.000Z</published>
-    <updated>2022-10-22T10:35:17.753Z</updated>
-    
-    
-    <summary type="html">基于vmware搭建Ubuntu虚拟机</summary>
-    
-    
-    
-    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
-    
-    <category term="搭建虚拟机" scheme="http://yanglieee.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/"/>
-    
     
   </entry>
   
