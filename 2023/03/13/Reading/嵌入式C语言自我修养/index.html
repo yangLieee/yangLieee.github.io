@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="主要对专业书籍一书的第六章进行笔记的撰写以及相关demo的展示">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《嵌入式C语言自我修养》笔记">
+<meta property="og:url" content="http://yanglieee.com/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="主要对专业书籍一书的第六章进行笔记的撰写以及相关demo的展示">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/reading/QianRuShiC.jpg">
+<meta property="article:published_time" content="2023-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-03-13T14:58:59.593Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="读书笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/reading/QianRuShiC.jpg">
+
+<link rel="canonical" href="http://yanglieee.com/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>《嵌入式C语言自我修养》笔记 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          《嵌入式C语言自我修养》笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-03-13 00:00:00 / 修改时间：22:58:59" itemprop="dateCreated datePublished" datetime="2023-03-13T00:00:00+08:00">2023-03-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Reading/" itemprop="url" rel="index"><span itemprop="name">Reading</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">主要对专业书籍<<嵌入式C语言自我修养>>一书的第六章进行笔记的撰写以及相关demo的展示</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="/images/reading/QianRuShiC.jpg" alt="img"></p>
+<h1 id="GNU-C编译器扩展语法精讲（六）"><a href="#GNU-C编译器扩展语法精讲（六）" class="headerlink" title="GNU C编译器扩展语法精讲（六）"></a>GNU C编译器扩展语法精讲（六）</h1><p>github Demo：<a target="_blank" rel="noopener" href="https://github.com/yangLieee/codebackup/blob/master/book_%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/gnuc.c">click here</a></p>
+<h2 id="指定初始化"><a href="#指定初始化" class="headerlink" title="指定初始化"></a>指定初始化</h2><figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span> 数组初始化</span><br><span class="line"><span class="type">int</span> <span class="built_in">array</span>[<span class="number">100</span>] = { [<span class="number">10</span>] = <span class="number">1</span>, [<span class="number">20</span>] = <span class="number">3</span> };</span><br><span class="line"></span><br><span class="line"># ... 前后都需要空格，并且该特性也可以用在<span class="keyword">switch</span>-<span class="keyword">case</span>语句中</span><br><span class="line"><span class="type">int</span> <span class="built_in">array</span>[<span class="number">100</span>] = { [<span class="number">10</span> ... <span class="number">20</span>] = <span class="number">1</span>, [<span class="number">40</span> ... <span class="number">50</span>] = <span class="number">2</span> };</span><br><span class="line"><span class="keyword">switch</span>(i) {</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span> ... <span class="number">8</span>:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> 结构体成员初始化  (通过结构域名)</span><br><span class="line">例如linux内核：</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">const</span> <span class="title">file_opt</span> <span class="title">codec_opt</span> =</span> {</span><br><span class="line">    .open = codec_open,</span><br><span class="line">    .read = codec_read,</span><br><span class="line">    .write = codec_write,</span><br><span class="line">} </span><br><span class="line">好处：灵活，代码易于维护</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="语句表达式"><a href="#语句表达式" class="headerlink" title="语句表达式"></a>语句表达式</h2><ul>
+<li>目的：构造复杂宏</li>
+<li>结构：（ {  表达式1; 表达式2;  表达式3  } ） 语句表达式用（）小括号括起来，代码块用 { } 大括号括起来，语句表达式的值等于最后一个表达式的值</li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><ol>
+<li><p>求和</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sum = ( {</span><br><span class="line">     <span class="type">int</span> s = <span class="number">0</span>;</span><br><span class="line">     <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++&gt;) </span><br><span class="line">        s = s +i;</span><br><span class="line">     s;</span><br><span class="line">} )</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>定义一个宏，求两个数的最大值？</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> my_max(x,y)   ({    \</span></span><br><span class="line"><span class="meta">    typeof(x) _x = (x);     \</span></span><br><span class="line"><span class="meta">    typeof(y) _y = (y);     \</span></span><br><span class="line"><span class="meta">    (void) (&amp;_x == &amp;_y);    \</span></span><br><span class="line"><span class="meta">    _x &gt; _y ? _x : _y;      \</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="comment">// 第六行的作用：不同类型的指针比较会给出警告，加void消除没有用到比较结果带来的警告</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h2 id="container-of宏"><a href="#container-of宏" class="headerlink" title="container_of宏"></a>container_of宏</h2><ul>
+<li><p>作用：根据结构体某一成员地址，获取这个结构体的首地址</p>
+</li>
+<li><p>场景：传给某个函数的参数是某个结构体的成员变量，在这个函数中还可能用到这个结构体其它变量</p>
+</li>
+<li><p>基础：常量指针的值即为常量本身的值。0强转为结构体指针，结构体的首地址为0，每个成员变量都是首地址的相对偏移</p>
+</li>
+<li><p>实现</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> offset( TYPE , MEMBER ) ((size_t) &amp; (((TYPE*)0)-&gt;MEMBER))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> container_of(ptr, type, member) ({                    \                    </span></span><br><span class="line">            <span class="type">const</span> <span class="title function_">typeof</span><span class="params">(((type*)<span class="number">0</span>)-&gt;member)</span>* _ptr = (ptr);   \</span><br><span class="line">            (type*) ((<span class="type">char</span>*)_ptr - offset(type, member));     \                              </span><br><span class="line">})</span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+<h2 id="零长数组"><a href="#零长数组" class="headerlink" title="零长数组"></a>零长数组</h2><ul>
+<li>定义：长度为0的数组</li>
+<li>优点：不占用内存存储空间</li>
+<li>其它：C99支持变长数组，即长度编译时期是不能确定，在运行时才可以确定</li>
+<li>应用：变长结构体</li>
+<li>数组与指针区别：数组名用来表征一块连续的内存地址空间，仅仅是符号不分配空间；指针是一个变量，编译器需要单独给它分配一个内存空间，用来存放他指向的变量的地址。</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">buffer</span> {</span></span><br><span class="line">  <span class="type">int</span> len;</span><br><span class="line">  <span class="type">int</span> ptr[<span class="number">0</span>];  <span class="comment">// 不占大小</span></span><br><span class="line">};</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">buffer</span>* <span class="title">buf</span>;</span></span><br><span class="line">buf = (<span class="keyword">struct</span> buffer*) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> buffer) + <span class="number">100</span>);</span><br><span class="line">buf-&gt;len = <span class="number">100</span>;</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="属性声明"><a href="#属性声明" class="headerlink" title="属性声明"></a>属性声明</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>__attribute__</p>
+<ul>
+<li>作用：指导编译器在编译程序的时候进行特定方面优化或代码检查</li>
+<li>格式：<strong>attribute</strong>(( ))，后面需要写两对小括号，多个属性之间逗号隔开</li>
+<li>支持的属性声明：section、aligned、packed、format、weak、alias、noinline、always_inilne</li>
+</ul>
+<h3 id="section"><a href="#section" class="headerlink" title="section"></a>section</h3><ul>
+<li><p>作用：将一个函数或变量放到指定的段，即放到指定的section</p>
+</li>
+<li><p>使用：<strong>attribute</strong>(( section(“.data”) ))</p>
+</li>
+<li><p>可选项：</p>
+<ul>
+<li><p>.text：函数定义、程序语句</p>
+</li>
+<li><p>.data：初始化的全局变量、初始化的静态局部变量</p>
+</li>
+<li><p>.bss：未初始化的全局变量、未初始化的静态局部变量</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="aligned"><a href="#aligned" class="headerlink" title="aligned"></a>aligned</h3><ul>
+<li>作用：地址对齐，在给变量分配存储空间的时候，需要按照制定的地址对齐方式给变量分配地址</li>
+<li>注意：地址对齐的字节数必须是2的幂次方</li>
+<li>使用：<strong>attribute</strong>(( (aligned(4) ))</li>
+<li>对齐的好处：简化CPU与RAM之间的接口和硬件设计。cpu访存硬件设计可能只支持4字节或4字节整数倍对齐的地址访问，对齐后cpu可以一次读完</li>
+<li>注意：这个属性声明只是建议编译器按照这种方式对齐，当超过编译器允许的最大值只能按照最大对齐字节数进行地址分配</li>
+</ul>
+<h3 id="packed"><a href="#packed" class="headerlink" title="packed"></a>packed</h3><ul>
+<li>作用：减少地址对齐</li>
+<li>使用： <strong>attribute</strong>(( packed ))</li>
+<li>通常aligned与packed一起使用，这样既避免了结构体各个成员变量地址对齐产生的内存空洞又指定了整个结构体对齐方式：<strong>attribute</strong>(( packed, aligned(8) ))</li>
+</ul>
+<h3 id="format"><a href="#format" class="headerlink" title="format"></a>format</h3><ul>
+<li>作用：指定变参函数的参数格式检查</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">LOG</span><span class="params">(<span class="type">int</span> num, <span class="type">char</span>* fmt, ...)</span> __<span class="title function_">attribute__</span><span class="params">((format(<span class="built_in">printf</span>,<span class="number">2</span>,<span class="number">3</span>)))</span>)</span><br><span class="line"><span class="comment">// LOG函数的参数，个数字符串的位置在所有参数列表的索引是2,即前两个参数；要编辑器帮忙检查的参数在所有参数列表里的索引是3</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="weak"><a href="#weak" class="headerlink" title="weak"></a>weak</h3><ul>
+<li>作用：可以将一个强符号转换为弱符号</li>
+<li>使用：void _<em>attribute</em>(( weak )) func(void);</li>
+<li>好处：当一个函数被声明为一个弱符号之后，链接阶段找不到函数定义不会报错会将这个弱符号设置为0或者特殊值。当程序运行时，调用这个这个函数跳转到零地址或特殊地址才会产生一个内存错误</li>
+</ul>
+<h3 id="alias"><a href="#alias" class="headerlink" title="alias"></a>alias</h3><ul>
+<li>作用：给函数定义一个别名</li>
+<li>使用：void f() <strong>attribute</strong>((alias(“_f “)));</li>
+<li>通常在linux内核中weak和alias一起使用，随着版本升级可以封装旧名字起一个新名字</li>
+</ul>
+<h2 id="内联函数"><a href="#内联函数" class="headerlink" title="内联函数"></a>内联函数</h2><ul>
+<li><p>特征：用inline修饰的函数被称为内联函数，通常用static 或 extern 修饰</p>
+</li>
+<li><p>内联函数特征：</p>
+</li>
+<li><ul>
+<li>函数体积小</li>
+<li>函数体内无指针赋值、递归、循环等语句</li>
+<li>调用频繁</li>
+</ul>
+</li>
+<li><p>与宏相比，内联函数的优点：</p>
+</li>
+<li><ul>
+<li>参数类型检查，本质仍然是函数</li>
+<li>便于调试。可以单步、断点调试</li>
+<li>有返回值（宏也可以，语句表达式结构）</li>
+<li>接口封装</li>
+</ul>
+</li>
+<li><p>使用：</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 显式告诉编译器不要展开</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> __attribute((noinline)) <span class="type">int</span> <span class="title function_">func</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">// 显式告诉编译器要内联展开</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> __attribute((always_inline)) <span class="type">int</span> <span class="title function_">func</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">// 否则编译器的行为不固定，考虑诸多因素决定是否展开</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+<h2 id="内建函数"><a href="#内建函数" class="headerlink" title="内建函数"></a>内建函数</h2><ul>
+<li>含义：编译器内部实现的函数</li>
+<li>特征：通常以 __builtin 开头</li>
+<li>说明：没有文档，变动频繁，不建议应用程序工程师使用</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  __builtin_return_address（LEVEL）    返回当前函数或者调用者的返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 0: 获取当前函数返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 1: 获取上一级函数返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 2: 获取上两级函数返回地址</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_frame_address(LEVEL)        查看函数的栈帧地址</span></span><br><span class="line"><span class="comment">// LEVEL 0: 获取当前函数栈帧地址</span></span><br><span class="line"><span class="comment">// LEVEL 1: 获取上一级函数栈帧地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_constant_p(n)               判断参数n在编译时是否是常量，是常量返回1,否则0</span></span><br><span class="line"><span class="comment">// 内核中判断宏的参数是否是常数，则有更优化的实现方法</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_expect(exp,c)        </span></span><br><span class="line"><span class="comment">// 告诉编译器参数exp的值为c的可能性很大，用于分支预测，参数c与返回值无关，返回值一定是exp</span></span><br><span class="line"></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> likely(x) __builtin_expect(!!(x),1)) </span></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> unlikely(x) __builtin_expect(!!(x),0)</span></span><br><span class="line"><span class="comment">// 告诉编译器某一个分支发生的概率很高，自己做优化</span></span><br><span class="line"><span class="comment">// 两次取非是为了将参数x转换为bool类型，与1/0比较</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="可变参数宏"><a href="#可变参数宏" class="headerlink" title="可变参数宏"></a>可变参数宏</h2><ul>
+<li>用 … 表示变参列表，变参列表由不确定的参数组成，用  <strong>VA_ARGS</strong>  标识符表示变参函数列表</li>
+<li>C99规定，可以使用 args…  表示变参列表，用 args 代表变参列表即可</li>
+<li>宏连接符  ##  的作用是连接两个字符串</li>
+<li>在定义宏的时候通常使用 do { } while(0);的结构，这样是为了防止宏在选择、条等分支语句中展开后，产生宏歧义</li>
+</ul>
+<p>两种方法实现自定义等级宏打印：<a target="_blank" rel="noopener" href="https://github.com/yangLieee/codebackup/blob/master/book_%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/mlog.h">click here</a></p>
+<h2 id="Uboot镜像自复制"><a href="#Uboot镜像自复制" class="headerlink" title="Uboot镜像自复制"></a>Uboot镜像自复制</h2><ul>
+<li>作用：加载linux内核镜像到内存，给内核传递启动参数，然后引导linux操作系统启动</li>
+<li>过程：通过定义两个零长度数组，分别表示要复制自身镜像的起始地址和结束地址，并放在特定的section上，而这两个section分别放在代码段前和数据段后。数组名本身就代表一个地址，通过arm ldr伪指令直接获取要复制的镜像首地址保存在某个寄存器中，从flash复制自身镜像到内存中，然后重定位，最终跳转到内存中执行。（自举）</li>
+</ul>
+<h1 id="C语言面向对象编程思想（八）"><a href="#C语言面向对象编程思想（八）" class="headerlink" title="C语言面向对象编程思想（八）"></a>C语言面向对象编程思想（八）</h1><h2 id="代码复用与分层"><a href="#代码复用与分层" class="headerlink" title="代码复用与分层"></a>代码复用与分层</h2><p>复用：</p>
+<ul>
+<li>函数级复用</li>
+<li>库级复用</li>
+<li>框架级复用</li>
+<li>操作系统级复用</li>
+</ul>
+<p>分层：</p>
+<ul>
+<li>应用层</li>
+<li>Framework层</li>
+<li>库</li>
+<li>Linux内核</li>
+</ul>
+<h2 id="面向对象主要特征"><a href="#面向对象主要特征" class="headerlink" title="面向对象主要特征"></a>面向对象主要特征</h2><p>继承、多态、纯虚函数特征（抽象类）</p>
+<h1 id="模块化（九）"><a href="#模块化（九）" class="headerlink" title="模块化（九）"></a>模块化（九）</h1><p>模块化的思想内核是分而治之，重点在于抽象的对象之间的关联，而不是内容</p>
+<p>面向对象的编程思想主要是为了代码复用，重点在于内容的实现</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/" title="《嵌入式C语言自我修养》笔记">http://yanglieee.com/2023/03/13/Reading/嵌入式C语言自我修养/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fa fa-tag"></i> 读书笔记</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/03/07/third-party/mplayer/" rel="prev" title="Mplayer编译及使用说明">
+      <i class="fa fa-chevron-left"></i> Mplayer编译及使用说明
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/03/18/Reading/%E4%BA%BA%E7%B1%BB%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%E6%97%B6/" rel="next" title="《人类群星闪耀时》">
+      《人类群星闪耀时》 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GNU-C%E7%BC%96%E8%AF%91%E5%99%A8%E6%89%A9%E5%B1%95%E8%AF%AD%E6%B3%95%E7%B2%BE%E8%AE%B2%EF%BC%88%E5%85%AD%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">GNU C编译器扩展语法精讲（六）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E5%AE%9A%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.1.</span> <span class="nav-text">指定初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">语句表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#container-of%E5%AE%8F"><span class="nav-number">1.3.</span> <span class="nav-text">container_of宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%B6%E9%95%BF%E6%95%B0%E7%BB%84"><span class="nav-number">1.4.</span> <span class="nav-text">零长数组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E5%A3%B0%E6%98%8E"><span class="nav-number">1.5.</span> <span class="nav-text">属性声明</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.5.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#section"><span class="nav-number">1.5.2.</span> <span class="nav-text">section</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#aligned"><span class="nav-number">1.5.3.</span> <span class="nav-text">aligned</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#packed"><span class="nav-number">1.5.4.</span> <span class="nav-text">packed</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#format"><span class="nav-number">1.5.5.</span> <span class="nav-text">format</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#weak"><span class="nav-number">1.5.6.</span> <span class="nav-text">weak</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#alias"><span class="nav-number">1.5.7.</span> <span class="nav-text">alias</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E8%81%94%E5%87%BD%E6%95%B0"><span class="nav-number">1.6.</span> <span class="nav-text">内联函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%BB%BA%E5%87%BD%E6%95%B0"><span class="nav-number">1.7.</span> <span class="nav-text">内建函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F"><span class="nav-number">1.8.</span> <span class="nav-text">可变参数宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Uboot%E9%95%9C%E5%83%8F%E8%87%AA%E5%A4%8D%E5%88%B6"><span class="nav-number">1.9.</span> <span class="nav-text">Uboot镜像自复制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C%E8%AF%AD%E8%A8%80%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E6%80%9D%E6%83%B3%EF%BC%88%E5%85%AB%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">C语言面向对象编程思想（八）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E4%B8%8E%E5%88%86%E5%B1%82"><span class="nav-number">2.1.</span> <span class="nav-text">代码复用与分层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%BB%E8%A6%81%E7%89%B9%E5%BE%81"><span class="nav-number">2.2.</span> <span class="nav-text">面向对象主要特征</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E5%8C%96%EF%BC%88%E4%B9%9D%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">模块化（九）</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">99k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:30</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
