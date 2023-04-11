@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-04-11T14:36:40.253Z</updated>
+  <updated>2023-04-11T14:38:15.099Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,11 +17,32 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title></title>
+    <title>ALSA</title>
+    <link href="http://yanglieee.com/2023/04/11/Audio/Audio-Alsa/"/>
+    <id>http://yanglieee.com/2023/04/11/Audio/Audio-Alsa/</id>
+    <published>2023-04-10T16:00:00.000Z</published>
+    <updated>2023-04-11T14:38:15.099Z</updated>
+    
+    
+    <summary type="html">对ALSA基础及使用进行说明</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
+    
+    
+    <category term="ALSA" scheme="http://yanglieee.com/tags/ALSA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>sqlite</title>
     <link href="http://yanglieee.com/2023/04/11/third-party/sqlite3/"/>
     <id>http://yanglieee.com/2023/04/11/third-party/sqlite3/</id>
     <published>2023-04-10T16:00:00.000Z</published>
-    <updated>2023-04-11T14:36:40.253Z</updated>
+    <updated>2023-04-11T14:37:46.505Z</updated>
     
     
     <summary type="html">基于工作的内容对sqlite进行学习的文档说明</summary>
@@ -32,27 +53,6 @@
     
     
     <category term="sqlite" scheme="http://yanglieee.com/tags/sqlite/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Alsa</title>
-    <link href="http://yanglieee.com/2023/04/11/Audio/Audio-Alsa/"/>
-    <id>http://yanglieee.com/2023/04/11/Audio/Audio-Alsa/</id>
-    <published>2023-04-10T16:00:00.000Z</published>
-    <updated>2023-04-11T14:36:30.281Z</updated>
-    
-    
-    <summary type="html">根据工作中国对于ALSA的理解对ALSA基础及使用进行说明</summary>
-    
-    
-    
-    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
-    
-    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
-    
-    
-    <category term="ALSA" scheme="http://yanglieee.com/tags/ALSA/"/>
     
   </entry>
   
@@ -196,14 +196,14 @@
   </entry>
   
   <entry>
-    <title>缓存一致性协议</title>
-    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/"/>
-    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/</id>
+    <title>MESI协议的优化与内存屏障</title>
+    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/"/>
+    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</id>
     <published>2023-03-05T16:00:00.000Z</published>
-    <updated>2023-03-06T14:23:19.740Z</updated>
+    <updated>2023-03-06T14:26:05.878Z</updated>
     
     
-    <summary type="html">对缓存一致性协议进行深度探索并对MESI协议做具体分析</summary>
+    <summary type="html">MESI协议带来的问题与之对应的解决办法</summary>
     
     
     
@@ -221,14 +221,14 @@
   </entry>
   
   <entry>
-    <title>MESI协议的优化与内存屏障</title>
-    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/"/>
-    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</id>
+    <title>缓存一致性协议</title>
+    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/"/>
+    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/</id>
     <published>2023-03-05T16:00:00.000Z</published>
-    <updated>2023-03-06T14:26:05.878Z</updated>
+    <updated>2023-03-06T14:23:19.740Z</updated>
     
     
-    <summary type="html">MESI协议带来的问题与之对应的解决办法</summary>
+    <summary type="html">对缓存一致性协议进行深度探索并对MESI协议做具体分析</summary>
     
     
     
