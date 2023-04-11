@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-04-05T12:29:20.029Z</updated>
+  <updated>2023-04-11T14:36:40.253Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,25 +17,42 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>IIS</title>
-    <link href="http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/"/>
-    <id>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</id>
-    <published>2023-04-04T16:00:00.000Z</published>
-    <updated>2023-04-05T12:29:20.029Z</updated>
+    <title></title>
+    <link href="http://yanglieee.com/2023/04/11/third-party/sqlite3/"/>
+    <id>http://yanglieee.com/2023/04/11/third-party/sqlite3/</id>
+    <published>2023-04-10T16:00:00.000Z</published>
+    <updated>2023-04-11T14:36:40.253Z</updated>
     
     
-    <summary type="html">对I2S协议进行解析</summary>
+    <summary type="html">基于工作的内容对sqlite进行学习的文档说明</summary>
     
     
     
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
+    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
     
     
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
+    <category term="sqlite" scheme="http://yanglieee.com/tags/sqlite/"/>
     
-    <category term="I2S" scheme="http://yanglieee.com/tags/I2S/"/>
+  </entry>
+  
+  <entry>
+    <title>Alsa</title>
+    <link href="http://yanglieee.com/2023/04/11/Audio/Audio-Alsa/"/>
+    <id>http://yanglieee.com/2023/04/11/Audio/Audio-Alsa/</id>
+    <published>2023-04-10T16:00:00.000Z</published>
+    <updated>2023-04-11T14:36:30.281Z</updated>
+    
+    
+    <summary type="html">根据工作中国对于ALSA的理解对ALSA基础及使用进行说明</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
+    
+    
+    <category term="ALSA" scheme="http://yanglieee.com/tags/ALSA/"/>
     
   </entry>
   
@@ -61,6 +78,29 @@
     <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
     
     <category term="DDR" scheme="http://yanglieee.com/tags/DDR/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>IIS</title>
+    <link href="http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/"/>
+    <id>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</id>
+    <published>2023-04-04T16:00:00.000Z</published>
+    <updated>2023-04-05T12:29:20.029Z</updated>
+    
+    
+    <summary type="html">对I2S协议进行解析</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
+    
+    
+    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
+    
+    <category term="I2S" scheme="http://yanglieee.com/tags/I2S/"/>
     
   </entry>
   
@@ -156,31 +196,6 @@
   </entry>
   
   <entry>
-    <title>MESI协议的优化与内存屏障</title>
-    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/"/>
-    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</id>
-    <published>2023-03-05T16:00:00.000Z</published>
-    <updated>2023-03-06T14:26:05.878Z</updated>
-    
-    
-    <summary type="html">MESI协议带来的问题与之对应的解决办法</summary>
-    
-    
-    
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
-    
-    <category term="Cache" scheme="http://yanglieee.com/categories/Computure-System/Storage/Cache/"/>
-    
-    
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
-    
-    <category term="Cache" scheme="http://yanglieee.com/tags/Cache/"/>
-    
-  </entry>
-  
-  <entry>
     <title>缓存一致性协议</title>
     <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/"/>
     <id>http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/</id>
@@ -206,14 +221,14 @@
   </entry>
   
   <entry>
-    <title>Cache原理</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
-    <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-22T14:53:12.501Z</updated>
+    <title>MESI协议的优化与内存屏障</title>
+    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/"/>
+    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</id>
+    <published>2023-03-05T16:00:00.000Z</published>
+    <updated>2023-03-06T14:26:05.878Z</updated>
     
     
-    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
+    <summary type="html">MESI协议带来的问题与之对应的解决办法</summary>
     
     
     
@@ -239,6 +254,31 @@
     
     
     <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
+    
+    <category term="Cache" scheme="http://yanglieee.com/categories/Computure-System/Storage/Cache/"/>
+    
+    
+    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
+    
+    <category term="Cache" scheme="http://yanglieee.com/tags/Cache/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Cache原理</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
+    <published>2023-02-14T16:00:00.000Z</published>
+    <updated>2023-02-22T14:53:12.501Z</updated>
+    
+    
+    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
     
     
     
@@ -384,42 +424,6 @@
     
     
     <category term="Item" scheme="http://yanglieee.com/categories/Item/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>智能家居模型设计</title>
-    <link href="http://yanglieee.com/2022/12/03/item/smartHome/"/>
-    <id>http://yanglieee.com/2022/12/03/item/smartHome/</id>
-    <published>2022-12-02T16:00:00.000Z</published>
-    <updated>2022-12-03T09:04:11.591Z</updated>
-    
-    
-    <summary type="html">本文基于STM32单片机对毕业设计智能家居模型设计的软硬件设计进行说明</summary>
-    
-    
-    
-    <category term="Item" scheme="http://yanglieee.com/categories/Item/"/>
-    
-    
-    <category term="毕业设计" scheme="http://yanglieee.com/tags/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>XPath Helper安装及使用</title>
-    <link href="http://yanglieee.com/2022/12/03/third-party/xpath/"/>
-    <id>http://yanglieee.com/2022/12/03/third-party/xpath/</id>
-    <published>2022-12-02T16:00:00.000Z</published>
-    <updated>2022-12-03T09:32:48.843Z</updated>
-    
-    
-    <summary type="html">介绍爬虫正则表达式解析工具xpath helper使用</summary>
-    
-    
-    
-    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
     
     
   </entry>
