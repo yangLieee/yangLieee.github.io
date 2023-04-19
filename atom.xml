@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-04-11T14:38:15.099Z</updated>
+  <updated>2023-04-19T14:16:33.820Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>LwIP+websocket</title>
+    <link href="http://yanglieee.com/2023/04/19/third-party/lwip+websocket/"/>
+    <id>http://yanglieee.com/2023/04/19/third-party/lwip+websocket/</id>
+    <published>2023-04-18T16:00:00.000Z</published>
+    <updated>2023-04-19T14:16:33.820Z</updated>
+    
+    
+    <summary type="html">本篇文章是在websocket代码中调用lwip相关API实现websocket的功能的项目中进行调试所整理，以下着重说明关于lwip-socket的API</summary>
+    
+    
+    
+    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
+    
+    
+    <category term="lwip websocket" scheme="http://yanglieee.com/tags/lwip-websocket/"/>
+    
+  </entry>
   
   <entry>
     <title>ALSA</title>
@@ -57,6 +76,29 @@
   </entry>
   
   <entry>
+    <title>IIS</title>
+    <link href="http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/"/>
+    <id>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</id>
+    <published>2023-04-04T16:00:00.000Z</published>
+    <updated>2023-04-05T12:29:20.029Z</updated>
+    
+    
+    <summary type="html">对I2S协议进行解析</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
+    
+    
+    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
+    
+    <category term="I2S" scheme="http://yanglieee.com/tags/I2S/"/>
+    
+  </entry>
+  
+  <entry>
     <title>DDR基础与原理</title>
     <link href="http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/"/>
     <id>http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/</id>
@@ -78,29 +120,6 @@
     <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
     
     <category term="DDR" scheme="http://yanglieee.com/tags/DDR/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>IIS</title>
-    <link href="http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/"/>
-    <id>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</id>
-    <published>2023-04-04T16:00:00.000Z</published>
-    <updated>2023-04-05T12:29:20.029Z</updated>
-    
-    
-    <summary type="html">对I2S协议进行解析</summary>
-    
-    
-    
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
-    
-    
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
-    
-    <category term="I2S" scheme="http://yanglieee.com/tags/I2S/"/>
     
   </entry>
   
@@ -246,14 +265,14 @@
   </entry>
   
   <entry>
-    <title>Cache简介</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
+    <title>Cache原理</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
     <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-15T15:06:42.493Z</updated>
+    <updated>2023-02-22T14:53:12.501Z</updated>
     
     
-    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
+    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
     
     
     
@@ -271,14 +290,14 @@
   </entry>
   
   <entry>
-    <title>Cache原理</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
+    <title>Cache简介</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
     <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-22T14:53:12.501Z</updated>
+    <updated>2023-02-15T15:06:42.493Z</updated>
     
     
-    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
+    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
     
     
     
@@ -403,23 +422,6 @@
     
     
     <summary type="html">本文所涉及的是对于51job数据的爬取、解析和保存</summary>
-    
-    
-    
-    <category term="Item" scheme="http://yanglieee.com/categories/Item/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
-    <link href="http://yanglieee.com/2022/12/03/item/doubanTop250Spider/"/>
-    <id>http://yanglieee.com/2022/12/03/item/doubanTop250Spider/</id>
-    <published>2022-12-02T16:00:00.000Z</published>
-    <updated>2022-12-03T08:43:07.130Z</updated>
-    
-    
-    <summary type="html">本文基于B站视频《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》关于 &quot;豆瓣电影Top250&quot; 项目做出的总结、拓展与分享。</summary>
     
     
     
