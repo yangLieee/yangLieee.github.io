@@ -120,49 +120,6 @@
       </tags>
   </entry>
   <entry>
-    <title>搭建Ubuntu虚拟机</title>
-    <url>/2022/10/22/ubuntu-create/</url>
-    <content><![CDATA[<h1 id="Linux-简介"><a href="#Linux-简介" class="headerlink" title="Linux 简介"></a>Linux 简介</h1><p>linus自传《只是为了好玩》中这样定义：</p>
-<ul>
-<li><p>类Unix操作系统</p>
-</li>
-<li><p>开放源代码方式协作开发</p>
-</li>
-<li><p>采用GPL通用许可证维权</p>
-</li>
-<li><p>主要用于超级电脑、企业级服务器、嵌入式设备等</p>
-</li>
-</ul>
-<h1 id="Ubuntu-简介"><a href="#Ubuntu-简介" class="headerlink" title="Ubuntu 简介"></a>Ubuntu 简介</h1><ul>
-<li>桌面应用为主的Linux操作系统</li>
-<li>操作简单、方便使用</li>
-<li>系统安全性高，默认user权限登录</li>
-<li>Ubuntu中文网站：<a href="http://www.wubantu.co/">http://www.wubantu.co</a></li>
-<li>Ubuntu中文社区：<a href="http://www.ubuntu.org.cn/">http://www.ubuntu.org.cn</a></li>
-<li>Ubuntu技术：<a href="http://wiki.ubuntu.org.cn/">http://wiki.ubuntu.org.cn</a></li>
-</ul>
-<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><ul>
-<li>物理主机</li>
-<li>iso镜像</li>
-<li>vmware / VirtualBox</li>
-</ul>
-<p>网盘中我准备了ubuntu20.04.4-iso、ubuntu16.04.7-iso、Vmware-16.2.3安装包及密钥和一份linux命令大全！</p>
-<p>密钥对于不同版本可能有差异可以都进行尝试，其只是对于个人学习使用，建议购买正版！</p>
-<p>同时附上相关官网链接：</p>
-<ul>
-<li>ubuntu各版本镜像：<a href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/">https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/</a></li>
-<li>vmware官网：<a href="https://www.vmware.com/cn/products/workstation-pro.html">https://www.vmware.com/cn/products/workstation-pro.html</a></li>
-<li>VirtualBox：<a href="https://www.virtualbox.org/">https://www.virtualbox.org</a></li>
-<li>资源网盘链接：<a href="https://pan.baidu.com/s/18vxScuvFp2Vf4g28nRSC5w">https://pan.baidu.com/s/18vxScuvFp2Vf4g28nRSC5w</a><br>提取码：f8uo</li>
-</ul>
-<h1 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h1><p>参考视频：<a href="https://www.bilibili.com/video/BV1hd4y127HY">https://www.bilibili.com/video/BV1hd4y127HY</a></p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>搭建虚拟机</category>
-      </categories>
-  </entry>
-  <entry>
     <title>init.rc语法及解析</title>
     <url>/2022/11/16/init.rc/</url>
     <content><![CDATA[<p>在linux设备上输入“pstree”命令我们便会看到一棵进程树，不同状态不同设备树上进程名字进程号可能不完全一致，但进程号pid=1的进程一定是init进程！对于Android系统来讲，其实际是运行于Linux内核之上的一系列“服务进程”，而这些服务进程的“老祖宗”就是init，它是Android中第一个被启动的进程，所有服务都是通过解析init.rc文件得到的（部分可以执行程序通过init.d/文件夹下的脚本启动）</p>
@@ -280,6 +237,49 @@
       <categories>
         <category>Linux</category>
         <category>Andriod</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>搭建Ubuntu虚拟机</title>
+    <url>/2022/10/22/ubuntu-create/</url>
+    <content><![CDATA[<h1 id="Linux-简介"><a href="#Linux-简介" class="headerlink" title="Linux 简介"></a>Linux 简介</h1><p>linus自传《只是为了好玩》中这样定义：</p>
+<ul>
+<li><p>类Unix操作系统</p>
+</li>
+<li><p>开放源代码方式协作开发</p>
+</li>
+<li><p>采用GPL通用许可证维权</p>
+</li>
+<li><p>主要用于超级电脑、企业级服务器、嵌入式设备等</p>
+</li>
+</ul>
+<h1 id="Ubuntu-简介"><a href="#Ubuntu-简介" class="headerlink" title="Ubuntu 简介"></a>Ubuntu 简介</h1><ul>
+<li>桌面应用为主的Linux操作系统</li>
+<li>操作简单、方便使用</li>
+<li>系统安全性高，默认user权限登录</li>
+<li>Ubuntu中文网站：<a href="http://www.wubantu.co/">http://www.wubantu.co</a></li>
+<li>Ubuntu中文社区：<a href="http://www.ubuntu.org.cn/">http://www.ubuntu.org.cn</a></li>
+<li>Ubuntu技术：<a href="http://wiki.ubuntu.org.cn/">http://wiki.ubuntu.org.cn</a></li>
+</ul>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><ul>
+<li>物理主机</li>
+<li>iso镜像</li>
+<li>vmware / VirtualBox</li>
+</ul>
+<p>网盘中我准备了ubuntu20.04.4-iso、ubuntu16.04.7-iso、Vmware-16.2.3安装包及密钥和一份linux命令大全！</p>
+<p>密钥对于不同版本可能有差异可以都进行尝试，其只是对于个人学习使用，建议购买正版！</p>
+<p>同时附上相关官网链接：</p>
+<ul>
+<li>ubuntu各版本镜像：<a href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/">https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/</a></li>
+<li>vmware官网：<a href="https://www.vmware.com/cn/products/workstation-pro.html">https://www.vmware.com/cn/products/workstation-pro.html</a></li>
+<li>VirtualBox：<a href="https://www.virtualbox.org/">https://www.virtualbox.org</a></li>
+<li>资源网盘链接：<a href="https://pan.baidu.com/s/18vxScuvFp2Vf4g28nRSC5w">https://pan.baidu.com/s/18vxScuvFp2Vf4g28nRSC5w</a><br>提取码：f8uo</li>
+</ul>
+<h1 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h1><p>参考视频：<a href="https://www.bilibili.com/video/BV1hd4y127HY">https://www.bilibili.com/video/BV1hd4y127HY</a></p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>搭建虚拟机</category>
       </categories>
   </entry>
   <entry>
@@ -942,166 +942,100 @@
       </categories>
   </entry>
   <entry>
-    <title>《Google工作法》</title>
-    <url>/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</url>
-    <content><![CDATA[<p><img src="/images/reading/GoogleWork.jpg" alt="img"></p>
-<p>《google工作法》作者是彼得·费利克斯·格日瓦奇，针对google的一些工作方法论和个人经验的进行著书。我认为对于这类书籍的正确使用是通读全篇，二次阅读针对部分内容自己进行场景的带入，此类工具书籍可以经常来进行翻看对自己日常生活工作方式的判断</p>
-<p>针对每个细分章节，总结并进行自己的思考</p>
-<h1 id="Faster（※）"><a href="#Faster（※）" class="headerlink" title="Faster（※）"></a>Faster（※）</h1><h2 id="一次结束，当场做完"><a href="#一次结束，当场做完" class="headerlink" title="一次结束，当场做完"></a>一次结束，当场做完</h2><p>作者认为决定工作效率的关键在于对 现在 的使用方法。对于一件事情如果能够当场做完就不要推迟到以后，对于一项决定如果当场确定就不要推迟到未来。如果当时没有进行就解决或决定就需要做出相应的计划：要想解决这个问题，需要收集哪些必要的资源。具体策略如下：</p>
-<p><img src="/images/reading/google-0.jpg" alt="img"></p>
-<p>对自己来讲，我曾经负责某个项目，客户在问我一个技术相关的问题的时候，我当时的做法可能就没有很恰当。现在来看我认为正确的流程应该是：将我自己已知的内容对客户进行反馈；将自己不知道的内容如实告诉客户并询问他目前是否有空我去找一下相关负责人来解答他这个问题（<strong>如果现在有必要的话，现在就联系；如果现在应该决定的话，现在就决定</strong>），如果中途遇到其它问题不知道谁是负责人或者负责人不在，也必须做到相关解决方案做到有切实进展（活用身边的人/回来之后第一时间反馈等等），在第一时间内将问题进行解决，不拖延！！！</p>
-<h2 id="设置deadline"><a href="#设置deadline" class="headerlink" title="设置deadline"></a>设置deadline</h2><p>能当场解决的问题一定要一次解决，而不能解决的问题一定要设置deadline，要有一种 如果现在不做那要什么时候做 的观念。对于纷杂的工作需要明确优先级、精细程度等因素。将自己的期限提前是提高效率的有效方法。</p>
-<p>对于自己来讲，如果领导要求一项工作周五之前完成。那自己的deadline要设置在周三周四做好一个demo给领导查看。在工作进行之前需要明确事情的紧急程度、完成验收的标准、是否有其它注意事项等等</p>
-<h2 id="集中精力于此时此刻"><a href="#集中精力于此时此刻" class="headerlink" title="集中精力于此时此刻"></a>集中精力于此时此刻</h2><p>正念（Mindfulness）的意思就是将意识集中于此时此刻，这一词同样被谷歌所采用。大脑就像是一个CPU应尽可能的减少大脑资源的浪费，对于任何一件事情尽可能要提前做准备。比如：前一天晚上就准备好第二天需要穿的衣服；会议前梳理会议的目的成员组织等等；任何一件事情可能发生的后果及相应的解决办法</p>
-<p>分析眼前任务的正确方式：搞清楚”为什么需要解决这个问题“，”在什么时间之前必须得出答案“，设定好”目的与目标“之后全力以赴。比如会议之前的准备列表：</p>
+    <title>Audio-初识</title>
+    <url>/2022/08/31/Audio/Audio-meet/</url>
+    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
+<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
+<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
+<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
+<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
+<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
+<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
+<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
+<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
+<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
 <ul>
-<li>为什么将大家召集到一起</li>
-<li>要做出什么决定</li>
-<li>要取得什么成果</li>
-<li>通过会议后要得到什么收获</li>
+<li>定义：在时间轴上对信号进行离散化</li>
+<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
 </ul>
-<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><ol>
-<li><p>增加现在的密度</p>
-<p>针对自己来讲可以体现在：通勤路上进行书籍的阅读英语的学习等等，并行一些任务</p>
-</li>
-<li><p>减少邮件的使用，直接见面最有效率</p>
-</li>
-<li><p>合理使用工具</p>
-<p>时间/时间管理工具（对于notion的使用没有持续）；整理的文档传至云端，随时查看修改</p>
-</li>
-<li><p>学习英语</p>
-<p>目前很多第一手资料都是英文的，为了提高效率必须学会英文。否则内容的准确性排除在外，也是时间和成本的二次浪费</p>
-</li>
-</ol>
-<h1 id="Sense-VS-sensibility"><a href="#Sense-VS-sensibility" class="headerlink" title="Sense VS sensibility"></a>Sense VS sensibility</h1><h2 id="创意思维的产生"><a href="#创意思维的产生" class="headerlink" title="创意思维的产生"></a>创意思维的产生</h2><p>与逻辑和分析相比“ 灵感（创意思维） ”更重要</p>
-<p>通过人为地制造混乱，可以使潜意识活性化，从而更容易创造出新的创意。具体方案：准备几个透明文件袋，将各种图片、杂志、报纸剪下来的内容或写在纸上的关键词放在里面，通过任意物品的组合产生新的创意。为了引发这种“突然出现的创意瞬间”，最好的办法就是多准备一些能够激发灵感的资料</p>
-<h2 id="直觉-x2F-逻辑场景"><a href="#直觉-x2F-逻辑场景" class="headerlink" title="直觉/逻辑场景"></a>直觉/逻辑场景</h2><p>经验的直觉和逻辑思考本身之间并没有孰优孰劣，两者各自适用于不同的情况，具有不同的作用。对于更重视感性的领域来说，直觉比逻辑更能够发挥作用。</p>
-<h2 id="其它-1"><a href="#其它-1" class="headerlink" title="其它"></a>其它</h2><ol>
-<li><p>与逻辑和分析相比”灵感“更重要</p>
-</li>
-<li><p>一味的模仿不可能实现差异化。</p>
-<p>只对竞争对手的商品进行分析无法实现差异化。要想做出与众不同的商品，必须做到其它公司没有做到的事情。</p>
-</li>
-<li><p>企划会议不需要总结式报告。只确定一个会议议题，然后大家当场讨论</p>
-</li>
-<li><p>积极听取其它部门或者其它领域的人的意见</p>
-</li>
-</ol>
-<h1 id="Efficiently"><a href="#Efficiently" class="headerlink" title="Efficiently"></a>Efficiently</h1><h2 id="将目标定为原来的10倍"><a href="#将目标定为原来的10倍" class="headerlink" title="将目标定为原来的10倍"></a>将目标定为原来的10倍</h2><p>工作生活中我们对于自己的要求往往是完成任务即可，但是最终的效果往往不尽如人意，可能只完成了七八成。因此在我们设置目标的时候不妨将目标设置的更大一点，既定目标的10倍。这个目标会倒逼自己打破束缚自己的条条框框和固有观念 ，另一方面，要想改变工作方法，必须敢于承担风险、打破规则。最终即使完成七八成也是一个很好的结果了</p>
-<h2 id="Think-like-an-owner"><a href="#Think-like-an-owner" class="headerlink" title="Think like an owner"></a>Think like an owner</h2><p>像公司所有者一样思考。针对自己的工作岗位，以我的年收入应该取得多少的成果，想要取得这些成果需要做哪些工作，而每项工作应该有怎样的结果。这个过程中势必要优化自己的工作，着眼于重点工作内容减少工作中的无用功，吸取他人的经验寻求他人的帮助。同样也可以假设自己即将失业，如果没有工作没有了怎么办？想到这里自己的紧迫感油然而生</p>
-<h2 id="活用20-原则"><a href="#活用20-原则" class="headerlink" title="活用20%原则"></a>活用20%原则</h2><p>在思考工作的有限顺序的时候，应该优先将时间放在 <strong>能学到很多东西而且影响力比较大</strong>的工作上。而其它类型的工作可以进行分配等等。可以进一步对二八定律进行了解学习</p>
-<h2 id="必要的工作素养（※）"><a href="#必要的工作素养（※）" class="headerlink" title="必要的工作素养（※）"></a>必要的工作素养（※）</h2><ol>
-<li><p>拥有预见性</p>
+<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
+<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
+<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
 <ul>
-<li>预见机会与威胁</li>
-<li>寻找周期、趋势以及规律</li>
-<li>短期、中期与长期思考。考虑<strong>“5/5/5规则”</strong>，即5周以后、5个月以后、5年以后会发生什么事情进行思考</li>
+<li><p>定义：在幅度轴上对信号进行数字化</p>
+</li>
+<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
+</li>
 </ul>
-</li>
-<li><p>换位思考</p>
-</li>
-<li><p>敢于提出自己的见解</p>
-</li>
-<li><p>敢说真话（个人认为这一点还是具体情况具体分析）</p>
-</li>
-<li><p>主动承担责任</p>
-</li>
-<li><p>积极参与交流</p>
-</li>
-<li><p>打破常规</p>
-</li>
-<li><p>不害怕失败</p>
-</li>
-<li><p>勤于思考、保持质疑</p>
-<p>遇到不明白的事情多问一个为什么</p>
-</li>
-<li><p>改变视角</p>
-<p>整体视角；局部视角；反面视角；未来视角；顾客视角；竞争对手视角；特殊视角</p>
-</li>
-</ol>
-<h1 id="Interpersonal-relationship"><a href="#Interpersonal-relationship" class="headerlink" title="Interpersonal relationship"></a>Interpersonal relationship</h1><h2 id="具象化思考"><a href="#具象化思考" class="headerlink" title="具象化思考"></a>具象化思考</h2><p>实物思考我将其总结为具象化思考。工作生活中别人有某项需求时，可以通过某种类比或实物来与对方确认表达是否一致。具体方案：可以是在一张草图上画出来向别人确认“您说的是这种类型吗？”；或者在讨论问题之前将讨论的内容总结到A4纸上，将比较抽象的事情具象化可以实操。这样是可以大幅度的减少交流的成本降低后期的无用功</p>
-<h2 id="提升心理安全"><a href="#提升心理安全" class="headerlink" title="提升心理安全"></a>提升心理安全</h2><ul>
-<li>心理安全：面对 我可以信赖你吗 或者 我能尊重你吗 这样的问题的时候能够给出肯定的答案</li>
+<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
+<blockquote>
+<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
+</blockquote>
+<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
+<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
+<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
+</blockquote>
+<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
+<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
+<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
 </ul>
-<p>得到他人的信赖和尊重也会使自己产生安全感。一旦构筑起信赖关系，交流双方就会像朋友一样，更容易的互相提出意见或建议，工作现场的气氛也会更加活跃。</p>
-<h2 id="倾听（※）"><a href="#倾听（※）" class="headerlink" title="倾听（※）"></a>倾听（※）</h2><p>交流Tips：建立信赖关系最重要的一点就是倾听，最好的办法就是让自己对对方产生兴趣并将这种情绪传递给对方。另外，好不容易让对方说出自己的意见，绝对不能将对方的意见完全否定，不能让对方觉得“我说了也没用”的想法！！！</p>
-<p>艾米·埃德蒙顿教授指出：不要将问题单纯地看成“需要解决的问题”，而是要将其看作“需要学习的问题”来进行讨论，这样不清楚的部分就会自然而然的浮现，也更容易让团队成员积极思考</p>
-<h2 id="建立良好人际关系"><a href="#建立良好人际关系" class="headerlink" title="建立良好人际关系"></a>建立良好人际关系</h2><p>良好的人际关系是快速解决问题的基石</p>
-<p>社会各行各业哪怕只要有一点点交集都足可以让对方和自己产生联系。而见到关键的人的时候正确的方式应该是：提前了解设想对方的课题，然后开门见山的根据课题内容进行提问，交流过程中表现出热情、平等的态度就可以心情舒畅的进行交流。在交流过程中还要需要注意 <strong>不要take而要give</strong>，要让别人看到自己的价值</p>
-<p><strong>人际关系的优先顺序</strong>：新认识的人 &gt; 熟识的人；新认识并且不断改变自己的人 &gt; 新认识但变化不多的人</p>
-<h1 id="Skill"><a href="#Skill" class="headerlink" title="Skill"></a>Skill</h1><h2 id="学习的正确方法"><a href="#学习的正确方法" class="headerlink" title="学习的正确方法"></a>学习的正确方法</h2><p>检索 + 询问专业人士·询问他人·询问同事</p>
+<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
+<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
 <ul>
-<li>检索：询问互联网这个老师</li>
-<li>询问他人：<ol>
-<li>找最擅长这项工作的人询问</li>
-<li>询问之前要有自己的思考。带着假设带着思考去提问。具体可以有四要素：具体来说；要在什么地方；改变什么；怎么做才能让工作更顺利</li>
-</ol>
+<li><p>WAV编码（波形编码）</p>
+<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
+</li>
+<li><p>MP3编码</p>
+<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
+</li>
+<li><p>AAC编码</p>
 </li>
 </ul>
-<h2 id="前馈与反馈"><a href="#前馈与反馈" class="headerlink" title="前馈与反馈"></a>前馈与反馈</h2><ul>
-<li>前馈：找别人询问“我想解决这个问题，应该怎么办才好呢？”</li>
-<li>反馈：事后的反思与经验总结</li>
+<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
+<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
+<ul>
+<li><p>Ogg编码（有损）</p>
+<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
+</li>
 </ul>
-<p>要想获取有用的信息，提问的</p>
-<p><img src="/images/reading/google-1.jpg" alt="img"></p>
-<h2 id="多参加交流会"><a href="#多参加交流会" class="headerlink" title="多参加交流会"></a>多参加交流会</h2><p>为了保证自己的生存，最好多参加交流，不论是非正式聚会、公司外部会议等等，给自己多创造几个立足点。</p>
-<p>同行业、同年龄的人呆在一起，谈论的事情都是相似的话题，无法从中获取到跟多有用的信息。在交流过程中，也要时刻思考“我应该给对方提供什么样的信息”，输出自己的价值</p>
-<h1 id="Relax-Work"><a href="#Relax-Work" class="headerlink" title="Relax Work"></a>Relax Work</h1><h2 id="一分钟冥想"><a href="#一分钟冥想" class="headerlink" title="一分钟冥想"></a>一分钟冥想</h2><p>关闭电脑，将所有注意力都集中在自己的呼吸上，安静的坐在座位上</p>
-<h2 id="并行任务与串行任务分类"><a href="#并行任务与串行任务分类" class="headerlink" title="并行任务与串行任务分类"></a>并行任务与串行任务分类</h2><p>比如通勤过程中进行书籍的阅读、听音频等等</p>
-<p>而一旦专注于某项工作就尽可能排除外部的干扰，可以尝试将手机静音、放远一点等等操作</p>
-<h2 id="睡午觉、吃零食、放松是自己的责任"><a href="#睡午觉、吃零食、放松是自己的责任" class="headerlink" title="睡午觉、吃零食、放松是自己的责任"></a>睡午觉、吃零食、放松是自己的责任</h2><h1 id="Final-Innovation"><a href="#Final-Innovation" class="headerlink" title="Final Innovation"></a>Final Innovation</h1><ol>
-<li>思考如何使用AI替代自己的工作</li>
-<li>站在革新一侧不袖手旁观，改变自己坚持但不好的习惯，合理使用现代化工具</li>
-<li>就算对技术细节不了解，也要跟上趋势</li>
-<li>工作不能和昨天一样</li>
-</ol>
-<h1 id="摘抄"><a href="#摘抄" class="headerlink" title="摘抄"></a>摘抄</h1><ol>
-<li><p>不要认为“公司就是自己的办公室”，而要时刻记住“自己在哪哪里就是办公室”</p>
-</li>
-<li><p>会议的目的不是将所有人召集到一起，而是取得结果，所以只需要召集对取得结果有帮助的成员即可</p>
-</li>
-<li><p>邮件是“等待文化”，即时通信是“实时文化”</p>
-</li>
-<li><p>工程项目的冲刺阶段一般都会采用“规定期限，集中精神”的工作方法</p>
-</li>
-<li><p>明确工作的优先顺序和品质要求是专业人士的基本素养</p>
-</li>
-<li><p>工作的目的并不是“从早9点到晚6点坐在同一个地方“，而是取得令人满意的成果（舒适的工作环境至关重要）</p>
-</li>
-<li><p>没有结论的分析毫无意义</p>
-</li>
-<li><p>创意思维需要的是灵感以及丰富经验的直觉</p>
-</li>
-<li><p>只有敢于走出舒适区才能取得更大的成果</p>
-</li>
-<li><p>公司之所以给你高额薪水，是因为你能做到别人无法做到的困难工作</p>
-</li>
-<li><p>交流最大的目的是构筑信赖关系 </p>
-</li>
-<li><p>当人感觉到自己受到了尊重或者别人很重视我的时候，就会将自己的内心从防备中解放出来</p>
-</li>
-<li><p>在好奇心驱使下不断的追求自己感兴趣的东西，这将成为你职场中的通行证</p>
-</li>
-<li><p>应该学习的不是知识而是经验</p>
-</li>
-<li><p>人的成长就像斐波那契数列，昨天的自己加上前天的自己才是今天的自己</p>
-</li>
-<li><p>多次实践不但有助于提高自信，更能加快掌握速度</p>
-</li>
-<li><p>拥有的“选项”越多，在竞争中生存的可能性就越大</p>
-</li>
-<li><p>究竟是选择站在革新的一侧还是选择袖手旁观，不同的选择带来的结果可谓是天壤之别 </p>
-</li>
-<li><p>找到在巨变洪流中发挥自己能力并且赚取利润的方法</p>
-</li>
-</ol>
+<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
+<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
+<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
+<ul>
+<li>单声道（mono）</li>
+<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
+<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
+<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
+<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
+</ul>
+<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
+<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
+<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
+<ul>
+<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
+<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
+</ul>
+<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
+<li>交错模式：每个声道的样本数据交错存储排布</li>
+<li>平面模式：每个声道的样本数据分开存储</li>
+</ul>
+<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
+<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
+<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
+<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
+<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
+</ul>
+<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
+<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
+<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
+<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
 ]]></content>
       <categories>
-        <category>Reading</category>
+        <category>Linux</category>
+        <category>Audio</category>
       </categories>
-      <tags>
-        <tag>读书笔记</tag>
-      </tags>
   </entry>
   <entry>
     <title>Opus Ogg详解</title>
@@ -1274,6 +1208,168 @@
       </tags>
   </entry>
   <entry>
+    <title>《Google工作法》</title>
+    <url>/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</url>
+    <content><![CDATA[<p><img src="/images/reading/GoogleWork.jpg" alt="img"></p>
+<p>《google工作法》作者是彼得·费利克斯·格日瓦奇，针对google的一些工作方法论和个人经验的进行著书。我认为对于这类书籍的正确使用是通读全篇，二次阅读针对部分内容自己进行场景的带入，此类工具书籍可以经常来进行翻看对自己日常生活工作方式的判断</p>
+<p>针对每个细分章节，总结并进行自己的思考</p>
+<h1 id="Faster（※）"><a href="#Faster（※）" class="headerlink" title="Faster（※）"></a>Faster（※）</h1><h2 id="一次结束，当场做完"><a href="#一次结束，当场做完" class="headerlink" title="一次结束，当场做完"></a>一次结束，当场做完</h2><p>作者认为决定工作效率的关键在于对 现在 的使用方法。对于一件事情如果能够当场做完就不要推迟到以后，对于一项决定如果当场确定就不要推迟到未来。如果当时没有进行就解决或决定就需要做出相应的计划：要想解决这个问题，需要收集哪些必要的资源。具体策略如下：</p>
+<p><img src="/images/reading/google-0.jpg" alt="img"></p>
+<p>对自己来讲，我曾经负责某个项目，客户在问我一个技术相关的问题的时候，我当时的做法可能就没有很恰当。现在来看我认为正确的流程应该是：将我自己已知的内容对客户进行反馈；将自己不知道的内容如实告诉客户并询问他目前是否有空我去找一下相关负责人来解答他这个问题（<strong>如果现在有必要的话，现在就联系；如果现在应该决定的话，现在就决定</strong>），如果中途遇到其它问题不知道谁是负责人或者负责人不在，也必须做到相关解决方案做到有切实进展（活用身边的人/回来之后第一时间反馈等等），在第一时间内将问题进行解决，不拖延！！！</p>
+<h2 id="设置deadline"><a href="#设置deadline" class="headerlink" title="设置deadline"></a>设置deadline</h2><p>能当场解决的问题一定要一次解决，而不能解决的问题一定要设置deadline，要有一种 如果现在不做那要什么时候做 的观念。对于纷杂的工作需要明确优先级、精细程度等因素。将自己的期限提前是提高效率的有效方法。</p>
+<p>对于自己来讲，如果领导要求一项工作周五之前完成。那自己的deadline要设置在周三周四做好一个demo给领导查看。在工作进行之前需要明确事情的紧急程度、完成验收的标准、是否有其它注意事项等等</p>
+<h2 id="集中精力于此时此刻"><a href="#集中精力于此时此刻" class="headerlink" title="集中精力于此时此刻"></a>集中精力于此时此刻</h2><p>正念（Mindfulness）的意思就是将意识集中于此时此刻，这一词同样被谷歌所采用。大脑就像是一个CPU应尽可能的减少大脑资源的浪费，对于任何一件事情尽可能要提前做准备。比如：前一天晚上就准备好第二天需要穿的衣服；会议前梳理会议的目的成员组织等等；任何一件事情可能发生的后果及相应的解决办法</p>
+<p>分析眼前任务的正确方式：搞清楚”为什么需要解决这个问题“，”在什么时间之前必须得出答案“，设定好”目的与目标“之后全力以赴。比如会议之前的准备列表：</p>
+<ul>
+<li>为什么将大家召集到一起</li>
+<li>要做出什么决定</li>
+<li>要取得什么成果</li>
+<li>通过会议后要得到什么收获</li>
+</ul>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><ol>
+<li><p>增加现在的密度</p>
+<p>针对自己来讲可以体现在：通勤路上进行书籍的阅读英语的学习等等，并行一些任务</p>
+</li>
+<li><p>减少邮件的使用，直接见面最有效率</p>
+</li>
+<li><p>合理使用工具</p>
+<p>时间/时间管理工具（对于notion的使用没有持续）；整理的文档传至云端，随时查看修改</p>
+</li>
+<li><p>学习英语</p>
+<p>目前很多第一手资料都是英文的，为了提高效率必须学会英文。否则内容的准确性排除在外，也是时间和成本的二次浪费</p>
+</li>
+</ol>
+<h1 id="Sense-VS-sensibility"><a href="#Sense-VS-sensibility" class="headerlink" title="Sense VS sensibility"></a>Sense VS sensibility</h1><h2 id="创意思维的产生"><a href="#创意思维的产生" class="headerlink" title="创意思维的产生"></a>创意思维的产生</h2><p>与逻辑和分析相比“ 灵感（创意思维） ”更重要</p>
+<p>通过人为地制造混乱，可以使潜意识活性化，从而更容易创造出新的创意。具体方案：准备几个透明文件袋，将各种图片、杂志、报纸剪下来的内容或写在纸上的关键词放在里面，通过任意物品的组合产生新的创意。为了引发这种“突然出现的创意瞬间”，最好的办法就是多准备一些能够激发灵感的资料</p>
+<h2 id="直觉-x2F-逻辑场景"><a href="#直觉-x2F-逻辑场景" class="headerlink" title="直觉/逻辑场景"></a>直觉/逻辑场景</h2><p>经验的直觉和逻辑思考本身之间并没有孰优孰劣，两者各自适用于不同的情况，具有不同的作用。对于更重视感性的领域来说，直觉比逻辑更能够发挥作用。</p>
+<h2 id="其它-1"><a href="#其它-1" class="headerlink" title="其它"></a>其它</h2><ol>
+<li><p>与逻辑和分析相比”灵感“更重要</p>
+</li>
+<li><p>一味的模仿不可能实现差异化。</p>
+<p>只对竞争对手的商品进行分析无法实现差异化。要想做出与众不同的商品，必须做到其它公司没有做到的事情。</p>
+</li>
+<li><p>企划会议不需要总结式报告。只确定一个会议议题，然后大家当场讨论</p>
+</li>
+<li><p>积极听取其它部门或者其它领域的人的意见</p>
+</li>
+</ol>
+<h1 id="Efficiently"><a href="#Efficiently" class="headerlink" title="Efficiently"></a>Efficiently</h1><h2 id="将目标定为原来的10倍"><a href="#将目标定为原来的10倍" class="headerlink" title="将目标定为原来的10倍"></a>将目标定为原来的10倍</h2><p>工作生活中我们对于自己的要求往往是完成任务即可，但是最终的效果往往不尽如人意，可能只完成了七八成。因此在我们设置目标的时候不妨将目标设置的更大一点，既定目标的10倍。这个目标会倒逼自己打破束缚自己的条条框框和固有观念 ，另一方面，要想改变工作方法，必须敢于承担风险、打破规则。最终即使完成七八成也是一个很好的结果了</p>
+<h2 id="Think-like-an-owner"><a href="#Think-like-an-owner" class="headerlink" title="Think like an owner"></a>Think like an owner</h2><p>像公司所有者一样思考。针对自己的工作岗位，以我的年收入应该取得多少的成果，想要取得这些成果需要做哪些工作，而每项工作应该有怎样的结果。这个过程中势必要优化自己的工作，着眼于重点工作内容减少工作中的无用功，吸取他人的经验寻求他人的帮助。同样也可以假设自己即将失业，如果没有工作没有了怎么办？想到这里自己的紧迫感油然而生</p>
+<h2 id="活用20-原则"><a href="#活用20-原则" class="headerlink" title="活用20%原则"></a>活用20%原则</h2><p>在思考工作的有限顺序的时候，应该优先将时间放在 <strong>能学到很多东西而且影响力比较大</strong>的工作上。而其它类型的工作可以进行分配等等。可以进一步对二八定律进行了解学习</p>
+<h2 id="必要的工作素养（※）"><a href="#必要的工作素养（※）" class="headerlink" title="必要的工作素养（※）"></a>必要的工作素养（※）</h2><ol>
+<li><p>拥有预见性</p>
+<ul>
+<li>预见机会与威胁</li>
+<li>寻找周期、趋势以及规律</li>
+<li>短期、中期与长期思考。考虑<strong>“5/5/5规则”</strong>，即5周以后、5个月以后、5年以后会发生什么事情进行思考</li>
+</ul>
+</li>
+<li><p>换位思考</p>
+</li>
+<li><p>敢于提出自己的见解</p>
+</li>
+<li><p>敢说真话（个人认为这一点还是具体情况具体分析）</p>
+</li>
+<li><p>主动承担责任</p>
+</li>
+<li><p>积极参与交流</p>
+</li>
+<li><p>打破常规</p>
+</li>
+<li><p>不害怕失败</p>
+</li>
+<li><p>勤于思考、保持质疑</p>
+<p>遇到不明白的事情多问一个为什么</p>
+</li>
+<li><p>改变视角</p>
+<p>整体视角；局部视角；反面视角；未来视角；顾客视角；竞争对手视角；特殊视角</p>
+</li>
+</ol>
+<h1 id="Interpersonal-relationship"><a href="#Interpersonal-relationship" class="headerlink" title="Interpersonal relationship"></a>Interpersonal relationship</h1><h2 id="具象化思考"><a href="#具象化思考" class="headerlink" title="具象化思考"></a>具象化思考</h2><p>实物思考我将其总结为具象化思考。工作生活中别人有某项需求时，可以通过某种类比或实物来与对方确认表达是否一致。具体方案：可以是在一张草图上画出来向别人确认“您说的是这种类型吗？”；或者在讨论问题之前将讨论的内容总结到A4纸上，将比较抽象的事情具象化可以实操。这样是可以大幅度的减少交流的成本降低后期的无用功</p>
+<h2 id="提升心理安全"><a href="#提升心理安全" class="headerlink" title="提升心理安全"></a>提升心理安全</h2><ul>
+<li>心理安全：面对 我可以信赖你吗 或者 我能尊重你吗 这样的问题的时候能够给出肯定的答案</li>
+</ul>
+<p>得到他人的信赖和尊重也会使自己产生安全感。一旦构筑起信赖关系，交流双方就会像朋友一样，更容易的互相提出意见或建议，工作现场的气氛也会更加活跃。</p>
+<h2 id="倾听（※）"><a href="#倾听（※）" class="headerlink" title="倾听（※）"></a>倾听（※）</h2><p>交流Tips：建立信赖关系最重要的一点就是倾听，最好的办法就是让自己对对方产生兴趣并将这种情绪传递给对方。另外，好不容易让对方说出自己的意见，绝对不能将对方的意见完全否定，不能让对方觉得“我说了也没用”的想法！！！</p>
+<p>艾米·埃德蒙顿教授指出：不要将问题单纯地看成“需要解决的问题”，而是要将其看作“需要学习的问题”来进行讨论，这样不清楚的部分就会自然而然的浮现，也更容易让团队成员积极思考</p>
+<h2 id="建立良好人际关系"><a href="#建立良好人际关系" class="headerlink" title="建立良好人际关系"></a>建立良好人际关系</h2><p>良好的人际关系是快速解决问题的基石</p>
+<p>社会各行各业哪怕只要有一点点交集都足可以让对方和自己产生联系。而见到关键的人的时候正确的方式应该是：提前了解设想对方的课题，然后开门见山的根据课题内容进行提问，交流过程中表现出热情、平等的态度就可以心情舒畅的进行交流。在交流过程中还要需要注意 <strong>不要take而要give</strong>，要让别人看到自己的价值</p>
+<p><strong>人际关系的优先顺序</strong>：新认识的人 &gt; 熟识的人；新认识并且不断改变自己的人 &gt; 新认识但变化不多的人</p>
+<h1 id="Skill"><a href="#Skill" class="headerlink" title="Skill"></a>Skill</h1><h2 id="学习的正确方法"><a href="#学习的正确方法" class="headerlink" title="学习的正确方法"></a>学习的正确方法</h2><p>检索 + 询问专业人士·询问他人·询问同事</p>
+<ul>
+<li>检索：询问互联网这个老师</li>
+<li>询问他人：<ol>
+<li>找最擅长这项工作的人询问</li>
+<li>询问之前要有自己的思考。带着假设带着思考去提问。具体可以有四要素：具体来说；要在什么地方；改变什么；怎么做才能让工作更顺利</li>
+</ol>
+</li>
+</ul>
+<h2 id="前馈与反馈"><a href="#前馈与反馈" class="headerlink" title="前馈与反馈"></a>前馈与反馈</h2><ul>
+<li>前馈：找别人询问“我想解决这个问题，应该怎么办才好呢？”</li>
+<li>反馈：事后的反思与经验总结</li>
+</ul>
+<p>要想获取有用的信息，提问的</p>
+<p><img src="/images/reading/google-1.jpg" alt="img"></p>
+<h2 id="多参加交流会"><a href="#多参加交流会" class="headerlink" title="多参加交流会"></a>多参加交流会</h2><p>为了保证自己的生存，最好多参加交流，不论是非正式聚会、公司外部会议等等，给自己多创造几个立足点。</p>
+<p>同行业、同年龄的人呆在一起，谈论的事情都是相似的话题，无法从中获取到跟多有用的信息。在交流过程中，也要时刻思考“我应该给对方提供什么样的信息”，输出自己的价值</p>
+<h1 id="Relax-Work"><a href="#Relax-Work" class="headerlink" title="Relax Work"></a>Relax Work</h1><h2 id="一分钟冥想"><a href="#一分钟冥想" class="headerlink" title="一分钟冥想"></a>一分钟冥想</h2><p>关闭电脑，将所有注意力都集中在自己的呼吸上，安静的坐在座位上</p>
+<h2 id="并行任务与串行任务分类"><a href="#并行任务与串行任务分类" class="headerlink" title="并行任务与串行任务分类"></a>并行任务与串行任务分类</h2><p>比如通勤过程中进行书籍的阅读、听音频等等</p>
+<p>而一旦专注于某项工作就尽可能排除外部的干扰，可以尝试将手机静音、放远一点等等操作</p>
+<h2 id="睡午觉、吃零食、放松是自己的责任"><a href="#睡午觉、吃零食、放松是自己的责任" class="headerlink" title="睡午觉、吃零食、放松是自己的责任"></a>睡午觉、吃零食、放松是自己的责任</h2><h1 id="Final-Innovation"><a href="#Final-Innovation" class="headerlink" title="Final Innovation"></a>Final Innovation</h1><ol>
+<li>思考如何使用AI替代自己的工作</li>
+<li>站在革新一侧不袖手旁观，改变自己坚持但不好的习惯，合理使用现代化工具</li>
+<li>就算对技术细节不了解，也要跟上趋势</li>
+<li>工作不能和昨天一样</li>
+</ol>
+<h1 id="摘抄"><a href="#摘抄" class="headerlink" title="摘抄"></a>摘抄</h1><ol>
+<li><p>不要认为“公司就是自己的办公室”，而要时刻记住“自己在哪哪里就是办公室”</p>
+</li>
+<li><p>会议的目的不是将所有人召集到一起，而是取得结果，所以只需要召集对取得结果有帮助的成员即可</p>
+</li>
+<li><p>邮件是“等待文化”，即时通信是“实时文化”</p>
+</li>
+<li><p>工程项目的冲刺阶段一般都会采用“规定期限，集中精神”的工作方法</p>
+</li>
+<li><p>明确工作的优先顺序和品质要求是专业人士的基本素养</p>
+</li>
+<li><p>工作的目的并不是“从早9点到晚6点坐在同一个地方“，而是取得令人满意的成果（舒适的工作环境至关重要）</p>
+</li>
+<li><p>没有结论的分析毫无意义</p>
+</li>
+<li><p>创意思维需要的是灵感以及丰富经验的直觉</p>
+</li>
+<li><p>只有敢于走出舒适区才能取得更大的成果</p>
+</li>
+<li><p>公司之所以给你高额薪水，是因为你能做到别人无法做到的困难工作</p>
+</li>
+<li><p>交流最大的目的是构筑信赖关系 </p>
+</li>
+<li><p>当人感觉到自己受到了尊重或者别人很重视我的时候，就会将自己的内心从防备中解放出来</p>
+</li>
+<li><p>在好奇心驱使下不断的追求自己感兴趣的东西，这将成为你职场中的通行证</p>
+</li>
+<li><p>应该学习的不是知识而是经验</p>
+</li>
+<li><p>人的成长就像斐波那契数列，昨天的自己加上前天的自己才是今天的自己</p>
+</li>
+<li><p>多次实践不但有助于提高自信，更能加快掌握速度</p>
+</li>
+<li><p>拥有的“选项”越多，在竞争中生存的可能性就越大</p>
+</li>
+<li><p>究竟是选择站在革新的一侧还是选择袖手旁观，不同的选择带来的结果可谓是天壤之别 </p>
+</li>
+<li><p>找到在巨变洪流中发挥自己能力并且赚取利润的方法</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Reading</category>
+      </categories>
+      <tags>
+        <tag>读书笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>《人类群星闪耀时》</title>
     <url>/2023/03/18/Reading/%E4%BA%BA%E7%B1%BB%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%E6%97%B6/</url>
     <content><![CDATA[<p><img src="/images/reading/RenLeiQunXing.jpg" alt="img"></p>
@@ -1326,102 +1422,6 @@
       <tags>
         <tag>读书笔记</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Audio-初识</title>
-    <url>/2022/08/31/Audio/Audio-meet/</url>
-    <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
-<p>音乐无疑是最能愉悦身心的方式之一，那么歌手的音调、音色是如何存储到手机中，又是如何通过喇叭播放出来的呢？</p>
-<p>下面我将通过几篇博客阐述我对音频的理解及部分调试经验，本章主要介绍音频的的基础知识</p>
-<h1 id="信号分类"><a href="#信号分类" class="headerlink" title="信号分类"></a>信号分类</h1><p>声音严格意义来讲应该被叫做声音信号，而在维基百科中对于<strong>信号</strong>的定义是<a href="https://baike.baidu.com/item/%E7%89%A9%E7%90%86%E9%87%8F/9984692">表示消息的物理量</a>，这样就很好理解了声音信号就是以声音为载体的一个物理量。而自然界中信号可以有如下的分类</p>
-<p><img src="/images/linux/Audio/Audio-meet-1.png" alt="signal"></p>
-<p>因此，按照信号变化分类声音信号属于随机信号；按照信号特征分类声音信号属于模拟信号</p>
-<h1 id="模数转换"><a href="#模数转换" class="headerlink" title="模数转换"></a>模数转换</h1><p>上一部分了解到声音是模拟信号，而对于计算机来讲其只能处理数字信号即0和1，所以必须需要将声音模拟信号转换成数字信号，而这个过程叫做模数转换（Analog Digital Conversion），相应的完成该功能的硬件单元就叫做模数转换器(ADC)</p>
-<p>完成该过程需要三部曲分别是：采样、量化、编码，整体过程如下图：</p>
-<p><img src="/images/linux/Audio/Audio-meet-2.png" alt="ADC"></p>
-<h2 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h2><p><em>重要参数：采样率</em></p>
-<ul>
-<li>定义：在时间轴上对信号进行离散化</li>
-<li>原理：按照一定的频率对模拟信号的瞬时时刻进行样本采集</li>
-</ul>
-<p>其实采样作用通俗理解就是是采集样本。由于模拟信号是连续的，理论上我们需要采集无数个点才能完整的还原该信号，但是一来无穷的概念是不可能满足的，二来我们其实并不需要这么高的采样率。我们听觉是有延迟的就和视频帧不停的刷新欺骗我们的眼睛是画面连续的是一个道理。</p>
-<p>所以采样率越高，声音的还原就越真实越自然，人对频率的识别范围是 20HZ - 22000HZ, 如果每秒钟能对声音做 22000 个采样, 回放时就足可以满足人耳的需求. 所以 22050 的采样频率是常用的, 44100已是CD音质, 超过48000的采样对人耳已经没有意义。这和电影的每秒 24 帧图片的道理差不多。</p>
-<h2 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h2><p><em>相关参数：采样位数</em></p>
-<ul>
-<li><p>定义：在幅度轴上对信号进行数字化</p>
-</li>
-<li><p>原理：对采样点的幅度赋予具体的数值，该数值由n位二进制表征（n = 8 / 16 / 32）</p>
-</li>
-</ul>
-<p>采样位数越高说明划分的等级越精细。较低的采样位数损失精度，较高的采样位数可能造成软硬件资源的浪费</p>
-<blockquote>
-<p>小常识：标准CD音乐的质量就是16bit、44.1KHz采样</p>
-</blockquote>
-<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>定义：按照一定的格式记录 采样 和 量化 后的数据。后续会对部分格式的存储格式进行分析</p>
-<h3 id="编码分类"><a href="#编码分类" class="headerlink" title="编码分类"></a>编码分类</h3><blockquote>
-<p> 该部分内容转自 <a href="https://www.jianshu.com/p/28d3f108ef63">https://www.jianshu.com/p/28d3f108ef63</a></p>
-</blockquote>
-<h4 id="波形编码"><a href="#波形编码" class="headerlink" title="波形编码"></a>波形编码</h4><ul>
-<li>定义：不利用生成音频信号的任何参数，直接将 <strong>时间域信号</strong> 变换为 <strong>数字代码</strong>，使重构的语音波形尽可能地与原始语音信号的 波形形状 保持一致。</li>
-<li>原理：在 <strong>时间轴</strong> 上对模拟语音信号按一定的速率抽样，然后将幅度样本分层量化，并用代码表示。</li>
-</ul>
-<h4 id="参数编码"><a href="#参数编码" class="headerlink" title="参数编码"></a>参数编码</h4><p>从语音 <strong>波形信号</strong> 中提取生成语音的参数，使用这些参数通过语音生成模型重构出语音，使重构的语音信号尽可能地保持原始语音信号的语意。也就是说，参数编码是把语音信号产生的数字模型作为基础，然后求出数字模型的模型参数，再按照这些参数还原数字模型，进而合成语音。</p>
-<h4 id="混合编码"><a href="#混合编码" class="headerlink" title="混合编码"></a>混合编码</h4><p>混合编码是指同时使用两种或两种以上的编码方法进行编码。这种编码方法克服了波形编码和参数编码的弱点，并结合了波形编码高质量和参数编码的低编码率，能够取得比较好的效果。</p>
-<ul>
-<li><p>WAV编码（波形编码）</p>
-<p>WAV是编码的一种实现方式（其实它有非常多实现方式，但都是不会进行压缩操作）。就是在源 <strong>PCM</strong> 数据格式的前面加上44个字节。分别用来描述 <strong>PCM</strong> 的采样率、声道数、数据格式等信息。</p>
-</li>
-<li><p>MP3编码</p>
-<p>MP3编码具有不错的压缩比，而且听感也接近于WAV文件，当然在不同的环境下，应该调整合适的参数来达到更好的效果。</p>
-</li>
-<li><p>AAC编码</p>
-</li>
-</ul>
-<p>  AAC是目前比较热门的有损压缩编码技术，并且衍生了LC-AAC、HE-AAC、HE-AAC v2 三种主要编码格式。</p>
-<p>  <strong>LC-AAC：</strong>是比较传统的AAC,主要应用于中高码率的场景编码(&gt;= 80Kbit/s)<br>   <strong>HE-AAC：</strong> 主要应用于低码率场景的编码(&lt;= 48Kbit/s)</p>
-<ul>
-<li><p>Ogg编码（有损）</p>
-<p>Ogg编码是一种非常有潜力的编码，在各种码率下都有比较优秀的表现。尤其在低码率场景下。Ogg除了音质好之外，Ogg的编码算法也是非常出色。可以用更小的码率达到更好的音质。128Kbit/s的Ogg比192Kbit/s甚至更高码率的MP3更优质.但目前由软件还是硬件支持问题,都没法达到与MP3的使用广度.</p>
-</li>
-</ul>
-<h1 id="音频参数"><a href="#音频参数" class="headerlink" title="音频参数"></a>音频参数</h1><p>一段悠扬的音乐经过采样、量化、编码就保存数字信号文件，而我们最终的目的一定不是只存成文件而是通过文件形式传播让更多人听到该音乐，因此一定存在DA转换，即还原数字信号为模拟信号的过程。那么在整个过程中有哪些参数表征了音频重要的信息呢？</p>
-<p>不仅限于webrtc、ffmpeg、libmad等等音频编解码库，对于所有编解码器和codec来讲，音频源数据的三个参数至关重要：<strong>声道channel、采样率sampleRate、采样位数sampleBit</strong>。这三个参数之所以重要是因为有这几个参数就可以准确的知道一个裸的音频数据（PCM）的全部信息了。</p>
-<h2 id="声道"><a href="#声道" class="headerlink" title="声道"></a>声道</h2><p>声道是指音频文件在录制时音源的数量位置和播放时相应的扬声器的数量（百度百科）。所以可想而知，其他参数相同的情况下，声道数越多定位越精准，同样所需扬声器和功放组件越多。</p>
-<ul>
-<li>单声道（mono）</li>
-<li>双声道（stereo 立体声）：左声道 + 右声道，低音不分离，应用于音乐播放较多</li>
-<li>2.1声道 ：左声道 + 右声道， 低音分离</li>
-<li>5.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕，应用于类传统影院和家庭影院中</li>
-<li>7.1声道 ：左声道 + 右声道 + 低音声道 + 中央声道 + 左环绕 + 右环绕 + 左后环 + 右后环，常见的包括：Dolby Surround 7.1杜比7.1环绕声</li>
-</ul>
-<h2 id="采样率"><a href="#采样率" class="headerlink" title="采样率"></a>采样率</h2><p>采样率可以理解为采集样本的速率（故也可以称为采样速度或者采样频率），它定义了每秒从连续信号中提取并组成离散信号的采样个数，它用赫兹（Hz）来表示。</p>
-<p>例如：采样率为44100，意味着每秒钟对连续的声音信号采集44100次，同样对应得到的数字信号每秒的样本数量（具体可以参考采样过程）</p>
-<h2 id="采样位数"><a href="#采样位数" class="headerlink" title="采样位数"></a>采样位数</h2><p>采样位数就是指某一瞬时时刻，量化声音大小（精细程度）的计量单位</p>
-<ul>
-<li>8bit ( 1Byte ) 对应0~255，将振幅划分为256个等级</li>
-<li>16bit (2Byte) 对应0~65535，将振幅划分为65536个等级</li>
-</ul>
-<h2 id="样本格式"><a href="#样本格式" class="headerlink" title="样本格式"></a>样本格式</h2><h3 id="样本组合形式"><a href="#样本组合形式" class="headerlink" title="样本组合形式"></a>样本组合形式</h3><ul>
-<li>交错模式：每个声道的样本数据交错存储排布</li>
-<li>平面模式：每个声道的样本数据分开存储</li>
-</ul>
-<p>下面以stereo模式进行图示解释（C代表Channel）：</p>
-<p>​    <img src="/images/linux/Audio/Audio-meet-3.png" alt="sample"></p>
-<h3 id="FFmpeg-样本组织形式介绍"><a href="#FFmpeg-样本组织形式介绍" class="headerlink" title="FFmpeg 样本组织形式介绍"></a>FFmpeg 样本组织形式介绍</h3><ul>
-<li>Packed格式，frame.data[0]包含所有的音频数据。</li>
-<li>Planar格式，frame.data[i]表示第i个声道的数据（假设声道0是第一个）</li>
-</ul>
-<h3 id="FFmpeg-主要样本格式"><a href="#FFmpeg-主要样本格式" class="headerlink" title="FFmpeg 主要样本格式"></a>FFmpeg 主要样本格式</h3><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">AVSampleFormat</span> {</span></span><br><span class="line">    AV_SAMPLE_FMT_NONE = <span class="number">-1</span>,</span><br><span class="line">    AV_SAMPLE_FMT_U8,          <span class="comment">///&lt; unsigned 8 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S16,         <span class="comment">///&lt; signed 16 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S32,         <span class="comment">///&lt; signed 32 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_FLT,         <span class="comment">///&lt; float</span></span><br><span class="line">    AV_SAMPLE_FMT_DBL,         <span class="comment">///&lt; double</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_U8P,         <span class="comment">///&lt; unsigned 8 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S16P,        <span class="comment">///&lt; signed 16 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S32P,        <span class="comment">///&lt; signed 32 bits, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_FLTP,        <span class="comment">///&lt; float, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_DBLP,        <span class="comment">///&lt; double, planar</span></span><br><span class="line">    AV_SAMPLE_FMT_S64,         <span class="comment">///&lt; signed 64 bits</span></span><br><span class="line">    AV_SAMPLE_FMT_S64P,        <span class="comment">///&lt; signed 64 bits, planar</span></span><br><span class="line"> </span><br><span class="line">    AV_SAMPLE_FMT_NB           <span class="comment">///&lt; Number of sample formats. DO NOT USE if linking dynamically</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
-
-<p>说明：以P为结尾的是planar结构；Planar模式是FFmpeg内部存储模式，我们实际使用的音频文件都是Packed模式的。</p>
-<h2 id="比特率"><a href="#比特率" class="headerlink" title="比特率"></a>比特率</h2><p>比特率指的是单位时间播放连续的媒体如压缩后的音频或视频的比特数量，在这个意义上讲，它相当于术语数字带宽消耗量，或吞吐量。单位bps / Kbps（bit per second）这里是bit而不是Byte（1Byte = 8bit）</p>
-<p>虽然经常作为“速度”的参考，比特率并不测量“‘距离’/时间”，而是被传输或者被处理的“‘二进制码数量’/时间”，所以应该把它和传播速度区分开来，传播速度依赖于传输的介质并且有通常的物理意义。（来自维基百科）</p>
-<h2 id="参数关系"><a href="#参数关系" class="headerlink" title="参数关系"></a>参数关系</h2><p>对于PCM裸数据： 文件时长 ≈（文件总大小 - 头信息）/ (采样率 * 采样位数 * 通道数 / 8) [也就是比特率]</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Audio</category>
-      </categories>
   </entry>
   <entry>
     <title>《嵌入式C语言自我修养》笔记</title>
@@ -1614,6 +1614,121 @@
       </tags>
   </entry>
   <entry>
+    <title>《格局》</title>
+    <url>/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</url>
+    <content><![CDATA[<p><img src="/images/reading/GeJu.jpg" alt="img"></p>
+<h1 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h1><p>《格局》一书是吴军博士2019年出版的。吴军博士头衔可谓众多，“文津图书奖”得主、硅谷投资人、约翰·霍普金斯大学工学院董事、原腾讯副总裁，出版过《数学之美》《浪潮之巅》《文明之光》《硅谷之谜》等等不同品类的书籍。</p>
+<p>我自己对于”格局“一词的理解是一个人对于世界认知的边界以及对事物认知的范围。整书通读下来给我的感觉更像是吴军博士对于自己生活经验及基于某些历史事件的规律总结，甚至有些章节的内容前后都没有很关联，对于本书大部分内容无感的本质原因我认为是自己的经历没有那么丰富无法做到感同身受亦或者是自己对于这本书没有完全读懂。那便写下自己感兴趣的部分的心得吧</p>
+<h1 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h1><h2 id="技术是手段-不是目的"><a href="#技术是手段-不是目的" class="headerlink" title="技术是手段 不是目的"></a>技术是手段 不是目的</h2><p>互联网飞速发展，新的技术理论得到迅速且广泛的传播。对于一名技术从业者来讲，要想在职场行业内始终保持竞争力，需要不断的去学习新的内容来保证自己不会被时代所淘汰。但实际上，技术从来都是手段而不是目的，如果搞不清楚这一点，就会为了技术而研发技术。2022年AI、IOT可能是时代的潮流，但10年后一切都未曾可知而可以肯定的是计算机的底层原理及知识仍然不会落伍。可见洞察一件事情的本质并去学习探索才是真正的硬道理。</p>
+<h2 id="未来的特征"><a href="#未来的特征" class="headerlink" title="未来的特征"></a>未来的特征</h2><ul>
+<li>不对称性。新技术的产生，最早掌握新技术的少数人可以利用新技术颠覆过去在相关领域中占据统治地位的组织或机构；</li>
+<li>复杂性。当下的知识体系非常复杂，通常都是跨学科的而不是单一维度的；</li>
+<li>不确定性。没有人能够预测未来</li>
+</ul>
+<ol>
+<li>不过度依赖过去的权威</li>
+<li>拉力由于推力（主动获取而不是被动接收）</li>
+<li>指南针优于地图（改变一直存在，掌握本质，求渔不求鱼）</li>
+<li>拥抱风险</li>
+<li>叛逆精神（打破规则）</li>
+<li>通才胜于专才（前提一定是已经在某一方面已经是专才）</li>
+<li>韧性优于力量</li>
+<li>强调整体性</li>
+</ol>
+<h2 id="以正和，以奇胜"><a href="#以正和，以奇胜" class="headerlink" title="以正和，以奇胜"></a>以正和，以奇胜</h2><p>面对不断变化的未来，把握好常态是关键，而正是常态，奇是非常态。《孙子兵法 兵势篇》中写到：凡战者，以正和，以奇胜。这句话的意思是：作战，要先把正面的兵排好，排的不偏斜合乎法则，此为正；如果这时候还有多余的兵力你就赢了，在现代汉语字典中也可以理解为：出奇制胜。”以正和，以奇胜”更应该是一个人做事的准则，在做好正的基础上出奇制胜，不要相信所谓的弯道超车，这一定是不稳定的。</p>
+<h2 id="被信息放大的悲观"><a href="#被信息放大的悲观" class="headerlink" title="被信息放大的悲观"></a>被信息放大的悲观</h2><p>我们明显能够感觉到现在的年轻人普遍会更焦虑，他们仿佛对这个世界充满悲观情绪。xxx飞机失事、xxx公司大规模裁员、xxx地区洪水或火山爆发，这些新闻在现在真的是屡见不鲜，也正是这些新闻的广泛传播给我们造成了很大的焦虑情绪。但实际上飞机其实是比汽车更安全、在大范围内就业形式是向好的、火山喷发地正是处于板块交界地带。可以发现真正广泛传播的言论实际上大多是悲观的，从信息论的角度来讲，越是与众不同的说法信息量越大。相反宣传乐观主义的观点论文不仅没有人看甚至是无法发表的。因为没有人会关心一篇”今年经济持续向好“的文章，大家都知道也自然就不会过多关注。面对各种各样的新闻，适当保持忧患意识是必要的，但请不应过度的悲观！</p>
+<h2 id="人立于天地之间必有出路"><a href="#人立于天地之间必有出路" class="headerlink" title="人立于天地之间必有出路"></a>人立于天地之间必有出路</h2><p>面对生活、工作、家庭的压力，我们总是使自己处于一个很忙碌的状态之中，面对未来可能发生的问题我们也常说：车到山前必有路、船到桥头自然直。确实，对于未来的不确定性，我们始终要坚信人立与天地之前必有出路。</p>
+<h1 id="语录"><a href="#语录" class="headerlink" title="语录"></a>语录</h1><p>自己花了精力做的事情要尽可能的对自己未来有帮助。</p>
+<p>过分追求物质可能会成为生活的负担。</p>
+]]></content>
+      <categories>
+        <category>Reading</category>
+      </categories>
+      <tags>
+        <tag>读书笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>51job爬虫项目</title>
+    <url>/2022/12/03/item/51job/</url>
+    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>紧接着豆瓣爬虫的项目，该项目作为其后的练习和扩展，算是一个较为不错的上手练习。本文所涉及的是对于51job数据的爬取、解析和保存。对于数据可视化操作，在后续会持续更新，请关注！<br>在下面代码中有些函数内部调用了其他函数，需要补全各个部分的函数。如果需要源码请私信或者评论。</p>
+<blockquote>
+<p>具体关于库的操作我选择了一些官方文档和较好理解的解读文章做链接，知识点比较全面请参考下列表。</p>
+</blockquote>
+<ul>
+<li><p><a href="https://python-selenium-zh.readthedocs.io/zh_CN/latest/">详情页URL获取模块：selenium</a></p>
+</li>
+<li><p><a href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></p>
+</li>
+<li><p><a href="https://www.jianshu.com/p/9135d7833d6d">数据提取etree模块：lxml</a></p>
+</li>
+<li><p><a href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></p>
+</li>
+</ul>
+<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="详情页链接的获取：selenium"><a href="#详情页链接的获取：selenium" class="headerlink" title="详情页链接的获取：selenium"></a>详情页链接的获取：selenium</h2><p>selenium作为web自动化测试工具，目前在python爬虫中应用也越来越广泛。其主要应用原理是：通过完全模拟浏览器的操作，比如输入框输入、点击超链接元素、下拉滚动条等等来拿到js渲染之后的代码。<br>必要性：之前用的requests是对一个页面发送请求，只能获得当前加载出来的部分页面即最初的源代码，动态加载的数据是获取不到的，比如js渲染后的代码、下拉滚轮得到的数据和一些框内隐藏元素等等。<br>对于selenium的解读，<a href="https://blog.csdn.net/heartbeat196/article/details/113831482">请点击click</a>！</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">#获得所有网页详情页链接</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_link</span>():</span><br><span class="line">    linklist = []</span><br><span class="line">    <span class="comment">#创建驱动器对象</span></span><br><span class="line">    wd = webdriver.Chrome(<span class="string">r'C:\Program Files\Google\Chrome\Application\chromedriver.exe'</span>)</span><br><span class="line">    wd.implicitly_wait(<span class="number">5</span>)</span><br><span class="line">    <span class="comment">#访问51job网站</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">21</span>):</span><br><span class="line">        wd.get(<span class="string">f"https://search.51job.com/list/010000,000000,0000,00,9,99,keyword,2,<span class="subst">{i}</span>.html?"</span>)</span><br><span class="line">        <span class="comment">#查找每每一条信息链接进入详情页</span></span><br><span class="line">        joblists = wd.find_elements_by_xpath(<span class="string">'//div[@class="j_joblist"]/div/a'</span>)</span><br><span class="line">        <span class="keyword">for</span> joblist <span class="keyword">in</span> joblists:</span><br><span class="line">            con_link = joblist.get_attribute(<span class="string">"href"</span>)</span><br><span class="line">            linklist.append(con_link)</span><br><span class="line">    wd.quit()</span><br><span class="line">    <span class="keyword">return</span> linklist</span><br></pre></td></tr></tbody></table></figure>
+
+<blockquote>
+<p>注释：</p>
+<ol>
+<li>代码中的 webdriver.Chrome，后面是自己所用的驱动器的本地地址。</li>
+<li>webdriver对象wd，调用 get方法，后面括号内为自己所要访问的网页链接地址。</li>
+</ol>
+</blockquote>
+<h2 id="数据爬取与解析：xpath"><a href="#数据爬取与解析：xpath" class="headerlink" title="数据爬取与解析：xpath"></a>数据爬取与解析：xpath</h2><p>由于自己习惯于使用xpath方法解析，在此只做xpath解析的方法，如果需要re正则表达式或者BeautifulSoup解析，评论后续会更新。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_data</span>():</span><br><span class="line">    job_information = []</span><br><span class="line">    url_lists = get_link()</span><br><span class="line">    <span class="keyword">for</span> i,url <span class="keyword">in</span> <span class="built_in">enumerate</span>(url_lists):</span><br><span class="line">        datalist=[]</span><br><span class="line">        header = {</span><br><span class="line">            <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0(Windows NT 10.0;Win64;x64)AppleWebKit/537.36(KHTML,likeGecko)Chrome/88.0.4324.150Safari/537.36"</span></span><br><span class="line">        }</span><br><span class="line">        response = requests.get(url, headers=header)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            html = response.content.decode(<span class="string">"gbk"</span>)</span><br><span class="line">            data = etree.HTML(html)</span><br><span class="line">            link = url</span><br><span class="line">            datalist.append(link)		<span class="comment">#存入岗位链接</span></span><br><span class="line">            title = data.xpath(<span class="string">r'//div[@class="cn"]/h1/@title'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(title)		<span class="comment">#存入岗位名称</span></span><br><span class="line">            salary = data.xpath(<span class="string">r'//div[@class="cn"]/strong/text()'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(salary)</span><br><span class="line">            information = data.xpath(<span class="string">r'//p[@class="msg ltype"]/@title'</span>)[<span class="number">0</span>]</span><br><span class="line">            information = re.sub(<span class="string">r"\s+"</span>, <span class="string">""</span>, information)  <span class="comment"># 去除空白格</span></span><br><span class="line">            experience = information.split(<span class="string">"|"</span>)[<span class="number">1</span>]</span><br><span class="line">            datalist.append(experience)</span><br><span class="line">            education = information.split(<span class="string">"|"</span>)[<span class="number">2</span>]</span><br><span class="line">            datalist.append(education)</span><br><span class="line">            num = information.split(<span class="string">"|"</span>)[<span class="number">3</span>]</span><br><span class="line">            datalist.append(num)</span><br><span class="line">            place = data.xpath(<span class="string">r'//p[@class="fp"]/text()'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(place)</span><br><span class="line">            treatment = data.xpath(<span class="string">r'//span[@class="sp4"]/text()'</span>)</span><br><span class="line">            treatment = <span class="string">" "</span>.join(treatment)</span><br><span class="line">            datalist.append(treatment)</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"-----第{}条------"</span>.<span class="built_in">format</span>(i))</span><br><span class="line">            job_information.append(datalist)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"-----第{}条出错，原因是{}------"</span>.<span class="built_in">format</span>(i,e))</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="comment">#print(job_information)		#测试</span></span><br><span class="line">    <span class="keyword">return</span> job_information</span><br></pre></td></tr></tbody></table></figure>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="Excel本地保存"><a href="#Excel本地保存" class="headerlink" title="Excel本地保存"></a>Excel本地保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_data_excel</span>(<span class="params">datalist</span>):</span><br><span class="line">    workbook = xlwt.Workbook(encoding=<span class="string">"gbk"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">    worksheet = workbook.add_sheet(<span class="string">"python"</span>)</span><br><span class="line">    col = [<span class="string">"链接"</span>, <span class="string">"岗位名称"</span>, <span class="string">"薪资"</span>, <span class="string">"工作经验"</span>, <span class="string">"学历"</span>, <span class="string">"招聘人数"</span>, <span class="string">"工作地点"</span>, <span class="string">"福利"</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">            worksheet.write(i+<span class="number">1</span>,j,datalist[i][j])</span><br><span class="line">    workbook.save(<span class="string">"北京-python工作.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="Excel数据保存结果展示"><a href="#Excel数据保存结果展示" class="headerlink" title="Excel数据保存结果展示"></a>Excel数据保存结果展示</h2><p><img src="/images/item/51job-1.png" alt="在这里插入图片描述"></p>
+<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><p>在此部分只写了数据库保存的工作，数据库的初始化创建需函数sql_init需要添加即可使用。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_data_sql</span>(<span class="params">datalist,dbpath</span>):</span><br><span class="line">    sql_init(dbpath)</span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">            data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        insert into job_information(</span></span><br><span class="line"><span class="string">            link,title,salary,experience,education,num,place,treatment)</span></span><br><span class="line"><span class="string">            values(%s)'''</span>%<span class="string">","</span>.join(data)</span><br><span class="line">        <span class="comment">#print(sql)     #测试sql语句是否正确</span></span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="sqlite数据库保存结果展示"><a href="#sqlite数据库保存结果展示" class="headerlink" title="sqlite数据库保存结果展示"></a>sqlite数据库保存结果展示</h2><p><img src="/images/item/51job-2.png" alt="在这里插入图片描述"></p>
+<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><p>null</p>
+]]></content>
+      <categories>
+        <category>Item</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
+    <url>/2022/12/03/item/doubanTop250Spider/</url>
+    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在爬虫学习中，一套完整的项目实战对于代码和计算机思维能力有很大的提升。本文基于B站视频<a href="https://www.bilibili.com/video/BV12E411A7ZQ?from=search&amp;seid=4741588992451392787">《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》</a>关于 “豆瓣电影Top250” 项目做出的总结、拓展与分享。<br>在本文中，只展示数据爬取到数据保存的工作，数据可视化部分只做部分分析和结果展示。具体关于库的操作我选择了一些官方文档做链接，知识点比较全面请参考下列表。如果想要项目源代码，请评论或私信。</p>
+<ul>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/urllib.html?highlight=urllib">URL处理系统模块：urllib</a></li>
+<li><a href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></li>
+<li><a href="https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/">数据提取bs4模块：BeautifulSoup</a></li>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/re.html">数据提取正则表达式模块：re</a></li>
+<li><a href="https://www.jianshu.com/p/9135d7833d6d">数据提取模块 ：lxml</a></li>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></li>
+<li><a href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></li>
+</ul>
+<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="数据爬取"><a href="#数据爬取" class="headerlink" title="数据爬取"></a>数据爬取</h2><p>数据爬取工作是整个工程的第一步，这一阶段所要做的工作是将网页上带有我们需要的信息的网页源码抓取下来。<strong>建议在此步骤时，如果数据量不大全部抓取保存到本地；如果数据量很大，则先保存一组到多组数据到本地</strong>。在接下的数据解析时通过本地文件解析，这样做会避免后面多次访问网站而被封ip，当然针对被封ip有相应的解决办法，但是这些内容涉及到网络知识，建议后面再学。</p>
+<h3 id="urllib方法"><a href="#urllib方法" class="headerlink" title="urllib方法"></a>urllib方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line"><span class="comment">#构建请求</span></span><br><span class="line">req = urllib.request.Request(url=base_url,headers=header)</span><br><span class="line"><span class="comment">#得到响应</span></span><br><span class="line">response = urllib.request.urlopen(req)</span><br><span class="line">html = response.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(html)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="requests方法"><a href="#requests方法" class="headerlink" title="requests方法"></a>requests方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line">response = requests.get(url=base_url,headers=header)</span><br><span class="line">data = response.content.decode()</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(data)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="数据解析"><a href="#数据解析" class="headerlink" title="数据解析"></a>数据解析</h2><p>数据解析作为第二步是整个工程的核心，这一步直接决定了 我们是否能够在海量的数据中只得到我们想要的数据。爬虫中三种重要的数据解析的方法分别是：BeautifulSoup、re正则表达式和xpath，三种方法没有优劣好坏，按照我前面给出的文档，自己用好一种即可满足需求，当然三种方法根据场景使用是最高效的，如果你是大佬的话👍。<br>我自己常用的是xpath方法。第一，xpath路径可以直接在网页上进行复制；第二，可以通过<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">XPath Helper工具</a>进行更好的测试，我在之前的博客有提到可以<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">点击</a>查看。下面我用三种不同的方法对保存到本地的一页上的数据进行了解析。</p>
+<h3 id="BeaufifulSoup"><a href="#BeaufifulSoup" class="headerlink" title="BeaufifulSoup"></a>BeaufifulSoup</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line"><span class="comment">#构建BeautifulSoup对象</span></span><br><span class="line">soup = BeautifulSoup(html,<span class="string">"html.parser"</span>)</span><br><span class="line"><span class="comment">#得到每一块的内容</span></span><br><span class="line">blocks = soup.select(<span class="string">".grid_view .item"</span>)</span><br><span class="line"><span class="comment">#构建电影列表</span></span><br><span class="line">movie_list = []</span><br><span class="line"><span class="comment">#电影链接和电影图片链接</span></span><br><span class="line"><span class="keyword">for</span> index,block <span class="keyword">in</span> <span class="built_in">enumerate</span>(blocks):</span><br><span class="line">    movie_dict = {}</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = block.select(<span class="string">"a"</span>)[<span class="number">0</span>].get(<span class="string">"href"</span>)       <span class="comment">#电影详情页链接</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = block.select(<span class="string">"img"</span>)[<span class="number">0</span>].get(<span class="string">"src"</span>)        <span class="comment">#电影链接</span></span><br><span class="line">    title = block.select(<span class="string">".title"</span>)                      <span class="comment">#电影名字</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        o_title = block.select(<span class="string">".title"</span>)[<span class="number">1</span>].text            <span class="comment"># 电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = o_title.replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span>                                       <span class="comment">#电影外文名字</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = block.select(<span class="string">".star .rating_num"</span>)[<span class="number">0</span>].text        <span class="comment">#电影评分</span></span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = block.select(<span class="string">".star span"</span>)[<span class="number">3</span>].text[:-<span class="number">3</span>]         <span class="comment">#评分人数</span></span><br><span class="line">    bd = block.select(<span class="string">".bd p"</span>)[<span class="number">0</span>].text</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = re.sub(<span class="string">" "</span>,<span class="string">""</span>,bd)</span><br><span class="line">    movie_dict[<span class="string">"inq"</span>] = block.select(<span class="string">".quote .inq"</span>)[<span class="number">0</span>].text.replace(<span class="string">"。"</span>,<span class="string">""</span>)</span><br><span class="line">    movie_list.append(movie_dict)</span><br><span class="line"><span class="comment">#打印测试</span></span><br><span class="line"><span class="built_in">print</span>(movie_list)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="xpath"><a href="#xpath" class="headerlink" title="xpath"></a>xpath</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="comment">#构建etree对象</span></span><br><span class="line">data = etree.HTML(content)</span><br><span class="line"><span class="comment">#获取多个电影信息列表</span></span><br><span class="line">divs = data.xpath(<span class="string">'//div[@class="item"]'</span>)</span><br><span class="line"><span class="keyword">for</span> div <span class="keyword">in</span> divs:</span><br><span class="line">    movie_dict = { }</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]/a/@href'</span>)</span><br><span class="line">    <span class="comment">#print(movie_href)          #测试</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]//img/@src'</span>)</span><br><span class="line">    <span class="comment">#print(pic_href)           #测试</span></span><br><span class="line">    title = div.xpath(<span class="string">'div[@class="info"]//a/span[@class="title"]/text()'</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        o_title = title[<span class="number">1</span>].replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">""</span>.join(o_title.split())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span></span><br><span class="line">    <span class="comment">#print(c_title,o_title)      #测试</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = div.xpath(<span class="string">'div//div[2]/div/span[2]/text()'</span>)</span><br><span class="line">    <span class="comment">#print(rate)                #测试</span></span><br><span class="line">    judge = div.xpath(<span class="string">'div//div[2]/div/span[4]/text()'</span>)</span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = (<span class="built_in">str</span>(judge))[<span class="number">2</span>:-<span class="number">5</span>]</span><br><span class="line">    <span class="comment">#print(judge)                #测试</span></span><br><span class="line">    bd = <span class="built_in">str</span>(div.xpath(<span class="string">'div//div[@class="bd"]/p[1]/text()'</span>))</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = bd.replace(<span class="string">" "</span>,<span class="string">""</span>).replace(<span class="string">r"\xa0"</span>,<span class="string">""</span>).replace(<span class="string">r"\r"</span>,<span class="string">""</span>).replace(<span class="string">r"\n"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="comment">#print(bd)                   #测试</span></span><br><span class="line">    <span class="built_in">print</span>(movie_dict)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="re正则表达式"><a href="#re正则表达式" class="headerlink" title="re正则表达式"></a>re正则表达式</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="comment">#影片详情链接规则</span></span><br><span class="line">findLink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;a href="(.*?)"&gt;'</span>)        <span class="comment">#创建正则表达式对象，表示规则（字符串的模式）</span></span><br><span class="line"><span class="comment">#影片图片规则</span></span><br><span class="line">findSrclink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;img.*src="(.*?)"'</span>,re.S)</span><br><span class="line"><span class="comment">#影片片名规则</span></span><br><span class="line">findTitle = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="title"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片的评分规则</span></span><br><span class="line">findGrade = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="rating_num" property="v:average"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#评价人数规则</span></span><br><span class="line">findJud = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span&gt;(.*)人评价&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#找到概况</span></span><br><span class="line">findInq = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="inq"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片相关内容</span></span><br><span class="line">findBd = re.<span class="built_in">compile</span>(<span class="string">r'&lt;p class=""&gt;(.*?)&lt;/p&gt;'</span>,re.S)</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line">datalist = []</span><br><span class="line">soup = BeautifulSoup(content, <span class="string">"html.parser"</span>)</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> soup.find_all(<span class="string">"div"</span>,class_ = <span class="string">"item"</span>):</span><br><span class="line">    item = <span class="built_in">str</span>(item)</span><br><span class="line">    <span class="comment">#print(html)                                             #测试电影信息的一小段有没有内解析拿到</span></span><br><span class="line">    data = [ ]</span><br><span class="line">    title = re.findall(findTitle,item)</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">len</span>(title)==<span class="number">2</span>):</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = title[<span class="number">1</span>]</span><br><span class="line">        Ftitle = title[<span class="number">1</span>].replace(<span class="string">"/"</span>, <span class="string">""</span>)</span><br><span class="line">        Ftitle = <span class="string">""</span>.join(Ftitle.split())</span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = <span class="string">" "</span></span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    link = re.findall(findLink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(link)</span><br><span class="line">    srclink = re.findall(findSrclink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(srclink)</span><br><span class="line">    grade = re.findall(findGrade,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(grade)</span><br><span class="line">    judge = re.findall(findJud,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(judge)</span><br><span class="line">    inq = re.findall(findInq,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(inq)</span><br><span class="line">    bd = re.findall(findBd,item)[<span class="number">0</span>]</span><br><span class="line">    bd = re.sub(<span class="string">'&lt;br(\s+)?/&gt;(\s+)?'</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = re.sub(<span class="string">"/"</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = <span class="string">""</span>.join(bd.split())</span><br><span class="line">    data.append(bd)</span><br><span class="line">    datalist.append(data)</span><br><span class="line"><span class="built_in">print</span>(datalist)            <span class="comment">#测试所有列表是否被打印</span></span><br></pre></td></tr></tbody></table></figure>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="本地excel保存"><a href="#本地excel保存" class="headerlink" title="本地excel保存"></a>本地excel保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> xlwt</span><br><span class="line">workbook = xlwt.Workbook(encoding=<span class="string">"utf-8"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">worksheet = workbook.add_sheet(<span class="string">"豆瓣电影250"</span>)</span><br><span class="line">col = [<span class="string">"中文名"</span>, <span class="string">"外文名"</span>, <span class="string">"电影链接"</span>, <span class="string">"图片链接"</span>, <span class="string">"评分"</span>, <span class="string">"评价人数"</span>, <span class="string">"概评"</span>, <span class="string">"概述"</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">    worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(i + <span class="number">1</span>, j, datalist[i][j])</span><br><span class="line">workbook.save(<span class="string">"豆瓣top250_firstPage.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sqlite3</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">init_db</span>(<span class="params">dbpath</span>):</span><br><span class="line">    sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        create table movie250 </span></span><br><span class="line"><span class="string">        (</span></span><br><span class="line"><span class="string">        id integer primary key autoincrement,</span></span><br><span class="line"><span class="string">        info_link text,</span></span><br><span class="line"><span class="string">        pic_link text,</span></span><br><span class="line"><span class="string">        cname varchar,</span></span><br><span class="line"><span class="string">        ename varchar,</span></span><br><span class="line"><span class="string">        score numeric ,</span></span><br><span class="line"><span class="string">        rated numeric ,</span></span><br><span class="line"><span class="string">        instroduction text,</span></span><br><span class="line"><span class="string">        info text</span></span><br><span class="line"><span class="string">        )</span></span><br><span class="line"><span class="string">    '''</span>  <span class="comment"># 创建数据表</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cursor = conn.cursor()</span><br><span class="line">    cursor.execute(sql)</span><br><span class="line">    conn.commit()</span><br><span class="line">    conn.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">saveData2DB</span>(<span class="params">datalist, dbpath</span>):</span><br><span class="line">    <span class="comment">#init_db(dbpath)</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        	data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">                insert into movie250 (</span></span><br><span class="line"><span class="string">                info_link,pic_link,cname,ename,score,rated,instroduction,info) </span></span><br><span class="line"><span class="string">                values(%s)'''</span> % <span class="string">","</span>.join(data)</span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br><span class="line">saveData2DB(datalist,<span class="string">"movie.db"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h3><p><img src="/images/item/douban-1.png" alt="在这里插入图片描述"><br><img src="/images/item/douban-2.png" alt="在这里插入图片描述"></p>
+<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><h2 id="Flask"><a href="#Flask" class="headerlink" title="Flask"></a><a href="https://dormousehole.readthedocs.io/en/latest/">Flask</a></h2><p>Flask 是一个微型的 Python 开发的 Web 框架，基于Werkzeug WSGI工具箱和Jinja2 模板引擎。 Flask使用BSD授权。 Flask也被称为“microframework”，因为它使用简单的核心，用extension增加其他功能。Flask没有默认使用的数据库、窗体验证工具。<br>简单来说在此项目中，Flask框架给我们提供了一个本地网页平台展示数据。我们根据不同的路由地址进行到不同的页面访问。如下图是首界面，通过不同的链接地址可以实现页面跳转，当然只是本地！<br><img src="/images/item/douban-3.png" alt="在这里插入图片描述"></p>
+<h2 id="Echarts"><a href="#Echarts" class="headerlink" title="Echarts"></a><a href="https://echarts.apache.org/en/index.html">Echarts</a></h2><p>Echarts是一个纯基于js的图表库，可以流畅的运行在 PC 和移动设备上。在本项目中可以将数据进行统计分类从而用不同的展示方法进行展现。在Echarts中可以支持的图表类型有很多，同时其有一个很好的点在于它能满足我们实时修改查看，最终形成自己想要的图，便将js代码复制粘贴到我们所需要的网页代码的地方。<br>由于在页面内有动态显示，所以不在进行展示。</p>
+<h2 id="WordCloud"><a href="#WordCloud" class="headerlink" title="WordCloud"></a>WordCloud</h2><p>词云展示方法是近些年来较为常用的数据可视化方法。其主要是通过分词技术将一篇文章或者一段话分成若干单词，然后统计这些词出现的频率，我们根据自定义化设置画布和这些词出现的颜色大小等等来得到某个词云。词云中重要的是画布的配置、自己所要定义的形式是什么样子，其他更多的是某些固定的方法。下图为我通过爬取毛不易的歌词内容获得毛不易的歌词词云图，如果需要此项目源码或者方法请私信。<br><img src="/images/item/douban-4.png" alt="在这里插入图片描述"></p>
+<h1 id="新手问题总结与解决方法"><a href="#新手问题总结与解决方法" class="headerlink" title="新手问题总结与解决方法"></a>新手问题总结与解决方法</h1><h2 id="ip被封"><a href="#ip被封" class="headerlink" title="ip被封"></a>ip被封</h2><p>ip被封可能是新手在爬虫学习阶段遇到的最大的问题。首先如果是初学想要尽快实现一些成果时，建议在合理范围内减少爬取次数，如果我们能获得网页内容了首先将其存到本地文件夹下进行后续的测试和解析。俗话说：上有政策下有对策，面对ip被封：基础阶段我们可以添加请求头，尽可能的进行伪装像一个浏览器在访问；再进一步我们可以自己构建代理ip函数，仿照源码添加免费ip，构建handler处理器使用opener方法也可以；如果有能力的话，可以学习代理ip池的方法来解决该问题。<br>当然，爬虫我们是要在合法范围内进行抓取，如果某些数据是机密或者不能访问的，我们还一直访问可能就很快有自己的小手镯子了🔓。我们只爬取我们可以访问到的，爬虫只是提高效率，不是翻过禁墙。</p>
+<h2 id="查看网页源码和”F12-Elements”后不一致"><a href="#查看网页源码和”F12-Elements”后不一致" class="headerlink" title="查看网页源码和”F12 Elements”后不一致"></a>查看网页源码和”F12 Elements”后不一致</h2><p>该问题可以总结为用一般方法有些需要的元素抓取不到。在本次项目中我们爬取的页面是静态网页所以可以直接抓取，但是对于动态网页就会无能为力。<br>查看网页源码：最原始的代码，指的是服务器直接发送到浏览器的代码。<br>F12检查元素：js渲染后的代码。而确实的部分就是js所渲染的。<br>如果我们想要抓取这部分代码可以采取以下两种方法：</p>
+<ol>
+<li>在页面上进行抓包，获取表单的元素和js链接提交请求</li>
+<li>通过selenium技术，模拟用户打开网页，进行自动化的抓取。</li>
+</ol>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><p>以上两个问题是我在这个项目中所遇到的，当然在面对更复杂的爬虫工作时，会有更加繁琐的问题出现。还有一些其他问题，我将其总结为基础知识问题。在很多初学的时候，我们获得的数据往往以不同的格式进行存储，但是某些方法只能针对某些固定数据格式，这些需要我们提起注意；还有就是我们不可避免的马虎问题，关键词拼写错误，变量书写错误等等，这些最好的解决办法就是孰能生巧。<br>最后就是建议大家在完成一个项目时选择分块按照不同的模块去练习测试，最终完成项目。</p>
+]]></content>
+      <categories>
+        <category>Item</category>
+      </categories>
+  </entry>
+  <entry>
     <title>计算机存储体系</title>
     <url>/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/</url>
     <content><![CDATA[<p>作为计算机五大核心功能（运算、存储、控制、输入、输出）之一的存储，无疑在整个计算机体系结构中有着举足轻重的地位。</p>
@@ -1671,111 +1786,90 @@
       </tags>
   </entry>
   <entry>
-    <title>《格局》</title>
-    <url>/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</url>
-    <content><![CDATA[<p><img src="/images/reading/GeJu.jpg" alt="img"></p>
-<h1 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h1><p>《格局》一书是吴军博士2019年出版的。吴军博士头衔可谓众多，“文津图书奖”得主、硅谷投资人、约翰·霍普金斯大学工学院董事、原腾讯副总裁，出版过《数学之美》《浪潮之巅》《文明之光》《硅谷之谜》等等不同品类的书籍。</p>
-<p>我自己对于”格局“一词的理解是一个人对于世界认知的边界以及对事物认知的范围。整书通读下来给我的感觉更像是吴军博士对于自己生活经验及基于某些历史事件的规律总结，甚至有些章节的内容前后都没有很关联，对于本书大部分内容无感的本质原因我认为是自己的经历没有那么丰富无法做到感同身受亦或者是自己对于这本书没有完全读懂。那便写下自己感兴趣的部分的心得吧</p>
-<h1 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h1><h2 id="技术是手段-不是目的"><a href="#技术是手段-不是目的" class="headerlink" title="技术是手段 不是目的"></a>技术是手段 不是目的</h2><p>互联网飞速发展，新的技术理论得到迅速且广泛的传播。对于一名技术从业者来讲，要想在职场行业内始终保持竞争力，需要不断的去学习新的内容来保证自己不会被时代所淘汰。但实际上，技术从来都是手段而不是目的，如果搞不清楚这一点，就会为了技术而研发技术。2022年AI、IOT可能是时代的潮流，但10年后一切都未曾可知而可以肯定的是计算机的底层原理及知识仍然不会落伍。可见洞察一件事情的本质并去学习探索才是真正的硬道理。</p>
-<h2 id="未来的特征"><a href="#未来的特征" class="headerlink" title="未来的特征"></a>未来的特征</h2><ul>
-<li>不对称性。新技术的产生，最早掌握新技术的少数人可以利用新技术颠覆过去在相关领域中占据统治地位的组织或机构；</li>
-<li>复杂性。当下的知识体系非常复杂，通常都是跨学科的而不是单一维度的；</li>
-<li>不确定性。没有人能够预测未来</li>
+    <title>智能家居模型设计</title>
+    <url>/2022/12/03/item/smartHome/</url>
+    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>伴随着通信技术的不断发展和社会环境的进步，人们对更智能化的生活有了更高的追求。物联网智能家居已经不能算是新鲜的名词了，其单品及互联应用也都已经非常广泛了。本设计基于STM32单片机，通过ESP8266无线通信模块以及连接相应的传感器及外设对智能家居的场景进行模拟。本文最初写于今年6月，现在从事嵌入式工作一段时间后现在再次将我的毕业设计重新进行整理和思考，希望能对读者有所帮助！</p>
+<h1 id="设计思路"><a href="#设计思路" class="headerlink" title="设计思路"></a>设计思路</h1><p>对于任何一个项目或者工程的开始第一步永远是先明确需求，知道自己做成什么样子的东西。在我参考了一些资料并阅读了几篇文献后，对其有了初认识。我理解的智能家居就是从感知层出发对环境进行监测，通过传输层遵从一定的网络协议对数据进行传输同时通过软件对数据进行整理分析，并在应用层（家具状态）做出相应的动作。最终我将该流程整理成下图所示的实物模拟，进而对其进行模块的抽象。基于此，进行下面的硬件设计选型及软件实现等等。<br><img src="/images/item/smarthome-1.png"></p>
+<h1 id="硬件设计"><a href="#硬件设计" class="headerlink" title="硬件设计"></a>硬件设计</h1><h2 id="硬件选型原则"><a href="#硬件选型原则" class="headerlink" title="硬件选型原则"></a>硬件选型原则</h2><p>由于该项目是模型设计，对于硬件的选型整体上是以==低成本、低功耗、高集成、高仿真度==为原则的。</p>
+<ul>
+<li>满足功能及性能需求。本设计的侧重点不在于数据的精确和控制的灵敏，故没有严格参数要求。</li>
+<li>易上手的“大众”产品。对于这些元件我们可以很容易的找到相关资料，而且避免踩坑。</li>
+<li>兼容性。由于是模块化设计，对于部分模块的兼容性是要有一定的要求的。</li>
 </ul>
-<ol>
-<li>不过度依赖过去的权威</li>
-<li>拉力由于推力（主动获取而不是被动接收）</li>
-<li>指南针优于地图（改变一直存在，掌握本质，求渔不求鱼）</li>
-<li>拥抱风险</li>
-<li>叛逆精神（打破规则）</li>
-<li>通才胜于专才（前提一定是已经在某一方面已经是专才）</li>
-<li>韧性优于力量</li>
-<li>强调整体性</li>
-</ol>
-<h2 id="以正和，以奇胜"><a href="#以正和，以奇胜" class="headerlink" title="以正和，以奇胜"></a>以正和，以奇胜</h2><p>面对不断变化的未来，把握好常态是关键，而正是常态，奇是非常态。《孙子兵法 兵势篇》中写到：凡战者，以正和，以奇胜。这句话的意思是：作战，要先把正面的兵排好，排的不偏斜合乎法则，此为正；如果这时候还有多余的兵力你就赢了，在现代汉语字典中也可以理解为：出奇制胜。”以正和，以奇胜”更应该是一个人做事的准则，在做好正的基础上出奇制胜，不要相信所谓的弯道超车，这一定是不稳定的。</p>
-<h2 id="被信息放大的悲观"><a href="#被信息放大的悲观" class="headerlink" title="被信息放大的悲观"></a>被信息放大的悲观</h2><p>我们明显能够感觉到现在的年轻人普遍会更焦虑，他们仿佛对这个世界充满悲观情绪。xxx飞机失事、xxx公司大规模裁员、xxx地区洪水或火山爆发，这些新闻在现在真的是屡见不鲜，也正是这些新闻的广泛传播给我们造成了很大的焦虑情绪。但实际上飞机其实是比汽车更安全、在大范围内就业形式是向好的、火山喷发地正是处于板块交界地带。可以发现真正广泛传播的言论实际上大多是悲观的，从信息论的角度来讲，越是与众不同的说法信息量越大。相反宣传乐观主义的观点论文不仅没有人看甚至是无法发表的。因为没有人会关心一篇”今年经济持续向好“的文章，大家都知道也自然就不会过多关注。面对各种各样的新闻，适当保持忧患意识是必要的，但请不应过度的悲观！</p>
-<h2 id="人立于天地之间必有出路"><a href="#人立于天地之间必有出路" class="headerlink" title="人立于天地之间必有出路"></a>人立于天地之间必有出路</h2><p>面对生活、工作、家庭的压力，我们总是使自己处于一个很忙碌的状态之中，面对未来可能发生的问题我们也常说：车到山前必有路、船到桥头自然直。确实，对于未来的不确定性，我们始终要坚信人立与天地之前必有出路。</p>
-<h1 id="语录"><a href="#语录" class="headerlink" title="语录"></a>语录</h1><p>自己花了精力做的事情要尽可能的对自己未来有帮助。</p>
-<p>过分追求物质可能会成为生活的负担。</p>
+<h2 id="硬件选型"><a href="#硬件选型" class="headerlink" title="硬件选型"></a>硬件选型</h2><p>如下是对于硬件的选型及相关介绍，最后附有一张所有用到的硬件的图片。</p>
+<p><em><strong>1. 主控模块—-STM32F103C8T6</strong></em></p>
+<p>   我相信51应该是大部分电子同学入手的第一款单片机。诚然，51有其灵活轻巧之处，但是stm32具有强大外设接口和较高的运行速度（STM32F103的CPU最高速度达72 MHz，具有16KB ~ 1MB Flash、多种控制外设、USB全速接口和CAN；多达112个快速I/O口、11个定时器和13个通信接口） 此外STM32还提供了三种省电模式和两种调试方式。其灵活的调试方法、多样的功能特点和较优的性能参数同样也是选择STM32作为主控芯片的原因。  </p>
+<p><em><strong>2. 无线通信模块—-ESP01S无线通信模块</strong></em></p>
+<p>   基于此模块首先考虑的是通信方式，如果不谈应用场景，比较传输速度、传输距离和安全性，zigbee和蓝牙会是更好的选择。但是在智能家居的场景下，wifi无疑会是更优选，因为当下wifi已经基本普及到了每个家庭，模拟还原度会更高。接下来是具体芯片的选择，安信可的ESP8266模组很多都可以在该场景下应用，其具体的区分主要体现在封装方式、硬件配置、资源引脚等等方面。具体的区分可以参考安信可官网给出的文档说明，<a href="https://www.ai-thinker.com/product/esp8266">please click</a>！</p>
+<p><em><strong>3. 环境监测模块</strong></em></p>
+<ul>
+<li><p>温湿度监测—-DHT11</p>
+<blockquote>
+<p>  DHT11是一款有已校准数字信号输出的温湿度传感器。此传感器使用起来简单，精度和性能参数足够满足环境监测的场景。其遵从单总线协议，有严格的时序要求。主机先要发送一个至少18ms的低电平，在这个过程中，DHT11内部完成AD转换等操作，当主机拉高后，有20-40us时间，这个时间用于主机做输入输出切换，当主机释放总线控制权（此时主机为输入状态，总线被上拉电阻拉高），DHT11尝试将总线拉低，成功拉低后就开始准备发送数据了，再拉高一次就开始传输数据了。</p>
+</blockquote>
+</li>
+<li><p>空气质量监测—-MQ135<br> &gt; MQ系列传感器是监测空气环境最常用的传感器，大概十几个都是针对不同污染物进行检测的，本次实验我们采用的是MQ135，主要针对氨气、苯、酒精、烟雾颗粒进行空气质量检测，同样根据自己的需求可以选择其他型号的传感器吧，比如烟雾、酒精、一氧化碳等等。</p>
+</li>
+<li><p>光照监测—-BH1750</p>
+<blockquote>
+<p> BH1750传感器有接近视觉灵敏度的光谱灵敏度特性，它支持I2CBUS接口，支持1.8v逻辑输入接口。传感器有两种可选的I2Cslave地址，无需其他外部件。光源依赖性弱，受红外线影响很小。传感器通过降低功率功能，实现低电流化。</p>
+</blockquote>
+</li>
+</ul>
+<p><em><strong>4. 数据展示模块—-OLED</strong></em></p>
+<p>   数据显示无非就是OLED、LCD、TFT屏幕等等。该模块的作用是对监测到的环境数据及家具的状态进行实时显示。OLED相较于LCD屏幕则不需要背光层，同样也不需要发出光亮的液晶层；而相较于TFT有更高的性价比，最终选择了0.96寸OLED屏幕。</p>
+<p><em><strong>5. 家具模拟模块</strong></em></p>
+<p>   家具模拟模块主要是模拟到了门、窗、灯和风扇。具体是通过步进电机、舵机、LED灯和风扇模块实现的。而应用也很简单，配置IO口的工作模式，控制GPIO口输出的高低电平即可。<br>   <img src="/images/item/smarthome-2.png"></p>
+<h2 id="PCB设计"><a href="#PCB设计" class="headerlink" title="PCB设计"></a>PCB设计</h2><p>对于以上众多元件和模块，如果用导线直接连接起来的话，我只能想到一个词形容：一团乱麻！因此设计PCB板就成了解决该问题的最好方法。可能有的同学在大学期间学习过如何画板打板，有些同学没有接触过，以我自己的经验来讲，学习一两周时间对于绘制该项目PCB已经绰绰有余。该项目并不需要在板子上有各个电路的设计（有能力的同学可以设计一个电源电路），因此只需要布局布线即可还是比较简单的，以下是我所设计的板子 。</p>
+<p>该部分的设计让自己对于整个硬件资源的了解及使用有一个新的认识。在主控芯片有限的硬件资源、有限空间的电路板上，如何能充分利用每个元件的形状大小和性能特点来做到彼此之间的交互是该部分的重难点。<br>==Tips：阅读每根pin的功能，分配好主控芯片的各个管脚资源==</p>
+<p><img src="/images/item/smarthome-3.png"></p>
+<h1 id="软件设计"><a href="#软件设计" class="headerlink" title="软件设计"></a>软件设计</h1><p>整个代码工程内容相对较大，在此就不进行详细的展示了如果有需要可以私信我。在此只展示部分主函数代码和相关头文件等，除此之外，数据上云格式定义、命令下发、各个模块的驱动函数同样重要！</p>
+<h2 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"stm32f10x.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"stdio.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"math.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"delay.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"string.h"</span>	</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"dht11.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"BH1750.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"adc.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"led.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"OLED_I2C.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"usart.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"timer.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"exti.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"key.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"door_bsp.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"fan.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"esp8266.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"MqttKit.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"onenet.h"</span></span></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="主函数"><a href="#主函数" class="headerlink" title="主函数"></a>主函数</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>{</span>					<span class="comment">//定义结构体</span></span><br><span class="line">	<span class="type">uint8_t</span> temp;				<span class="comment">//温度</span></span><br><span class="line">	<span class="type">uint8_t</span> humi;				<span class="comment">//湿度</span></span><br><span class="line">	<span class="type">float</span> mq;					<span class="comment">//MQ135传感器</span></span><br><span class="line">	<span class="type">float</span> sun;					<span class="comment">//光照强度传感器</span></span><br><span class="line">	<span class="type">uint8_t</span> LED_FLAG;			<span class="comment">//LED</span></span><br><span class="line">	<span class="type">uint8_t</span> FAN_FLAG;			<span class="comment">//风扇</span></span><br><span class="line">	<span class="type">uint8_t</span> DOOR_FLAG;			<span class="comment">//步进电机</span></span><br><span class="line">	<span class="type">uint8_t</span> WARNING_FLAG;		<span class="comment">//步进电机</span></span><br><span class="line">}SendData;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> SendData send_data;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">uint8_t</span> cmd_rev_flag;</span><br><span class="line">SendData send_data = {<span class="number">0</span>, <span class="number">0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0</span> , <span class="number">0</span> , <span class="number">0</span> ,<span class="number">0</span>};	<span class="comment">//初始化</span></span><br><span class="line"><span class="type">uint8_t</span> cmd_rev_flag = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">char</span> *data_ptr = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">short</span> timeCount = <span class="number">0</span>;	<span class="comment">//发送间隔变量</span></span><br><span class="line">	Hardware_Init();</span><br><span class="line">	Net_Init();</span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	{  		</span><br><span class="line">		<span class="keyword">if</span>(++timeCount &gt;= <span class="number">200</span> || (cmd_rev_flag == <span class="number">1</span>))	</span><br><span class="line">{	</span><br><span class="line">			DHT11_Read_Data(&amp;send_data.temp,&amp;send_data.humi);</span><br><span class="line">			send_data.mq=(<span class="type">float</span>)(Get_Adc_Average(ADC_Channel_1,<span class="number">10</span>))*(<span class="number">3.3</span>/<span class="number">4096</span>);	</span><br><span class="line">			send_data.sun = LIght_Intensity();										 </span><br><span class="line">			OneNet_SendData();	<span class="comment">//发送数据</span></span><br><span class="line">			timeCount = <span class="number">0</span>;</span><br><span class="line">			cmd_rev_flag=<span class="number">0</span>;</span><br><span class="line">			ESP8266_Clear();</span><br><span class="line">		}</span><br><span class="line">		data_ptr = ESP8266_GetIPD(<span class="number">0</span>);		<span class="comment">//检查是否有下发指定</span></span><br><span class="line">		<span class="keyword">if</span>(data_ptr != <span class="literal">NULL</span>)</span><br><span class="line">			OneNet_RevPro(data_ptr);</span><br><span class="line">		delay_ms(<span class="number">10</span>);</span><br><span class="line">	}		 </span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="硬件初始化"><a href="#硬件初始化" class="headerlink" title="硬件初始化"></a>硬件初始化</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">Hardware_Init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">	delay_init();	    		<span class="comment">//延时函数初始化</span></span><br><span class="line">	TIM2_Int_Init(<span class="number">4999</span>,<span class="number">7199</span>);  	<span class="comment">//用于OLED显示</span></span><br><span class="line">	Usart1_Init(<span class="number">115200</span>);		<span class="comment">//串口调试</span></span><br><span class="line">	Usart2_Init(<span class="number">115200</span>);		<span class="comment">//esp8266--stm32通信</span></span><br><span class="line">	OLED_Init();				<span class="comment">//OLED初始化</span></span><br><span class="line">	OLED_CLS();</span><br><span class="line">	KEY_Init();					<span class="comment">//按键初始化</span></span><br><span class="line">	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);</span><br><span class="line">								<span class="comment">//设置中断优先级分组2，为后面外部中断做基础</span></span><br><span class="line">	EXTIX_Init();				<span class="comment">//判断键值执行操作</span></span><br><span class="line">	DHT11_Init();				<span class="comment">//温湿度传感器初始化</span></span><br><span class="line">	Adc_Init();					<span class="comment">//空气检测初始化</span></span><br><span class="line">	BH1750_Init();				<span class="comment">//光照</span></span><br><span class="line">	TIM3_Int_Init(<span class="number">4999</span>,<span class="number">7199</span>);  	<span class="comment">//报警显示</span></span><br><span class="line">	ESP8266_Init();				<span class="comment">//初始化ESP8266</span></span><br><span class="line">	<span class="keyword">while</span>(OneNet_DevLink())		<span class="comment">//接入OneNET</span></span><br><span class="line">	delay_ms(<span class="number">500</span>);</span><br><span class="line">}	</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="云平台选择"><a href="#云平台选择" class="headerlink" title="云平台选择"></a>云平台选择</h1><p>本设计还有一个重要的部分就是对于云平台的选择，本项目选择的是中国移动物联网云平台OneNET。当然，如果有能力的同学自己做个app更好。</p>
+<p>目前很多云平台厂商都支持了对于个人开发者的物联网应用的需求，我见到用到最多的包括阿里云、腾讯云、机智云、OneNET等等。这些平台对对于个人开发者还是很有好的，有着比较完善的流程。我个人使用过机智云和OneNET，对此做出以下建议。</p>
+<ul>
+<li>OneNET：更适合已有工程文件，在此基础之上进行通信部分的开发。其对于最终的界面设计很开放，可以自行设计图标及显示方式等；</li>
+<li>机智云：适合没有工程文件，从刚开始就选择使用该物联网云平台。可以在平台上生成代码包进行开发；</li>
+</ul>
+<h1 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h1><h2 id="实物图与手机界面"><a href="#实物图与手机界面" class="headerlink" title="实物图与手机界面"></a>实物图与手机界面</h2><p><img src="/images/item/smarthome-4.png"></p>
+<h2 id="云平台数据可视化界面"><a href="#云平台数据可视化界面" class="headerlink" title="云平台数据可视化界面"></a>云平台数据可视化界面</h2><p><img src="/images/item/smarthome-5.png"></p>
+<h2 id="云平台控制界面"><a href="#云平台控制界面" class="headerlink" title="云平台控制界面"></a>云平台控制界面</h2><p><img src="/images/item/smarthome-6.png"></p>
+<h1 id="实现功能及扩展"><a href="#实现功能及扩展" class="headerlink" title="实现功能及扩展"></a>实现功能及扩展</h1><h2 id="实现功能"><a href="#实现功能" class="headerlink" title="实现功能"></a>实现功能</h2><ul>
+<li><p>监测：空气中温度、湿度、光照和空气质量等环境因素；</p>
+</li>
+<li><p>控制：模拟的“家居”：门、灯、窗帘、风扇；</p>
+</li>
+<li><p>显示：OLED显示、手机显示、电脑显示；</p>
+</li>
+<li><p>控制方式：按键控制、手机控制、电脑控制；</p>
+</li>
+<li><p>报警：设置环境因素阈值，超标开发板的灯亮起（可改成蜂鸣器）</p>
+</li>
+<li><p>以上所有环境及家具状态都可以可视化显示</p>
+</li>
+</ul>
+<h2 id="可扩展功能"><a href="#可扩展功能" class="headerlink" title="可扩展功能"></a>可扩展功能</h2><p>该系统具有很高的扩展性，做出基础模型之后可以进行二次开发。需要注意的是将硬件资源分配好。</p>
+<ul>
+<li>语音模块。语音控制智能家居的状态。</li>
+<li>安防系统。添加指纹、RFID、面部识别等开门方式。</li>
+<li>告警系统。目前只是遇到告警平台自动提醒，可以添加短信通知功能。</li>
+<li>模式选择。居家多种模式自动切换，娱乐模式、休息模式、离家模式等等，家具可以对应着不同状态。</li>
+<li>……</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本设计对于智能家居控制系统的模拟从传统到智能、从前端到后端，覆盖面、还原度还是比较高的；其次，系统的兼容性和可扩展移植性较高，基于此可以进行二次开发，可以扩展的内容我在上面也有总结。我认为相对容易上手的就是对于监测到的数据进行进一步分析应用。最后就是其应用性，当自己设计好电源模块可以独立供电后就可以直接应用到生活中，即使不做毕设diy一个环境监测的系统也是不错的。整体来说，本设计实现的功能是：四测三显两控一平台，基本实现了智能家居模拟的基本的要求。同样该项目还可以应用到环境监测等方面的，但是其侧重点更要偏向数据的分析和处理。</p>
+<p>行文至此就结束啦，如果有不足之处或者更好的想法可以一起交流 ~</p>
 ]]></content>
       <categories>
-        <category>Reading</category>
+        <category>Item</category>
       </categories>
       <tags>
-        <tag>读书笔记</tag>
+        <tag>毕业设计</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>硬件随机数测试方法</title>
-    <url>/2022/11/26/third-party/DTRNG_Test/</url>
-    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
-<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
-<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
-<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
-</ol>
-<ul>
-<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
-</li>
-<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
-</li>
-<li><p>windows安装</p>
-<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
-<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
-</li>
-<li><p>Linux安装</p>
-<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
-</li>
-</ul>
-<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
-<ol>
-<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
-<li>Frequency Test within a Block，块内频率检测</li>
-<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
-<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
-<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
-<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
-<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
-<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
-<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
-<li>The Linear Complexity Test，线性复杂度检测</li>
-<li>The Serial Test，序列检测</li>
-<li>The Approximate Entropy Test，近似熵检测</li>
-<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
-<li>The Random Excursions Test，随机游动检测</li>
-<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
-</ol>
-<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
-<ol>
-<li>启动程序。**./assess ，**stream length译为流的长度。</li>
-<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
-<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
-<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
-<li>输入比特流的个数。表示有多少个stream</li>
-<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
-</ol>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
-<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
-<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
-<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
-</ol>
-<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
-<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
-<li><p>Q：Segment fault</p>
-<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
-</li>
-<li><p>Q：igamc: UNDERFLOW？</p>
-<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
-</li>
-<li><p>Q：P-value全部是0？</p>
-<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Third Party</category>
-      </categories>
   </entry>
   <entry>
     <title>CMake</title>
@@ -1970,12 +2064,102 @@
 
 ]]></content>
       <categories>
-        <category>Linux</category>
-        <category>Tools</category>
+        <category>Third Party</category>
       </categories>
       <tags>
         <tag>Makefile</tag>
         <tag>CmakeLists.txt</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>硬件随机数测试方法</title>
+    <url>/2022/11/26/third-party/DTRNG_Test/</url>
+    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
+<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
+<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
+<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
+</ol>
+<ul>
+<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
+</li>
+<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
+</li>
+<li><p>windows安装</p>
+<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
+<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
+</li>
+<li><p>Linux安装</p>
+<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+</li>
+</ul>
+<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
+<ol>
+<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
+<li>Frequency Test within a Block，块内频率检测</li>
+<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
+<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
+<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
+<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
+<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
+<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
+<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
+<li>The Linear Complexity Test，线性复杂度检测</li>
+<li>The Serial Test，序列检测</li>
+<li>The Approximate Entropy Test，近似熵检测</li>
+<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
+<li>The Random Excursions Test，随机游动检测</li>
+<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
+</ol>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
+<ol>
+<li>启动程序。**./assess ，**stream length译为流的长度。</li>
+<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
+<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
+<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
+<li>输入比特流的个数。表示有多少个stream</li>
+<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
+</ol>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
+<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
+<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
+<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
+</ol>
+<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
+<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
+<li><p>Q：Segment fault</p>
+<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
+</li>
+<li><p>Q：igamc: UNDERFLOW？</p>
+<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
+</li>
+<li><p>Q：P-value全部是0？</p>
+<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Third Party</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Docker</title>
+    <url>/2023/04/19/third-party/docker/</url>
+    <content><![CDATA[<h1 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h1><h2 id="查看"><a href="#查看" class="headerlink" title="查看"></a>查看</h2><figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看正在运行的容器</span></span><br><span class="line">sudo docker ps</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看所有容器的ID</span></span><br><span class="line">sudo docker ps -aq</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看docker的镜像</span></span><br><span class="line">sudo docker images</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="停止容器"><a href="#停止容器" class="headerlink" title="停止容器"></a>停止容器</h2><figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">根据 CONTAINER ID或 NAMES 停止一个/多个容器(ID或NAME通过docker ps查看)</span></span><br><span class="line">sudo docker stop ID1 ID2 ID3</span><br><span class="line">sudo dokcer stop NAME1 NAME2 NAME3</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">停止所有（正在运行/退出...）容器</span></span><br><span class="line">sudo docker stop $(sudo docker ps -aq)</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h2><figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">根据 CONTAINER ID或 NAMES 取出一个/多个容器(ID或NAME通过docker ps查看)</span></span><br><span class="line">sudo docker rm ID1 ID2 ID3</span><br><span class="line">sudo dokcer rm NAME1 NAME2 NAME3</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">取出所有（正在运行/退出...）容器</span></span><br><span class="line">sudo docker rm $(sudo docker ps -aq)</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="搭建Http服务器"><a href="#搭建Http服务器" class="headerlink" title="搭建Http服务器"></a>搭建Http服务器</h1><figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载docker</span></span><br><span class="line">sudo apt-get install docker;</span><br><span class="line">sudo apt-get install docker.io</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2. 导入环境变量，最终作为服务器根目录的文件夹</span></span><br><span class="line">export DOCK_SERVER_PATH=/home/user/docker</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3. 创建容器，在创建容器的过程中，需要用到nginx的镜像文件，镜像文件的下载时自动完成的，如果没有指定的版本号，默认时最新版本。</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">	-d表示  容器在后台运行（不产生输出到Shell）并显示容器的ID；</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">	-p表示  映射容器的端口到宿主机的端口；</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">	-v表示  将本地目录复制到服务器的目录，中间冒号隔开；映射的目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">	--<span class="built_in">rm</span>   容器停止后自动删除容器，例如通过docker container stop mynginx以后，容器就没有了；</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">	-name  后面的mynginx就是自定义容器的名字</span></span><br><span class="line">sudo docker container run -d -p 80:80 --rm -v $DOCK_SERVER_PATH/:/usr/share/nginx/html --name mynginx nginx </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4. 进入容器</span></span><br><span class="line">sudo docker exec -it 576ff9b465d0 /bin/bash</span><br></pre></td></tr></tbody></table></figure>
+
+]]></content>
+      <categories>
+        <category>Third Party</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
       </tags>
   </entry>
   <entry>
@@ -2110,86 +2294,6 @@
       <tags>
         <tag>lwip websocket</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>51job爬虫项目</title>
-    <url>/2022/12/03/item/51job/</url>
-    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>紧接着豆瓣爬虫的项目，该项目作为其后的练习和扩展，算是一个较为不错的上手练习。本文所涉及的是对于51job数据的爬取、解析和保存。对于数据可视化操作，在后续会持续更新，请关注！<br>在下面代码中有些函数内部调用了其他函数，需要补全各个部分的函数。如果需要源码请私信或者评论。</p>
-<blockquote>
-<p>具体关于库的操作我选择了一些官方文档和较好理解的解读文章做链接，知识点比较全面请参考下列表。</p>
-</blockquote>
-<ul>
-<li><p><a href="https://python-selenium-zh.readthedocs.io/zh_CN/latest/">详情页URL获取模块：selenium</a></p>
-</li>
-<li><p><a href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></p>
-</li>
-<li><p><a href="https://www.jianshu.com/p/9135d7833d6d">数据提取etree模块：lxml</a></p>
-</li>
-<li><p><a href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></p>
-</li>
-<li><p><a href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></p>
-</li>
-</ul>
-<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="详情页链接的获取：selenium"><a href="#详情页链接的获取：selenium" class="headerlink" title="详情页链接的获取：selenium"></a>详情页链接的获取：selenium</h2><p>selenium作为web自动化测试工具，目前在python爬虫中应用也越来越广泛。其主要应用原理是：通过完全模拟浏览器的操作，比如输入框输入、点击超链接元素、下拉滚动条等等来拿到js渲染之后的代码。<br>必要性：之前用的requests是对一个页面发送请求，只能获得当前加载出来的部分页面即最初的源代码，动态加载的数据是获取不到的，比如js渲染后的代码、下拉滚轮得到的数据和一些框内隐藏元素等等。<br>对于selenium的解读，<a href="https://blog.csdn.net/heartbeat196/article/details/113831482">请点击click</a>！</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">#获得所有网页详情页链接</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_link</span>():</span><br><span class="line">    linklist = []</span><br><span class="line">    <span class="comment">#创建驱动器对象</span></span><br><span class="line">    wd = webdriver.Chrome(<span class="string">r'C:\Program Files\Google\Chrome\Application\chromedriver.exe'</span>)</span><br><span class="line">    wd.implicitly_wait(<span class="number">5</span>)</span><br><span class="line">    <span class="comment">#访问51job网站</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">21</span>):</span><br><span class="line">        wd.get(<span class="string">f"https://search.51job.com/list/010000,000000,0000,00,9,99,keyword,2,<span class="subst">{i}</span>.html?"</span>)</span><br><span class="line">        <span class="comment">#查找每每一条信息链接进入详情页</span></span><br><span class="line">        joblists = wd.find_elements_by_xpath(<span class="string">'//div[@class="j_joblist"]/div/a'</span>)</span><br><span class="line">        <span class="keyword">for</span> joblist <span class="keyword">in</span> joblists:</span><br><span class="line">            con_link = joblist.get_attribute(<span class="string">"href"</span>)</span><br><span class="line">            linklist.append(con_link)</span><br><span class="line">    wd.quit()</span><br><span class="line">    <span class="keyword">return</span> linklist</span><br></pre></td></tr></tbody></table></figure>
-
-<blockquote>
-<p>注释：</p>
-<ol>
-<li>代码中的 webdriver.Chrome，后面是自己所用的驱动器的本地地址。</li>
-<li>webdriver对象wd，调用 get方法，后面括号内为自己所要访问的网页链接地址。</li>
-</ol>
-</blockquote>
-<h2 id="数据爬取与解析：xpath"><a href="#数据爬取与解析：xpath" class="headerlink" title="数据爬取与解析：xpath"></a>数据爬取与解析：xpath</h2><p>由于自己习惯于使用xpath方法解析，在此只做xpath解析的方法，如果需要re正则表达式或者BeautifulSoup解析，评论后续会更新。</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_data</span>():</span><br><span class="line">    job_information = []</span><br><span class="line">    url_lists = get_link()</span><br><span class="line">    <span class="keyword">for</span> i,url <span class="keyword">in</span> <span class="built_in">enumerate</span>(url_lists):</span><br><span class="line">        datalist=[]</span><br><span class="line">        header = {</span><br><span class="line">            <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0(Windows NT 10.0;Win64;x64)AppleWebKit/537.36(KHTML,likeGecko)Chrome/88.0.4324.150Safari/537.36"</span></span><br><span class="line">        }</span><br><span class="line">        response = requests.get(url, headers=header)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            html = response.content.decode(<span class="string">"gbk"</span>)</span><br><span class="line">            data = etree.HTML(html)</span><br><span class="line">            link = url</span><br><span class="line">            datalist.append(link)		<span class="comment">#存入岗位链接</span></span><br><span class="line">            title = data.xpath(<span class="string">r'//div[@class="cn"]/h1/@title'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(title)		<span class="comment">#存入岗位名称</span></span><br><span class="line">            salary = data.xpath(<span class="string">r'//div[@class="cn"]/strong/text()'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(salary)</span><br><span class="line">            information = data.xpath(<span class="string">r'//p[@class="msg ltype"]/@title'</span>)[<span class="number">0</span>]</span><br><span class="line">            information = re.sub(<span class="string">r"\s+"</span>, <span class="string">""</span>, information)  <span class="comment"># 去除空白格</span></span><br><span class="line">            experience = information.split(<span class="string">"|"</span>)[<span class="number">1</span>]</span><br><span class="line">            datalist.append(experience)</span><br><span class="line">            education = information.split(<span class="string">"|"</span>)[<span class="number">2</span>]</span><br><span class="line">            datalist.append(education)</span><br><span class="line">            num = information.split(<span class="string">"|"</span>)[<span class="number">3</span>]</span><br><span class="line">            datalist.append(num)</span><br><span class="line">            place = data.xpath(<span class="string">r'//p[@class="fp"]/text()'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(place)</span><br><span class="line">            treatment = data.xpath(<span class="string">r'//span[@class="sp4"]/text()'</span>)</span><br><span class="line">            treatment = <span class="string">" "</span>.join(treatment)</span><br><span class="line">            datalist.append(treatment)</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"-----第{}条------"</span>.<span class="built_in">format</span>(i))</span><br><span class="line">            job_information.append(datalist)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"-----第{}条出错，原因是{}------"</span>.<span class="built_in">format</span>(i,e))</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="comment">#print(job_information)		#测试</span></span><br><span class="line">    <span class="keyword">return</span> job_information</span><br></pre></td></tr></tbody></table></figure>
-<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="Excel本地保存"><a href="#Excel本地保存" class="headerlink" title="Excel本地保存"></a>Excel本地保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_data_excel</span>(<span class="params">datalist</span>):</span><br><span class="line">    workbook = xlwt.Workbook(encoding=<span class="string">"gbk"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">    worksheet = workbook.add_sheet(<span class="string">"python"</span>)</span><br><span class="line">    col = [<span class="string">"链接"</span>, <span class="string">"岗位名称"</span>, <span class="string">"薪资"</span>, <span class="string">"工作经验"</span>, <span class="string">"学历"</span>, <span class="string">"招聘人数"</span>, <span class="string">"工作地点"</span>, <span class="string">"福利"</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">            worksheet.write(i+<span class="number">1</span>,j,datalist[i][j])</span><br><span class="line">    workbook.save(<span class="string">"北京-python工作.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
-<h2 id="Excel数据保存结果展示"><a href="#Excel数据保存结果展示" class="headerlink" title="Excel数据保存结果展示"></a>Excel数据保存结果展示</h2><p><img src="/images/item/51job-1.png" alt="在这里插入图片描述"></p>
-<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><p>在此部分只写了数据库保存的工作，数据库的初始化创建需函数sql_init需要添加即可使用。</p>
-<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_data_sql</span>(<span class="params">datalist,dbpath</span>):</span><br><span class="line">    sql_init(dbpath)</span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">            data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        insert into job_information(</span></span><br><span class="line"><span class="string">            link,title,salary,experience,education,num,place,treatment)</span></span><br><span class="line"><span class="string">            values(%s)'''</span>%<span class="string">","</span>.join(data)</span><br><span class="line">        <span class="comment">#print(sql)     #测试sql语句是否正确</span></span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br></pre></td></tr></tbody></table></figure>
-<h2 id="sqlite数据库保存结果展示"><a href="#sqlite数据库保存结果展示" class="headerlink" title="sqlite数据库保存结果展示"></a>sqlite数据库保存结果展示</h2><p><img src="/images/item/51job-2.png" alt="在这里插入图片描述"></p>
-<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><p>null</p>
-]]></content>
-      <categories>
-        <category>Item</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
-    <url>/2022/12/03/item/doubanTop250Spider/</url>
-    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在爬虫学习中，一套完整的项目实战对于代码和计算机思维能力有很大的提升。本文基于B站视频<a href="https://www.bilibili.com/video/BV12E411A7ZQ?from=search&amp;seid=4741588992451392787">《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》</a>关于 “豆瓣电影Top250” 项目做出的总结、拓展与分享。<br>在本文中，只展示数据爬取到数据保存的工作，数据可视化部分只做部分分析和结果展示。具体关于库的操作我选择了一些官方文档做链接，知识点比较全面请参考下列表。如果想要项目源代码，请评论或私信。</p>
-<ul>
-<li><a href="https://docs.python.org/zh-cn/3.7/library/urllib.html?highlight=urllib">URL处理系统模块：urllib</a></li>
-<li><a href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></li>
-<li><a href="https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/">数据提取bs4模块：BeautifulSoup</a></li>
-<li><a href="https://docs.python.org/zh-cn/3.7/library/re.html">数据提取正则表达式模块：re</a></li>
-<li><a href="https://www.jianshu.com/p/9135d7833d6d">数据提取模块 ：lxml</a></li>
-<li><a href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></li>
-<li><a href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></li>
-</ul>
-<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="数据爬取"><a href="#数据爬取" class="headerlink" title="数据爬取"></a>数据爬取</h2><p>数据爬取工作是整个工程的第一步，这一阶段所要做的工作是将网页上带有我们需要的信息的网页源码抓取下来。<strong>建议在此步骤时，如果数据量不大全部抓取保存到本地；如果数据量很大，则先保存一组到多组数据到本地</strong>。在接下的数据解析时通过本地文件解析，这样做会避免后面多次访问网站而被封ip，当然针对被封ip有相应的解决办法，但是这些内容涉及到网络知识，建议后面再学。</p>
-<h3 id="urllib方法"><a href="#urllib方法" class="headerlink" title="urllib方法"></a>urllib方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line"><span class="comment">#构建请求</span></span><br><span class="line">req = urllib.request.Request(url=base_url,headers=header)</span><br><span class="line"><span class="comment">#得到响应</span></span><br><span class="line">response = urllib.request.urlopen(req)</span><br><span class="line">html = response.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(html)</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="requests方法"><a href="#requests方法" class="headerlink" title="requests方法"></a>requests方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line">response = requests.get(url=base_url,headers=header)</span><br><span class="line">data = response.content.decode()</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(data)</span><br></pre></td></tr></tbody></table></figure>
-<h2 id="数据解析"><a href="#数据解析" class="headerlink" title="数据解析"></a>数据解析</h2><p>数据解析作为第二步是整个工程的核心，这一步直接决定了 我们是否能够在海量的数据中只得到我们想要的数据。爬虫中三种重要的数据解析的方法分别是：BeautifulSoup、re正则表达式和xpath，三种方法没有优劣好坏，按照我前面给出的文档，自己用好一种即可满足需求，当然三种方法根据场景使用是最高效的，如果你是大佬的话👍。<br>我自己常用的是xpath方法。第一，xpath路径可以直接在网页上进行复制；第二，可以通过<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">XPath Helper工具</a>进行更好的测试，我在之前的博客有提到可以<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">点击</a>查看。下面我用三种不同的方法对保存到本地的一页上的数据进行了解析。</p>
-<h3 id="BeaufifulSoup"><a href="#BeaufifulSoup" class="headerlink" title="BeaufifulSoup"></a>BeaufifulSoup</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line"><span class="comment">#构建BeautifulSoup对象</span></span><br><span class="line">soup = BeautifulSoup(html,<span class="string">"html.parser"</span>)</span><br><span class="line"><span class="comment">#得到每一块的内容</span></span><br><span class="line">blocks = soup.select(<span class="string">".grid_view .item"</span>)</span><br><span class="line"><span class="comment">#构建电影列表</span></span><br><span class="line">movie_list = []</span><br><span class="line"><span class="comment">#电影链接和电影图片链接</span></span><br><span class="line"><span class="keyword">for</span> index,block <span class="keyword">in</span> <span class="built_in">enumerate</span>(blocks):</span><br><span class="line">    movie_dict = {}</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = block.select(<span class="string">"a"</span>)[<span class="number">0</span>].get(<span class="string">"href"</span>)       <span class="comment">#电影详情页链接</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = block.select(<span class="string">"img"</span>)[<span class="number">0</span>].get(<span class="string">"src"</span>)        <span class="comment">#电影链接</span></span><br><span class="line">    title = block.select(<span class="string">".title"</span>)                      <span class="comment">#电影名字</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        o_title = block.select(<span class="string">".title"</span>)[<span class="number">1</span>].text            <span class="comment"># 电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = o_title.replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span>                                       <span class="comment">#电影外文名字</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = block.select(<span class="string">".star .rating_num"</span>)[<span class="number">0</span>].text        <span class="comment">#电影评分</span></span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = block.select(<span class="string">".star span"</span>)[<span class="number">3</span>].text[:-<span class="number">3</span>]         <span class="comment">#评分人数</span></span><br><span class="line">    bd = block.select(<span class="string">".bd p"</span>)[<span class="number">0</span>].text</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = re.sub(<span class="string">" "</span>,<span class="string">""</span>,bd)</span><br><span class="line">    movie_dict[<span class="string">"inq"</span>] = block.select(<span class="string">".quote .inq"</span>)[<span class="number">0</span>].text.replace(<span class="string">"。"</span>,<span class="string">""</span>)</span><br><span class="line">    movie_list.append(movie_dict)</span><br><span class="line"><span class="comment">#打印测试</span></span><br><span class="line"><span class="built_in">print</span>(movie_list)</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="xpath"><a href="#xpath" class="headerlink" title="xpath"></a>xpath</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="comment">#构建etree对象</span></span><br><span class="line">data = etree.HTML(content)</span><br><span class="line"><span class="comment">#获取多个电影信息列表</span></span><br><span class="line">divs = data.xpath(<span class="string">'//div[@class="item"]'</span>)</span><br><span class="line"><span class="keyword">for</span> div <span class="keyword">in</span> divs:</span><br><span class="line">    movie_dict = { }</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]/a/@href'</span>)</span><br><span class="line">    <span class="comment">#print(movie_href)          #测试</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]//img/@src'</span>)</span><br><span class="line">    <span class="comment">#print(pic_href)           #测试</span></span><br><span class="line">    title = div.xpath(<span class="string">'div[@class="info"]//a/span[@class="title"]/text()'</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        o_title = title[<span class="number">1</span>].replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">""</span>.join(o_title.split())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span></span><br><span class="line">    <span class="comment">#print(c_title,o_title)      #测试</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = div.xpath(<span class="string">'div//div[2]/div/span[2]/text()'</span>)</span><br><span class="line">    <span class="comment">#print(rate)                #测试</span></span><br><span class="line">    judge = div.xpath(<span class="string">'div//div[2]/div/span[4]/text()'</span>)</span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = (<span class="built_in">str</span>(judge))[<span class="number">2</span>:-<span class="number">5</span>]</span><br><span class="line">    <span class="comment">#print(judge)                #测试</span></span><br><span class="line">    bd = <span class="built_in">str</span>(div.xpath(<span class="string">'div//div[@class="bd"]/p[1]/text()'</span>))</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = bd.replace(<span class="string">" "</span>,<span class="string">""</span>).replace(<span class="string">r"\xa0"</span>,<span class="string">""</span>).replace(<span class="string">r"\r"</span>,<span class="string">""</span>).replace(<span class="string">r"\n"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="comment">#print(bd)                   #测试</span></span><br><span class="line">    <span class="built_in">print</span>(movie_dict)</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="re正则表达式"><a href="#re正则表达式" class="headerlink" title="re正则表达式"></a>re正则表达式</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="comment">#影片详情链接规则</span></span><br><span class="line">findLink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;a href="(.*?)"&gt;'</span>)        <span class="comment">#创建正则表达式对象，表示规则（字符串的模式）</span></span><br><span class="line"><span class="comment">#影片图片规则</span></span><br><span class="line">findSrclink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;img.*src="(.*?)"'</span>,re.S)</span><br><span class="line"><span class="comment">#影片片名规则</span></span><br><span class="line">findTitle = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="title"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片的评分规则</span></span><br><span class="line">findGrade = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="rating_num" property="v:average"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#评价人数规则</span></span><br><span class="line">findJud = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span&gt;(.*)人评价&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#找到概况</span></span><br><span class="line">findInq = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="inq"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片相关内容</span></span><br><span class="line">findBd = re.<span class="built_in">compile</span>(<span class="string">r'&lt;p class=""&gt;(.*?)&lt;/p&gt;'</span>,re.S)</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line">datalist = []</span><br><span class="line">soup = BeautifulSoup(content, <span class="string">"html.parser"</span>)</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> soup.find_all(<span class="string">"div"</span>,class_ = <span class="string">"item"</span>):</span><br><span class="line">    item = <span class="built_in">str</span>(item)</span><br><span class="line">    <span class="comment">#print(html)                                             #测试电影信息的一小段有没有内解析拿到</span></span><br><span class="line">    data = [ ]</span><br><span class="line">    title = re.findall(findTitle,item)</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">len</span>(title)==<span class="number">2</span>):</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = title[<span class="number">1</span>]</span><br><span class="line">        Ftitle = title[<span class="number">1</span>].replace(<span class="string">"/"</span>, <span class="string">""</span>)</span><br><span class="line">        Ftitle = <span class="string">""</span>.join(Ftitle.split())</span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = <span class="string">" "</span></span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    link = re.findall(findLink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(link)</span><br><span class="line">    srclink = re.findall(findSrclink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(srclink)</span><br><span class="line">    grade = re.findall(findGrade,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(grade)</span><br><span class="line">    judge = re.findall(findJud,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(judge)</span><br><span class="line">    inq = re.findall(findInq,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(inq)</span><br><span class="line">    bd = re.findall(findBd,item)[<span class="number">0</span>]</span><br><span class="line">    bd = re.sub(<span class="string">'&lt;br(\s+)?/&gt;(\s+)?'</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = re.sub(<span class="string">"/"</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = <span class="string">""</span>.join(bd.split())</span><br><span class="line">    data.append(bd)</span><br><span class="line">    datalist.append(data)</span><br><span class="line"><span class="built_in">print</span>(datalist)            <span class="comment">#测试所有列表是否被打印</span></span><br></pre></td></tr></tbody></table></figure>
-<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="本地excel保存"><a href="#本地excel保存" class="headerlink" title="本地excel保存"></a>本地excel保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> xlwt</span><br><span class="line">workbook = xlwt.Workbook(encoding=<span class="string">"utf-8"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">worksheet = workbook.add_sheet(<span class="string">"豆瓣电影250"</span>)</span><br><span class="line">col = [<span class="string">"中文名"</span>, <span class="string">"外文名"</span>, <span class="string">"电影链接"</span>, <span class="string">"图片链接"</span>, <span class="string">"评分"</span>, <span class="string">"评价人数"</span>, <span class="string">"概评"</span>, <span class="string">"概述"</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">    worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(i + <span class="number">1</span>, j, datalist[i][j])</span><br><span class="line">workbook.save(<span class="string">"豆瓣top250_firstPage.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
-<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sqlite3</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">init_db</span>(<span class="params">dbpath</span>):</span><br><span class="line">    sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        create table movie250 </span></span><br><span class="line"><span class="string">        (</span></span><br><span class="line"><span class="string">        id integer primary key autoincrement,</span></span><br><span class="line"><span class="string">        info_link text,</span></span><br><span class="line"><span class="string">        pic_link text,</span></span><br><span class="line"><span class="string">        cname varchar,</span></span><br><span class="line"><span class="string">        ename varchar,</span></span><br><span class="line"><span class="string">        score numeric ,</span></span><br><span class="line"><span class="string">        rated numeric ,</span></span><br><span class="line"><span class="string">        instroduction text,</span></span><br><span class="line"><span class="string">        info text</span></span><br><span class="line"><span class="string">        )</span></span><br><span class="line"><span class="string">    '''</span>  <span class="comment"># 创建数据表</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cursor = conn.cursor()</span><br><span class="line">    cursor.execute(sql)</span><br><span class="line">    conn.commit()</span><br><span class="line">    conn.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">saveData2DB</span>(<span class="params">datalist, dbpath</span>):</span><br><span class="line">    <span class="comment">#init_db(dbpath)</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        	data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">                insert into movie250 (</span></span><br><span class="line"><span class="string">                info_link,pic_link,cname,ename,score,rated,instroduction,info) </span></span><br><span class="line"><span class="string">                values(%s)'''</span> % <span class="string">","</span>.join(data)</span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br><span class="line">saveData2DB(datalist,<span class="string">"movie.db"</span>)</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h3><p><img src="/images/item/douban-1.png" alt="在这里插入图片描述"><br><img src="/images/item/douban-2.png" alt="在这里插入图片描述"></p>
-<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><h2 id="Flask"><a href="#Flask" class="headerlink" title="Flask"></a><a href="https://dormousehole.readthedocs.io/en/latest/">Flask</a></h2><p>Flask 是一个微型的 Python 开发的 Web 框架，基于Werkzeug WSGI工具箱和Jinja2 模板引擎。 Flask使用BSD授权。 Flask也被称为“microframework”，因为它使用简单的核心，用extension增加其他功能。Flask没有默认使用的数据库、窗体验证工具。<br>简单来说在此项目中，Flask框架给我们提供了一个本地网页平台展示数据。我们根据不同的路由地址进行到不同的页面访问。如下图是首界面，通过不同的链接地址可以实现页面跳转，当然只是本地！<br><img src="/images/item/douban-3.png" alt="在这里插入图片描述"></p>
-<h2 id="Echarts"><a href="#Echarts" class="headerlink" title="Echarts"></a><a href="https://echarts.apache.org/en/index.html">Echarts</a></h2><p>Echarts是一个纯基于js的图表库，可以流畅的运行在 PC 和移动设备上。在本项目中可以将数据进行统计分类从而用不同的展示方法进行展现。在Echarts中可以支持的图表类型有很多，同时其有一个很好的点在于它能满足我们实时修改查看，最终形成自己想要的图，便将js代码复制粘贴到我们所需要的网页代码的地方。<br>由于在页面内有动态显示，所以不在进行展示。</p>
-<h2 id="WordCloud"><a href="#WordCloud" class="headerlink" title="WordCloud"></a>WordCloud</h2><p>词云展示方法是近些年来较为常用的数据可视化方法。其主要是通过分词技术将一篇文章或者一段话分成若干单词，然后统计这些词出现的频率，我们根据自定义化设置画布和这些词出现的颜色大小等等来得到某个词云。词云中重要的是画布的配置、自己所要定义的形式是什么样子，其他更多的是某些固定的方法。下图为我通过爬取毛不易的歌词内容获得毛不易的歌词词云图，如果需要此项目源码或者方法请私信。<br><img src="/images/item/douban-4.png" alt="在这里插入图片描述"></p>
-<h1 id="新手问题总结与解决方法"><a href="#新手问题总结与解决方法" class="headerlink" title="新手问题总结与解决方法"></a>新手问题总结与解决方法</h1><h2 id="ip被封"><a href="#ip被封" class="headerlink" title="ip被封"></a>ip被封</h2><p>ip被封可能是新手在爬虫学习阶段遇到的最大的问题。首先如果是初学想要尽快实现一些成果时，建议在合理范围内减少爬取次数，如果我们能获得网页内容了首先将其存到本地文件夹下进行后续的测试和解析。俗话说：上有政策下有对策，面对ip被封：基础阶段我们可以添加请求头，尽可能的进行伪装像一个浏览器在访问；再进一步我们可以自己构建代理ip函数，仿照源码添加免费ip，构建handler处理器使用opener方法也可以；如果有能力的话，可以学习代理ip池的方法来解决该问题。<br>当然，爬虫我们是要在合法范围内进行抓取，如果某些数据是机密或者不能访问的，我们还一直访问可能就很快有自己的小手镯子了🔓。我们只爬取我们可以访问到的，爬虫只是提高效率，不是翻过禁墙。</p>
-<h2 id="查看网页源码和”F12-Elements”后不一致"><a href="#查看网页源码和”F12-Elements”后不一致" class="headerlink" title="查看网页源码和”F12 Elements”后不一致"></a>查看网页源码和”F12 Elements”后不一致</h2><p>该问题可以总结为用一般方法有些需要的元素抓取不到。在本次项目中我们爬取的页面是静态网页所以可以直接抓取，但是对于动态网页就会无能为力。<br>查看网页源码：最原始的代码，指的是服务器直接发送到浏览器的代码。<br>F12检查元素：js渲染后的代码。而确实的部分就是js所渲染的。<br>如果我们想要抓取这部分代码可以采取以下两种方法：</p>
-<ol>
-<li>在页面上进行抓包，获取表单的元素和js链接提交请求</li>
-<li>通过selenium技术，模拟用户打开网页，进行自动化的抓取。</li>
-</ol>
-<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><p>以上两个问题是我在这个项目中所遇到的，当然在面对更复杂的爬虫工作时，会有更加繁琐的问题出现。还有一些其他问题，我将其总结为基础知识问题。在很多初学的时候，我们获得的数据往往以不同的格式进行存储，但是某些方法只能针对某些固定数据格式，这些需要我们提起注意；还有就是我们不可避免的马虎问题，关键词拼写错误，变量书写错误等等，这些最好的解决办法就是孰能生巧。<br>最后就是建议大家在完成一个项目时选择分块按照不同的模块去练习测试，最终完成项目。</p>
-]]></content>
-      <categories>
-        <category>Item</category>
-      </categories>
   </entry>
   <entry>
     <title>LwIP协议栈</title>
@@ -2734,120 +2838,6 @@
       </categories>
   </entry>
   <entry>
-    <title>XPath Helper安装及使用</title>
-    <url>/2022/12/03/third-party/xpath/</url>
-    <content><![CDATA[<h1 id="引语"><a href="#引语" class="headerlink" title="引语"></a>引语</h1><p><em>在爬虫各个应用场景下，数据解析为其中重要的一环。而在数据解析中，BeautifulSoup、Xpath以及正则表达式等多种方法均为利器，在实际应用中根据不同场景选择不同的方法是最高效的，但是对各个方法的掌握程度要求很高。事实上，精通一种方法就已经满足需要了，再此基础之上，用辅助工具帮助理解提高效率。<br>本文将提供给“爬虫大师们”使用xpath方法的辅助工具XPath Helper插件。</em></p>
-<h1 id="XPath-Helper简介"><a href="#XPath-Helper简介" class="headerlink" title="XPath Helper简介"></a>XPath Helper简介</h1><p>XPath即为XML路径语言，它是一种用来确定XML(标准通用标记语言的子集)文档中某部分位置的语言。XPath基于XML的树状结构，提供在数据结构树中找寻节点的能力。起初XPath的提出的初衷是将其作为一个通用的、介于XPointer与XSL间的语法模型。<br>XPath Helper是一款专用于chrome内核浏览器的实用型爬虫网页解析工具。XPath Helper插件功能强劲，支持进行XPath查询功能。XPath Help插件可以帮助用户在各类网站上通过按shift键选择想要查看的页面元素来提取查询其代码，同时还支持用户对查询出来的代码进行编辑，而编辑出的结果将立即显示在旁边的结果框中。</p>
-<h1 id="XPath-Helper安装方法"><a href="#XPath-Helper安装方法" class="headerlink" title="XPath Helper安装方法"></a>XPath Helper安装方法</h1><ol>
-<li>根据下面的链接将文件下载到本地。<br>链接：<a href="https://pan.baidu.com/s/18_Ws5qjHW9skhE1cb1jtYA">https://pan.baidu.com/s/18_Ws5qjHW9skhE1cb1jtYA</a><br>提取码：x0no</li>
-<li>下载完成后，将文件的后缀名改为“.zip”，并进行解压。</li>
-<li>解压之后有两个文件，将文件名为“2.0.2_0.crx”后缀名改为“.zip”，并对其进行二次解压。<br>==至此，所有弹出的提示语句全部选择  是==</li>
-<li>二次解压完成，获得如下图所示的文件夹。如果红色框内文件夹如图所示，将“_metadata”改为“metadata”。如果默认就是“metadata”则不需要做任何操作。<br><img src="/images/third-party/xpath-1.png"></li>
-<li>进入自己对应的浏览器。在此，我以Google浏览器为基础操作。<br><strong>点击谷歌右上角的三个点的按钮<br>选择更多工具——&gt;选择扩展程序<br>进入，打开开发者模式，加载已解压的扩展程序，选择相应的已解压的文件，确认！<br>重启浏览器，确认可以正常使用</strong></li>
-<li>如下图表示创建成功。<img src="/images/third-party/xpath-2.png" alt="在这里插入图片描述"></li>
-</ol>
-<h1 id="XPath-Helper简单使用方法"><a href="#XPath-Helper简单使用方法" class="headerlink" title="XPath Helper简单使用方法"></a>XPath Helper简单使用方法</h1><h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><ol>
-<li>获取页面元素的xpath地址。</li>
-<li>验证用户自己写的xpath地址是否正确。</li>
-</ol>
-<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><ul>
-<li>打开/关闭XPath Helper快捷键：Ctrl+Shift+x</li>
-<li>打开Xpath Helper后的结果如下图所示<br> <img src="/images/third-party/xpath-3.png" alt="在这里插入图片描述"></li>
-<li>打开该插件的情况下，按住Shift在页面内进行移动，鼠标所经过之处会有黄色方框显示，下图为在CSDN首页，选中标题引导框的结果。左侧的query框内即为选中内容的xpath地址。<br><img src="/images/third-party/xpath-4.png" alt="在这里插入图片描述"></li>
-<li>如果作为验证的方法，在query框内写入自己写入xpath地址，看result框内是否是自己想要抓取的元素，如果不正确，可以实时在query内进行修改，直至获得正确xpath地址。<br><img src="/images/third-party/xpath-5.png" alt="在这里插入图片描述"></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Third Party</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>智能家居模型设计</title>
-    <url>/2022/12/03/item/smartHome/</url>
-    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>伴随着通信技术的不断发展和社会环境的进步，人们对更智能化的生活有了更高的追求。物联网智能家居已经不能算是新鲜的名词了，其单品及互联应用也都已经非常广泛了。本设计基于STM32单片机，通过ESP8266无线通信模块以及连接相应的传感器及外设对智能家居的场景进行模拟。本文最初写于今年6月，现在从事嵌入式工作一段时间后现在再次将我的毕业设计重新进行整理和思考，希望能对读者有所帮助！</p>
-<h1 id="设计思路"><a href="#设计思路" class="headerlink" title="设计思路"></a>设计思路</h1><p>对于任何一个项目或者工程的开始第一步永远是先明确需求，知道自己做成什么样子的东西。在我参考了一些资料并阅读了几篇文献后，对其有了初认识。我理解的智能家居就是从感知层出发对环境进行监测，通过传输层遵从一定的网络协议对数据进行传输同时通过软件对数据进行整理分析，并在应用层（家具状态）做出相应的动作。最终我将该流程整理成下图所示的实物模拟，进而对其进行模块的抽象。基于此，进行下面的硬件设计选型及软件实现等等。<br><img src="/images/item/smarthome-1.png"></p>
-<h1 id="硬件设计"><a href="#硬件设计" class="headerlink" title="硬件设计"></a>硬件设计</h1><h2 id="硬件选型原则"><a href="#硬件选型原则" class="headerlink" title="硬件选型原则"></a>硬件选型原则</h2><p>由于该项目是模型设计，对于硬件的选型整体上是以==低成本、低功耗、高集成、高仿真度==为原则的。</p>
-<ul>
-<li>满足功能及性能需求。本设计的侧重点不在于数据的精确和控制的灵敏，故没有严格参数要求。</li>
-<li>易上手的“大众”产品。对于这些元件我们可以很容易的找到相关资料，而且避免踩坑。</li>
-<li>兼容性。由于是模块化设计，对于部分模块的兼容性是要有一定的要求的。</li>
-</ul>
-<h2 id="硬件选型"><a href="#硬件选型" class="headerlink" title="硬件选型"></a>硬件选型</h2><p>如下是对于硬件的选型及相关介绍，最后附有一张所有用到的硬件的图片。</p>
-<p><em><strong>1. 主控模块—-STM32F103C8T6</strong></em></p>
-<p>   我相信51应该是大部分电子同学入手的第一款单片机。诚然，51有其灵活轻巧之处，但是stm32具有强大外设接口和较高的运行速度（STM32F103的CPU最高速度达72 MHz，具有16KB ~ 1MB Flash、多种控制外设、USB全速接口和CAN；多达112个快速I/O口、11个定时器和13个通信接口） 此外STM32还提供了三种省电模式和两种调试方式。其灵活的调试方法、多样的功能特点和较优的性能参数同样也是选择STM32作为主控芯片的原因。  </p>
-<p><em><strong>2. 无线通信模块—-ESP01S无线通信模块</strong></em></p>
-<p>   基于此模块首先考虑的是通信方式，如果不谈应用场景，比较传输速度、传输距离和安全性，zigbee和蓝牙会是更好的选择。但是在智能家居的场景下，wifi无疑会是更优选，因为当下wifi已经基本普及到了每个家庭，模拟还原度会更高。接下来是具体芯片的选择，安信可的ESP8266模组很多都可以在该场景下应用，其具体的区分主要体现在封装方式、硬件配置、资源引脚等等方面。具体的区分可以参考安信可官网给出的文档说明，<a href="https://www.ai-thinker.com/product/esp8266">please click</a>！</p>
-<p><em><strong>3. 环境监测模块</strong></em></p>
-<ul>
-<li><p>温湿度监测—-DHT11</p>
-<blockquote>
-<p>  DHT11是一款有已校准数字信号输出的温湿度传感器。此传感器使用起来简单，精度和性能参数足够满足环境监测的场景。其遵从单总线协议，有严格的时序要求。主机先要发送一个至少18ms的低电平，在这个过程中，DHT11内部完成AD转换等操作，当主机拉高后，有20-40us时间，这个时间用于主机做输入输出切换，当主机释放总线控制权（此时主机为输入状态，总线被上拉电阻拉高），DHT11尝试将总线拉低，成功拉低后就开始准备发送数据了，再拉高一次就开始传输数据了。</p>
-</blockquote>
-</li>
-<li><p>空气质量监测—-MQ135<br> &gt; MQ系列传感器是监测空气环境最常用的传感器，大概十几个都是针对不同污染物进行检测的，本次实验我们采用的是MQ135，主要针对氨气、苯、酒精、烟雾颗粒进行空气质量检测，同样根据自己的需求可以选择其他型号的传感器吧，比如烟雾、酒精、一氧化碳等等。</p>
-</li>
-<li><p>光照监测—-BH1750</p>
-<blockquote>
-<p> BH1750传感器有接近视觉灵敏度的光谱灵敏度特性，它支持I2CBUS接口，支持1.8v逻辑输入接口。传感器有两种可选的I2Cslave地址，无需其他外部件。光源依赖性弱，受红外线影响很小。传感器通过降低功率功能，实现低电流化。</p>
-</blockquote>
-</li>
-</ul>
-<p><em><strong>4. 数据展示模块—-OLED</strong></em></p>
-<p>   数据显示无非就是OLED、LCD、TFT屏幕等等。该模块的作用是对监测到的环境数据及家具的状态进行实时显示。OLED相较于LCD屏幕则不需要背光层，同样也不需要发出光亮的液晶层；而相较于TFT有更高的性价比，最终选择了0.96寸OLED屏幕。</p>
-<p><em><strong>5. 家具模拟模块</strong></em></p>
-<p>   家具模拟模块主要是模拟到了门、窗、灯和风扇。具体是通过步进电机、舵机、LED灯和风扇模块实现的。而应用也很简单，配置IO口的工作模式，控制GPIO口输出的高低电平即可。<br>   <img src="/images/item/smarthome-2.png"></p>
-<h2 id="PCB设计"><a href="#PCB设计" class="headerlink" title="PCB设计"></a>PCB设计</h2><p>对于以上众多元件和模块，如果用导线直接连接起来的话，我只能想到一个词形容：一团乱麻！因此设计PCB板就成了解决该问题的最好方法。可能有的同学在大学期间学习过如何画板打板，有些同学没有接触过，以我自己的经验来讲，学习一两周时间对于绘制该项目PCB已经绰绰有余。该项目并不需要在板子上有各个电路的设计（有能力的同学可以设计一个电源电路），因此只需要布局布线即可还是比较简单的，以下是我所设计的板子 。</p>
-<p>该部分的设计让自己对于整个硬件资源的了解及使用有一个新的认识。在主控芯片有限的硬件资源、有限空间的电路板上，如何能充分利用每个元件的形状大小和性能特点来做到彼此之间的交互是该部分的重难点。<br>==Tips：阅读每根pin的功能，分配好主控芯片的各个管脚资源==</p>
-<p><img src="/images/item/smarthome-3.png"></p>
-<h1 id="软件设计"><a href="#软件设计" class="headerlink" title="软件设计"></a>软件设计</h1><p>整个代码工程内容相对较大，在此就不进行详细的展示了如果有需要可以私信我。在此只展示部分主函数代码和相关头文件等，除此之外，数据上云格式定义、命令下发、各个模块的驱动函数同样重要！</p>
-<h2 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"stm32f10x.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"stdio.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"math.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"delay.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"string.h"</span>	</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"dht11.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"BH1750.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"adc.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"led.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"OLED_I2C.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"usart.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"timer.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"exti.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"key.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"door_bsp.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"fan.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"esp8266.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"MqttKit.h"</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"onenet.h"</span></span></span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="主函数"><a href="#主函数" class="headerlink" title="主函数"></a>主函数</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>{</span>					<span class="comment">//定义结构体</span></span><br><span class="line">	<span class="type">uint8_t</span> temp;				<span class="comment">//温度</span></span><br><span class="line">	<span class="type">uint8_t</span> humi;				<span class="comment">//湿度</span></span><br><span class="line">	<span class="type">float</span> mq;					<span class="comment">//MQ135传感器</span></span><br><span class="line">	<span class="type">float</span> sun;					<span class="comment">//光照强度传感器</span></span><br><span class="line">	<span class="type">uint8_t</span> LED_FLAG;			<span class="comment">//LED</span></span><br><span class="line">	<span class="type">uint8_t</span> FAN_FLAG;			<span class="comment">//风扇</span></span><br><span class="line">	<span class="type">uint8_t</span> DOOR_FLAG;			<span class="comment">//步进电机</span></span><br><span class="line">	<span class="type">uint8_t</span> WARNING_FLAG;		<span class="comment">//步进电机</span></span><br><span class="line">}SendData;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> SendData send_data;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">uint8_t</span> cmd_rev_flag;</span><br><span class="line">SendData send_data = {<span class="number">0</span>, <span class="number">0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0</span> , <span class="number">0</span> , <span class="number">0</span> ,<span class="number">0</span>};	<span class="comment">//初始化</span></span><br><span class="line"><span class="type">uint8_t</span> cmd_rev_flag = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">char</span> *data_ptr = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">short</span> timeCount = <span class="number">0</span>;	<span class="comment">//发送间隔变量</span></span><br><span class="line">	Hardware_Init();</span><br><span class="line">	Net_Init();</span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	{  		</span><br><span class="line">		<span class="keyword">if</span>(++timeCount &gt;= <span class="number">200</span> || (cmd_rev_flag == <span class="number">1</span>))	</span><br><span class="line">{	</span><br><span class="line">			DHT11_Read_Data(&amp;send_data.temp,&amp;send_data.humi);</span><br><span class="line">			send_data.mq=(<span class="type">float</span>)(Get_Adc_Average(ADC_Channel_1,<span class="number">10</span>))*(<span class="number">3.3</span>/<span class="number">4096</span>);	</span><br><span class="line">			send_data.sun = LIght_Intensity();										 </span><br><span class="line">			OneNet_SendData();	<span class="comment">//发送数据</span></span><br><span class="line">			timeCount = <span class="number">0</span>;</span><br><span class="line">			cmd_rev_flag=<span class="number">0</span>;</span><br><span class="line">			ESP8266_Clear();</span><br><span class="line">		}</span><br><span class="line">		data_ptr = ESP8266_GetIPD(<span class="number">0</span>);		<span class="comment">//检查是否有下发指定</span></span><br><span class="line">		<span class="keyword">if</span>(data_ptr != <span class="literal">NULL</span>)</span><br><span class="line">			OneNet_RevPro(data_ptr);</span><br><span class="line">		delay_ms(<span class="number">10</span>);</span><br><span class="line">	}		 </span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h2 id="硬件初始化"><a href="#硬件初始化" class="headerlink" title="硬件初始化"></a>硬件初始化</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">Hardware_Init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">	delay_init();	    		<span class="comment">//延时函数初始化</span></span><br><span class="line">	TIM2_Int_Init(<span class="number">4999</span>,<span class="number">7199</span>);  	<span class="comment">//用于OLED显示</span></span><br><span class="line">	Usart1_Init(<span class="number">115200</span>);		<span class="comment">//串口调试</span></span><br><span class="line">	Usart2_Init(<span class="number">115200</span>);		<span class="comment">//esp8266--stm32通信</span></span><br><span class="line">	OLED_Init();				<span class="comment">//OLED初始化</span></span><br><span class="line">	OLED_CLS();</span><br><span class="line">	KEY_Init();					<span class="comment">//按键初始化</span></span><br><span class="line">	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);</span><br><span class="line">								<span class="comment">//设置中断优先级分组2，为后面外部中断做基础</span></span><br><span class="line">	EXTIX_Init();				<span class="comment">//判断键值执行操作</span></span><br><span class="line">	DHT11_Init();				<span class="comment">//温湿度传感器初始化</span></span><br><span class="line">	Adc_Init();					<span class="comment">//空气检测初始化</span></span><br><span class="line">	BH1750_Init();				<span class="comment">//光照</span></span><br><span class="line">	TIM3_Int_Init(<span class="number">4999</span>,<span class="number">7199</span>);  	<span class="comment">//报警显示</span></span><br><span class="line">	ESP8266_Init();				<span class="comment">//初始化ESP8266</span></span><br><span class="line">	<span class="keyword">while</span>(OneNet_DevLink())		<span class="comment">//接入OneNET</span></span><br><span class="line">	delay_ms(<span class="number">500</span>);</span><br><span class="line">}	</span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="云平台选择"><a href="#云平台选择" class="headerlink" title="云平台选择"></a>云平台选择</h1><p>本设计还有一个重要的部分就是对于云平台的选择，本项目选择的是中国移动物联网云平台OneNET。当然，如果有能力的同学自己做个app更好。</p>
-<p>目前很多云平台厂商都支持了对于个人开发者的物联网应用的需求，我见到用到最多的包括阿里云、腾讯云、机智云、OneNET等等。这些平台对对于个人开发者还是很有好的，有着比较完善的流程。我个人使用过机智云和OneNET，对此做出以下建议。</p>
-<ul>
-<li>OneNET：更适合已有工程文件，在此基础之上进行通信部分的开发。其对于最终的界面设计很开放，可以自行设计图标及显示方式等；</li>
-<li>机智云：适合没有工程文件，从刚开始就选择使用该物联网云平台。可以在平台上生成代码包进行开发；</li>
-</ul>
-<h1 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h1><h2 id="实物图与手机界面"><a href="#实物图与手机界面" class="headerlink" title="实物图与手机界面"></a>实物图与手机界面</h2><p><img src="/images/item/smarthome-4.png"></p>
-<h2 id="云平台数据可视化界面"><a href="#云平台数据可视化界面" class="headerlink" title="云平台数据可视化界面"></a>云平台数据可视化界面</h2><p><img src="/images/item/smarthome-5.png"></p>
-<h2 id="云平台控制界面"><a href="#云平台控制界面" class="headerlink" title="云平台控制界面"></a>云平台控制界面</h2><p><img src="/images/item/smarthome-6.png"></p>
-<h1 id="实现功能及扩展"><a href="#实现功能及扩展" class="headerlink" title="实现功能及扩展"></a>实现功能及扩展</h1><h2 id="实现功能"><a href="#实现功能" class="headerlink" title="实现功能"></a>实现功能</h2><ul>
-<li><p>监测：空气中温度、湿度、光照和空气质量等环境因素；</p>
-</li>
-<li><p>控制：模拟的“家居”：门、灯、窗帘、风扇；</p>
-</li>
-<li><p>显示：OLED显示、手机显示、电脑显示；</p>
-</li>
-<li><p>控制方式：按键控制、手机控制、电脑控制；</p>
-</li>
-<li><p>报警：设置环境因素阈值，超标开发板的灯亮起（可改成蜂鸣器）</p>
-</li>
-<li><p>以上所有环境及家具状态都可以可视化显示</p>
-</li>
-</ul>
-<h2 id="可扩展功能"><a href="#可扩展功能" class="headerlink" title="可扩展功能"></a>可扩展功能</h2><p>该系统具有很高的扩展性，做出基础模型之后可以进行二次开发。需要注意的是将硬件资源分配好。</p>
-<ul>
-<li>语音模块。语音控制智能家居的状态。</li>
-<li>安防系统。添加指纹、RFID、面部识别等开门方式。</li>
-<li>告警系统。目前只是遇到告警平台自动提醒，可以添加短信通知功能。</li>
-<li>模式选择。居家多种模式自动切换，娱乐模式、休息模式、离家模式等等，家具可以对应着不同状态。</li>
-<li>……</li>
-</ul>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本设计对于智能家居控制系统的模拟从传统到智能、从前端到后端，覆盖面、还原度还是比较高的；其次，系统的兼容性和可扩展移植性较高，基于此可以进行二次开发，可以扩展的内容我在上面也有总结。我认为相对容易上手的就是对于监测到的数据进行进一步分析应用。最后就是其应用性，当自己设计好电源模块可以独立供电后就可以直接应用到生活中，即使不做毕设diy一个环境监测的系统也是不错的。整体来说，本设计实现的功能是：四测三显两控一平台，基本实现了智能家居模拟的基本的要求。同样该项目还可以应用到环境监测等方面的，但是其侧重点更要偏向数据的分析和处理。</p>
-<p>行文至此就结束啦，如果有不足之处或者更好的想法可以一起交流 ~</p>
-]]></content>
-      <categories>
-        <category>Item</category>
-      </categories>
-      <tags>
-        <tag>毕业设计</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>sqlite</title>
     <url>/2023/04/11/third-party/sqlite3/</url>
     <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
@@ -2983,6 +2973,34 @@
 ]]></content>
       <categories>
         <category>Work Experience</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>XPath Helper安装及使用</title>
+    <url>/2022/12/03/third-party/xpath/</url>
+    <content><![CDATA[<h1 id="引语"><a href="#引语" class="headerlink" title="引语"></a>引语</h1><p><em>在爬虫各个应用场景下，数据解析为其中重要的一环。而在数据解析中，BeautifulSoup、Xpath以及正则表达式等多种方法均为利器，在实际应用中根据不同场景选择不同的方法是最高效的，但是对各个方法的掌握程度要求很高。事实上，精通一种方法就已经满足需要了，再此基础之上，用辅助工具帮助理解提高效率。<br>本文将提供给“爬虫大师们”使用xpath方法的辅助工具XPath Helper插件。</em></p>
+<h1 id="XPath-Helper简介"><a href="#XPath-Helper简介" class="headerlink" title="XPath Helper简介"></a>XPath Helper简介</h1><p>XPath即为XML路径语言，它是一种用来确定XML(标准通用标记语言的子集)文档中某部分位置的语言。XPath基于XML的树状结构，提供在数据结构树中找寻节点的能力。起初XPath的提出的初衷是将其作为一个通用的、介于XPointer与XSL间的语法模型。<br>XPath Helper是一款专用于chrome内核浏览器的实用型爬虫网页解析工具。XPath Helper插件功能强劲，支持进行XPath查询功能。XPath Help插件可以帮助用户在各类网站上通过按shift键选择想要查看的页面元素来提取查询其代码，同时还支持用户对查询出来的代码进行编辑，而编辑出的结果将立即显示在旁边的结果框中。</p>
+<h1 id="XPath-Helper安装方法"><a href="#XPath-Helper安装方法" class="headerlink" title="XPath Helper安装方法"></a>XPath Helper安装方法</h1><ol>
+<li>根据下面的链接将文件下载到本地。<br>链接：<a href="https://pan.baidu.com/s/18_Ws5qjHW9skhE1cb1jtYA">https://pan.baidu.com/s/18_Ws5qjHW9skhE1cb1jtYA</a><br>提取码：x0no</li>
+<li>下载完成后，将文件的后缀名改为“.zip”，并进行解压。</li>
+<li>解压之后有两个文件，将文件名为“2.0.2_0.crx”后缀名改为“.zip”，并对其进行二次解压。<br>==至此，所有弹出的提示语句全部选择  是==</li>
+<li>二次解压完成，获得如下图所示的文件夹。如果红色框内文件夹如图所示，将“_metadata”改为“metadata”。如果默认就是“metadata”则不需要做任何操作。<br><img src="/images/third-party/xpath-1.png"></li>
+<li>进入自己对应的浏览器。在此，我以Google浏览器为基础操作。<br><strong>点击谷歌右上角的三个点的按钮<br>选择更多工具——&gt;选择扩展程序<br>进入，打开开发者模式，加载已解压的扩展程序，选择相应的已解压的文件，确认！<br>重启浏览器，确认可以正常使用</strong></li>
+<li>如下图表示创建成功。<img src="/images/third-party/xpath-2.png" alt="在这里插入图片描述"></li>
+</ol>
+<h1 id="XPath-Helper简单使用方法"><a href="#XPath-Helper简单使用方法" class="headerlink" title="XPath Helper简单使用方法"></a>XPath Helper简单使用方法</h1><h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><ol>
+<li>获取页面元素的xpath地址。</li>
+<li>验证用户自己写的xpath地址是否正确。</li>
+</ol>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><ul>
+<li>打开/关闭XPath Helper快捷键：Ctrl+Shift+x</li>
+<li>打开Xpath Helper后的结果如下图所示<br> <img src="/images/third-party/xpath-3.png" alt="在这里插入图片描述"></li>
+<li>打开该插件的情况下，按住Shift在页面内进行移动，鼠标所经过之处会有黄色方框显示，下图为在CSDN首页，选中标题引导框的结果。左侧的query框内即为选中内容的xpath地址。<br><img src="/images/third-party/xpath-4.png" alt="在这里插入图片描述"></li>
+<li>如果作为验证的方法，在query框内写入自己写入xpath地址，看result框内是否是自己想要抓取的元素，如果不正确，可以实时在query内进行修改，直至获得正确xpath地址。<br><img src="/images/third-party/xpath-5.png" alt="在这里插入图片描述"></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Third Party</category>
       </categories>
   </entry>
   <entry>
