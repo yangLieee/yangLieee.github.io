@@ -120,126 +120,6 @@
       </tags>
   </entry>
   <entry>
-    <title>init.rc语法及解析</title>
-    <url>/2022/11/16/init.rc/</url>
-    <content><![CDATA[<p>在linux设备上输入“pstree”命令我们便会看到一棵进程树，不同状态不同设备树上进程名字进程号可能不完全一致，但进程号pid=1的进程一定是init进程！对于Android系统来讲，其实际是运行于Linux内核之上的一系列“服务进程”，而这些服务进程的“老祖宗”就是init，它是Android中第一个被启动的进程，所有服务都是通过解析init.rc文件得到的（部分可以执行程序通过init.d/文件夹下的脚本启动）</p>
-<p>本篇文章将对init.rc文件语法进行解析</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>查看andriod源码：<a href="http://androidxref.com/">http://androidxref.com/</a></p>
-</blockquote>
-<p>init.rc是系统启动的第一个程序所加载的语法文件。init.rc文件是以“块”(section)为单位服务的，一个“块”(section)可以包含多行，而一行中包含多个tokens(符号)。“块”(section)分成两大类：一类称为”动作(action)”，另一类称为“服务(service)”。而一个init.rc脚本由四个类型的声明组成：</p>
-<ol>
-<li>动作 ：Actions，以关键字“on”开始</li>
-<li>命令 ：Commands，以关键字“start”“restart”“stop”开始</li>
-<li>服务 ：Services</li>
-<li>选项 ：Options</li>
-</ol>
-<h1 id="Actions"><a href="#Actions" class="headerlink" title="Actions"></a>Actions</h1><p>Actions就是响应某个事件的过程。如下所示当满足trigger触发条件时依次执行Commands命令。源码会依次将这些命令添加到“命令执行队列尾部”，系统对这些命令顺序执行。所以服务启动的根本就是on类型的section被执行的过程</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on &lt;trigger&gt;        //触发条件</span><br><span class="line">    &lt;command1&gt;      //命令1</span><br><span class="line">    &lt;command2&gt;      //命令2</span><br><span class="line">    &lt;command3&gt;      //命令3</span><br></pre></td></tr></tbody></table></figure>
-
-<p>对于trigger（触发器）来讲，常见的有两种形式：</p>
-<ol>
-<li>单纯的字符串。例如：on boot</li>
-<li>键值匹配，格式为“ on property <key> = <value> ”。例如：on property:init.svc.wifi = stopped</value></key></li>
-</ol>
-<p>此外还有两种形式：</p>
-<ol>
-<li>device-added/removed-<patch> 当设备节点添加/删除时触发此事件</patch></li>
-<li>sevice-exited-<name> 当指定服务<name> 存在时触发</name></name></li>
-</ol>
-<h2 id="Actions解析后执行顺序"><a href="#Actions解析后执行顺序" class="headerlink" title="Actions解析后执行顺序"></a>Actions解析后执行顺序</h2><figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on early-init           #在初始化早期阶段触发</span><br><span class="line">on init                 #初始化阶段触发。这里会执行完属性服务，接下来就可以设置属性了</span><br><span class="line">on late-init            #在初始化晚期触发。在这里会通过trigger来执行其他的action,以下均是</span><br><span class="line">on early-fs</span><br><span class="line">on fs</span><br><span class="line">on post-fs</span><br><span class="line">on post-fs-data</span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">on early-boot</span><br><span class="line">on boot`</span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="Commands"><a href="#Commands" class="headerlink" title="Commands"></a>Commands</h1><table>
-<thead>
-<tr>
-<th>Command</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>start <service></service></td>
-<td>启动一个服务，如果它没有处于运行状态的话</td>
-</tr>
-<tr>
-<td>stop <service></service></td>
-<td>停止一个服务，如果当前它处于运行状态的话</td>
-</tr>
-<tr>
-<td>restart <service></service></td>
-<td></td>
-</tr>
-<tr>
-<td>setprop <name> <value></value></name></td>
-<td>设置<name>的属性值为<value></value></name></td>
-</tr>
-<tr>
-<td>trigger <event></event></td>
-<td>触发一个事件</td>
-</tr>
-<tr>
-<td>export <name> <value></value></name></td>
-<td>设置<name>环境变量的值为<value>，全局有效</value></name></td>
-</tr>
-<tr>
-<td>mount <type> <device> <dir> [<mountoption>]*</mountoption></dir></device></type></td>
-<td>尝试在指定路径上挂载一个设备</td>
-</tr>
-</tbody></table>
-<h1 id="Services"><a href="#Services" class="headerlink" title="Services"></a>Services</h1><p>实际上每一个service就是一个可执行程序，它们在特定选项的约束下是被init程序运行或者重启(service可以在配置中指定是否需要退出重启，这样当service出现异常crash时就可以有机会复原)</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">service &lt;name&gt; &lt;pathname&gt; [ &lt;argument&gt; ]*</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        ...</span><br><span class="line"># &lt;name&gt;       service服务的名字</span><br><span class="line"># &lt;pathname&gt;   service路径，一般对应可执行程序或者脚本</span><br><span class="line"># &lt;argument&gt;   启动pathname下的service所需要的参数</span><br><span class="line"># &lt;option&gt;     service的约束项</span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h1><table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>disable</td>
-<td>隐式声明，默认不会自动启动该服务，需要显式调用</td>
-</tr>
-<tr>
-<td>oneshot</td>
-<td>字面意思一次性，即服务退出时，不要主动重启该服务</td>
-</tr>
-<tr>
-<td>onrestart</td>
-<td>当服务重启时，执行某些命令（需要理解）</td>
-</tr>
-<tr>
-<td>class <name></name></td>
-<td>指定该服务属于<name>class类，默认class名为default（注：同一个class所有服务必须是同时启动或停止）</name></td>
-</tr>
-<tr>
-<td>socket <name> <type> <perm> [<user> [<group>] ]</group></user></perm></type></name></td>
-<td>创建一个名为dev/socket/<name>的 socket，然后将它的fd值传给启动它的进，有效的<type>值包括dgram,stream 和seqpacket。ueser 和group 的默认值为0。</type></name></td>
-</tr>
-<tr>
-<td>critical</td>
-<td>表明这是对设备至关重要的服务；如果它在四分钟内退出超过四次，则设备将进入Recovery 模式</td>
-</tr>
-<tr>
-<td>group <groupname> [<groupname>]*</groupname></groupname></td>
-<td>在启动服务前将用户组切换至<groupname></groupname></td>
-</tr>
-<tr>
-<td>setenv <name> <value></value></name></td>
-<td>设置环境变量<name> 为值<value></value></name></td>
-</tr>
-</tbody></table>
-<h1 id="Notice"><a href="#Notice" class="headerlink" title="Notice"></a>Notice</h1><ol>
-<li>service和Actions都是有唯一的名字的。如果有重名的情况会作为错误忽略。</li>
-<li>无论是动作还是服务，并不是按照文件的编排顺序执行的。</li>
-<li>该文件中注释以“#”开始；反斜杠“\”在行尾表示下面一行是同一行</li>
-</ol>
-<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">/* </span><br><span class="line"> * copy from http://androidxref.com/6.0.0_r5/xref/bootable/recovery/etc/init.rc</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">import /init.recovery.${ro.hardware}.rc</span><br><span class="line"></span><br><span class="line">on early-init</span><br><span class="line">    start ueventd</span><br><span class="line">    start healthd</span><br><span class="line"></span><br><span class="line">on init</span><br><span class="line">    export PATH /sbin:/system/bin</span><br><span class="line">    export ANDROID_ROOT /system</span><br><span class="line">    export ANDROID_DATA /data</span><br><span class="line">    export EXTERNAL_STORAGE /sdcard</span><br><span class="line"></span><br><span class="line">    symlink /system/etc /etc</span><br><span class="line"></span><br><span class="line">    mkdir /sdcard</span><br><span class="line">    mkdir /system</span><br><span class="line">    mkdir /data</span><br><span class="line">    mkdir /cache</span><br><span class="line">    mkdir /sideload</span><br><span class="line">    mount tmpfs tmpfs /tmp</span><br><span class="line"></span><br><span class="line">    chown root shell /tmp</span><br><span class="line">    chmod 0775 /tmp</span><br><span class="line"></span><br><span class="line">    write /proc/sys/kernel/panic_on_oops 1</span><br><span class="line">    write /proc/sys/vm/max_map_count 1000000</span><br><span class="line"></span><br><span class="line">on fs</span><br><span class="line">    mkdir /dev/usb-ffs 0770 shell shell</span><br><span class="line">    mkdir /dev/usb-ffs/adb 0770 shell shell</span><br><span class="line">    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=2000</span><br><span class="line"></span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    write /sys/class/android_usb/android0/idVendor 18D1</span><br><span class="line">    write /sys/class/android_usb/android0/idProduct D001</span><br><span class="line">    write /sys/class/android_usb/android0/f_ffs/aliases adb</span><br><span class="line">    write /sys/class/android_usb/android0/functions adb</span><br><span class="line">    write /sys/class/android_usb/android0/iManufacturer ${ro.product.manufacturer}</span><br><span class="line">    write /sys/class/android_usb/android0/iProduct ${ro.product.model}</span><br><span class="line">    write /sys/class/android_usb/android0/iSerial ${ro.serialno}</span><br><span class="line"></span><br><span class="line">on boot</span><br><span class="line">    ifup lo</span><br><span class="line">    hostname localhost</span><br><span class="line">    domainname localdomain</span><br><span class="line"></span><br><span class="line">    class_start default</span><br><span class="line"></span><br><span class="line"># Load properties from /system/ + /factory after fs mount.</span><br><span class="line">on load_all_props_action</span><br><span class="line">    load_all_props</span><br><span class="line"></span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">   rm /dev/.booting</span><br><span class="line"></span><br><span class="line"># Mount filesystems and start core system services.</span><br><span class="line">on late-init</span><br><span class="line">    trigger early-fs</span><br><span class="line">    trigger fs</span><br><span class="line">    trigger post-fs</span><br><span class="line">    trigger post-fs-data</span><br><span class="line"></span><br><span class="line">    # Load properties from /system/ + /factory after fs mount. Place</span><br><span class="line">    # this in another action so that the load will be scheduled after the prior</span><br><span class="line">    # issued fs triggers have completed.</span><br><span class="line">    trigger load_all_props_action</span><br><span class="line"></span><br><span class="line">    # Remove a file to wake up anything waiting for firmware</span><br><span class="line">    trigger firmware_mounts_complete</span><br><span class="line"></span><br><span class="line">    trigger early-boot</span><br><span class="line">    trigger boot</span><br><span class="line"></span><br><span class="line">on property:sys.powerctl=*</span><br><span class="line">   powerctl ${sys.powerctl}</span><br><span class="line"></span><br><span class="line">service ueventd /sbin/ueventd</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:ueventd:s0</span><br><span class="line"></span><br><span class="line">service healthd /sbin/healthd -r</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:healthd:s0</span><br><span class="line"></span><br><span class="line">service recovery /sbin/recovery</span><br><span class="line">    seclabel u:r:recovery:s0</span><br><span class="line"></span><br><span class="line">service adbd /sbin/adbd --root_seclabel=u:r:su:s0 --device_banner=recovery</span><br><span class="line">    disabled</span><br><span class="line">    socket adbd stream 660 system system</span><br><span class="line">    seclabel u:r:adbd:s0</span><br><span class="line"></span><br><span class="line"># Always start adbd on userdebug and eng builds</span><br><span class="line">on property:ro.debuggable=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br><span class="line">    start adbd</span><br><span class="line"></span><br><span class="line"># Restart adbd so it can run as root</span><br><span class="line">on property:service.adb.root=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    restart adbd</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br></pre></td></tr></tbody></table></figure>]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>Andriod</category>
-      </categories>
-  </entry>
-  <entry>
     <title>搭建Ubuntu虚拟机</title>
     <url>/2022/10/22/ubuntu-create/</url>
     <content><![CDATA[<h1 id="Linux-简介"><a href="#Linux-简介" class="headerlink" title="Linux 简介"></a>Linux 简介</h1><p>linus自传《只是为了好玩》中这样定义：</p>
@@ -662,6 +542,168 @@
       </tags>
   </entry>
   <entry>
+    <title>《Google工作法》</title>
+    <url>/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</url>
+    <content><![CDATA[<p><img src="/images/reading/GoogleWork.jpg" alt="img"></p>
+<p>《google工作法》作者是彼得·费利克斯·格日瓦奇，针对google的一些工作方法论和个人经验的进行著书。我认为对于这类书籍的正确使用是通读全篇，二次阅读针对部分内容自己进行场景的带入，此类工具书籍可以经常来进行翻看对自己日常生活工作方式的判断</p>
+<p>针对每个细分章节，总结并进行自己的思考</p>
+<h1 id="Faster（※）"><a href="#Faster（※）" class="headerlink" title="Faster（※）"></a>Faster（※）</h1><h2 id="一次结束，当场做完"><a href="#一次结束，当场做完" class="headerlink" title="一次结束，当场做完"></a>一次结束，当场做完</h2><p>作者认为决定工作效率的关键在于对 现在 的使用方法。对于一件事情如果能够当场做完就不要推迟到以后，对于一项决定如果当场确定就不要推迟到未来。如果当时没有进行就解决或决定就需要做出相应的计划：要想解决这个问题，需要收集哪些必要的资源。具体策略如下：</p>
+<p><img src="/images/reading/google-0.jpg" alt="img"></p>
+<p>对自己来讲，我曾经负责某个项目，客户在问我一个技术相关的问题的时候，我当时的做法可能就没有很恰当。现在来看我认为正确的流程应该是：将我自己已知的内容对客户进行反馈；将自己不知道的内容如实告诉客户并询问他目前是否有空我去找一下相关负责人来解答他这个问题（<strong>如果现在有必要的话，现在就联系；如果现在应该决定的话，现在就决定</strong>），如果中途遇到其它问题不知道谁是负责人或者负责人不在，也必须做到相关解决方案做到有切实进展（活用身边的人/回来之后第一时间反馈等等），在第一时间内将问题进行解决，不拖延！！！</p>
+<h2 id="设置deadline"><a href="#设置deadline" class="headerlink" title="设置deadline"></a>设置deadline</h2><p>能当场解决的问题一定要一次解决，而不能解决的问题一定要设置deadline，要有一种 如果现在不做那要什么时候做 的观念。对于纷杂的工作需要明确优先级、精细程度等因素。将自己的期限提前是提高效率的有效方法。</p>
+<p>对于自己来讲，如果领导要求一项工作周五之前完成。那自己的deadline要设置在周三周四做好一个demo给领导查看。在工作进行之前需要明确事情的紧急程度、完成验收的标准、是否有其它注意事项等等</p>
+<h2 id="集中精力于此时此刻"><a href="#集中精力于此时此刻" class="headerlink" title="集中精力于此时此刻"></a>集中精力于此时此刻</h2><p>正念（Mindfulness）的意思就是将意识集中于此时此刻，这一词同样被谷歌所采用。大脑就像是一个CPU应尽可能的减少大脑资源的浪费，对于任何一件事情尽可能要提前做准备。比如：前一天晚上就准备好第二天需要穿的衣服；会议前梳理会议的目的成员组织等等；任何一件事情可能发生的后果及相应的解决办法</p>
+<p>分析眼前任务的正确方式：搞清楚”为什么需要解决这个问题“，”在什么时间之前必须得出答案“，设定好”目的与目标“之后全力以赴。比如会议之前的准备列表：</p>
+<ul>
+<li>为什么将大家召集到一起</li>
+<li>要做出什么决定</li>
+<li>要取得什么成果</li>
+<li>通过会议后要得到什么收获</li>
+</ul>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><ol>
+<li><p>增加现在的密度</p>
+<p>针对自己来讲可以体现在：通勤路上进行书籍的阅读英语的学习等等，并行一些任务</p>
+</li>
+<li><p>减少邮件的使用，直接见面最有效率</p>
+</li>
+<li><p>合理使用工具</p>
+<p>时间/时间管理工具（对于notion的使用没有持续）；整理的文档传至云端，随时查看修改</p>
+</li>
+<li><p>学习英语</p>
+<p>目前很多第一手资料都是英文的，为了提高效率必须学会英文。否则内容的准确性排除在外，也是时间和成本的二次浪费</p>
+</li>
+</ol>
+<h1 id="Sense-VS-sensibility"><a href="#Sense-VS-sensibility" class="headerlink" title="Sense VS sensibility"></a>Sense VS sensibility</h1><h2 id="创意思维的产生"><a href="#创意思维的产生" class="headerlink" title="创意思维的产生"></a>创意思维的产生</h2><p>与逻辑和分析相比“ 灵感（创意思维） ”更重要</p>
+<p>通过人为地制造混乱，可以使潜意识活性化，从而更容易创造出新的创意。具体方案：准备几个透明文件袋，将各种图片、杂志、报纸剪下来的内容或写在纸上的关键词放在里面，通过任意物品的组合产生新的创意。为了引发这种“突然出现的创意瞬间”，最好的办法就是多准备一些能够激发灵感的资料</p>
+<h2 id="直觉-x2F-逻辑场景"><a href="#直觉-x2F-逻辑场景" class="headerlink" title="直觉/逻辑场景"></a>直觉/逻辑场景</h2><p>经验的直觉和逻辑思考本身之间并没有孰优孰劣，两者各自适用于不同的情况，具有不同的作用。对于更重视感性的领域来说，直觉比逻辑更能够发挥作用。</p>
+<h2 id="其它-1"><a href="#其它-1" class="headerlink" title="其它"></a>其它</h2><ol>
+<li><p>与逻辑和分析相比”灵感“更重要</p>
+</li>
+<li><p>一味的模仿不可能实现差异化。</p>
+<p>只对竞争对手的商品进行分析无法实现差异化。要想做出与众不同的商品，必须做到其它公司没有做到的事情。</p>
+</li>
+<li><p>企划会议不需要总结式报告。只确定一个会议议题，然后大家当场讨论</p>
+</li>
+<li><p>积极听取其它部门或者其它领域的人的意见</p>
+</li>
+</ol>
+<h1 id="Efficiently"><a href="#Efficiently" class="headerlink" title="Efficiently"></a>Efficiently</h1><h2 id="将目标定为原来的10倍"><a href="#将目标定为原来的10倍" class="headerlink" title="将目标定为原来的10倍"></a>将目标定为原来的10倍</h2><p>工作生活中我们对于自己的要求往往是完成任务即可，但是最终的效果往往不尽如人意，可能只完成了七八成。因此在我们设置目标的时候不妨将目标设置的更大一点，既定目标的10倍。这个目标会倒逼自己打破束缚自己的条条框框和固有观念 ，另一方面，要想改变工作方法，必须敢于承担风险、打破规则。最终即使完成七八成也是一个很好的结果了</p>
+<h2 id="Think-like-an-owner"><a href="#Think-like-an-owner" class="headerlink" title="Think like an owner"></a>Think like an owner</h2><p>像公司所有者一样思考。针对自己的工作岗位，以我的年收入应该取得多少的成果，想要取得这些成果需要做哪些工作，而每项工作应该有怎样的结果。这个过程中势必要优化自己的工作，着眼于重点工作内容减少工作中的无用功，吸取他人的经验寻求他人的帮助。同样也可以假设自己即将失业，如果没有工作没有了怎么办？想到这里自己的紧迫感油然而生</p>
+<h2 id="活用20-原则"><a href="#活用20-原则" class="headerlink" title="活用20%原则"></a>活用20%原则</h2><p>在思考工作的有限顺序的时候，应该优先将时间放在 <strong>能学到很多东西而且影响力比较大</strong>的工作上。而其它类型的工作可以进行分配等等。可以进一步对二八定律进行了解学习</p>
+<h2 id="必要的工作素养（※）"><a href="#必要的工作素养（※）" class="headerlink" title="必要的工作素养（※）"></a>必要的工作素养（※）</h2><ol>
+<li><p>拥有预见性</p>
+<ul>
+<li>预见机会与威胁</li>
+<li>寻找周期、趋势以及规律</li>
+<li>短期、中期与长期思考。考虑<strong>“5/5/5规则”</strong>，即5周以后、5个月以后、5年以后会发生什么事情进行思考</li>
+</ul>
+</li>
+<li><p>换位思考</p>
+</li>
+<li><p>敢于提出自己的见解</p>
+</li>
+<li><p>敢说真话（个人认为这一点还是具体情况具体分析）</p>
+</li>
+<li><p>主动承担责任</p>
+</li>
+<li><p>积极参与交流</p>
+</li>
+<li><p>打破常规</p>
+</li>
+<li><p>不害怕失败</p>
+</li>
+<li><p>勤于思考、保持质疑</p>
+<p>遇到不明白的事情多问一个为什么</p>
+</li>
+<li><p>改变视角</p>
+<p>整体视角；局部视角；反面视角；未来视角；顾客视角；竞争对手视角；特殊视角</p>
+</li>
+</ol>
+<h1 id="Interpersonal-relationship"><a href="#Interpersonal-relationship" class="headerlink" title="Interpersonal relationship"></a>Interpersonal relationship</h1><h2 id="具象化思考"><a href="#具象化思考" class="headerlink" title="具象化思考"></a>具象化思考</h2><p>实物思考我将其总结为具象化思考。工作生活中别人有某项需求时，可以通过某种类比或实物来与对方确认表达是否一致。具体方案：可以是在一张草图上画出来向别人确认“您说的是这种类型吗？”；或者在讨论问题之前将讨论的内容总结到A4纸上，将比较抽象的事情具象化可以实操。这样是可以大幅度的减少交流的成本降低后期的无用功</p>
+<h2 id="提升心理安全"><a href="#提升心理安全" class="headerlink" title="提升心理安全"></a>提升心理安全</h2><ul>
+<li>心理安全：面对 我可以信赖你吗 或者 我能尊重你吗 这样的问题的时候能够给出肯定的答案</li>
+</ul>
+<p>得到他人的信赖和尊重也会使自己产生安全感。一旦构筑起信赖关系，交流双方就会像朋友一样，更容易的互相提出意见或建议，工作现场的气氛也会更加活跃。</p>
+<h2 id="倾听（※）"><a href="#倾听（※）" class="headerlink" title="倾听（※）"></a>倾听（※）</h2><p>交流Tips：建立信赖关系最重要的一点就是倾听，最好的办法就是让自己对对方产生兴趣并将这种情绪传递给对方。另外，好不容易让对方说出自己的意见，绝对不能将对方的意见完全否定，不能让对方觉得“我说了也没用”的想法！！！</p>
+<p>艾米·埃德蒙顿教授指出：不要将问题单纯地看成“需要解决的问题”，而是要将其看作“需要学习的问题”来进行讨论，这样不清楚的部分就会自然而然的浮现，也更容易让团队成员积极思考</p>
+<h2 id="建立良好人际关系"><a href="#建立良好人际关系" class="headerlink" title="建立良好人际关系"></a>建立良好人际关系</h2><p>良好的人际关系是快速解决问题的基石</p>
+<p>社会各行各业哪怕只要有一点点交集都足可以让对方和自己产生联系。而见到关键的人的时候正确的方式应该是：提前了解设想对方的课题，然后开门见山的根据课题内容进行提问，交流过程中表现出热情、平等的态度就可以心情舒畅的进行交流。在交流过程中还要需要注意 <strong>不要take而要give</strong>，要让别人看到自己的价值</p>
+<p><strong>人际关系的优先顺序</strong>：新认识的人 &gt; 熟识的人；新认识并且不断改变自己的人 &gt; 新认识但变化不多的人</p>
+<h1 id="Skill"><a href="#Skill" class="headerlink" title="Skill"></a>Skill</h1><h2 id="学习的正确方法"><a href="#学习的正确方法" class="headerlink" title="学习的正确方法"></a>学习的正确方法</h2><p>检索 + 询问专业人士·询问他人·询问同事</p>
+<ul>
+<li>检索：询问互联网这个老师</li>
+<li>询问他人：<ol>
+<li>找最擅长这项工作的人询问</li>
+<li>询问之前要有自己的思考。带着假设带着思考去提问。具体可以有四要素：具体来说；要在什么地方；改变什么；怎么做才能让工作更顺利</li>
+</ol>
+</li>
+</ul>
+<h2 id="前馈与反馈"><a href="#前馈与反馈" class="headerlink" title="前馈与反馈"></a>前馈与反馈</h2><ul>
+<li>前馈：找别人询问“我想解决这个问题，应该怎么办才好呢？”</li>
+<li>反馈：事后的反思与经验总结</li>
+</ul>
+<p>要想获取有用的信息，提问的</p>
+<p><img src="/images/reading/google-1.jpg" alt="img"></p>
+<h2 id="多参加交流会"><a href="#多参加交流会" class="headerlink" title="多参加交流会"></a>多参加交流会</h2><p>为了保证自己的生存，最好多参加交流，不论是非正式聚会、公司外部会议等等，给自己多创造几个立足点。</p>
+<p>同行业、同年龄的人呆在一起，谈论的事情都是相似的话题，无法从中获取到跟多有用的信息。在交流过程中，也要时刻思考“我应该给对方提供什么样的信息”，输出自己的价值</p>
+<h1 id="Relax-Work"><a href="#Relax-Work" class="headerlink" title="Relax Work"></a>Relax Work</h1><h2 id="一分钟冥想"><a href="#一分钟冥想" class="headerlink" title="一分钟冥想"></a>一分钟冥想</h2><p>关闭电脑，将所有注意力都集中在自己的呼吸上，安静的坐在座位上</p>
+<h2 id="并行任务与串行任务分类"><a href="#并行任务与串行任务分类" class="headerlink" title="并行任务与串行任务分类"></a>并行任务与串行任务分类</h2><p>比如通勤过程中进行书籍的阅读、听音频等等</p>
+<p>而一旦专注于某项工作就尽可能排除外部的干扰，可以尝试将手机静音、放远一点等等操作</p>
+<h2 id="睡午觉、吃零食、放松是自己的责任"><a href="#睡午觉、吃零食、放松是自己的责任" class="headerlink" title="睡午觉、吃零食、放松是自己的责任"></a>睡午觉、吃零食、放松是自己的责任</h2><h1 id="Final-Innovation"><a href="#Final-Innovation" class="headerlink" title="Final Innovation"></a>Final Innovation</h1><ol>
+<li>思考如何使用AI替代自己的工作</li>
+<li>站在革新一侧不袖手旁观，改变自己坚持但不好的习惯，合理使用现代化工具</li>
+<li>就算对技术细节不了解，也要跟上趋势</li>
+<li>工作不能和昨天一样</li>
+</ol>
+<h1 id="摘抄"><a href="#摘抄" class="headerlink" title="摘抄"></a>摘抄</h1><ol>
+<li><p>不要认为“公司就是自己的办公室”，而要时刻记住“自己在哪哪里就是办公室”</p>
+</li>
+<li><p>会议的目的不是将所有人召集到一起，而是取得结果，所以只需要召集对取得结果有帮助的成员即可</p>
+</li>
+<li><p>邮件是“等待文化”，即时通信是“实时文化”</p>
+</li>
+<li><p>工程项目的冲刺阶段一般都会采用“规定期限，集中精神”的工作方法</p>
+</li>
+<li><p>明确工作的优先顺序和品质要求是专业人士的基本素养</p>
+</li>
+<li><p>工作的目的并不是“从早9点到晚6点坐在同一个地方“，而是取得令人满意的成果（舒适的工作环境至关重要）</p>
+</li>
+<li><p>没有结论的分析毫无意义</p>
+</li>
+<li><p>创意思维需要的是灵感以及丰富经验的直觉</p>
+</li>
+<li><p>只有敢于走出舒适区才能取得更大的成果</p>
+</li>
+<li><p>公司之所以给你高额薪水，是因为你能做到别人无法做到的困难工作</p>
+</li>
+<li><p>交流最大的目的是构筑信赖关系 </p>
+</li>
+<li><p>当人感觉到自己受到了尊重或者别人很重视我的时候，就会将自己的内心从防备中解放出来</p>
+</li>
+<li><p>在好奇心驱使下不断的追求自己感兴趣的东西，这将成为你职场中的通行证</p>
+</li>
+<li><p>应该学习的不是知识而是经验</p>
+</li>
+<li><p>人的成长就像斐波那契数列，昨天的自己加上前天的自己才是今天的自己</p>
+</li>
+<li><p>多次实践不但有助于提高自信，更能加快掌握速度</p>
+</li>
+<li><p>拥有的“选项”越多，在竞争中生存的可能性就越大</p>
+</li>
+<li><p>究竟是选择站在革新的一侧还是选择袖手旁观，不同的选择带来的结果可谓是天壤之别 </p>
+</li>
+<li><p>找到在巨变洪流中发挥自己能力并且赚取利润的方法</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Reading</category>
+      </categories>
+      <tags>
+        <tag>读书笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Audio-再遇</title>
     <url>/2022/09/05/Audio/Audio-meet-1/</url>
     <content><![CDATA[<p>本篇内容对一节提到的编码进行扩展，将重点对PCM格式、WAVE格式、MP3格式进行详细解析。</p>
@@ -942,6 +984,216 @@
       </categories>
   </entry>
   <entry>
+    <title>《人类群星闪耀时》</title>
+    <url>/2023/03/18/Reading/%E4%BA%BA%E7%B1%BB%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%E6%97%B6/</url>
+    <content><![CDATA[<p><img src="/images/reading/RenLeiQunXing.jpg" alt="img"></p>
+<h1 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h1><p>和这本书的渊源应该还是在通勤路上使用得到APP听到的对该书的解读。贾行家老师的解读风格一直是我所喜欢的，通过他的语言我大致了解到这本书讲述的是14个历史的决定性瞬间，当然一定是针对世界的，而其实作者默认将西方世界等同于世界。我自己其实对于西方历史的了解程度一直停留在初中历史书的层面。当听到这十四个历史的决定性瞬间包含了滑铁卢战役、马赛曲、拜占庭帝国等等相关内容，我一下子便提起了兴趣，这些耳熟能详的故事后面究竟有什么故事，带着好奇开始了这本书的阅读。</p>
+<p>小注：由于这本书的中文译本高达几十种，我在买书的时候也没有看好，买的书只包含十个瞬间。其它缺失的应该包含：列夫托尔斯泰、菲尔德（建立第一条跨洋电缆）、威尔逊（美国第二十八任总统）、巴塞罗。有机会的话这几个也要补回来。</p>
+<h1 id="关于作者"><a href="#关于作者" class="headerlink" title="关于作者"></a>关于作者</h1><p>这本书的作者是斯蒂芬·茨威格，被誉为”历史上最好的传记作家“。茨威格1881年出生在奥地利犹太的富商家庭，这个时间和身份注定他的命运不平凡。二战时期，茨威格因为反战纳粹被驱逐，随后流亡英国、美国、巴西，他的代表作包括&lt;&lt;象棋的故事&gt;&gt;、《昨日的世界》、《三大师传》等等</p>
+<h1 id="书评"><a href="#书评" class="headerlink" title="书评"></a>书评</h1><p>能够读完整本书就已经说明足够吸引人了。整体上这本书的跨度很大，包括时间跨度、人物类型跨度等等，最远的讲到公元前1实际的古罗马政治危机（穆罕默德二世），近的可以到一战后的巴黎和会（威尔逊）；而在类型上有历史上伟大的政治家拿破仑、伟大的音乐家亨德尔、甚至包括我们可能完全不熟悉的马赛曲的作者鲁热……</p>
+<p>在语言风格上，用贾行家的老师话可以说是，茨威格高贵的气质、优雅的文风和理想主义的笔调尽显无疑。除此之外，这本书给我的另一个感受就是细节刻画非常到位，但是呢这些细节更像是作者本人设身处地的理解人物在某个时刻某个场景下的心理活动。这对于历史纪实可能并不友好但是我觉得对于我们读者理解人物的形象可以说非常到位了！</p>
+<p>例子：</p>
+<ol>
+<li>人民也许永远不会知道，那扇因为疏忽敞开的凯尔卡门在那次命运攸关的时刻，为人类带来了多么大的灾难</li>
+<li>也许格鲁希自己根本没有想到的是在他思考的这一秒钟，却决定了拿破仑和他自己的命运，甚至世界命运的一秒钟</li>
+<li>刽子手铡刀一闪，这个人类第一双同时见过两大海洋的眼睛，永远熄灭了神采（巴尔沃亚）</li>
+</ol>
+<h1 id="记忆点及感受"><a href="#记忆点及感受" class="headerlink" title="记忆点及感受"></a>记忆点及感受</h1><p>我在阅读西方历史的时候的我首先关注的变量就是时间节点，在什么时刻发生了这个事件，而接下来我要了解的就是在这个时间节点上我们自己的这片土地处于哪个朝代发生着什么样的故事。古代的中国各方面还是处于先进水平，但是到了明清时期很明显的感受到西方各种科技、灿烂文化涌现，而我们自己的国家始终在一个内忧外患的阶段，科技文化的积累也在这个时期落后于世界</p>
+<p>我自己并对于文学没有可以说没啥天赋对于尼采啊、巴尔沃亚等人故事也没有提起很大的兴趣，相反对于拿破仑、鲁热等人还是蛮感兴趣的。对于不明白滑铁卢战役全过程的人来讲（之前的我）大多数都会归咎于拿破仑，但是究竟如何失败哪里失败却说不出所以然。读完这一部分我反倒觉得没有任何人该承担这一责任，但按照书籍的理论，由于格鲁希将军的不会变通导致了滑铁卢战役的最终胜利。历史是由胜利者来书写的，失败者却连狡辩的机会都没有。我们现在知道结果是这个样子，假设当时战争的细节是另外一种样子而格鲁希将军选择驰援滑铁卢我们可能又会认为是他的主动性太强导致了最终的失败。所以终究还是战争的残酷性和不确定性导致了最终的结果。尽人事听天命，大概说的就是这个含义吧，把握我们所能把握的，剩下的就看天意。</p>
+<h1 id="书摘"><a href="#书摘" class="headerlink" title="书摘"></a>书摘</h1><p>穆罕默德二世—-拜占庭的沦陷</p>
+<ul>
+<li>历史上所有以理智换来的和平都是转瞬即逝的</li>
+<li>出奇制胜往往是所有伟大军事行动中取得胜利的关键</li>
+<li>人世间空前团结的场面总是在最危急的关头才会出现</li>
+<li>人类的历史和一个人的一生是一样的，一失足成千古恨</li>
+</ul>
+<p>巴尔沃亚—-在不朽的事业里寻求保护</p>
+<ul>
+<li>能够在生命的中途，也就是年轻力壮的时候找到自己肩负的使命，这真的是人生最美好的事情</li>
+</ul>
+<p>鲁热—-一个流星般的天才</p>
+<ul>
+<li>在这个世界上，从来就不会有哪一部蕴含强大能量的作品被埋没或者长久的被封存，也不会有哪一件优秀的艺术品随着时间的流逝而被遗忘，虽然有暂时被禁锢或者埋没的可能，但终究还是生命力的，他会冲破所有阻碍，脱颖而出</li>
+</ul>
+<p>拿破仑—-决定命运的一分钟</p>
+<ul>
+<li>命运只愿意成就那些勇敢者。当重任降临到平庸之辈身上时，他们不是感到庆幸，而是害怕。他们把这个成为命运主人的机会，哆哆嗦嗦地失掉了</li>
+<li>命运——这掌管世间世界的另一个神，他强有力的双臂只愿高高举起勇敢者，将他们送上英雄的殿堂</li>
+</ul>
+<p>尼采—-向宇宙高峰走去</p>
+<ul>
+<li>无法将我置之死地的，更令我坚强</li>
+</ul>
+<p>斯科特—-争夺南极之战</p>
+<ul>
+<li>相较于作品中的悲剧，生活本身创造出的悲剧要多一千倍</li>
+<li>悲壮的失败依然光荣，这样的失败能够激起人们继续挑战险境的勇气，因为只有雄心壮志才能将满怀的激情点燃，去完成那历经千难万险才能完成的事</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Reading</category>
+      </categories>
+      <tags>
+        <tag>读书笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>《嵌入式C语言自我修养》笔记</title>
+    <url>/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/</url>
+    <content><![CDATA[<p><img src="/images/reading/QianRuShiC.jpg" alt="img"></p>
+<h1 id="GNU-C编译器扩展语法精讲（六）"><a href="#GNU-C编译器扩展语法精讲（六）" class="headerlink" title="GNU C编译器扩展语法精讲（六）"></a>GNU C编译器扩展语法精讲（六）</h1><p>github Demo：<a href="https://github.com/yangLieee/codebackup/blob/master/book_%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/gnuc.c">click here</a></p>
+<h2 id="指定初始化"><a href="#指定初始化" class="headerlink" title="指定初始化"></a>指定初始化</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="number">1.</span> 数组初始化</span><br><span class="line"><span class="type">int</span> <span class="built_in">array</span>[<span class="number">100</span>] = { [<span class="number">10</span>] = <span class="number">1</span>, [<span class="number">20</span>] = <span class="number">3</span> };</span><br><span class="line"></span><br><span class="line"># ... 前后都需要空格，并且该特性也可以用在<span class="keyword">switch</span>-<span class="keyword">case</span>语句中</span><br><span class="line"><span class="type">int</span> <span class="built_in">array</span>[<span class="number">100</span>] = { [<span class="number">10</span> ... <span class="number">20</span>] = <span class="number">1</span>, [<span class="number">40</span> ... <span class="number">50</span>] = <span class="number">2</span> };</span><br><span class="line"><span class="keyword">switch</span>(i) {</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span> ... <span class="number">8</span>:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> 结构体成员初始化  (通过结构域名)</span><br><span class="line">例如linux内核：</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">const</span> <span class="title">file_opt</span> <span class="title">codec_opt</span> =</span> {</span><br><span class="line">    .open = codec_open,</span><br><span class="line">    .read = codec_read,</span><br><span class="line">    .write = codec_write,</span><br><span class="line">} </span><br><span class="line">好处：灵活，代码易于维护</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="语句表达式"><a href="#语句表达式" class="headerlink" title="语句表达式"></a>语句表达式</h2><ul>
+<li>目的：构造复杂宏</li>
+<li>结构：（ {  表达式1; 表达式2;  表达式3  } ） 语句表达式用（）小括号括起来，代码块用 { } 大括号括起来，语句表达式的值等于最后一个表达式的值</li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><ol>
+<li><p>求和</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">sum = ( {</span><br><span class="line">     <span class="type">int</span> s = <span class="number">0</span>;</span><br><span class="line">     <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++&gt;) </span><br><span class="line">        s = s +i;</span><br><span class="line">     s;</span><br><span class="line">} )</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>定义一个宏，求两个数的最大值？</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> my_max(x,y)   ({    \</span></span><br><span class="line"><span class="meta">    typeof(x) _x = (x);     \</span></span><br><span class="line"><span class="meta">    typeof(y) _y = (y);     \</span></span><br><span class="line"><span class="meta">    (void) (&amp;_x == &amp;_y);    \</span></span><br><span class="line"><span class="meta">    _x &gt; _y ? _x : _y;      \</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="comment">// 第六行的作用：不同类型的指针比较会给出警告，加void消除没有用到比较结果带来的警告</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h2 id="container-of宏"><a href="#container-of宏" class="headerlink" title="container_of宏"></a>container_of宏</h2><ul>
+<li><p>作用：根据结构体某一成员地址，获取这个结构体的首地址</p>
+</li>
+<li><p>场景：传给某个函数的参数是某个结构体的成员变量，在这个函数中还可能用到这个结构体其它变量</p>
+</li>
+<li><p>基础：常量指针的值即为常量本身的值。0强转为结构体指针，结构体的首地址为0，每个成员变量都是首地址的相对偏移</p>
+</li>
+<li><p>实现</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> offset( TYPE , MEMBER ) ((size_t) &amp; (((TYPE*)0)-&gt;MEMBER))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> container_of(ptr, type, member) ({                    \                    </span></span><br><span class="line">            <span class="type">const</span> <span class="title function_">typeof</span><span class="params">(((type*)<span class="number">0</span>)-&gt;member)</span>* _ptr = (ptr);   \</span><br><span class="line">            (type*) ((<span class="type">char</span>*)_ptr - offset(type, member));     \                              </span><br><span class="line">})</span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+<h2 id="零长数组"><a href="#零长数组" class="headerlink" title="零长数组"></a>零长数组</h2><ul>
+<li>定义：长度为0的数组</li>
+<li>优点：不占用内存存储空间</li>
+<li>其它：C99支持变长数组，即长度编译时期是不能确定，在运行时才可以确定</li>
+<li>应用：变长结构体</li>
+<li>数组与指针区别：数组名用来表征一块连续的内存地址空间，仅仅是符号不分配空间；指针是一个变量，编译器需要单独给它分配一个内存空间，用来存放他指向的变量的地址。</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">buffer</span> {</span></span><br><span class="line">  <span class="type">int</span> len;</span><br><span class="line">  <span class="type">int</span> ptr[<span class="number">0</span>];  <span class="comment">// 不占大小</span></span><br><span class="line">};</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">buffer</span>* <span class="title">buf</span>;</span></span><br><span class="line">buf = (<span class="keyword">struct</span> buffer*) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> buffer) + <span class="number">100</span>);</span><br><span class="line">buf-&gt;len = <span class="number">100</span>;</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="属性声明"><a href="#属性声明" class="headerlink" title="属性声明"></a>属性声明</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>__attribute__</p>
+<ul>
+<li>作用：指导编译器在编译程序的时候进行特定方面优化或代码检查</li>
+<li>格式：<strong>attribute</strong>(( ))，后面需要写两对小括号，多个属性之间逗号隔开</li>
+<li>支持的属性声明：section、aligned、packed、format、weak、alias、noinline、always_inilne</li>
+</ul>
+<h3 id="section"><a href="#section" class="headerlink" title="section"></a>section</h3><ul>
+<li><p>作用：将一个函数或变量放到指定的段，即放到指定的section</p>
+</li>
+<li><p>使用：<strong>attribute</strong>(( section(“.data”) ))</p>
+</li>
+<li><p>可选项：</p>
+<ul>
+<li><p>.text：函数定义、程序语句</p>
+</li>
+<li><p>.data：初始化的全局变量、初始化的静态局部变量</p>
+</li>
+<li><p>.bss：未初始化的全局变量、未初始化的静态局部变量</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="aligned"><a href="#aligned" class="headerlink" title="aligned"></a>aligned</h3><ul>
+<li>作用：地址对齐，在给变量分配存储空间的时候，需要按照制定的地址对齐方式给变量分配地址</li>
+<li>注意：地址对齐的字节数必须是2的幂次方</li>
+<li>使用：<strong>attribute</strong>(( (aligned(4) ))</li>
+<li>对齐的好处：简化CPU与RAM之间的接口和硬件设计。cpu访存硬件设计可能只支持4字节或4字节整数倍对齐的地址访问，对齐后cpu可以一次读完</li>
+<li>注意：这个属性声明只是建议编译器按照这种方式对齐，当超过编译器允许的最大值只能按照最大对齐字节数进行地址分配</li>
+</ul>
+<h3 id="packed"><a href="#packed" class="headerlink" title="packed"></a>packed</h3><ul>
+<li>作用：减少地址对齐</li>
+<li>使用： <strong>attribute</strong>(( packed ))</li>
+<li>通常aligned与packed一起使用，这样既避免了结构体各个成员变量地址对齐产生的内存空洞又指定了整个结构体对齐方式：<strong>attribute</strong>(( packed, aligned(8) ))</li>
+</ul>
+<h3 id="format"><a href="#format" class="headerlink" title="format"></a>format</h3><ul>
+<li>作用：指定变参函数的参数格式检查</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">LOG</span><span class="params">(<span class="type">int</span> num, <span class="type">char</span>* fmt, ...)</span> __<span class="title function_">attribute__</span><span class="params">((format(<span class="built_in">printf</span>,<span class="number">2</span>,<span class="number">3</span>)))</span>)</span><br><span class="line"><span class="comment">// LOG函数的参数，个数字符串的位置在所有参数列表的索引是2,即前两个参数；要编辑器帮忙检查的参数在所有参数列表里的索引是3</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="weak"><a href="#weak" class="headerlink" title="weak"></a>weak</h3><ul>
+<li>作用：可以将一个强符号转换为弱符号</li>
+<li>使用：void _<em>attribute</em>(( weak )) func(void);</li>
+<li>好处：当一个函数被声明为一个弱符号之后，链接阶段找不到函数定义不会报错会将这个弱符号设置为0或者特殊值。当程序运行时，调用这个这个函数跳转到零地址或特殊地址才会产生一个内存错误</li>
+</ul>
+<h3 id="alias"><a href="#alias" class="headerlink" title="alias"></a>alias</h3><ul>
+<li>作用：给函数定义一个别名</li>
+<li>使用：void f() <strong>attribute</strong>((alias(“_f “)));</li>
+<li>通常在linux内核中weak和alias一起使用，随着版本升级可以封装旧名字起一个新名字</li>
+</ul>
+<h2 id="内联函数"><a href="#内联函数" class="headerlink" title="内联函数"></a>内联函数</h2><ul>
+<li><p>特征：用inline修饰的函数被称为内联函数，通常用static 或 extern 修饰</p>
+</li>
+<li><p>内联函数特征：</p>
+</li>
+<li><ul>
+<li>函数体积小</li>
+<li>函数体内无指针赋值、递归、循环等语句</li>
+<li>调用频繁</li>
+</ul>
+</li>
+<li><p>与宏相比，内联函数的优点：</p>
+</li>
+<li><ul>
+<li>参数类型检查，本质仍然是函数</li>
+<li>便于调试。可以单步、断点调试</li>
+<li>有返回值（宏也可以，语句表达式结构）</li>
+<li>接口封装</li>
+</ul>
+</li>
+<li><p>使用：</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 显式告诉编译器不要展开</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> __attribute((noinline)) <span class="type">int</span> <span class="title function_">func</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">// 显式告诉编译器要内联展开</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> __attribute((always_inline)) <span class="type">int</span> <span class="title function_">func</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">// 否则编译器的行为不固定，考虑诸多因素决定是否展开</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+<h2 id="内建函数"><a href="#内建函数" class="headerlink" title="内建函数"></a>内建函数</h2><ul>
+<li>含义：编译器内部实现的函数</li>
+<li>特征：通常以 __builtin 开头</li>
+<li>说明：没有文档，变动频繁，不建议应用程序工程师使用</li>
+</ul>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//  __builtin_return_address（LEVEL）    返回当前函数或者调用者的返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 0: 获取当前函数返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 1: 获取上一级函数返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 2: 获取上两级函数返回地址</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_frame_address(LEVEL)        查看函数的栈帧地址</span></span><br><span class="line"><span class="comment">// LEVEL 0: 获取当前函数栈帧地址</span></span><br><span class="line"><span class="comment">// LEVEL 1: 获取上一级函数栈帧地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_constant_p(n)               判断参数n在编译时是否是常量，是常量返回1,否则0</span></span><br><span class="line"><span class="comment">// 内核中判断宏的参数是否是常数，则有更优化的实现方法</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_expect(exp,c)        </span></span><br><span class="line"><span class="comment">// 告诉编译器参数exp的值为c的可能性很大，用于分支预测，参数c与返回值无关，返回值一定是exp</span></span><br><span class="line"></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> likely(x) __builtin_expect(!!(x),1)) </span></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> unlikely(x) __builtin_expect(!!(x),0)</span></span><br><span class="line"><span class="comment">// 告诉编译器某一个分支发生的概率很高，自己做优化</span></span><br><span class="line"><span class="comment">// 两次取非是为了将参数x转换为bool类型，与1/0比较</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="可变参数宏"><a href="#可变参数宏" class="headerlink" title="可变参数宏"></a>可变参数宏</h2><ul>
+<li>用 … 表示变参列表，变参列表由不确定的参数组成，用  <strong>VA_ARGS</strong>  标识符表示变参函数列表</li>
+<li>C99规定，可以使用 args…  表示变参列表，用 args 代表变参列表即可</li>
+<li>宏连接符  ##  的作用是连接两个字符串</li>
+<li>在定义宏的时候通常使用 do { } while(0);的结构，这样是为了防止宏在选择、条等分支语句中展开后，产生宏歧义</li>
+</ul>
+<p>两种方法实现自定义等级宏打印：<a href="https://github.com/yangLieee/codebackup/blob/master/book_%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/mlog.h">click here</a></p>
+<h2 id="Uboot镜像自复制"><a href="#Uboot镜像自复制" class="headerlink" title="Uboot镜像自复制"></a>Uboot镜像自复制</h2><ul>
+<li>作用：加载linux内核镜像到内存，给内核传递启动参数，然后引导linux操作系统启动</li>
+<li>过程：通过定义两个零长度数组，分别表示要复制自身镜像的起始地址和结束地址，并放在特定的section上，而这两个section分别放在代码段前和数据段后。数组名本身就代表一个地址，通过arm ldr伪指令直接获取要复制的镜像首地址保存在某个寄存器中，从flash复制自身镜像到内存中，然后重定位，最终跳转到内存中执行。（自举）</li>
+</ul>
+<h1 id="C语言面向对象编程思想（八）"><a href="#C语言面向对象编程思想（八）" class="headerlink" title="C语言面向对象编程思想（八）"></a>C语言面向对象编程思想（八）</h1><h2 id="代码复用与分层"><a href="#代码复用与分层" class="headerlink" title="代码复用与分层"></a>代码复用与分层</h2><p>复用：</p>
+<ul>
+<li>函数级复用</li>
+<li>库级复用</li>
+<li>框架级复用</li>
+<li>操作系统级复用</li>
+</ul>
+<p>分层：</p>
+<ul>
+<li>应用层</li>
+<li>Framework层</li>
+<li>库</li>
+<li>Linux内核</li>
+</ul>
+<h2 id="面向对象主要特征"><a href="#面向对象主要特征" class="headerlink" title="面向对象主要特征"></a>面向对象主要特征</h2><p>继承、多态、纯虚函数特征（抽象类）</p>
+<h1 id="模块化（九）"><a href="#模块化（九）" class="headerlink" title="模块化（九）"></a>模块化（九）</h1><p>模块化的思想内核是分而治之，重点在于抽象的对象之间的关联，而不是内容</p>
+<p>面向对象的编程思想主要是为了代码复用，重点在于内容的实现</p>
+]]></content>
+      <categories>
+        <category>Reading</category>
+      </categories>
+      <tags>
+        <tag>读书笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Audio-初识</title>
     <url>/2022/08/31/Audio/Audio-meet/</url>
     <content><![CDATA[<p>跳动的音符，婉转的节奏，悠扬的歌声……</p>
@@ -1208,376 +1460,124 @@
       </tags>
   </entry>
   <entry>
-    <title>《Google工作法》</title>
-    <url>/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</url>
-    <content><![CDATA[<p><img src="/images/reading/GoogleWork.jpg" alt="img"></p>
-<p>《google工作法》作者是彼得·费利克斯·格日瓦奇，针对google的一些工作方法论和个人经验的进行著书。我认为对于这类书籍的正确使用是通读全篇，二次阅读针对部分内容自己进行场景的带入，此类工具书籍可以经常来进行翻看对自己日常生活工作方式的判断</p>
-<p>针对每个细分章节，总结并进行自己的思考</p>
-<h1 id="Faster（※）"><a href="#Faster（※）" class="headerlink" title="Faster（※）"></a>Faster（※）</h1><h2 id="一次结束，当场做完"><a href="#一次结束，当场做完" class="headerlink" title="一次结束，当场做完"></a>一次结束，当场做完</h2><p>作者认为决定工作效率的关键在于对 现在 的使用方法。对于一件事情如果能够当场做完就不要推迟到以后，对于一项决定如果当场确定就不要推迟到未来。如果当时没有进行就解决或决定就需要做出相应的计划：要想解决这个问题，需要收集哪些必要的资源。具体策略如下：</p>
-<p><img src="/images/reading/google-0.jpg" alt="img"></p>
-<p>对自己来讲，我曾经负责某个项目，客户在问我一个技术相关的问题的时候，我当时的做法可能就没有很恰当。现在来看我认为正确的流程应该是：将我自己已知的内容对客户进行反馈；将自己不知道的内容如实告诉客户并询问他目前是否有空我去找一下相关负责人来解答他这个问题（<strong>如果现在有必要的话，现在就联系；如果现在应该决定的话，现在就决定</strong>），如果中途遇到其它问题不知道谁是负责人或者负责人不在，也必须做到相关解决方案做到有切实进展（活用身边的人/回来之后第一时间反馈等等），在第一时间内将问题进行解决，不拖延！！！</p>
-<h2 id="设置deadline"><a href="#设置deadline" class="headerlink" title="设置deadline"></a>设置deadline</h2><p>能当场解决的问题一定要一次解决，而不能解决的问题一定要设置deadline，要有一种 如果现在不做那要什么时候做 的观念。对于纷杂的工作需要明确优先级、精细程度等因素。将自己的期限提前是提高效率的有效方法。</p>
-<p>对于自己来讲，如果领导要求一项工作周五之前完成。那自己的deadline要设置在周三周四做好一个demo给领导查看。在工作进行之前需要明确事情的紧急程度、完成验收的标准、是否有其它注意事项等等</p>
-<h2 id="集中精力于此时此刻"><a href="#集中精力于此时此刻" class="headerlink" title="集中精力于此时此刻"></a>集中精力于此时此刻</h2><p>正念（Mindfulness）的意思就是将意识集中于此时此刻，这一词同样被谷歌所采用。大脑就像是一个CPU应尽可能的减少大脑资源的浪费，对于任何一件事情尽可能要提前做准备。比如：前一天晚上就准备好第二天需要穿的衣服；会议前梳理会议的目的成员组织等等；任何一件事情可能发生的后果及相应的解决办法</p>
-<p>分析眼前任务的正确方式：搞清楚”为什么需要解决这个问题“，”在什么时间之前必须得出答案“，设定好”目的与目标“之后全力以赴。比如会议之前的准备列表：</p>
-<ul>
-<li>为什么将大家召集到一起</li>
-<li>要做出什么决定</li>
-<li>要取得什么成果</li>
-<li>通过会议后要得到什么收获</li>
-</ul>
-<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><ol>
-<li><p>增加现在的密度</p>
-<p>针对自己来讲可以体现在：通勤路上进行书籍的阅读英语的学习等等，并行一些任务</p>
-</li>
-<li><p>减少邮件的使用，直接见面最有效率</p>
-</li>
-<li><p>合理使用工具</p>
-<p>时间/时间管理工具（对于notion的使用没有持续）；整理的文档传至云端，随时查看修改</p>
-</li>
-<li><p>学习英语</p>
-<p>目前很多第一手资料都是英文的，为了提高效率必须学会英文。否则内容的准确性排除在外，也是时间和成本的二次浪费</p>
-</li>
-</ol>
-<h1 id="Sense-VS-sensibility"><a href="#Sense-VS-sensibility" class="headerlink" title="Sense VS sensibility"></a>Sense VS sensibility</h1><h2 id="创意思维的产生"><a href="#创意思维的产生" class="headerlink" title="创意思维的产生"></a>创意思维的产生</h2><p>与逻辑和分析相比“ 灵感（创意思维） ”更重要</p>
-<p>通过人为地制造混乱，可以使潜意识活性化，从而更容易创造出新的创意。具体方案：准备几个透明文件袋，将各种图片、杂志、报纸剪下来的内容或写在纸上的关键词放在里面，通过任意物品的组合产生新的创意。为了引发这种“突然出现的创意瞬间”，最好的办法就是多准备一些能够激发灵感的资料</p>
-<h2 id="直觉-x2F-逻辑场景"><a href="#直觉-x2F-逻辑场景" class="headerlink" title="直觉/逻辑场景"></a>直觉/逻辑场景</h2><p>经验的直觉和逻辑思考本身之间并没有孰优孰劣，两者各自适用于不同的情况，具有不同的作用。对于更重视感性的领域来说，直觉比逻辑更能够发挥作用。</p>
-<h2 id="其它-1"><a href="#其它-1" class="headerlink" title="其它"></a>其它</h2><ol>
-<li><p>与逻辑和分析相比”灵感“更重要</p>
-</li>
-<li><p>一味的模仿不可能实现差异化。</p>
-<p>只对竞争对手的商品进行分析无法实现差异化。要想做出与众不同的商品，必须做到其它公司没有做到的事情。</p>
-</li>
-<li><p>企划会议不需要总结式报告。只确定一个会议议题，然后大家当场讨论</p>
-</li>
-<li><p>积极听取其它部门或者其它领域的人的意见</p>
-</li>
-</ol>
-<h1 id="Efficiently"><a href="#Efficiently" class="headerlink" title="Efficiently"></a>Efficiently</h1><h2 id="将目标定为原来的10倍"><a href="#将目标定为原来的10倍" class="headerlink" title="将目标定为原来的10倍"></a>将目标定为原来的10倍</h2><p>工作生活中我们对于自己的要求往往是完成任务即可，但是最终的效果往往不尽如人意，可能只完成了七八成。因此在我们设置目标的时候不妨将目标设置的更大一点，既定目标的10倍。这个目标会倒逼自己打破束缚自己的条条框框和固有观念 ，另一方面，要想改变工作方法，必须敢于承担风险、打破规则。最终即使完成七八成也是一个很好的结果了</p>
-<h2 id="Think-like-an-owner"><a href="#Think-like-an-owner" class="headerlink" title="Think like an owner"></a>Think like an owner</h2><p>像公司所有者一样思考。针对自己的工作岗位，以我的年收入应该取得多少的成果，想要取得这些成果需要做哪些工作，而每项工作应该有怎样的结果。这个过程中势必要优化自己的工作，着眼于重点工作内容减少工作中的无用功，吸取他人的经验寻求他人的帮助。同样也可以假设自己即将失业，如果没有工作没有了怎么办？想到这里自己的紧迫感油然而生</p>
-<h2 id="活用20-原则"><a href="#活用20-原则" class="headerlink" title="活用20%原则"></a>活用20%原则</h2><p>在思考工作的有限顺序的时候，应该优先将时间放在 <strong>能学到很多东西而且影响力比较大</strong>的工作上。而其它类型的工作可以进行分配等等。可以进一步对二八定律进行了解学习</p>
-<h2 id="必要的工作素养（※）"><a href="#必要的工作素养（※）" class="headerlink" title="必要的工作素养（※）"></a>必要的工作素养（※）</h2><ol>
-<li><p>拥有预见性</p>
-<ul>
-<li>预见机会与威胁</li>
-<li>寻找周期、趋势以及规律</li>
-<li>短期、中期与长期思考。考虑<strong>“5/5/5规则”</strong>，即5周以后、5个月以后、5年以后会发生什么事情进行思考</li>
-</ul>
-</li>
-<li><p>换位思考</p>
-</li>
-<li><p>敢于提出自己的见解</p>
-</li>
-<li><p>敢说真话（个人认为这一点还是具体情况具体分析）</p>
-</li>
-<li><p>主动承担责任</p>
-</li>
-<li><p>积极参与交流</p>
-</li>
-<li><p>打破常规</p>
-</li>
-<li><p>不害怕失败</p>
-</li>
-<li><p>勤于思考、保持质疑</p>
-<p>遇到不明白的事情多问一个为什么</p>
-</li>
-<li><p>改变视角</p>
-<p>整体视角；局部视角；反面视角；未来视角；顾客视角；竞争对手视角；特殊视角</p>
-</li>
-</ol>
-<h1 id="Interpersonal-relationship"><a href="#Interpersonal-relationship" class="headerlink" title="Interpersonal relationship"></a>Interpersonal relationship</h1><h2 id="具象化思考"><a href="#具象化思考" class="headerlink" title="具象化思考"></a>具象化思考</h2><p>实物思考我将其总结为具象化思考。工作生活中别人有某项需求时，可以通过某种类比或实物来与对方确认表达是否一致。具体方案：可以是在一张草图上画出来向别人确认“您说的是这种类型吗？”；或者在讨论问题之前将讨论的内容总结到A4纸上，将比较抽象的事情具象化可以实操。这样是可以大幅度的减少交流的成本降低后期的无用功</p>
-<h2 id="提升心理安全"><a href="#提升心理安全" class="headerlink" title="提升心理安全"></a>提升心理安全</h2><ul>
-<li>心理安全：面对 我可以信赖你吗 或者 我能尊重你吗 这样的问题的时候能够给出肯定的答案</li>
-</ul>
-<p>得到他人的信赖和尊重也会使自己产生安全感。一旦构筑起信赖关系，交流双方就会像朋友一样，更容易的互相提出意见或建议，工作现场的气氛也会更加活跃。</p>
-<h2 id="倾听（※）"><a href="#倾听（※）" class="headerlink" title="倾听（※）"></a>倾听（※）</h2><p>交流Tips：建立信赖关系最重要的一点就是倾听，最好的办法就是让自己对对方产生兴趣并将这种情绪传递给对方。另外，好不容易让对方说出自己的意见，绝对不能将对方的意见完全否定，不能让对方觉得“我说了也没用”的想法！！！</p>
-<p>艾米·埃德蒙顿教授指出：不要将问题单纯地看成“需要解决的问题”，而是要将其看作“需要学习的问题”来进行讨论，这样不清楚的部分就会自然而然的浮现，也更容易让团队成员积极思考</p>
-<h2 id="建立良好人际关系"><a href="#建立良好人际关系" class="headerlink" title="建立良好人际关系"></a>建立良好人际关系</h2><p>良好的人际关系是快速解决问题的基石</p>
-<p>社会各行各业哪怕只要有一点点交集都足可以让对方和自己产生联系。而见到关键的人的时候正确的方式应该是：提前了解设想对方的课题，然后开门见山的根据课题内容进行提问，交流过程中表现出热情、平等的态度就可以心情舒畅的进行交流。在交流过程中还要需要注意 <strong>不要take而要give</strong>，要让别人看到自己的价值</p>
-<p><strong>人际关系的优先顺序</strong>：新认识的人 &gt; 熟识的人；新认识并且不断改变自己的人 &gt; 新认识但变化不多的人</p>
-<h1 id="Skill"><a href="#Skill" class="headerlink" title="Skill"></a>Skill</h1><h2 id="学习的正确方法"><a href="#学习的正确方法" class="headerlink" title="学习的正确方法"></a>学习的正确方法</h2><p>检索 + 询问专业人士·询问他人·询问同事</p>
-<ul>
-<li>检索：询问互联网这个老师</li>
-<li>询问他人：<ol>
-<li>找最擅长这项工作的人询问</li>
-<li>询问之前要有自己的思考。带着假设带着思考去提问。具体可以有四要素：具体来说；要在什么地方；改变什么；怎么做才能让工作更顺利</li>
-</ol>
-</li>
-</ul>
-<h2 id="前馈与反馈"><a href="#前馈与反馈" class="headerlink" title="前馈与反馈"></a>前馈与反馈</h2><ul>
-<li>前馈：找别人询问“我想解决这个问题，应该怎么办才好呢？”</li>
-<li>反馈：事后的反思与经验总结</li>
-</ul>
-<p>要想获取有用的信息，提问的</p>
-<p><img src="/images/reading/google-1.jpg" alt="img"></p>
-<h2 id="多参加交流会"><a href="#多参加交流会" class="headerlink" title="多参加交流会"></a>多参加交流会</h2><p>为了保证自己的生存，最好多参加交流，不论是非正式聚会、公司外部会议等等，给自己多创造几个立足点。</p>
-<p>同行业、同年龄的人呆在一起，谈论的事情都是相似的话题，无法从中获取到跟多有用的信息。在交流过程中，也要时刻思考“我应该给对方提供什么样的信息”，输出自己的价值</p>
-<h1 id="Relax-Work"><a href="#Relax-Work" class="headerlink" title="Relax Work"></a>Relax Work</h1><h2 id="一分钟冥想"><a href="#一分钟冥想" class="headerlink" title="一分钟冥想"></a>一分钟冥想</h2><p>关闭电脑，将所有注意力都集中在自己的呼吸上，安静的坐在座位上</p>
-<h2 id="并行任务与串行任务分类"><a href="#并行任务与串行任务分类" class="headerlink" title="并行任务与串行任务分类"></a>并行任务与串行任务分类</h2><p>比如通勤过程中进行书籍的阅读、听音频等等</p>
-<p>而一旦专注于某项工作就尽可能排除外部的干扰，可以尝试将手机静音、放远一点等等操作</p>
-<h2 id="睡午觉、吃零食、放松是自己的责任"><a href="#睡午觉、吃零食、放松是自己的责任" class="headerlink" title="睡午觉、吃零食、放松是自己的责任"></a>睡午觉、吃零食、放松是自己的责任</h2><h1 id="Final-Innovation"><a href="#Final-Innovation" class="headerlink" title="Final Innovation"></a>Final Innovation</h1><ol>
-<li>思考如何使用AI替代自己的工作</li>
-<li>站在革新一侧不袖手旁观，改变自己坚持但不好的习惯，合理使用现代化工具</li>
-<li>就算对技术细节不了解，也要跟上趋势</li>
-<li>工作不能和昨天一样</li>
-</ol>
-<h1 id="摘抄"><a href="#摘抄" class="headerlink" title="摘抄"></a>摘抄</h1><ol>
-<li><p>不要认为“公司就是自己的办公室”，而要时刻记住“自己在哪哪里就是办公室”</p>
-</li>
-<li><p>会议的目的不是将所有人召集到一起，而是取得结果，所以只需要召集对取得结果有帮助的成员即可</p>
-</li>
-<li><p>邮件是“等待文化”，即时通信是“实时文化”</p>
-</li>
-<li><p>工程项目的冲刺阶段一般都会采用“规定期限，集中精神”的工作方法</p>
-</li>
-<li><p>明确工作的优先顺序和品质要求是专业人士的基本素养</p>
-</li>
-<li><p>工作的目的并不是“从早9点到晚6点坐在同一个地方“，而是取得令人满意的成果（舒适的工作环境至关重要）</p>
-</li>
-<li><p>没有结论的分析毫无意义</p>
-</li>
-<li><p>创意思维需要的是灵感以及丰富经验的直觉</p>
-</li>
-<li><p>只有敢于走出舒适区才能取得更大的成果</p>
-</li>
-<li><p>公司之所以给你高额薪水，是因为你能做到别人无法做到的困难工作</p>
-</li>
-<li><p>交流最大的目的是构筑信赖关系 </p>
-</li>
-<li><p>当人感觉到自己受到了尊重或者别人很重视我的时候，就会将自己的内心从防备中解放出来</p>
-</li>
-<li><p>在好奇心驱使下不断的追求自己感兴趣的东西，这将成为你职场中的通行证</p>
-</li>
-<li><p>应该学习的不是知识而是经验</p>
-</li>
-<li><p>人的成长就像斐波那契数列，昨天的自己加上前天的自己才是今天的自己</p>
-</li>
-<li><p>多次实践不但有助于提高自信，更能加快掌握速度</p>
-</li>
-<li><p>拥有的“选项”越多，在竞争中生存的可能性就越大</p>
-</li>
-<li><p>究竟是选择站在革新的一侧还是选择袖手旁观，不同的选择带来的结果可谓是天壤之别 </p>
-</li>
-<li><p>找到在巨变洪流中发挥自己能力并且赚取利润的方法</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Reading</category>
-      </categories>
-      <tags>
-        <tag>读书笔记</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>《人类群星闪耀时》</title>
-    <url>/2023/03/18/Reading/%E4%BA%BA%E7%B1%BB%E7%BE%A4%E6%98%9F%E9%97%AA%E8%80%80%E6%97%B6/</url>
-    <content><![CDATA[<p><img src="/images/reading/RenLeiQunXing.jpg" alt="img"></p>
-<h1 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h1><p>和这本书的渊源应该还是在通勤路上使用得到APP听到的对该书的解读。贾行家老师的解读风格一直是我所喜欢的，通过他的语言我大致了解到这本书讲述的是14个历史的决定性瞬间，当然一定是针对世界的，而其实作者默认将西方世界等同于世界。我自己其实对于西方历史的了解程度一直停留在初中历史书的层面。当听到这十四个历史的决定性瞬间包含了滑铁卢战役、马赛曲、拜占庭帝国等等相关内容，我一下子便提起了兴趣，这些耳熟能详的故事后面究竟有什么故事，带着好奇开始了这本书的阅读。</p>
-<p>小注：由于这本书的中文译本高达几十种，我在买书的时候也没有看好，买的书只包含十个瞬间。其它缺失的应该包含：列夫托尔斯泰、菲尔德（建立第一条跨洋电缆）、威尔逊（美国第二十八任总统）、巴塞罗。有机会的话这几个也要补回来。</p>
-<h1 id="关于作者"><a href="#关于作者" class="headerlink" title="关于作者"></a>关于作者</h1><p>这本书的作者是斯蒂芬·茨威格，被誉为”历史上最好的传记作家“。茨威格1881年出生在奥地利犹太的富商家庭，这个时间和身份注定他的命运不平凡。二战时期，茨威格因为反战纳粹被驱逐，随后流亡英国、美国、巴西，他的代表作包括&lt;&lt;象棋的故事&gt;&gt;、《昨日的世界》、《三大师传》等等</p>
-<h1 id="书评"><a href="#书评" class="headerlink" title="书评"></a>书评</h1><p>能够读完整本书就已经说明足够吸引人了。整体上这本书的跨度很大，包括时间跨度、人物类型跨度等等，最远的讲到公元前1实际的古罗马政治危机（穆罕默德二世），近的可以到一战后的巴黎和会（威尔逊）；而在类型上有历史上伟大的政治家拿破仑、伟大的音乐家亨德尔、甚至包括我们可能完全不熟悉的马赛曲的作者鲁热……</p>
-<p>在语言风格上，用贾行家的老师话可以说是，茨威格高贵的气质、优雅的文风和理想主义的笔调尽显无疑。除此之外，这本书给我的另一个感受就是细节刻画非常到位，但是呢这些细节更像是作者本人设身处地的理解人物在某个时刻某个场景下的心理活动。这对于历史纪实可能并不友好但是我觉得对于我们读者理解人物的形象可以说非常到位了！</p>
-<p>例子：</p>
+    <title>init.rc语法及解析</title>
+    <url>/2022/11/16/andriod/init.rc/</url>
+    <content><![CDATA[<p>在linux设备上输入“pstree”命令我们便会看到一棵进程树，不同状态不同设备树上进程名字进程号可能不完全一致，但进程号pid=1的进程一定是init进程！对于Android系统来讲，其实际是运行于Linux内核之上的一系列“服务进程”，而这些服务进程的“老祖宗”就是init，它是Android中第一个被启动的进程，所有服务都是通过解析init.rc文件得到的（部分可以执行程序通过init.d/文件夹下的脚本启动）</p>
+<p>本篇文章将对init.rc文件语法进行解析</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>查看andriod源码：<a href="http://androidxref.com/">http://androidxref.com/</a></p>
+</blockquote>
+<p>init.rc是系统启动的第一个程序所加载的语法文件。init.rc文件是以“块”(section)为单位服务的，一个“块”(section)可以包含多行，而一行中包含多个tokens(符号)。“块”(section)分成两大类：一类称为”动作(action)”，另一类称为“服务(service)”。而一个init.rc脚本由四个类型的声明组成：</p>
 <ol>
-<li>人民也许永远不会知道，那扇因为疏忽敞开的凯尔卡门在那次命运攸关的时刻，为人类带来了多么大的灾难</li>
-<li>也许格鲁希自己根本没有想到的是在他思考的这一秒钟，却决定了拿破仑和他自己的命运，甚至世界命运的一秒钟</li>
-<li>刽子手铡刀一闪，这个人类第一双同时见过两大海洋的眼睛，永远熄灭了神采（巴尔沃亚）</li>
+<li>动作 ：Actions，以关键字“on”开始</li>
+<li>命令 ：Commands，以关键字“start”“restart”“stop”开始</li>
+<li>服务 ：Services</li>
+<li>选项 ：Options</li>
 </ol>
-<h1 id="记忆点及感受"><a href="#记忆点及感受" class="headerlink" title="记忆点及感受"></a>记忆点及感受</h1><p>我在阅读西方历史的时候的我首先关注的变量就是时间节点，在什么时刻发生了这个事件，而接下来我要了解的就是在这个时间节点上我们自己的这片土地处于哪个朝代发生着什么样的故事。古代的中国各方面还是处于先进水平，但是到了明清时期很明显的感受到西方各种科技、灿烂文化涌现，而我们自己的国家始终在一个内忧外患的阶段，科技文化的积累也在这个时期落后于世界</p>
-<p>我自己并对于文学没有可以说没啥天赋对于尼采啊、巴尔沃亚等人故事也没有提起很大的兴趣，相反对于拿破仑、鲁热等人还是蛮感兴趣的。对于不明白滑铁卢战役全过程的人来讲（之前的我）大多数都会归咎于拿破仑，但是究竟如何失败哪里失败却说不出所以然。读完这一部分我反倒觉得没有任何人该承担这一责任，但按照书籍的理论，由于格鲁希将军的不会变通导致了滑铁卢战役的最终胜利。历史是由胜利者来书写的，失败者却连狡辩的机会都没有。我们现在知道结果是这个样子，假设当时战争的细节是另外一种样子而格鲁希将军选择驰援滑铁卢我们可能又会认为是他的主动性太强导致了最终的失败。所以终究还是战争的残酷性和不确定性导致了最终的结果。尽人事听天命，大概说的就是这个含义吧，把握我们所能把握的，剩下的就看天意。</p>
-<h1 id="书摘"><a href="#书摘" class="headerlink" title="书摘"></a>书摘</h1><p>穆罕默德二世—-拜占庭的沦陷</p>
-<ul>
-<li>历史上所有以理智换来的和平都是转瞬即逝的</li>
-<li>出奇制胜往往是所有伟大军事行动中取得胜利的关键</li>
-<li>人世间空前团结的场面总是在最危急的关头才会出现</li>
-<li>人类的历史和一个人的一生是一样的，一失足成千古恨</li>
-</ul>
-<p>巴尔沃亚—-在不朽的事业里寻求保护</p>
-<ul>
-<li>能够在生命的中途，也就是年轻力壮的时候找到自己肩负的使命，这真的是人生最美好的事情</li>
-</ul>
-<p>鲁热—-一个流星般的天才</p>
-<ul>
-<li>在这个世界上，从来就不会有哪一部蕴含强大能量的作品被埋没或者长久的被封存，也不会有哪一件优秀的艺术品随着时间的流逝而被遗忘，虽然有暂时被禁锢或者埋没的可能，但终究还是生命力的，他会冲破所有阻碍，脱颖而出</li>
-</ul>
-<p>拿破仑—-决定命运的一分钟</p>
-<ul>
-<li>命运只愿意成就那些勇敢者。当重任降临到平庸之辈身上时，他们不是感到庆幸，而是害怕。他们把这个成为命运主人的机会，哆哆嗦嗦地失掉了</li>
-<li>命运——这掌管世间世界的另一个神，他强有力的双臂只愿高高举起勇敢者，将他们送上英雄的殿堂</li>
-</ul>
-<p>尼采—-向宇宙高峰走去</p>
-<ul>
-<li>无法将我置之死地的，更令我坚强</li>
-</ul>
-<p>斯科特—-争夺南极之战</p>
-<ul>
-<li>相较于作品中的悲剧，生活本身创造出的悲剧要多一千倍</li>
-<li>悲壮的失败依然光荣，这样的失败能够激起人们继续挑战险境的勇气，因为只有雄心壮志才能将满怀的激情点燃，去完成那历经千难万险才能完成的事</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Reading</category>
-      </categories>
-      <tags>
-        <tag>读书笔记</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>《嵌入式C语言自我修养》笔记</title>
-    <url>/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/</url>
-    <content><![CDATA[<p><img src="/images/reading/QianRuShiC.jpg" alt="img"></p>
-<h1 id="GNU-C编译器扩展语法精讲（六）"><a href="#GNU-C编译器扩展语法精讲（六）" class="headerlink" title="GNU C编译器扩展语法精讲（六）"></a>GNU C编译器扩展语法精讲（六）</h1><p>github Demo：<a href="https://github.com/yangLieee/codebackup/blob/master/book_%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/gnuc.c">click here</a></p>
-<h2 id="指定初始化"><a href="#指定初始化" class="headerlink" title="指定初始化"></a>指定初始化</h2><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="number">1.</span> 数组初始化</span><br><span class="line"><span class="type">int</span> <span class="built_in">array</span>[<span class="number">100</span>] = { [<span class="number">10</span>] = <span class="number">1</span>, [<span class="number">20</span>] = <span class="number">3</span> };</span><br><span class="line"></span><br><span class="line"># ... 前后都需要空格，并且该特性也可以用在<span class="keyword">switch</span>-<span class="keyword">case</span>语句中</span><br><span class="line"><span class="type">int</span> <span class="built_in">array</span>[<span class="number">100</span>] = { [<span class="number">10</span> ... <span class="number">20</span>] = <span class="number">1</span>, [<span class="number">40</span> ... <span class="number">50</span>] = <span class="number">2</span> };</span><br><span class="line"><span class="keyword">switch</span>(i) {</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span> ... <span class="number">8</span>:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> 结构体成员初始化  (通过结构域名)</span><br><span class="line">例如linux内核：</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">const</span> <span class="title">file_opt</span> <span class="title">codec_opt</span> =</span> {</span><br><span class="line">    .open = codec_open,</span><br><span class="line">    .read = codec_read,</span><br><span class="line">    .write = codec_write,</span><br><span class="line">} </span><br><span class="line">好处：灵活，代码易于维护</span><br></pre></td></tr></tbody></table></figure>
+<h1 id="Actions"><a href="#Actions" class="headerlink" title="Actions"></a>Actions</h1><p>Actions就是响应某个事件的过程。如下所示当满足trigger触发条件时依次执行Commands命令。源码会依次将这些命令添加到“命令执行队列尾部”，系统对这些命令顺序执行。所以服务启动的根本就是on类型的section被执行的过程</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on &lt;trigger&gt;        //触发条件</span><br><span class="line">    &lt;command1&gt;      //命令1</span><br><span class="line">    &lt;command2&gt;      //命令2</span><br><span class="line">    &lt;command3&gt;      //命令3</span><br></pre></td></tr></tbody></table></figure>
 
-<h2 id="语句表达式"><a href="#语句表达式" class="headerlink" title="语句表达式"></a>语句表达式</h2><ul>
-<li>目的：构造复杂宏</li>
-<li>结构：（ {  表达式1; 表达式2;  表达式3  } ） 语句表达式用（）小括号括起来，代码块用 { } 大括号括起来，语句表达式的值等于最后一个表达式的值</li>
-</ul>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><ol>
-<li><p>求和</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">sum = ( {</span><br><span class="line">     <span class="type">int</span> s = <span class="number">0</span>;</span><br><span class="line">     <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++&gt;) </span><br><span class="line">        s = s +i;</span><br><span class="line">     s;</span><br><span class="line">} )</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>定义一个宏，求两个数的最大值？</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> my_max(x,y)   ({    \</span></span><br><span class="line"><span class="meta">    typeof(x) _x = (x);     \</span></span><br><span class="line"><span class="meta">    typeof(y) _y = (y);     \</span></span><br><span class="line"><span class="meta">    (void) (&amp;_x == &amp;_y);    \</span></span><br><span class="line"><span class="meta">    _x &gt; _y ? _x : _y;      \</span></span><br><span class="line"><span class="meta">})</span></span><br><span class="line"><span class="comment">// 第六行的作用：不同类型的指针比较会给出警告，加void消除没有用到比较结果带来的警告</span></span><br></pre></td></tr></tbody></table></figure></li>
+<p>对于trigger（触发器）来讲，常见的有两种形式：</p>
+<ol>
+<li>单纯的字符串。例如：on boot</li>
+<li>键值匹配，格式为“ on property <key> = <value> ”。例如：on property:init.svc.wifi = stopped</value></key></li>
 </ol>
-<h2 id="container-of宏"><a href="#container-of宏" class="headerlink" title="container_of宏"></a>container_of宏</h2><ul>
-<li><p>作用：根据结构体某一成员地址，获取这个结构体的首地址</p>
-</li>
-<li><p>场景：传给某个函数的参数是某个结构体的成员变量，在这个函数中还可能用到这个结构体其它变量</p>
-</li>
-<li><p>基础：常量指针的值即为常量本身的值。0强转为结构体指针，结构体的首地址为0，每个成员变量都是首地址的相对偏移</p>
-</li>
-<li><p>实现</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> offset( TYPE , MEMBER ) ((size_t) &amp; (((TYPE*)0)-&gt;MEMBER))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> container_of(ptr, type, member) ({                    \                    </span></span><br><span class="line">            <span class="type">const</span> <span class="title function_">typeof</span><span class="params">(((type*)<span class="number">0</span>)-&gt;member)</span>* _ptr = (ptr);   \</span><br><span class="line">            (type*) ((<span class="type">char</span>*)_ptr - offset(type, member));     \                              </span><br><span class="line">})</span><br></pre></td></tr></tbody></table></figure></li>
-</ul>
-<h2 id="零长数组"><a href="#零长数组" class="headerlink" title="零长数组"></a>零长数组</h2><ul>
-<li>定义：长度为0的数组</li>
-<li>优点：不占用内存存储空间</li>
-<li>其它：C99支持变长数组，即长度编译时期是不能确定，在运行时才可以确定</li>
-<li>应用：变长结构体</li>
-<li>数组与指针区别：数组名用来表征一块连续的内存地址空间，仅仅是符号不分配空间；指针是一个变量，编译器需要单独给它分配一个内存空间，用来存放他指向的变量的地址。</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">buffer</span> {</span></span><br><span class="line">  <span class="type">int</span> len;</span><br><span class="line">  <span class="type">int</span> ptr[<span class="number">0</span>];  <span class="comment">// 不占大小</span></span><br><span class="line">};</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">buffer</span>* <span class="title">buf</span>;</span></span><br><span class="line">buf = (<span class="keyword">struct</span> buffer*) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> buffer) + <span class="number">100</span>);</span><br><span class="line">buf-&gt;len = <span class="number">100</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>此外还有两种形式：</p>
+<ol>
+<li>device-added/removed-<patch> 当设备节点添加/删除时触发此事件</patch></li>
+<li>sevice-exited-<name> 当指定服务<name> 存在时触发</name></name></li>
+</ol>
+<h2 id="Actions解析后执行顺序"><a href="#Actions解析后执行顺序" class="headerlink" title="Actions解析后执行顺序"></a>Actions解析后执行顺序</h2><figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">on early-init           #在初始化早期阶段触发</span><br><span class="line">on init                 #初始化阶段触发。这里会执行完属性服务，接下来就可以设置属性了</span><br><span class="line">on late-init            #在初始化晚期触发。在这里会通过trigger来执行其他的action,以下均是</span><br><span class="line">on early-fs</span><br><span class="line">on fs</span><br><span class="line">on post-fs</span><br><span class="line">on post-fs-data</span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">on early-boot</span><br><span class="line">on boot`</span><br></pre></td></tr></tbody></table></figure>
 
+<h1 id="Commands"><a href="#Commands" class="headerlink" title="Commands"></a>Commands</h1><table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>start <service></service></td>
+<td>启动一个服务，如果它没有处于运行状态的话</td>
+</tr>
+<tr>
+<td>stop <service></service></td>
+<td>停止一个服务，如果当前它处于运行状态的话</td>
+</tr>
+<tr>
+<td>restart <service></service></td>
+<td></td>
+</tr>
+<tr>
+<td>setprop <name> <value></value></name></td>
+<td>设置<name>的属性值为<value></value></name></td>
+</tr>
+<tr>
+<td>trigger <event></event></td>
+<td>触发一个事件</td>
+</tr>
+<tr>
+<td>export <name> <value></value></name></td>
+<td>设置<name>环境变量的值为<value>，全局有效</value></name></td>
+</tr>
+<tr>
+<td>mount <type> <device> <dir> [<mountoption>]*</mountoption></dir></device></type></td>
+<td>尝试在指定路径上挂载一个设备</td>
+</tr>
+</tbody></table>
+<h1 id="Services"><a href="#Services" class="headerlink" title="Services"></a>Services</h1><p>实际上每一个service就是一个可执行程序，它们在特定选项的约束下是被init程序运行或者重启(service可以在配置中指定是否需要退出重启，这样当service出现异常crash时就可以有机会复原)</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">service &lt;name&gt; &lt;pathname&gt; [ &lt;argument&gt; ]*</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        &lt;option&gt;</span><br><span class="line">        ...</span><br><span class="line"># &lt;name&gt;       service服务的名字</span><br><span class="line"># &lt;pathname&gt;   service路径，一般对应可执行程序或者脚本</span><br><span class="line"># &lt;argument&gt;   启动pathname下的service所需要的参数</span><br><span class="line"># &lt;option&gt;     service的约束项</span><br></pre></td></tr></tbody></table></figure>
 
-
-<h2 id="属性声明"><a href="#属性声明" class="headerlink" title="属性声明"></a>属性声明</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>__attribute__</p>
-<ul>
-<li>作用：指导编译器在编译程序的时候进行特定方面优化或代码检查</li>
-<li>格式：<strong>attribute</strong>(( ))，后面需要写两对小括号，多个属性之间逗号隔开</li>
-<li>支持的属性声明：section、aligned、packed、format、weak、alias、noinline、always_inilne</li>
-</ul>
-<h3 id="section"><a href="#section" class="headerlink" title="section"></a>section</h3><ul>
-<li><p>作用：将一个函数或变量放到指定的段，即放到指定的section</p>
-</li>
-<li><p>使用：<strong>attribute</strong>(( section(“.data”) ))</p>
-</li>
-<li><p>可选项：</p>
-<ul>
-<li><p>.text：函数定义、程序语句</p>
-</li>
-<li><p>.data：初始化的全局变量、初始化的静态局部变量</p>
-</li>
-<li><p>.bss：未初始化的全局变量、未初始化的静态局部变量</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="aligned"><a href="#aligned" class="headerlink" title="aligned"></a>aligned</h3><ul>
-<li>作用：地址对齐，在给变量分配存储空间的时候，需要按照制定的地址对齐方式给变量分配地址</li>
-<li>注意：地址对齐的字节数必须是2的幂次方</li>
-<li>使用：<strong>attribute</strong>(( (aligned(4) ))</li>
-<li>对齐的好处：简化CPU与RAM之间的接口和硬件设计。cpu访存硬件设计可能只支持4字节或4字节整数倍对齐的地址访问，对齐后cpu可以一次读完</li>
-<li>注意：这个属性声明只是建议编译器按照这种方式对齐，当超过编译器允许的最大值只能按照最大对齐字节数进行地址分配</li>
-</ul>
-<h3 id="packed"><a href="#packed" class="headerlink" title="packed"></a>packed</h3><ul>
-<li>作用：减少地址对齐</li>
-<li>使用： <strong>attribute</strong>(( packed ))</li>
-<li>通常aligned与packed一起使用，这样既避免了结构体各个成员变量地址对齐产生的内存空洞又指定了整个结构体对齐方式：<strong>attribute</strong>(( packed, aligned(8) ))</li>
-</ul>
-<h3 id="format"><a href="#format" class="headerlink" title="format"></a>format</h3><ul>
-<li>作用：指定变参函数的参数格式检查</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">LOG</span><span class="params">(<span class="type">int</span> num, <span class="type">char</span>* fmt, ...)</span> __<span class="title function_">attribute__</span><span class="params">((format(<span class="built_in">printf</span>,<span class="number">2</span>,<span class="number">3</span>)))</span>)</span><br><span class="line"><span class="comment">// LOG函数的参数，个数字符串的位置在所有参数列表的索引是2,即前两个参数；要编辑器帮忙检查的参数在所有参数列表里的索引是3</span></span><br></pre></td></tr></tbody></table></figure>
-
-<h3 id="weak"><a href="#weak" class="headerlink" title="weak"></a>weak</h3><ul>
-<li>作用：可以将一个强符号转换为弱符号</li>
-<li>使用：void _<em>attribute</em>(( weak )) func(void);</li>
-<li>好处：当一个函数被声明为一个弱符号之后，链接阶段找不到函数定义不会报错会将这个弱符号设置为0或者特殊值。当程序运行时，调用这个这个函数跳转到零地址或特殊地址才会产生一个内存错误</li>
-</ul>
-<h3 id="alias"><a href="#alias" class="headerlink" title="alias"></a>alias</h3><ul>
-<li>作用：给函数定义一个别名</li>
-<li>使用：void f() <strong>attribute</strong>((alias(“_f “)));</li>
-<li>通常在linux内核中weak和alias一起使用，随着版本升级可以封装旧名字起一个新名字</li>
-</ul>
-<h2 id="内联函数"><a href="#内联函数" class="headerlink" title="内联函数"></a>内联函数</h2><ul>
-<li><p>特征：用inline修饰的函数被称为内联函数，通常用static 或 extern 修饰</p>
-</li>
-<li><p>内联函数特征：</p>
-</li>
-<li><ul>
-<li>函数体积小</li>
-<li>函数体内无指针赋值、递归、循环等语句</li>
-<li>调用频繁</li>
-</ul>
-</li>
-<li><p>与宏相比，内联函数的优点：</p>
-</li>
-<li><ul>
-<li>参数类型检查，本质仍然是函数</li>
-<li>便于调试。可以单步、断点调试</li>
-<li>有返回值（宏也可以，语句表达式结构）</li>
-<li>接口封装</li>
-</ul>
-</li>
-<li><p>使用：</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 显式告诉编译器不要展开</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> __attribute((noinline)) <span class="type">int</span> <span class="title function_">func</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">// 显式告诉编译器要内联展开</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> __attribute((always_inline)) <span class="type">int</span> <span class="title function_">func</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">// 否则编译器的行为不固定，考虑诸多因素决定是否展开</span></span><br></pre></td></tr></tbody></table></figure></li>
-</ul>
-<h2 id="内建函数"><a href="#内建函数" class="headerlink" title="内建函数"></a>内建函数</h2><ul>
-<li>含义：编译器内部实现的函数</li>
-<li>特征：通常以 __builtin 开头</li>
-<li>说明：没有文档，变动频繁，不建议应用程序工程师使用</li>
-</ul>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//  __builtin_return_address（LEVEL）    返回当前函数或者调用者的返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 0: 获取当前函数返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 1: 获取上一级函数返回地址</span></span><br><span class="line"><span class="comment">// LEVEL 2: 获取上两级函数返回地址</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_frame_address(LEVEL)        查看函数的栈帧地址</span></span><br><span class="line"><span class="comment">// LEVEL 0: 获取当前函数栈帧地址</span></span><br><span class="line"><span class="comment">// LEVEL 1: 获取上一级函数栈帧地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_constant_p(n)               判断参数n在编译时是否是常量，是常量返回1,否则0</span></span><br><span class="line"><span class="comment">// 内核中判断宏的参数是否是常数，则有更优化的实现方法</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// __builtin_expect(exp,c)        </span></span><br><span class="line"><span class="comment">// 告诉编译器参数exp的值为c的可能性很大，用于分支预测，参数c与返回值无关，返回值一定是exp</span></span><br><span class="line"></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> likely(x) __builtin_expect(!!(x),1)) </span></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> unlikely(x) __builtin_expect(!!(x),0)</span></span><br><span class="line"><span class="comment">// 告诉编译器某一个分支发生的概率很高，自己做优化</span></span><br><span class="line"><span class="comment">// 两次取非是为了将参数x转换为bool类型，与1/0比较</span></span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h2 id="可变参数宏"><a href="#可变参数宏" class="headerlink" title="可变参数宏"></a>可变参数宏</h2><ul>
-<li>用 … 表示变参列表，变参列表由不确定的参数组成，用  <strong>VA_ARGS</strong>  标识符表示变参函数列表</li>
-<li>C99规定，可以使用 args…  表示变参列表，用 args 代表变参列表即可</li>
-<li>宏连接符  ##  的作用是连接两个字符串</li>
-<li>在定义宏的时候通常使用 do { } while(0);的结构，这样是为了防止宏在选择、条等分支语句中展开后，产生宏歧义</li>
-</ul>
-<p>两种方法实现自定义等级宏打印：<a href="https://github.com/yangLieee/codebackup/blob/master/book_%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/mlog.h">click here</a></p>
-<h2 id="Uboot镜像自复制"><a href="#Uboot镜像自复制" class="headerlink" title="Uboot镜像自复制"></a>Uboot镜像自复制</h2><ul>
-<li>作用：加载linux内核镜像到内存，给内核传递启动参数，然后引导linux操作系统启动</li>
-<li>过程：通过定义两个零长度数组，分别表示要复制自身镜像的起始地址和结束地址，并放在特定的section上，而这两个section分别放在代码段前和数据段后。数组名本身就代表一个地址，通过arm ldr伪指令直接获取要复制的镜像首地址保存在某个寄存器中，从flash复制自身镜像到内存中，然后重定位，最终跳转到内存中执行。（自举）</li>
-</ul>
-<h1 id="C语言面向对象编程思想（八）"><a href="#C语言面向对象编程思想（八）" class="headerlink" title="C语言面向对象编程思想（八）"></a>C语言面向对象编程思想（八）</h1><h2 id="代码复用与分层"><a href="#代码复用与分层" class="headerlink" title="代码复用与分层"></a>代码复用与分层</h2><p>复用：</p>
-<ul>
-<li>函数级复用</li>
-<li>库级复用</li>
-<li>框架级复用</li>
-<li>操作系统级复用</li>
-</ul>
-<p>分层：</p>
-<ul>
-<li>应用层</li>
-<li>Framework层</li>
-<li>库</li>
-<li>Linux内核</li>
-</ul>
-<h2 id="面向对象主要特征"><a href="#面向对象主要特征" class="headerlink" title="面向对象主要特征"></a>面向对象主要特征</h2><p>继承、多态、纯虚函数特征（抽象类）</p>
-<h1 id="模块化（九）"><a href="#模块化（九）" class="headerlink" title="模块化（九）"></a>模块化（九）</h1><p>模块化的思想内核是分而治之，重点在于抽象的对象之间的关联，而不是内容</p>
-<p>面向对象的编程思想主要是为了代码复用，重点在于内容的实现</p>
-]]></content>
+<h1 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h1><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>disable</td>
+<td>隐式声明，默认不会自动启动该服务，需要显式调用</td>
+</tr>
+<tr>
+<td>oneshot</td>
+<td>字面意思一次性，即服务退出时，不要主动重启该服务</td>
+</tr>
+<tr>
+<td>onrestart</td>
+<td>当服务重启时，执行某些命令（需要理解）</td>
+</tr>
+<tr>
+<td>class <name></name></td>
+<td>指定该服务属于<name>class类，默认class名为default（注：同一个class所有服务必须是同时启动或停止）</name></td>
+</tr>
+<tr>
+<td>socket <name> <type> <perm> [<user> [<group>] ]</group></user></perm></type></name></td>
+<td>创建一个名为dev/socket/<name>的 socket，然后将它的fd值传给启动它的进，有效的<type>值包括dgram,stream 和seqpacket。ueser 和group 的默认值为0。</type></name></td>
+</tr>
+<tr>
+<td>critical</td>
+<td>表明这是对设备至关重要的服务；如果它在四分钟内退出超过四次，则设备将进入Recovery 模式</td>
+</tr>
+<tr>
+<td>group <groupname> [<groupname>]*</groupname></groupname></td>
+<td>在启动服务前将用户组切换至<groupname></groupname></td>
+</tr>
+<tr>
+<td>setenv <name> <value></value></name></td>
+<td>设置环境变量<name> 为值<value></value></name></td>
+</tr>
+</tbody></table>
+<h1 id="Notice"><a href="#Notice" class="headerlink" title="Notice"></a>Notice</h1><ol>
+<li>service和Actions都是有唯一的名字的。如果有重名的情况会作为错误忽略。</li>
+<li>无论是动作还是服务，并不是按照文件的编排顺序执行的。</li>
+<li>该文件中注释以“#”开始；反斜杠“\”在行尾表示下面一行是同一行</li>
+</ol>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">/* </span><br><span class="line"> * copy from http://androidxref.com/6.0.0_r5/xref/bootable/recovery/etc/init.rc</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">import /init.recovery.${ro.hardware}.rc</span><br><span class="line"></span><br><span class="line">on early-init</span><br><span class="line">    start ueventd</span><br><span class="line">    start healthd</span><br><span class="line"></span><br><span class="line">on init</span><br><span class="line">    export PATH /sbin:/system/bin</span><br><span class="line">    export ANDROID_ROOT /system</span><br><span class="line">    export ANDROID_DATA /data</span><br><span class="line">    export EXTERNAL_STORAGE /sdcard</span><br><span class="line"></span><br><span class="line">    symlink /system/etc /etc</span><br><span class="line"></span><br><span class="line">    mkdir /sdcard</span><br><span class="line">    mkdir /system</span><br><span class="line">    mkdir /data</span><br><span class="line">    mkdir /cache</span><br><span class="line">    mkdir /sideload</span><br><span class="line">    mount tmpfs tmpfs /tmp</span><br><span class="line"></span><br><span class="line">    chown root shell /tmp</span><br><span class="line">    chmod 0775 /tmp</span><br><span class="line"></span><br><span class="line">    write /proc/sys/kernel/panic_on_oops 1</span><br><span class="line">    write /proc/sys/vm/max_map_count 1000000</span><br><span class="line"></span><br><span class="line">on fs</span><br><span class="line">    mkdir /dev/usb-ffs 0770 shell shell</span><br><span class="line">    mkdir /dev/usb-ffs/adb 0770 shell shell</span><br><span class="line">    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=2000</span><br><span class="line"></span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    write /sys/class/android_usb/android0/idVendor 18D1</span><br><span class="line">    write /sys/class/android_usb/android0/idProduct D001</span><br><span class="line">    write /sys/class/android_usb/android0/f_ffs/aliases adb</span><br><span class="line">    write /sys/class/android_usb/android0/functions adb</span><br><span class="line">    write /sys/class/android_usb/android0/iManufacturer ${ro.product.manufacturer}</span><br><span class="line">    write /sys/class/android_usb/android0/iProduct ${ro.product.model}</span><br><span class="line">    write /sys/class/android_usb/android0/iSerial ${ro.serialno}</span><br><span class="line"></span><br><span class="line">on boot</span><br><span class="line">    ifup lo</span><br><span class="line">    hostname localhost</span><br><span class="line">    domainname localdomain</span><br><span class="line"></span><br><span class="line">    class_start default</span><br><span class="line"></span><br><span class="line"># Load properties from /system/ + /factory after fs mount.</span><br><span class="line">on load_all_props_action</span><br><span class="line">    load_all_props</span><br><span class="line"></span><br><span class="line">on firmware_mounts_complete</span><br><span class="line">   rm /dev/.booting</span><br><span class="line"></span><br><span class="line"># Mount filesystems and start core system services.</span><br><span class="line">on late-init</span><br><span class="line">    trigger early-fs</span><br><span class="line">    trigger fs</span><br><span class="line">    trigger post-fs</span><br><span class="line">    trigger post-fs-data</span><br><span class="line"></span><br><span class="line">    # Load properties from /system/ + /factory after fs mount. Place</span><br><span class="line">    # this in another action so that the load will be scheduled after the prior</span><br><span class="line">    # issued fs triggers have completed.</span><br><span class="line">    trigger load_all_props_action</span><br><span class="line"></span><br><span class="line">    # Remove a file to wake up anything waiting for firmware</span><br><span class="line">    trigger firmware_mounts_complete</span><br><span class="line"></span><br><span class="line">    trigger early-boot</span><br><span class="line">    trigger boot</span><br><span class="line"></span><br><span class="line">on property:sys.powerctl=*</span><br><span class="line">   powerctl ${sys.powerctl}</span><br><span class="line"></span><br><span class="line">service ueventd /sbin/ueventd</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:ueventd:s0</span><br><span class="line"></span><br><span class="line">service healthd /sbin/healthd -r</span><br><span class="line">    critical</span><br><span class="line">    seclabel u:r:healthd:s0</span><br><span class="line"></span><br><span class="line">service recovery /sbin/recovery</span><br><span class="line">    seclabel u:r:recovery:s0</span><br><span class="line"></span><br><span class="line">service adbd /sbin/adbd --root_seclabel=u:r:su:s0 --device_banner=recovery</span><br><span class="line">    disabled</span><br><span class="line">    socket adbd stream 660 system system</span><br><span class="line">    seclabel u:r:adbd:s0</span><br><span class="line"></span><br><span class="line"># Always start adbd on userdebug and eng builds</span><br><span class="line">on property:ro.debuggable=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br><span class="line">    start adbd</span><br><span class="line"></span><br><span class="line"># Restart adbd so it can run as root</span><br><span class="line">on property:service.adb.root=1</span><br><span class="line">    write /sys/class/android_usb/android0/enable 0</span><br><span class="line">    restart adbd</span><br><span class="line">    write /sys/class/android_usb/android0/enable 1</span><br></pre></td></tr></tbody></table></figure>]]></content>
       <categories>
-        <category>Reading</category>
+        <category>Linux</category>
+        <category>Andriod</category>
       </categories>
-      <tags>
-        <tag>读书笔记</tag>
-      </tags>
   </entry>
   <entry>
     <title>《曾国藩传》</title>
@@ -1612,6 +1612,134 @@
       <tags>
         <tag>读书笔记</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Andriod Property工作机制</title>
+    <url>/2023/04/27/andriod/property/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Property属性系统是 Android 中使用最广泛的进程间信息共享机制了。本质上属性(property)是一对键/值(key/value)组合，键和值都是字符串类型。Androd中非常多的应用程序和库直接或者间接的依赖于属性系统，并由此决定其运行期的行为。它的处理流程同android的其他模块一样，也分为服务端和客户端，property设置必须在服务端，读取直接在客户端。其特点可以总结为</p>
+<ul>
+<li>启动启动后将init.rc、build.prop、default.prop等属性文件中加载进一块共享内存</li>
+<li>属性文件的格式类似于map表，以key/value的形式存在，所有键值是以字线树的形式进行组织起来的</li>
+<li>任何进程都会将共享内存映射到自己的内存中，进而可以读出值</li>
+<li>修改变量不同进程只可以通过socket方式，向属性服务发出修改属性值的请求，而不能直接修改属性值</li>
+<li>系统中只有一个实体可以设置修改属性值，即属性服务</li>
+</ul>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h1><h2 id="获取属性"><a href="#获取属性" class="headerlink" title="获取属性"></a>获取属性</h2><p>getprop 属性名</p>
+<h2 id="设置属性"><a href="#设置属性" class="headerlink" title="设置属性"></a>设置属性</h2><p>setprop 属性名 属性值</p>
+<h2 id="函数调用流程"><a href="#函数调用流程" class="headerlink" title="函数调用流程"></a>函数调用流程</h2><h3 id="获取所有属性"><a href="#获取所有属性" class="headerlink" title="获取所有属性"></a>获取所有属性</h3><ul>
+<li>property_list -call-&gt; __system_property_foreach(void (*propfn)(const prop_info *pi, void *cookie)</li>
+<li>__system_property_foreach(void (*propfn)(const prop_info *pi, void *cookie) -call-&gt; foreach_property()遍历所有属性</li>
+</ul>
+<h3 id="获取某个属性"><a href="#获取某个属性" class="headerlink" title="获取某个属性"></a>获取某个属性</h3><p>说明：获取属性的流程不再走socket，而是直接从共享内存中读取</p>
+<ul>
+<li>int property_get-call-&gt;system_property_get(key, value)</li>
+<li>__system_property_find-call-&gt; __system_property_find_compat(name)</li>
+</ul>
+<h3 id="设置属性-1"><a href="#设置属性-1" class="headerlink" title="设置属性"></a>设置属性</h3><ul>
+<li>property_set call-&gt; __system_property_set(key, value)</li>
+<li>__system_property_set(key, value) -call-&gt; send_prop_msg(&amp;msg)</li>
+</ul>
+<p>__system_property_set通过本地SOCKET: “/dev/socket/property_service” 与init进程中properties服务通讯。</p>
+<h1 id="Property机制"><a href="#Property机制" class="headerlink" title="Property机制"></a>Property机制</h1><ol>
+<li><p>初始化一块共享内存</p>
+<ul>
+<li>void property_init(void)  ==&gt; init_property_area(void)</li>
+</ul>
+<ul>
+<li><p>property_area_inited  初始化内存区域标志位检查</p>
+</li>
+<li><p>__system_property_area_init()  ==&gt;  map_prop_area_rw()</p>
+<p>创建并打开/tmp/__properties__文件；ftruncate(fd, PA_SIZE)文件大小指定为PA_SIZE；映射一段地址到文件并初始化内存；将内存地址__system_property_area__赋值到全局变量</p>
+</li>
+<li><p>init_workspace(workspace *w, size_t size)   设置waorspace结构体，只读打开PROP_FILENAME</p>
+</li>
+<li><p>fcntl(pa_workspace.fd, F_SETFD, FD_CLOEXEC)</p>
+</li>
+<li><p>property_area_inited = 1; 置位</p>
+</li>
+</ul>
+</li>
+<li><p>加载所有默认属性</p>
+<ul>
+<li>load_all_props( )   ==&gt;  load_properties_from_file(const char *fn, const char *filter)</li>
+</ul>
+<ul>
+<li><p>*read_file(fn, &amp;sz)   读fn文件大小存入sz，开辟一块size+2的堆空间，首地址作为返回值return出去</p>
+</li>
+<li><p>void load_properties(char *data, const char *filter)</p>
+<ul>
+<li><p>while ((eol = strchr(sol, ‘\n’))) 逐行解析</p>
+<ul>
+<li><p>#   关键字符比较。处理：注释</p>
+</li>
+<li><p>import 关键字符比较。处理：导入其他.prop文件</p>
+</li>
+<li><p>= 关键字符比较。处理：按照key，value</p>
+<ul>
+<li><p>property_set(key, value)</p>
+</li>
+<li><p>__system_property_add(const char *name, unsigned int namelen,  const char *value, unsigned int valuelen)</p>
+</li>
+<li><p>prop_info *find_property(prop_bt *const trie, const char *name, uint8_t namelen, const char *value, uint8_t valuelen, bool alloc_if_needed)</p>
+<p>核心函数，将prop按照某种数据结构存储对应的内存位置</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>解析加载init.rc中的service</p>
+<p>init_parse_config_file(“/etc/init.rc”)</p>
+</li>
+<li><p>将某个动作添加到队列</p>
+<p>queue_builtin_action(property_service_init_action， (char*)”property_service_init”);</p>
+</li>
+<li><p>在某个阶段出发某个service</p>
+<p>action_for_each_trigger(“late-init”, action_add_queue_tail);</p>
+</li>
+<li><p>for(;;) 循环</p>
+</li>
+</ol>
+<h1 id="如何实现共享"><a href="#如何实现共享" class="headerlink" title="如何实现共享"></a>如何实现共享</h1><p>init_workspaced函数调用的时候，打开的句柄记录在pa_workspace.fd处，以后每当init进程执行socket命令，并调用service_start()时，执行：</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">get_property_workspace(&amp;fd, &amp;sz);                                          </span><br><span class="line"><span class="built_in">sprintf</span>(tmp, <span class="string">"%d,%d"</span>, dup(fd), sz);</span><br><span class="line">add_environment(<span class="string">"ANDROID_PROPERTY_WORKSPACE"</span>, tmp);</span><br></pre></td></tr></tbody></table></figure>
+
+<p>其实就是把 pa_workspace.fd 的句柄记入一个名叫“ ANDROID_PROPERTY_WORKSPACE ”的环境变量去。</p>
+<p>android采用了gcc的constructor属性，该属性指明一个_libc_preinit函数,当bionic库被加载时将自动调用_libc_preinit,关键call过程如下：</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">__libc_preinit -call-&gt; __libc_init_common(*args)-&gt;__system_properties_init-&gt;map_prop_area</span><br></pre></td></tr></tbody></table></figure>
+
+<p>map_prop_area( )</p>
+<ul>
+<li>get_fd_from_env()， 通过ANDROID_PROPERTY_WORKSPACE环境变量拿到fd</li>
+<li>map_fd_ro(const int fd)，映射该内存区域到本地进程</li>
+</ul>
+<h1 id="属性特殊处理"><a href="#属性特殊处理" class="headerlink" title="属性特殊处理"></a>属性特殊处理</h1><p>ctl.开头的属性是控制属性，用于控制系统的本地服务</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">ctl.xxx（start/stop/restart）   servicename[:args]</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>ro.开头的属性不能被修改；</li>
+<li>net.开始的属性(除net.change外)设置， 将引发net.change=key的属性设置，被bionic/libc/netbsd/resolv/res_state.c中的代码处理(通过__system_property_find函数)；</li>
+<li>persist.开始的属性，如果在init.rc和代码中设置， 将会被写到/data/property目录下；</li>
+</ul>
+<h1 id="其它实现方式"><a href="#其它实现方式" class="headerlink" title="其它实现方式"></a>其它实现方式</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>自己在freertos的开发中，整体使用C语言，针对property的功能自己实现了一套相关代码。主要包括：get/set property；针对property的前置属性进行判断，ro/rw/presist等等</p>
+<h2 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h2><ul>
+<li><p>底层数据结构：map</p>
+</li>
+<li><p>方式</p>
+<p>通过<a href="https://github.com/forhappy/rbtree">开源代码rbtree</a>的实现，基于其中的API进一步封装出map表的接口。由于是在小系统下开发，内存比较小，为了防止碎片增加一个简单的内存池为property使用；其次借鉴andriod上property的实现，继续进行封装system_property接口，最终封装出导出使用的API接口</p>
+</li>
+</ul>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><ul>
+<li><a href="https://www.pianshen.com/article/8653307704/">深入讲解Android Property机制</a></li>
+<li><a href="https://blog.csdn.net/weixin_39613712/article/details/117314185">Android Property属性的实现细节</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>Andriod</category>
+      </categories>
   </entry>
   <entry>
     <title>《格局》</title>
@@ -1691,44 +1819,6 @@
       </categories>
   </entry>
   <entry>
-    <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
-    <url>/2022/12/03/item/doubanTop250Spider/</url>
-    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在爬虫学习中，一套完整的项目实战对于代码和计算机思维能力有很大的提升。本文基于B站视频<a href="https://www.bilibili.com/video/BV12E411A7ZQ?from=search&amp;seid=4741588992451392787">《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》</a>关于 “豆瓣电影Top250” 项目做出的总结、拓展与分享。<br>在本文中，只展示数据爬取到数据保存的工作，数据可视化部分只做部分分析和结果展示。具体关于库的操作我选择了一些官方文档做链接，知识点比较全面请参考下列表。如果想要项目源代码，请评论或私信。</p>
-<ul>
-<li><a href="https://docs.python.org/zh-cn/3.7/library/urllib.html?highlight=urllib">URL处理系统模块：urllib</a></li>
-<li><a href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></li>
-<li><a href="https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/">数据提取bs4模块：BeautifulSoup</a></li>
-<li><a href="https://docs.python.org/zh-cn/3.7/library/re.html">数据提取正则表达式模块：re</a></li>
-<li><a href="https://www.jianshu.com/p/9135d7833d6d">数据提取模块 ：lxml</a></li>
-<li><a href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></li>
-<li><a href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></li>
-</ul>
-<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="数据爬取"><a href="#数据爬取" class="headerlink" title="数据爬取"></a>数据爬取</h2><p>数据爬取工作是整个工程的第一步，这一阶段所要做的工作是将网页上带有我们需要的信息的网页源码抓取下来。<strong>建议在此步骤时，如果数据量不大全部抓取保存到本地；如果数据量很大，则先保存一组到多组数据到本地</strong>。在接下的数据解析时通过本地文件解析，这样做会避免后面多次访问网站而被封ip，当然针对被封ip有相应的解决办法，但是这些内容涉及到网络知识，建议后面再学。</p>
-<h3 id="urllib方法"><a href="#urllib方法" class="headerlink" title="urllib方法"></a>urllib方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line"><span class="comment">#构建请求</span></span><br><span class="line">req = urllib.request.Request(url=base_url,headers=header)</span><br><span class="line"><span class="comment">#得到响应</span></span><br><span class="line">response = urllib.request.urlopen(req)</span><br><span class="line">html = response.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(html)</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="requests方法"><a href="#requests方法" class="headerlink" title="requests方法"></a>requests方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line">response = requests.get(url=base_url,headers=header)</span><br><span class="line">data = response.content.decode()</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(data)</span><br></pre></td></tr></tbody></table></figure>
-<h2 id="数据解析"><a href="#数据解析" class="headerlink" title="数据解析"></a>数据解析</h2><p>数据解析作为第二步是整个工程的核心，这一步直接决定了 我们是否能够在海量的数据中只得到我们想要的数据。爬虫中三种重要的数据解析的方法分别是：BeautifulSoup、re正则表达式和xpath，三种方法没有优劣好坏，按照我前面给出的文档，自己用好一种即可满足需求，当然三种方法根据场景使用是最高效的，如果你是大佬的话👍。<br>我自己常用的是xpath方法。第一，xpath路径可以直接在网页上进行复制；第二，可以通过<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">XPath Helper工具</a>进行更好的测试，我在之前的博客有提到可以<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">点击</a>查看。下面我用三种不同的方法对保存到本地的一页上的数据进行了解析。</p>
-<h3 id="BeaufifulSoup"><a href="#BeaufifulSoup" class="headerlink" title="BeaufifulSoup"></a>BeaufifulSoup</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line"><span class="comment">#构建BeautifulSoup对象</span></span><br><span class="line">soup = BeautifulSoup(html,<span class="string">"html.parser"</span>)</span><br><span class="line"><span class="comment">#得到每一块的内容</span></span><br><span class="line">blocks = soup.select(<span class="string">".grid_view .item"</span>)</span><br><span class="line"><span class="comment">#构建电影列表</span></span><br><span class="line">movie_list = []</span><br><span class="line"><span class="comment">#电影链接和电影图片链接</span></span><br><span class="line"><span class="keyword">for</span> index,block <span class="keyword">in</span> <span class="built_in">enumerate</span>(blocks):</span><br><span class="line">    movie_dict = {}</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = block.select(<span class="string">"a"</span>)[<span class="number">0</span>].get(<span class="string">"href"</span>)       <span class="comment">#电影详情页链接</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = block.select(<span class="string">"img"</span>)[<span class="number">0</span>].get(<span class="string">"src"</span>)        <span class="comment">#电影链接</span></span><br><span class="line">    title = block.select(<span class="string">".title"</span>)                      <span class="comment">#电影名字</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        o_title = block.select(<span class="string">".title"</span>)[<span class="number">1</span>].text            <span class="comment"># 电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = o_title.replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span>                                       <span class="comment">#电影外文名字</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = block.select(<span class="string">".star .rating_num"</span>)[<span class="number">0</span>].text        <span class="comment">#电影评分</span></span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = block.select(<span class="string">".star span"</span>)[<span class="number">3</span>].text[:-<span class="number">3</span>]         <span class="comment">#评分人数</span></span><br><span class="line">    bd = block.select(<span class="string">".bd p"</span>)[<span class="number">0</span>].text</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = re.sub(<span class="string">" "</span>,<span class="string">""</span>,bd)</span><br><span class="line">    movie_dict[<span class="string">"inq"</span>] = block.select(<span class="string">".quote .inq"</span>)[<span class="number">0</span>].text.replace(<span class="string">"。"</span>,<span class="string">""</span>)</span><br><span class="line">    movie_list.append(movie_dict)</span><br><span class="line"><span class="comment">#打印测试</span></span><br><span class="line"><span class="built_in">print</span>(movie_list)</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="xpath"><a href="#xpath" class="headerlink" title="xpath"></a>xpath</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="comment">#构建etree对象</span></span><br><span class="line">data = etree.HTML(content)</span><br><span class="line"><span class="comment">#获取多个电影信息列表</span></span><br><span class="line">divs = data.xpath(<span class="string">'//div[@class="item"]'</span>)</span><br><span class="line"><span class="keyword">for</span> div <span class="keyword">in</span> divs:</span><br><span class="line">    movie_dict = { }</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]/a/@href'</span>)</span><br><span class="line">    <span class="comment">#print(movie_href)          #测试</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]//img/@src'</span>)</span><br><span class="line">    <span class="comment">#print(pic_href)           #测试</span></span><br><span class="line">    title = div.xpath(<span class="string">'div[@class="info"]//a/span[@class="title"]/text()'</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        o_title = title[<span class="number">1</span>].replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">""</span>.join(o_title.split())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span></span><br><span class="line">    <span class="comment">#print(c_title,o_title)      #测试</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = div.xpath(<span class="string">'div//div[2]/div/span[2]/text()'</span>)</span><br><span class="line">    <span class="comment">#print(rate)                #测试</span></span><br><span class="line">    judge = div.xpath(<span class="string">'div//div[2]/div/span[4]/text()'</span>)</span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = (<span class="built_in">str</span>(judge))[<span class="number">2</span>:-<span class="number">5</span>]</span><br><span class="line">    <span class="comment">#print(judge)                #测试</span></span><br><span class="line">    bd = <span class="built_in">str</span>(div.xpath(<span class="string">'div//div[@class="bd"]/p[1]/text()'</span>))</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = bd.replace(<span class="string">" "</span>,<span class="string">""</span>).replace(<span class="string">r"\xa0"</span>,<span class="string">""</span>).replace(<span class="string">r"\r"</span>,<span class="string">""</span>).replace(<span class="string">r"\n"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="comment">#print(bd)                   #测试</span></span><br><span class="line">    <span class="built_in">print</span>(movie_dict)</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="re正则表达式"><a href="#re正则表达式" class="headerlink" title="re正则表达式"></a>re正则表达式</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="comment">#影片详情链接规则</span></span><br><span class="line">findLink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;a href="(.*?)"&gt;'</span>)        <span class="comment">#创建正则表达式对象，表示规则（字符串的模式）</span></span><br><span class="line"><span class="comment">#影片图片规则</span></span><br><span class="line">findSrclink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;img.*src="(.*?)"'</span>,re.S)</span><br><span class="line"><span class="comment">#影片片名规则</span></span><br><span class="line">findTitle = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="title"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片的评分规则</span></span><br><span class="line">findGrade = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="rating_num" property="v:average"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#评价人数规则</span></span><br><span class="line">findJud = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span&gt;(.*)人评价&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#找到概况</span></span><br><span class="line">findInq = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="inq"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片相关内容</span></span><br><span class="line">findBd = re.<span class="built_in">compile</span>(<span class="string">r'&lt;p class=""&gt;(.*?)&lt;/p&gt;'</span>,re.S)</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line">datalist = []</span><br><span class="line">soup = BeautifulSoup(content, <span class="string">"html.parser"</span>)</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> soup.find_all(<span class="string">"div"</span>,class_ = <span class="string">"item"</span>):</span><br><span class="line">    item = <span class="built_in">str</span>(item)</span><br><span class="line">    <span class="comment">#print(html)                                             #测试电影信息的一小段有没有内解析拿到</span></span><br><span class="line">    data = [ ]</span><br><span class="line">    title = re.findall(findTitle,item)</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">len</span>(title)==<span class="number">2</span>):</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = title[<span class="number">1</span>]</span><br><span class="line">        Ftitle = title[<span class="number">1</span>].replace(<span class="string">"/"</span>, <span class="string">""</span>)</span><br><span class="line">        Ftitle = <span class="string">""</span>.join(Ftitle.split())</span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = <span class="string">" "</span></span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    link = re.findall(findLink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(link)</span><br><span class="line">    srclink = re.findall(findSrclink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(srclink)</span><br><span class="line">    grade = re.findall(findGrade,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(grade)</span><br><span class="line">    judge = re.findall(findJud,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(judge)</span><br><span class="line">    inq = re.findall(findInq,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(inq)</span><br><span class="line">    bd = re.findall(findBd,item)[<span class="number">0</span>]</span><br><span class="line">    bd = re.sub(<span class="string">'&lt;br(\s+)?/&gt;(\s+)?'</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = re.sub(<span class="string">"/"</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = <span class="string">""</span>.join(bd.split())</span><br><span class="line">    data.append(bd)</span><br><span class="line">    datalist.append(data)</span><br><span class="line"><span class="built_in">print</span>(datalist)            <span class="comment">#测试所有列表是否被打印</span></span><br></pre></td></tr></tbody></table></figure>
-<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="本地excel保存"><a href="#本地excel保存" class="headerlink" title="本地excel保存"></a>本地excel保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> xlwt</span><br><span class="line">workbook = xlwt.Workbook(encoding=<span class="string">"utf-8"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">worksheet = workbook.add_sheet(<span class="string">"豆瓣电影250"</span>)</span><br><span class="line">col = [<span class="string">"中文名"</span>, <span class="string">"外文名"</span>, <span class="string">"电影链接"</span>, <span class="string">"图片链接"</span>, <span class="string">"评分"</span>, <span class="string">"评价人数"</span>, <span class="string">"概评"</span>, <span class="string">"概述"</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">    worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(i + <span class="number">1</span>, j, datalist[i][j])</span><br><span class="line">workbook.save(<span class="string">"豆瓣top250_firstPage.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
-<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sqlite3</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">init_db</span>(<span class="params">dbpath</span>):</span><br><span class="line">    sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        create table movie250 </span></span><br><span class="line"><span class="string">        (</span></span><br><span class="line"><span class="string">        id integer primary key autoincrement,</span></span><br><span class="line"><span class="string">        info_link text,</span></span><br><span class="line"><span class="string">        pic_link text,</span></span><br><span class="line"><span class="string">        cname varchar,</span></span><br><span class="line"><span class="string">        ename varchar,</span></span><br><span class="line"><span class="string">        score numeric ,</span></span><br><span class="line"><span class="string">        rated numeric ,</span></span><br><span class="line"><span class="string">        instroduction text,</span></span><br><span class="line"><span class="string">        info text</span></span><br><span class="line"><span class="string">        )</span></span><br><span class="line"><span class="string">    '''</span>  <span class="comment"># 创建数据表</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cursor = conn.cursor()</span><br><span class="line">    cursor.execute(sql)</span><br><span class="line">    conn.commit()</span><br><span class="line">    conn.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">saveData2DB</span>(<span class="params">datalist, dbpath</span>):</span><br><span class="line">    <span class="comment">#init_db(dbpath)</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        	data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">                insert into movie250 (</span></span><br><span class="line"><span class="string">                info_link,pic_link,cname,ename,score,rated,instroduction,info) </span></span><br><span class="line"><span class="string">                values(%s)'''</span> % <span class="string">","</span>.join(data)</span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br><span class="line">saveData2DB(datalist,<span class="string">"movie.db"</span>)</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h3><p><img src="/images/item/douban-1.png" alt="在这里插入图片描述"><br><img src="/images/item/douban-2.png" alt="在这里插入图片描述"></p>
-<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><h2 id="Flask"><a href="#Flask" class="headerlink" title="Flask"></a><a href="https://dormousehole.readthedocs.io/en/latest/">Flask</a></h2><p>Flask 是一个微型的 Python 开发的 Web 框架，基于Werkzeug WSGI工具箱和Jinja2 模板引擎。 Flask使用BSD授权。 Flask也被称为“microframework”，因为它使用简单的核心，用extension增加其他功能。Flask没有默认使用的数据库、窗体验证工具。<br>简单来说在此项目中，Flask框架给我们提供了一个本地网页平台展示数据。我们根据不同的路由地址进行到不同的页面访问。如下图是首界面，通过不同的链接地址可以实现页面跳转，当然只是本地！<br><img src="/images/item/douban-3.png" alt="在这里插入图片描述"></p>
-<h2 id="Echarts"><a href="#Echarts" class="headerlink" title="Echarts"></a><a href="https://echarts.apache.org/en/index.html">Echarts</a></h2><p>Echarts是一个纯基于js的图表库，可以流畅的运行在 PC 和移动设备上。在本项目中可以将数据进行统计分类从而用不同的展示方法进行展现。在Echarts中可以支持的图表类型有很多，同时其有一个很好的点在于它能满足我们实时修改查看，最终形成自己想要的图，便将js代码复制粘贴到我们所需要的网页代码的地方。<br>由于在页面内有动态显示，所以不在进行展示。</p>
-<h2 id="WordCloud"><a href="#WordCloud" class="headerlink" title="WordCloud"></a>WordCloud</h2><p>词云展示方法是近些年来较为常用的数据可视化方法。其主要是通过分词技术将一篇文章或者一段话分成若干单词，然后统计这些词出现的频率，我们根据自定义化设置画布和这些词出现的颜色大小等等来得到某个词云。词云中重要的是画布的配置、自己所要定义的形式是什么样子，其他更多的是某些固定的方法。下图为我通过爬取毛不易的歌词内容获得毛不易的歌词词云图，如果需要此项目源码或者方法请私信。<br><img src="/images/item/douban-4.png" alt="在这里插入图片描述"></p>
-<h1 id="新手问题总结与解决方法"><a href="#新手问题总结与解决方法" class="headerlink" title="新手问题总结与解决方法"></a>新手问题总结与解决方法</h1><h2 id="ip被封"><a href="#ip被封" class="headerlink" title="ip被封"></a>ip被封</h2><p>ip被封可能是新手在爬虫学习阶段遇到的最大的问题。首先如果是初学想要尽快实现一些成果时，建议在合理范围内减少爬取次数，如果我们能获得网页内容了首先将其存到本地文件夹下进行后续的测试和解析。俗话说：上有政策下有对策，面对ip被封：基础阶段我们可以添加请求头，尽可能的进行伪装像一个浏览器在访问；再进一步我们可以自己构建代理ip函数，仿照源码添加免费ip，构建handler处理器使用opener方法也可以；如果有能力的话，可以学习代理ip池的方法来解决该问题。<br>当然，爬虫我们是要在合法范围内进行抓取，如果某些数据是机密或者不能访问的，我们还一直访问可能就很快有自己的小手镯子了🔓。我们只爬取我们可以访问到的，爬虫只是提高效率，不是翻过禁墙。</p>
-<h2 id="查看网页源码和”F12-Elements”后不一致"><a href="#查看网页源码和”F12-Elements”后不一致" class="headerlink" title="查看网页源码和”F12 Elements”后不一致"></a>查看网页源码和”F12 Elements”后不一致</h2><p>该问题可以总结为用一般方法有些需要的元素抓取不到。在本次项目中我们爬取的页面是静态网页所以可以直接抓取，但是对于动态网页就会无能为力。<br>查看网页源码：最原始的代码，指的是服务器直接发送到浏览器的代码。<br>F12检查元素：js渲染后的代码。而确实的部分就是js所渲染的。<br>如果我们想要抓取这部分代码可以采取以下两种方法：</p>
-<ol>
-<li>在页面上进行抓包，获取表单的元素和js链接提交请求</li>
-<li>通过selenium技术，模拟用户打开网页，进行自动化的抓取。</li>
-</ol>
-<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><p>以上两个问题是我在这个项目中所遇到的，当然在面对更复杂的爬虫工作时，会有更加繁琐的问题出现。还有一些其他问题，我将其总结为基础知识问题。在很多初学的时候，我们获得的数据往往以不同的格式进行存储，但是某些方法只能针对某些固定数据格式，这些需要我们提起注意；还有就是我们不可避免的马虎问题，关键词拼写错误，变量书写错误等等，这些最好的解决办法就是孰能生巧。<br>最后就是建议大家在完成一个项目时选择分块按照不同的模块去练习测试，最终完成项目。</p>
-]]></content>
-      <categories>
-        <category>Item</category>
-      </categories>
-  </entry>
-  <entry>
     <title>计算机存储体系</title>
     <url>/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/</url>
     <content><![CDATA[<p>作为计算机五大核心功能（运算、存储、控制、输入、输出）之一的存储，无疑在整个计算机体系结构中有着举足轻重的地位。</p>
@@ -1784,6 +1874,116 @@
       <tags>
         <tag>storage system</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>豆瓣电影Top250数据爬取、数据分析及数据可视化</title>
+    <url>/2022/12/03/item/doubanTop250Spider/</url>
+    <content><![CDATA[<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在爬虫学习中，一套完整的项目实战对于代码和计算机思维能力有很大的提升。本文基于B站视频<a href="https://www.bilibili.com/video/BV12E411A7ZQ?from=search&amp;seid=4741588992451392787">《Python爬虫基础5天速成（2021全新合集）Python入门+数据可视化》</a>关于 “豆瓣电影Top250” 项目做出的总结、拓展与分享。<br>在本文中，只展示数据爬取到数据保存的工作，数据可视化部分只做部分分析和结果展示。具体关于库的操作我选择了一些官方文档做链接，知识点比较全面请参考下列表。如果想要项目源代码，请评论或私信。</p>
+<ul>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/urllib.html?highlight=urllib">URL处理系统模块：urllib</a></li>
+<li><a href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></li>
+<li><a href="https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/">数据提取bs4模块：BeautifulSoup</a></li>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/re.html">数据提取正则表达式模块：re</a></li>
+<li><a href="https://www.jianshu.com/p/9135d7833d6d">数据提取模块 ：lxml</a></li>
+<li><a href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></li>
+<li><a href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></li>
+</ul>
+<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="数据爬取"><a href="#数据爬取" class="headerlink" title="数据爬取"></a>数据爬取</h2><p>数据爬取工作是整个工程的第一步，这一阶段所要做的工作是将网页上带有我们需要的信息的网页源码抓取下来。<strong>建议在此步骤时，如果数据量不大全部抓取保存到本地；如果数据量很大，则先保存一组到多组数据到本地</strong>。在接下的数据解析时通过本地文件解析，这样做会避免后面多次访问网站而被封ip，当然针对被封ip有相应的解决办法，但是这些内容涉及到网络知识，建议后面再学。</p>
+<h3 id="urllib方法"><a href="#urllib方法" class="headerlink" title="urllib方法"></a>urllib方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line"><span class="comment">#构建请求</span></span><br><span class="line">req = urllib.request.Request(url=base_url,headers=header)</span><br><span class="line"><span class="comment">#得到响应</span></span><br><span class="line">response = urllib.request.urlopen(req)</span><br><span class="line">html = response.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(html)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="requests方法"><a href="#requests方法" class="headerlink" title="requests方法"></a>requests方法</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">base_url = <span class="string">"https://movie.douban.com/top250?start="</span></span><br><span class="line">header = {</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"</span></span><br><span class="line">}</span><br><span class="line">response = requests.get(url=base_url,headers=header)</span><br><span class="line">data = response.content.decode()</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"w"</span>,encoding=<span class="string">"utf-8"</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(data)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="数据解析"><a href="#数据解析" class="headerlink" title="数据解析"></a>数据解析</h2><p>数据解析作为第二步是整个工程的核心，这一步直接决定了 我们是否能够在海量的数据中只得到我们想要的数据。爬虫中三种重要的数据解析的方法分别是：BeautifulSoup、re正则表达式和xpath，三种方法没有优劣好坏，按照我前面给出的文档，自己用好一种即可满足需求，当然三种方法根据场景使用是最高效的，如果你是大佬的话👍。<br>我自己常用的是xpath方法。第一，xpath路径可以直接在网页上进行复制；第二，可以通过<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">XPath Helper工具</a>进行更好的测试，我在之前的博客有提到可以<a href="https://blog.csdn.net/heartbeat196/article/details/113790232">点击</a>查看。下面我用三种不同的方法对保存到本地的一页上的数据进行了解析。</p>
+<h3 id="BeaufifulSoup"><a href="#BeaufifulSoup" class="headerlink" title="BeaufifulSoup"></a>BeaufifulSoup</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line"><span class="comment">#构建BeautifulSoup对象</span></span><br><span class="line">soup = BeautifulSoup(html,<span class="string">"html.parser"</span>)</span><br><span class="line"><span class="comment">#得到每一块的内容</span></span><br><span class="line">blocks = soup.select(<span class="string">".grid_view .item"</span>)</span><br><span class="line"><span class="comment">#构建电影列表</span></span><br><span class="line">movie_list = []</span><br><span class="line"><span class="comment">#电影链接和电影图片链接</span></span><br><span class="line"><span class="keyword">for</span> index,block <span class="keyword">in</span> <span class="built_in">enumerate</span>(blocks):</span><br><span class="line">    movie_dict = {}</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = block.select(<span class="string">"a"</span>)[<span class="number">0</span>].get(<span class="string">"href"</span>)       <span class="comment">#电影详情页链接</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = block.select(<span class="string">"img"</span>)[<span class="number">0</span>].get(<span class="string">"src"</span>)        <span class="comment">#电影链接</span></span><br><span class="line">    title = block.select(<span class="string">".title"</span>)                      <span class="comment">#电影名字</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        o_title = block.select(<span class="string">".title"</span>)[<span class="number">1</span>].text            <span class="comment"># 电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = o_title.replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = block.select(<span class="string">".title"</span>)[<span class="number">0</span>].text            <span class="comment">#电影中文名字</span></span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span>                                       <span class="comment">#电影外文名字</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = block.select(<span class="string">".star .rating_num"</span>)[<span class="number">0</span>].text        <span class="comment">#电影评分</span></span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = block.select(<span class="string">".star span"</span>)[<span class="number">3</span>].text[:-<span class="number">3</span>]         <span class="comment">#评分人数</span></span><br><span class="line">    bd = block.select(<span class="string">".bd p"</span>)[<span class="number">0</span>].text</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = re.sub(<span class="string">" "</span>,<span class="string">""</span>,bd)</span><br><span class="line">    movie_dict[<span class="string">"inq"</span>] = block.select(<span class="string">".quote .inq"</span>)[<span class="number">0</span>].text.replace(<span class="string">"。"</span>,<span class="string">""</span>)</span><br><span class="line">    movie_list.append(movie_dict)</span><br><span class="line"><span class="comment">#打印测试</span></span><br><span class="line"><span class="built_in">print</span>(movie_list)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="xpath"><a href="#xpath" class="headerlink" title="xpath"></a>xpath</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line"><span class="comment">#构建etree对象</span></span><br><span class="line">data = etree.HTML(content)</span><br><span class="line"><span class="comment">#获取多个电影信息列表</span></span><br><span class="line">divs = data.xpath(<span class="string">'//div[@class="item"]'</span>)</span><br><span class="line"><span class="keyword">for</span> div <span class="keyword">in</span> divs:</span><br><span class="line">    movie_dict = { }</span><br><span class="line">    movie_dict[<span class="string">"movie_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]/a/@href'</span>)</span><br><span class="line">    <span class="comment">#print(movie_href)          #测试</span></span><br><span class="line">    movie_dict[<span class="string">"pic_href"</span>] = div.xpath(<span class="string">'div[@class="pic"]//img/@src'</span>)</span><br><span class="line">    <span class="comment">#print(pic_href)           #测试</span></span><br><span class="line">    title = div.xpath(<span class="string">'div[@class="info"]//a/span[@class="title"]/text()'</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(title)==<span class="number">2</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        o_title = title[<span class="number">1</span>].replace(<span class="string">"/"</span>,<span class="string">""</span>)</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">""</span>.join(o_title.split())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        movie_dict[<span class="string">"c_title"</span>] = title[<span class="number">0</span>]</span><br><span class="line">        movie_dict[<span class="string">"o_title"</span>] = <span class="string">" "</span></span><br><span class="line">    <span class="comment">#print(c_title,o_title)      #测试</span></span><br><span class="line">    movie_dict[<span class="string">"rate"</span>] = div.xpath(<span class="string">'div//div[2]/div/span[2]/text()'</span>)</span><br><span class="line">    <span class="comment">#print(rate)                #测试</span></span><br><span class="line">    judge = div.xpath(<span class="string">'div//div[2]/div/span[4]/text()'</span>)</span><br><span class="line">    movie_dict[<span class="string">"judge"</span>] = (<span class="built_in">str</span>(judge))[<span class="number">2</span>:-<span class="number">5</span>]</span><br><span class="line">    <span class="comment">#print(judge)                #测试</span></span><br><span class="line">    bd = <span class="built_in">str</span>(div.xpath(<span class="string">'div//div[@class="bd"]/p[1]/text()'</span>))</span><br><span class="line">    movie_dict[<span class="string">"bd"</span>] = bd.replace(<span class="string">" "</span>,<span class="string">""</span>).replace(<span class="string">r"\xa0"</span>,<span class="string">""</span>).replace(<span class="string">r"\r"</span>,<span class="string">""</span>).replace(<span class="string">r"\n"</span>,<span class="string">""</span>)</span><br><span class="line">    <span class="comment">#print(bd)                   #测试</span></span><br><span class="line">    <span class="built_in">print</span>(movie_dict)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="re正则表达式"><a href="#re正则表达式" class="headerlink" title="re正则表达式"></a>re正则表达式</h3><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="comment">#影片详情链接规则</span></span><br><span class="line">findLink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;a href="(.*?)"&gt;'</span>)        <span class="comment">#创建正则表达式对象，表示规则（字符串的模式）</span></span><br><span class="line"><span class="comment">#影片图片规则</span></span><br><span class="line">findSrclink = re.<span class="built_in">compile</span>(<span class="string">r'&lt;img.*src="(.*?)"'</span>,re.S)</span><br><span class="line"><span class="comment">#影片片名规则</span></span><br><span class="line">findTitle = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="title"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片的评分规则</span></span><br><span class="line">findGrade = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="rating_num" property="v:average"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#评价人数规则</span></span><br><span class="line">findJud = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span&gt;(.*)人评价&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#找到概况</span></span><br><span class="line">findInq = re.<span class="built_in">compile</span>(<span class="string">r'&lt;span class="inq"&gt;(.*)&lt;/span&gt;'</span>)</span><br><span class="line"><span class="comment">#影片相关内容</span></span><br><span class="line">findBd = re.<span class="built_in">compile</span>(<span class="string">r'&lt;p class=""&gt;(.*?)&lt;/p&gt;'</span>,re.S)</span><br><span class="line"><span class="comment">#将要解析的网站打开</span></span><br><span class="line">html = <span class="built_in">open</span>(<span class="string">"top250_first_page.html"</span>,<span class="string">"rb"</span>)</span><br><span class="line">content = html.read().decode(<span class="string">"utf-8"</span>)</span><br><span class="line">datalist = []</span><br><span class="line">soup = BeautifulSoup(content, <span class="string">"html.parser"</span>)</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> soup.find_all(<span class="string">"div"</span>,class_ = <span class="string">"item"</span>):</span><br><span class="line">    item = <span class="built_in">str</span>(item)</span><br><span class="line">    <span class="comment">#print(html)                                             #测试电影信息的一小段有没有内解析拿到</span></span><br><span class="line">    data = [ ]</span><br><span class="line">    title = re.findall(findTitle,item)</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">len</span>(title)==<span class="number">2</span>):</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = title[<span class="number">1</span>]</span><br><span class="line">        Ftitle = title[<span class="number">1</span>].replace(<span class="string">"/"</span>, <span class="string">""</span>)</span><br><span class="line">        Ftitle = <span class="string">""</span>.join(Ftitle.split())</span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        Ctitle = title[<span class="number">0</span>]</span><br><span class="line">        data.append(Ctitle)</span><br><span class="line">        Ftitle = <span class="string">" "</span></span><br><span class="line">        data.append(Ftitle)</span><br><span class="line">    link = re.findall(findLink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(link)</span><br><span class="line">    srclink = re.findall(findSrclink,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(srclink)</span><br><span class="line">    grade = re.findall(findGrade,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(grade)</span><br><span class="line">    judge = re.findall(findJud,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(judge)</span><br><span class="line">    inq = re.findall(findInq,item)[<span class="number">0</span>]</span><br><span class="line">    data.append(inq)</span><br><span class="line">    bd = re.findall(findBd,item)[<span class="number">0</span>]</span><br><span class="line">    bd = re.sub(<span class="string">'&lt;br(\s+)?/&gt;(\s+)?'</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = re.sub(<span class="string">"/"</span>,<span class="string">" "</span>,bd)</span><br><span class="line">    bd = <span class="string">""</span>.join(bd.split())</span><br><span class="line">    data.append(bd)</span><br><span class="line">    datalist.append(data)</span><br><span class="line"><span class="built_in">print</span>(datalist)            <span class="comment">#测试所有列表是否被打印</span></span><br></pre></td></tr></tbody></table></figure>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="本地excel保存"><a href="#本地excel保存" class="headerlink" title="本地excel保存"></a>本地excel保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> xlwt</span><br><span class="line">workbook = xlwt.Workbook(encoding=<span class="string">"utf-8"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">worksheet = workbook.add_sheet(<span class="string">"豆瓣电影250"</span>)</span><br><span class="line">col = [<span class="string">"中文名"</span>, <span class="string">"外文名"</span>, <span class="string">"电影链接"</span>, <span class="string">"图片链接"</span>, <span class="string">"评分"</span>, <span class="string">"评价人数"</span>, <span class="string">"概评"</span>, <span class="string">"概述"</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">    worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(i + <span class="number">1</span>, j, datalist[i][j])</span><br><span class="line">workbook.save(<span class="string">"豆瓣top250_firstPage.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sqlite3</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">init_db</span>(<span class="params">dbpath</span>):</span><br><span class="line">    sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        create table movie250 </span></span><br><span class="line"><span class="string">        (</span></span><br><span class="line"><span class="string">        id integer primary key autoincrement,</span></span><br><span class="line"><span class="string">        info_link text,</span></span><br><span class="line"><span class="string">        pic_link text,</span></span><br><span class="line"><span class="string">        cname varchar,</span></span><br><span class="line"><span class="string">        ename varchar,</span></span><br><span class="line"><span class="string">        score numeric ,</span></span><br><span class="line"><span class="string">        rated numeric ,</span></span><br><span class="line"><span class="string">        instroduction text,</span></span><br><span class="line"><span class="string">        info text</span></span><br><span class="line"><span class="string">        )</span></span><br><span class="line"><span class="string">    '''</span>  <span class="comment"># 创建数据表</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cursor = conn.cursor()</span><br><span class="line">    cursor.execute(sql)</span><br><span class="line">    conn.commit()</span><br><span class="line">    conn.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">saveData2DB</span>(<span class="params">datalist, dbpath</span>):</span><br><span class="line">    <span class="comment">#init_db(dbpath)</span></span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">        	data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">                insert into movie250 (</span></span><br><span class="line"><span class="string">                info_link,pic_link,cname,ename,score,rated,instroduction,info) </span></span><br><span class="line"><span class="string">                values(%s)'''</span> % <span class="string">","</span>.join(data)</span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br><span class="line">saveData2DB(datalist,<span class="string">"movie.db"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h3><p><img src="/images/item/douban-1.png" alt="在这里插入图片描述"><br><img src="/images/item/douban-2.png" alt="在这里插入图片描述"></p>
+<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><h2 id="Flask"><a href="#Flask" class="headerlink" title="Flask"></a><a href="https://dormousehole.readthedocs.io/en/latest/">Flask</a></h2><p>Flask 是一个微型的 Python 开发的 Web 框架，基于Werkzeug WSGI工具箱和Jinja2 模板引擎。 Flask使用BSD授权。 Flask也被称为“microframework”，因为它使用简单的核心，用extension增加其他功能。Flask没有默认使用的数据库、窗体验证工具。<br>简单来说在此项目中，Flask框架给我们提供了一个本地网页平台展示数据。我们根据不同的路由地址进行到不同的页面访问。如下图是首界面，通过不同的链接地址可以实现页面跳转，当然只是本地！<br><img src="/images/item/douban-3.png" alt="在这里插入图片描述"></p>
+<h2 id="Echarts"><a href="#Echarts" class="headerlink" title="Echarts"></a><a href="https://echarts.apache.org/en/index.html">Echarts</a></h2><p>Echarts是一个纯基于js的图表库，可以流畅的运行在 PC 和移动设备上。在本项目中可以将数据进行统计分类从而用不同的展示方法进行展现。在Echarts中可以支持的图表类型有很多，同时其有一个很好的点在于它能满足我们实时修改查看，最终形成自己想要的图，便将js代码复制粘贴到我们所需要的网页代码的地方。<br>由于在页面内有动态显示，所以不在进行展示。</p>
+<h2 id="WordCloud"><a href="#WordCloud" class="headerlink" title="WordCloud"></a>WordCloud</h2><p>词云展示方法是近些年来较为常用的数据可视化方法。其主要是通过分词技术将一篇文章或者一段话分成若干单词，然后统计这些词出现的频率，我们根据自定义化设置画布和这些词出现的颜色大小等等来得到某个词云。词云中重要的是画布的配置、自己所要定义的形式是什么样子，其他更多的是某些固定的方法。下图为我通过爬取毛不易的歌词内容获得毛不易的歌词词云图，如果需要此项目源码或者方法请私信。<br><img src="/images/item/douban-4.png" alt="在这里插入图片描述"></p>
+<h1 id="新手问题总结与解决方法"><a href="#新手问题总结与解决方法" class="headerlink" title="新手问题总结与解决方法"></a>新手问题总结与解决方法</h1><h2 id="ip被封"><a href="#ip被封" class="headerlink" title="ip被封"></a>ip被封</h2><p>ip被封可能是新手在爬虫学习阶段遇到的最大的问题。首先如果是初学想要尽快实现一些成果时，建议在合理范围内减少爬取次数，如果我们能获得网页内容了首先将其存到本地文件夹下进行后续的测试和解析。俗话说：上有政策下有对策，面对ip被封：基础阶段我们可以添加请求头，尽可能的进行伪装像一个浏览器在访问；再进一步我们可以自己构建代理ip函数，仿照源码添加免费ip，构建handler处理器使用opener方法也可以；如果有能力的话，可以学习代理ip池的方法来解决该问题。<br>当然，爬虫我们是要在合法范围内进行抓取，如果某些数据是机密或者不能访问的，我们还一直访问可能就很快有自己的小手镯子了🔓。我们只爬取我们可以访问到的，爬虫只是提高效率，不是翻过禁墙。</p>
+<h2 id="查看网页源码和”F12-Elements”后不一致"><a href="#查看网页源码和”F12-Elements”后不一致" class="headerlink" title="查看网页源码和”F12 Elements”后不一致"></a>查看网页源码和”F12 Elements”后不一致</h2><p>该问题可以总结为用一般方法有些需要的元素抓取不到。在本次项目中我们爬取的页面是静态网页所以可以直接抓取，但是对于动态网页就会无能为力。<br>查看网页源码：最原始的代码，指的是服务器直接发送到浏览器的代码。<br>F12检查元素：js渲染后的代码。而确实的部分就是js所渲染的。<br>如果我们想要抓取这部分代码可以采取以下两种方法：</p>
+<ol>
+<li>在页面上进行抓包，获取表单的元素和js链接提交请求</li>
+<li>通过selenium技术，模拟用户打开网页，进行自动化的抓取。</li>
+</ol>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><p>以上两个问题是我在这个项目中所遇到的，当然在面对更复杂的爬虫工作时，会有更加繁琐的问题出现。还有一些其他问题，我将其总结为基础知识问题。在很多初学的时候，我们获得的数据往往以不同的格式进行存储，但是某些方法只能针对某些固定数据格式，这些需要我们提起注意；还有就是我们不可避免的马虎问题，关键词拼写错误，变量书写错误等等，这些最好的解决办法就是孰能生巧。<br>最后就是建议大家在完成一个项目时选择分块按照不同的模块去练习测试，最终完成项目。</p>
+]]></content>
+      <categories>
+        <category>Item</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>硬件随机数测试方法</title>
+    <url>/2022/11/26/third-party/DTRNG_Test/</url>
+    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
+<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
+<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
+<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
+</ol>
+<ul>
+<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
+</li>
+<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
+</li>
+<li><p>windows安装</p>
+<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
+<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
+</li>
+<li><p>Linux安装</p>
+<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
+</li>
+</ul>
+<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
+<ol>
+<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
+<li>Frequency Test within a Block，块内频率检测</li>
+<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
+<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
+<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
+<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
+<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
+<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
+<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
+<li>The Linear Complexity Test，线性复杂度检测</li>
+<li>The Serial Test，序列检测</li>
+<li>The Approximate Entropy Test，近似熵检测</li>
+<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
+<li>The Random Excursions Test，随机游动检测</li>
+<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
+</ol>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
+<ol>
+<li>启动程序。**./assess ，**stream length译为流的长度。</li>
+<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
+<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
+<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
+<li>输入比特流的个数。表示有多少个stream</li>
+<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
+</ol>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
+<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
+<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
+<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
+</ol>
+<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
+<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
+<li><p>Q：Segment fault</p>
+<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
+</li>
+<li><p>Q：igamc: UNDERFLOW？</p>
+<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
+</li>
+<li><p>Q：P-value全部是0？</p>
+<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Third Party</category>
+      </categories>
   </entry>
   <entry>
     <title>智能家居模型设计</title>
@@ -2070,78 +2270,6 @@
         <tag>Makefile</tag>
         <tag>CmakeLists.txt</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>硬件随机数测试方法</title>
-    <url>/2022/11/26/third-party/DTRNG_Test/</url>
-    <content><![CDATA[<h1 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h1><p>配置芯片DTRNG硬件单元寄存器生成一定数量的数据，保存成二进制文件，使用NIST测试套件进行验证得到是否随机的结论。</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ol>
-<li>DTRNG：Digital True Random Number Generator，数字真随机数发生器</li>
-<li>NIST：National Institude of Standards and Technology，国家标准技术研究所</li>
-<li>NIST-sts (Statistical Test Suite)，统计测试套件：</li>
-</ol>
-<ul>
-<li><p>源码链接：<a href="https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software%EF%BC%88Download%E5%8D%B3%E5%8F%AF%EF%BC%89">https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software（Download即可）</a></p>
-</li>
-<li><p>文档链接：<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf">https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf</a></p>
-</li>
-<li><p>windows安装</p>
-<p>官网的软件包是Linux系统下开发的，Windows系统需要先下一个<a href="https://cygwin.com/install.html">cygwin软件</a>来辅助使用</p>
-<p>可以参考博客：<a href="https://blog.csdn.net/weixin_39928192/article/details/89256576">https://blog.csdn.net/weixin_39928192/article/details/89256576</a>?</p>
-</li>
-<li><p>Linux安装</p>
-<p>进入工程文件夹sts-2.1.2直接make即可，得到 assess 可执行程序</p>
-</li>
-</ul>
-<h1 id="随机测试项"><a href="#随机测试项" class="headerlink" title="随机测试项"></a><strong>随机测试项</strong></h1><p>每一个测试项的解读：<a href="https://blog.csdn.net/lafu5137/article/details/79593845">https://blog.csdn.net/lafu5137/article/details/79593845</a></p>
-<ol>
-<li>The Frequency (Monobit) Test，频率检测。该检验主要是看0和1在整个序列中所占的比例（基础检测）</li>
-<li>Frequency Test within a Block，块内频率检测</li>
-<li>The Runs Test，游程检测。游程指的是一个没有间断的相同数序列</li>
-<li>Tests for the Longest-Run-of-Ones in a Block，块内最长游程检测</li>
-<li>The Binary Matrix Rank Test，二元矩阵秩检测</li>
-<li>The Discrete Fourier Transform (Spectral) Test，离散傅立叶变换检测</li>
-<li>The Non-overlapping Template Matching Test，非重叠模块匹配检测</li>
-<li>The Overlapping Template Matching Test，重叠模块匹配检测</li>
-<li>Maurer’s “Universal Statistical” Test，Maurer的通用检测统计</li>
-<li>The Linear Complexity Test，线性复杂度检测</li>
-<li>The Serial Test，序列检测</li>
-<li>The Approximate Entropy Test，近似熵检测</li>
-<li>The Cumulative Sums (Cusums) Test，累加和检验</li>
-<li>The Random Excursions Test，随机游动检测</li>
-<li>The Random Excursions Variant Test.，随机游动状态频率检测</li>
-</ol>
-<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a><strong>使用方法</strong></h1><p>该流程是基于Linux系统进行操作的，使用的数据：sts-2.1.2/data/data.pi</p>
-<ol>
-<li>启动程序。**./assess ，**stream length译为流的长度。</li>
-<li>输入待测文件路径。根据菜单，键入0并输入文件的路径（相对路径和绝对路径都可以）</li>
-<li>选择测试项。键入1表示应用全部测试项；输入0表示部分测试项，随后输入一个16位二进制序列选择测试项。</li>
-<li>参数调整。可以根据菜单及选项微调部分参数的值，基本选择默认即可。</li>
-<li>输入比特流的个数。表示有多少个stream</li>
-<li>选择输入文件类型。该类型对应于第二步输入文件的类型，两种类型供选择：ASCII / Binary</li>
-</ol>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h1><ol>
-<li>每一项测试所需的序列的stream length是不一样的，经测试如果选择全部测试项至少保证stream length &gt;= 10000bits，否则会出现错误。而如果单项测试查阅文档满足参数范围即可，比如选择1频率测试只需保证stream length&gt;100bits即可。</li>
-<li>必须保证：流长度 × 流个数 &lt;= 文件大小</li>
-<li>如果输入的文件是ACSII格式的话，启动程序时所输入的bitstream的单位是byte；而输入文件为Binary的话bitstream单位为bit。例如：第一步键入./assess 10000；第五步键入10 ；此时第六步选择0代表输入了10000×10×8（bits），输入1代表输入了10000×10（bits）。实际输入过程是要反着理解，先确定输入文件类型，进而确认bitstream、number，保证第一个公式</li>
-</ol>
-<h1 id="检测标准"><a href="#检测标准" class="headerlink" title="检测标准"></a><strong>检测标准</strong></h1><p>测试成功结束则会在 <strong>sts-2.1.2/experiments/AlgorithmTesting/</strong> 目录下生成测试报告，而针对每一个项目的结果会在其子目录下生成测试报告。</p>
-<p>最终测试报告finalAnalysisReport.txt中P-value都大于等于0.01即可认为通过了NIST检验，这个数据越大越好。如果该数据为0，可能是由于数据量的问题则可以去每个子项目结果中去查看，会有SUCCESS字样！</p>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h1><ol>
-<li><p>Q：Segment fault</p>
-<p>A： bitstream*num &gt; fileSize即流的长度乘以流的个数超过了文件的大小通常会有error信息</p>
-</li>
-<li><p>Q：igamc: UNDERFLOW？</p>
-<p>A：数据下溢，可能是数据格式的原因或者数据过于不随机</p>
-</li>
-<li><p>Q：P-value全部是0？</p>
-<p>A：导致 <strong>igamc: UNDERFLOW</strong> 的原因都是有可能的，同时也可能是因为数据量不够所导致的。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Third Party</category>
-      </categories>
   </entry>
   <entry>
     <title>Docker</title>
@@ -2838,39 +2966,6 @@
       </categories>
   </entry>
   <entry>
-    <title>sqlite</title>
-    <url>/2023/04/11/third-party/sqlite3/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
-<p>sqlite中文网站：<a href="https://www.sqlite.net.cn/">https://www.sqlite.net.cn/</a></p>
-</blockquote>
-<p>SQLite是一种C语言库，它实现了一个&nbsp;小型、快速、自包含、高可靠性，&nbsp;功能齐全的SQL数据库引擎。SQLite是世界上最常用的数据库引擎，广泛应用于嵌入式领域。</p>
-<p>与大多数其他SQL数据库不同，SQLite没有单独的服务器进程。SQLite直接读取和写入普通磁盘文件。具有多个表，索引，触发器和视图的完整SQL数据库包含在单个磁盘文件中。</p>
-<h1 id="Shell命令"><a href="#Shell命令" class="headerlink" title="Shell命令"></a>Shell命令</h1><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 创建数据库</span></span><br><span class="line"># sqlite3 test.db</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询数据库</span></span><br><span class="line"># .database</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建表格</span></span><br><span class="line"># CREATE TABLE <span class="title function_">user</span><span class="params">(Id integer PRIMARY KEY, name text)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//查询表格</span></span><br><span class="line"># .tables</span><br><span class="line"></span><br><span class="line"><span class="comment">// 插入数据</span></span><br><span class="line">#  INSERT INTO user <span class="title function_">VALUES</span><span class="params">(<span class="number">1</span>, <span class="string">'小张'</span>)</span>;</span><br><span class="line">#  INSERT INTO user <span class="title function_">VALUES</span><span class="params">(<span class="number">2</span>, <span class="string">'小陈'</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询数据(一定要有分号)</span></span><br><span class="line"><span class="meta"># select * from user;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 退出命令行环境</span></span><br><span class="line"># .quit / .<span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 显示数据库结构</span></span><br><span class="line"># .schema</span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h1><p>约束就是用来进一步描述每一列数据属性的。</p>
-<h2 id="非空-NOT-NULL"><a href="#非空-NOT-NULL" class="headerlink" title="非空 NOT NULL"></a>非空 NOT NULL</h2><p>有一些字段我们可能一时不知到该填些什么，同时它也没设定默认值， 当添加数据时，我们把这样的字段空着不填，系统认为他是 NULL 值。但是还有另外一类字段，必须被填上数据，如果不填，系统就会报错。 这样的字段被称为 NOT NULL 非空字段,需要在定义表的时候事先声明。</p>
-<h2 id="唯一-UNIQUE"><a href="#唯一-UNIQUE" class="headerlink" title="唯一 UNIQUE"></a>唯一 UNIQUE</h2><p>除了主列以外，还有一些列也不能有重复值。</p>
-<h2 id="主键-PRIMARY-KEY"><a href="#主键-PRIMARY-KEY" class="headerlink" title="主键 PRIMARY KEY"></a>主键 PRIMARY KEY</h2><p>一般是整数或者字符串，只要保证唯一就行。 在 SQLite 中，主键如果是整数类型，该列的值可以自动增长。</p>
-<h2 id="外键-FOREIGN-KEY"><a href="#外键-FOREIGN-KEY" class="headerlink" title="外键 FOREIGN KEY"></a>外键 FOREIGN KEY</h2><p>我们的数据库中已经有 Teachers 表了，假如我们再建立一个 Students 表， 要求 Students 表中的每一个学生都对应一个 Teachers 表中的教师。 很简单，只需要在 Students 表中建立一个 TeacherId 字段，保存对应教师的 Id 号， 这样，学生和教师之间就建立了关系。 问题是：我们有可能给学生存入一个不在 Teachers 表中的 TeacherId 值， 而且发现不了这个错误。 这种情况下，可以把 Students 表中 TeacherId 字段声明为一个外键， 让它的值对应到 Teachers 表中的 Id 字段上。 这样，一旦在 Students 表中存入一个不存在的教师 Id ，系统就会报错。</p>
-<h2 id="默认值-DEFAULT"><a href="#默认值-DEFAULT" class="headerlink" title="默认值 DEFAULT"></a>默认值 DEFAULT</h2><p>有一些特别的字段列，在每一条记录中，他的值基本上都是一样的。只是在个别情况下才改为别的值，这样的字段列我们可以给他设一个默认值。</p>
-<h2 id="条件检查-CHECK"><a href="#条件检查-CHECK" class="headerlink" title="条件检查 CHECK"></a>条件检查 CHECK</h2><p>某些值必须符合一定的条件才允许存入，这是就需要用到这个 CHECK 约束。</p>
-<h1 id="VFS在linux下架构图"><a href="#VFS在linux下架构图" class="headerlink" title="VFS在linux下架构图"></a>VFS在linux下架构图</h1><p>Linux系统的User使用GLIBC（POSIX标准、GUN C运行时库）作为应用程序的运行时库，然后通过操作系统，将其转换为系统调用SCI（system-call interface），SCI是操作系统内核定义的系统调用接口，这层抽象允许用户程序的I/O操作转换为内核的接口调用。VFS提供了一个抽象层，将POSIX API接口与不同存储设备的具体接口实现进行了分离，使得底层的文件系统类型、设备类型对上层应用程序透明。</p>
-<p><img src="/images/third-party/sqlite.png" alt="在这里插入图片描述"></p>
-<h1 id="sqlite3-vfs"><a href="#sqlite3-vfs" class="headerlink" title="sqlite3 vfs"></a>sqlite3 vfs</h1><p>API：<a href="https://www.sqlite.net.cn/cintro.html">https://www.sqlite.net.cn/cintro.html</a></p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 注册一个VFS系统，支持多个创建通过第二个参数使能</span></span><br><span class="line"># sqlite3_vfs_register(sqlite3_vfs *pVfs, <span class="type">int</span> makeDflt)</span><br><span class="line"><span class="comment">// 使用demo vfs替换默认的vfs</span></span><br><span class="line"># sqlite3_open_v2(<span class="string">"demo.db"</span>, &amp;db, SQLITE_OPEN_READWRITE, <span class="string">"demo"</span>);</span><br></pre></td></tr></tbody></table></figure>
-
-
-
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://blog.51cto.com/u_15169172/2710683">一文搞懂嵌入式数据库sqlite3</a></p>
-]]></content>
-      <categories>
-        <category>Third Party</category>
-      </categories>
-      <tags>
-        <tag>sqlite</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>电池电量检测</title>
     <url>/2023/03/06/work-expericence/%E7%94%B5%E6%B1%A0%E7%94%B5%E9%87%8F%E6%A3%80%E6%B5%8B/</url>
     <content><![CDATA[<p>近期在做关于电池电量检测的工作，而硬件电路并没有使用库仑计（在部分嵌入式场景下成本太高），而是使用分压电路ADC采样。基于此对相关学习到的内容做总结和分享</p>
@@ -3004,76 +3099,147 @@
       </categories>
   </entry>
   <entry>
-    <title>ADC</title>
-    <url>/2023/03/18/computerSystem/Peripherals/ADC/</url>
-    <content><![CDATA[<h1 id="ADC基础"><a href="#ADC基础" class="headerlink" title="ADC基础"></a>ADC基础</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ul>
-<li>ADC：Analog to Digital Converter，模数转换器</li>
-<li>模拟信号：随时间变化连续的信号，一段时间内有无数个取值 </li>
-<li>数字信号：随时间变化离散的信号，一段时间内有固定个数的取值</li>
+    <title>Problem &amp; Tools</title>
+    <url>/2023/04/27/work-expericence/problem/</url>
+    <content><![CDATA[<h1 id="ubuntu软件"><a href="#ubuntu软件" class="headerlink" title="ubuntu软件"></a>ubuntu软件</h1><ul>
+<li>调试Audio：audacity</li>
+<li>UVC：chesse（USB摄像头）</li>
+<li>查看图片格式：7yuv（好像只维护到16.0.4，可以搜索下看）</li>
+<li>串口工具：minicom</li>
 </ul>
-<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><ol>
-<li><strong>采样 Sampling：</strong>按照一定的频率对模拟信号的瞬时时刻进行样本采集；</li>
-<li><strong>量化 Quantization：</strong>对采样点的幅度赋予具体的数值；</li>
-<li><strong>编码 Encoding：</strong>按照一定的格式记录数据；</li>
-</ol>
-<p><img src="/images/computerSystem/Peripherals/ADC.png" alt="image"></p>
-<h2 id="性能指标"><a href="#性能指标" class="headerlink" title="性能指标"></a>性能指标</h2><ol>
-<li><strong>采样速率 / 时钟频率</strong>：单位时间内能进行采样的次数	</li>
-<li><strong>位宽 / 分辨率：</strong>输入信号值的最小变化</li>
-<li>其它细化指标<ul>
-<li>DLN：微分非线性，相对指标</li>
-<li>ILN： 积分非线性，绝对指标</li>
-<li>SFDR：无杂散动态范围</li>
+<h1 id="ssh-x2F-scp免密"><a href="#ssh-x2F-scp免密" class="headerlink" title="ssh / scp免密"></a>ssh / scp免密</h1><ol>
+<li><p>本地ssh到服务器</p>
+<ul>
+<li>ssh-keygen产生公钥与私钥对（命令：ssh-keygen，过程中一直回车）</li>
+<li>复制公钥至服务器（命令：ssh-copy-id -i ~/.ssh/id_rsa.pub username@服务器ip）</li>
+<li>再次ssh即可实现免密登录</li>
+</ul>
+</li>
+<li><p>服务器端scp免密</p>
+<ul>
+<li>产生密钥对（ssh-keygen -t rsa）</li>
+<li>复制公钥至本地（ssh-copy-id -p 22 -i ~/.ssh/id_rsa.pub username@本地ip）</li>
+<li>再次scp即可实现免密传输</li>
+</ul>
+</li>
+<li><p>参数说明</p>
+<ul>
+<li>ssh-keygen     -t    type</li>
+<li>ssh-copy-id    -p    port</li>
+<li>ssh-copy-id	 -i    identity_file</li>
 </ul>
 </li>
 </ol>
-<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><h3 id="SAR"><a href="#SAR" class="headerlink" title="SAR"></a>SAR</h3><ul>
-<li>SAR：Successive Approximation Register，逐次逼近型</li>
-<li>原理：二分查找</li>
-<li>特点：低延迟，低功耗</li>
-</ul>
-<h3 id="∆-∑"><a href="#∆-∑" class="headerlink" title="∆ -∑"></a><strong>∆ -∑</strong></h3><ul>
-<li>∆ -∑ ：Delta-Sigma ADC</li>
-<li>原理：就是把待测信号Vin与参考电压之间的差值进行不断的累积并通过反馈令这个差值趋于零（尺子量纸）</li>
-<li>特点：精度高，延迟相较于SAR高</li>
-</ul>
-<h2 id="信号误差来源"><a href="#信号误差来源" class="headerlink" title="信号误差来源"></a>信号误差来源</h2><ul>
-<li>电磁辐射 EMI</li>
-<li>电路板设计缺陷</li>
-<li>电源电压的变化</li>
-<li>环境的变化</li>
-<li>量化误差（内部）</li>
-</ul>
-<h1 id="SAR-A-x2F-D-Controller"><a href="#SAR-A-x2F-D-Controller" class="headerlink" title="SAR A/D Controller"></a>SAR A/D Controller</h1><p>该部分涉密不做具体说明</p>
-<h2 id="逻辑框图"><a href="#逻辑框图" class="headerlink" title="逻辑框图"></a>逻辑框图</h2><h2 id="功能特性"><a href="#功能特性" class="headerlink" title="功能特性"></a>功能特性</h2><h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><h1 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h1><ul>
-<li><p>轮询Polling</p>
+<h1 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h1><figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line">export		    # 显示当前系统定义的所有的环境变量</span><br><span class="line">echo $PATH		# 输出当前PATH环境变量的值</span><br><span class="line"></span><br><span class="line">:               # 冒号分割不同的路径</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+
+
+<h1 id="pc无法识别usb"><a href="#pc无法识别usb" class="headerlink" title="pc无法识别usb"></a>pc无法识别usb</h1><ul>
+<li><p>现象</p>
+<figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line">error: insufficient permissions for device</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p>中断Interrupt</p>
-<p>使用中断方式采样完成后会自动进入中断服务函数。节约CPU资源</p>
-</li>
-<li><p>定时器触发</p>
-</li>
-<li><p>DMA</p>
+<li><p>解决方案</p>
 </li>
 </ul>
-<h1 id="结果计算"><a href="#结果计算" class="headerlink" title="结果计算"></a>结果计算</h1><p>Vout = ADATA / ( 2 ^ Resolution) × Vref_ADC</p>
-<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
-<li><p>ADC Clock Divide 寄存器分频系数计算公式x1600与x2000不一致</p>
+<ol>
+<li><p>使用lsusb命令，查看usbID</p>
 </li>
-<li><p>ADVDATn(0-3)寄存器读出结果后 AUXEN(0-3) 寄存器自动清零（但是如果将采样模式设置为重复采样模式则不会自动清零）</p>
+<li><p>插入usb之后，再次使用usbID，查找多出来的设备ID</p>
+<figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line">Bus 002 Device 002: ID 045e:00db Microsoft Corp. Natural Ergonomic Keyboard 4000 V1.0</span><br><span class="line"></span><br><span class="line">Bus 002 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub </span><br><span class="line"></span><br><span class="line">Bus 001 Device 025: ID 18d1:4e12 </span><br><span class="line"></span><br><span class="line">Bus 001 Device 007: ID 1a40:0101 TERMINUS TECHNOLOGY INC. </span><br><span class="line"></span><br><span class="line">Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hu</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ID后面分号前面对应xxx1，分号后面对应xxx2</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p>ADC 最终计算得到的结果可能是中间结果，需要对照原理图看是否有分压，进一步计算最终结果</p>
+<li><p>在/etc/udev/rules.d中创建“51-android.rules”（名字不固定）</p>
+<figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line">添加内容：</span><br><span class="line"></span><br><span class="line">UBSYSTEM=="usb", ATTRS{idVendor}=="xxx1", ATTRS{idProduct}=="xxx2",MODE="0666"</span><br><span class="line">SUBSYSTEMS=="usb", ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="4e12", MODE="0666", OWNER="your_name"</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>为51-android.rules加上权限（sudo chmod a+x 51-android.rules）</p>
+</li>
+<li><p>重启UDEV（adb sudo restart udev; adb kill-server）</p>
+</li>
+<li><p>拔掉USB，并重新插上（adb devices）<br>adb devices</p>
+</li>
+</ol>
+<h1 id="修改根目录权限"><a href="#修改根目录权限" class="headerlink" title="修改根目录权限"></a>修改根目录权限</h1><ul>
+<li><p>场景</p>
+<p>错误修改usr/bin下的所有文件权限为777，sudo无法使用</p>
+<figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">/usr/bin/sudo must be owned by uid 0 and have the setuid bit se</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>解决方案</p>
 </li>
 </ul>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="https://www.ti.com/seclit/eb/slyw038c/slyw038c.pdf">模拟工程师口袋参考指南</a></li>
-<li><a href="https://training.ti.com/ti-precision-labs-adcs">TI高精度实验室培训视频</a></li>
+<ol>
+<li><p>命令行 reboot 重启</p>
+</li>
+<li><p>按ESC进入，选择Advanced options for Ubuntu。选择recovery mode，选择root命令行模式</p>
+<p>mount -o remount rw /<br>mount –all</p>
+<p>因为recovery模式默认是以只读模式挂载，所以我们要重新挂载切换到读写模式</p>
+</li>
+<li><p>给sudo权限</p>
+</li>
+</ol>
+<pre><code> chown root:root /usr/bin/sudo
+
+ chmod 4755 /usr/bin/sudo 
+
+ pkexec chmod go-w /usr/bin/sudo/sudoers.so
+</code></pre>
+<ol start="4">
+<li>重启系统，reboot</li>
+</ol>
+<h1 id="minicom"><a href="#minicom" class="headerlink" title="minicom"></a>minicom</h1><ol>
+<li><p>启动minicom之后没有打印</p>
+<ul>
+<li>“ctrl+a &gt; 按键o” 或者启动时“sudo minicom -s”进入配置界面</li>
+<li>选择“Serial port setup”进入</li>
+<li>将 “A -    Serial Device” 修改成 “/dev/ttyUSB0”</li>
 </ul>
+</li>
+<li><p>启动之后不能键盘输入</p>
+</li>
+</ol>
+<ul>
+<li>“ctrl+a &gt; 按键o” 或者启动时“sudo minicom -s”进入配置界面</li>
+<li>选择“Serial port setup”进入</li>
+<li>将“F - Hardware Flow Control” 硬件流控关闭，即选择“No”</li>
+</ul>
+<p>​	</p>
 ]]></content>
       <categories>
-        <category>Computure System</category>
-        <category>ADC</category>
+        <category>Work Experience</category>
       </categories>
+  </entry>
+  <entry>
+    <title>sqlite</title>
+    <url>/2023/04/11/third-party/sqlite3/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>sqlite中文网站：<a href="https://www.sqlite.net.cn/">https://www.sqlite.net.cn/</a></p>
+</blockquote>
+<p>SQLite是一种C语言库，它实现了一个&nbsp;小型、快速、自包含、高可靠性，&nbsp;功能齐全的SQL数据库引擎。SQLite是世界上最常用的数据库引擎，广泛应用于嵌入式领域。</p>
+<p>与大多数其他SQL数据库不同，SQLite没有单独的服务器进程。SQLite直接读取和写入普通磁盘文件。具有多个表，索引，触发器和视图的完整SQL数据库包含在单个磁盘文件中。</p>
+<h1 id="Shell命令"><a href="#Shell命令" class="headerlink" title="Shell命令"></a>Shell命令</h1><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 创建数据库</span></span><br><span class="line"># sqlite3 test.db</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询数据库</span></span><br><span class="line"># .database</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建表格</span></span><br><span class="line"># CREATE TABLE <span class="title function_">user</span><span class="params">(Id integer PRIMARY KEY, name text)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//查询表格</span></span><br><span class="line"># .tables</span><br><span class="line"></span><br><span class="line"><span class="comment">// 插入数据</span></span><br><span class="line">#  INSERT INTO user <span class="title function_">VALUES</span><span class="params">(<span class="number">1</span>, <span class="string">'小张'</span>)</span>;</span><br><span class="line">#  INSERT INTO user <span class="title function_">VALUES</span><span class="params">(<span class="number">2</span>, <span class="string">'小陈'</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询数据(一定要有分号)</span></span><br><span class="line"><span class="meta"># select * from user;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 退出命令行环境</span></span><br><span class="line"># .quit / .<span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 显示数据库结构</span></span><br><span class="line"># .schema</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h1><p>约束就是用来进一步描述每一列数据属性的。</p>
+<h2 id="非空-NOT-NULL"><a href="#非空-NOT-NULL" class="headerlink" title="非空 NOT NULL"></a>非空 NOT NULL</h2><p>有一些字段我们可能一时不知到该填些什么，同时它也没设定默认值， 当添加数据时，我们把这样的字段空着不填，系统认为他是 NULL 值。但是还有另外一类字段，必须被填上数据，如果不填，系统就会报错。 这样的字段被称为 NOT NULL 非空字段,需要在定义表的时候事先声明。</p>
+<h2 id="唯一-UNIQUE"><a href="#唯一-UNIQUE" class="headerlink" title="唯一 UNIQUE"></a>唯一 UNIQUE</h2><p>除了主列以外，还有一些列也不能有重复值。</p>
+<h2 id="主键-PRIMARY-KEY"><a href="#主键-PRIMARY-KEY" class="headerlink" title="主键 PRIMARY KEY"></a>主键 PRIMARY KEY</h2><p>一般是整数或者字符串，只要保证唯一就行。 在 SQLite 中，主键如果是整数类型，该列的值可以自动增长。</p>
+<h2 id="外键-FOREIGN-KEY"><a href="#外键-FOREIGN-KEY" class="headerlink" title="外键 FOREIGN KEY"></a>外键 FOREIGN KEY</h2><p>我们的数据库中已经有 Teachers 表了，假如我们再建立一个 Students 表， 要求 Students 表中的每一个学生都对应一个 Teachers 表中的教师。 很简单，只需要在 Students 表中建立一个 TeacherId 字段，保存对应教师的 Id 号， 这样，学生和教师之间就建立了关系。 问题是：我们有可能给学生存入一个不在 Teachers 表中的 TeacherId 值， 而且发现不了这个错误。 这种情况下，可以把 Students 表中 TeacherId 字段声明为一个外键， 让它的值对应到 Teachers 表中的 Id 字段上。 这样，一旦在 Students 表中存入一个不存在的教师 Id ，系统就会报错。</p>
+<h2 id="默认值-DEFAULT"><a href="#默认值-DEFAULT" class="headerlink" title="默认值 DEFAULT"></a>默认值 DEFAULT</h2><p>有一些特别的字段列，在每一条记录中，他的值基本上都是一样的。只是在个别情况下才改为别的值，这样的字段列我们可以给他设一个默认值。</p>
+<h2 id="条件检查-CHECK"><a href="#条件检查-CHECK" class="headerlink" title="条件检查 CHECK"></a>条件检查 CHECK</h2><p>某些值必须符合一定的条件才允许存入，这是就需要用到这个 CHECK 约束。</p>
+<h1 id="VFS在linux下架构图"><a href="#VFS在linux下架构图" class="headerlink" title="VFS在linux下架构图"></a>VFS在linux下架构图</h1><p>Linux系统的User使用GLIBC（POSIX标准、GUN C运行时库）作为应用程序的运行时库，然后通过操作系统，将其转换为系统调用SCI（system-call interface），SCI是操作系统内核定义的系统调用接口，这层抽象允许用户程序的I/O操作转换为内核的接口调用。VFS提供了一个抽象层，将POSIX API接口与不同存储设备的具体接口实现进行了分离，使得底层的文件系统类型、设备类型对上层应用程序透明。</p>
+<p><img src="/images/third-party/sqlite.png" alt="在这里插入图片描述"></p>
+<h1 id="sqlite3-vfs"><a href="#sqlite3-vfs" class="headerlink" title="sqlite3 vfs"></a>sqlite3 vfs</h1><p>API：<a href="https://www.sqlite.net.cn/cintro.html">https://www.sqlite.net.cn/cintro.html</a></p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 注册一个VFS系统，支持多个创建通过第二个参数使能</span></span><br><span class="line"># sqlite3_vfs_register(sqlite3_vfs *pVfs, <span class="type">int</span> makeDflt)</span><br><span class="line"><span class="comment">// 使用demo vfs替换默认的vfs</span></span><br><span class="line"># sqlite3_open_v2(<span class="string">"demo.db"</span>, &amp;db, SQLITE_OPEN_READWRITE, <span class="string">"demo"</span>);</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://blog.51cto.com/u_15169172/2710683">一文搞懂嵌入式数据库sqlite3</a></p>
+]]></content>
+      <categories>
+        <category>Third Party</category>
+      </categories>
+      <tags>
+        <tag>sqlite</tag>
+      </tags>
   </entry>
   <entry>
     <title>IIS</title>
@@ -3170,54 +3336,122 @@
       </tags>
   </entry>
   <entry>
-    <title>GPIO</title>
-    <url>/2022/09/22/computerSystem/Peripherals/GPIO/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
-<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
-<p><img src="/images/computerSystem/Peripherals/GPIO-1.png" alt="image"></p>
-<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
-<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
-<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
-<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
-<li>下拉输入：IO口输入设定为低电平输入（0）</li>
-<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
-</ol>
-<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
-<li>推挽输出：输出高低电平</li>
-<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
-<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
-<li>复用开漏输出：普通i2c处于该模式</li>
-</ol>
-<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
-<ul>
-<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
-<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
-<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
-<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
-<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
-<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
-<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
+    <title>ADC</title>
+    <url>/2023/03/18/computerSystem/Peripherals/ADC/</url>
+    <content><![CDATA[<h1 id="ADC基础"><a href="#ADC基础" class="headerlink" title="ADC基础"></a>ADC基础</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ul>
+<li>ADC：Analog to Digital Converter，模数转换器</li>
+<li>模拟信号：随时间变化连续的信号，一段时间内有无数个取值 </li>
+<li>数字信号：随时间变化离散的信号，一段时间内有固定个数的取值</li>
 </ul>
-<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
-<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
-
-<p>注意事项</p>
-<ul>
-<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
-<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
-<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
-<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><ol>
+<li><strong>采样 Sampling：</strong>按照一定的频率对模拟信号的瞬时时刻进行样本采集；</li>
+<li><strong>量化 Quantization：</strong>对采样点的幅度赋予具体的数值；</li>
+<li><strong>编码 Encoding：</strong>按照一定的格式记录数据；</li>
+</ol>
+<p><img src="/images/computerSystem/Peripherals/ADC.png" alt="image"></p>
+<h2 id="性能指标"><a href="#性能指标" class="headerlink" title="性能指标"></a>性能指标</h2><ol>
+<li><strong>采样速率 / 时钟频率</strong>：单位时间内能进行采样的次数	</li>
+<li><strong>位宽 / 分辨率：</strong>输入信号值的最小变化</li>
+<li>其它细化指标<ul>
+<li>DLN：微分非线性，相对指标</li>
+<li>ILN： 积分非线性，绝对指标</li>
+<li>SFDR：无杂散动态范围</li>
 </ul>
-<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
-<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
-
-<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖时钟，故可以配置IO作为中断源对CPU进行唤醒</p>
+</li>
+</ol>
+<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><h3 id="SAR"><a href="#SAR" class="headerlink" title="SAR"></a>SAR</h3><ul>
+<li>SAR：Successive Approximation Register，逐次逼近型</li>
+<li>原理：二分查找</li>
+<li>特点：低延迟，低功耗</li>
+</ul>
+<h3 id="∆-∑"><a href="#∆-∑" class="headerlink" title="∆ -∑"></a><strong>∆ -∑</strong></h3><ul>
+<li>∆ -∑ ：Delta-Sigma ADC</li>
+<li>原理：就是把待测信号Vin与参考电压之间的差值进行不断的累积并通过反馈令这个差值趋于零（尺子量纸）</li>
+<li>特点：精度高，延迟相较于SAR高</li>
+</ul>
+<h2 id="信号误差来源"><a href="#信号误差来源" class="headerlink" title="信号误差来源"></a>信号误差来源</h2><ul>
+<li>电磁辐射 EMI</li>
+<li>电路板设计缺陷</li>
+<li>电源电压的变化</li>
+<li>环境的变化</li>
+<li>量化误差（内部）</li>
+</ul>
+<h1 id="SAR-A-x2F-D-Controller"><a href="#SAR-A-x2F-D-Controller" class="headerlink" title="SAR A/D Controller"></a>SAR A/D Controller</h1><p>该部分涉密不做具体说明</p>
+<h2 id="逻辑框图"><a href="#逻辑框图" class="headerlink" title="逻辑框图"></a>逻辑框图</h2><h2 id="功能特性"><a href="#功能特性" class="headerlink" title="功能特性"></a>功能特性</h2><h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><h1 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h1><ul>
+<li><p>轮询Polling</p>
+</li>
+<li><p>中断Interrupt</p>
+<p>使用中断方式采样完成后会自动进入中断服务函数。节约CPU资源</p>
+</li>
+<li><p>定时器触发</p>
+</li>
+<li><p>DMA</p>
+</li>
+</ul>
+<h1 id="结果计算"><a href="#结果计算" class="headerlink" title="结果计算"></a>结果计算</h1><p>Vout = ADATA / ( 2 ^ Resolution) × Vref_ADC</p>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li><p>ADC Clock Divide 寄存器分频系数计算公式x1600与x2000不一致</p>
+</li>
+<li><p>ADVDATn(0-3)寄存器读出结果后 AUXEN(0-3) 寄存器自动清零（但是如果将采样模式设置为重复采样模式则不会自动清零）</p>
+</li>
+<li><p>ADC 最终计算得到的结果可能是中间结果，需要对照原理图看是否有分压，进一步计算最终结果</p>
+</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://www.ti.com/seclit/eb/slyw038c/slyw038c.pdf">模拟工程师口袋参考指南</a></li>
+<li><a href="https://training.ti.com/ti-precision-labs-adcs">TI高精度实验室培训视频</a></li>
+</ul>
 ]]></content>
       <categories>
         <category>Computure System</category>
-        <category>GPIO</category>
+        <category>ADC</category>
       </categories>
+  </entry>
+  <entry>
+    <title>MESI协议的优化与内存屏障</title>
+    <url>/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</url>
+    <content><![CDATA[<p>无论是计算机硬件还是软件，新的技术的出现的初衷一定是为了解决某项需求，而随之而来的可能会带来新的问题，无所谓解决就是了！</p>
+<h1 id="MESI带来的性能问题"><a href="#MESI带来的性能问题" class="headerlink" title="MESI带来的性能问题"></a>MESI带来的性能问题</h1><p>从本质上来讲MESI协议解决的是数据的核间同步问题，但是严格遵守MESI协议一定又会带来新的问题。以下两种情况会再次带来性能问题：</p>
+<ol>
+<li>更新Shared状态的Cache。当某个缓存行的状态是Shared时，CPU想要修改该缓存行的数据，一定会产生总线事件通知其它CPU将该缓存行副本状态置Invalid，当拥有该缓存行副本的CPU确认并回复它“Invalid acknowledgement”以后，它才能进行数据更新。</li>
+<li>更新Invalid状态的Cache。当某个缓存行的状态是Invalid时，CPU想要修改该缓存行的数据，一定会产生总线事件从其它CPU甚至是主存中加载进最新数据，进而基于最新数据进行更新。</li>
+</ol>
+<h1 id="MESI协议优化"><a href="#MESI协议优化" class="headerlink" title="MESI协议优化"></a>MESI协议优化</h1><p>MESI协议以上两个痛点可以发现是由于事务串行化所带来的负面影响。所以解决这两个问题的关键就是使MESI协议的请求异步化，释放总线提高并行度。因而就有了在硬件上增加写缓存区和失效队列两种方法。</p>
+<h2 id="写缓冲-Store-Buffer"><a href="#写缓冲-Store-Buffer" class="headerlink" title="写缓冲 Store Buffer"></a>写缓冲 Store Buffer</h2><p><img src="/images/computerSystem/storage/cache-9.png" alt="image"></p>
+<p>基于之前的缓存结构，增加完Store Buffer之后的结果如上图所示。</p>
+<p>整个同步过程：CPU想要修改某个缓存数据，首先通过总线广播获得总线所有权，发出信号通知其它CPU需要将该缓存块数据置无效，然后将需要更新的数据放入到Store Buffer。而此时就可以释放总线所有权去做其它的事情不用等待收到ACK（效率提高在此），等其它cpu都收到再由Store Buffer慢慢做核间同步，刷入Cache的值即可</p>
+<p>当CPU读数据时，首先会先在Store Buffer中查询记录是否存在，如果存在则会从写缓冲区中直接获取，这一机制即是 Store Fowarding。</p>
+<h2 id="失效队列-Invalid-Queue"><a href="#失效队列-Invalid-Queue" class="headerlink" title="失效队列 Invalid Queue"></a>失效队列 Invalid Queue</h2><p><img src="/images/computerSystem/storage/cache-10.png" alt="image"></p>
+<p>在Store Buffer基础之上，增加完Invalid Queue之后的结构如上图所示</p>
+<p>失效队列的存在可以说是更好的使Store Buffer工作。当CPU收到使某个缓存行失效的请求时，如果迟迟不回复ACK则可能导致Store Buffer里数据越来越多最终溢出，因此Invalid Queue的存在可以说是为了平衡Store Buffer写入速度和收到ACK速度</p>
+<p>过程：当CPU Core收到使某个cache失效的消息时，先回复确认收到的消息，然后将失效的数据加入到Invalidate Queue中。而队列的实失效的操作等待空闲时候在进行处理。</p>
+<h1 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h1><h2 id="MESI优化之后带来的问题"><a href="#MESI优化之后带来的问题" class="headerlink" title="MESI优化之后带来的问题"></a>MESI优化之后带来的问题</h2><p>MESI协议本身属于强一致性协议，但是经过性能的优化变成了弱一致性协议，这就导致在某些中间状态下多核CPU的数据可能并不一致。</p>
+<h3 id="Store-Buffer"><a href="#Store-Buffer" class="headerlink" title="Store Buffer"></a>Store Buffer</h3><p>由于Store Buffer的引入将部分事务变成并行，这就将导致数据的更新顺序将不会严格按照代码顺序执行，进而导致其它CPU拿到正确数据的时机延后。例如：CPU需要顺序执行A、B两条写指令，A在CPU0的缓存行状态是S，B在CPU0的缓存行状态是E，最终的cache对于两条指令所对应的两个数据的更新的顺序可能不是我们所期望的</p>
+<h3 id="Invalid-Queue"><a href="#Invalid-Queue" class="headerlink" title="Invalid Queue"></a>Invalid Queue</h3><p>CPU1在回复ACK之后实际并没有对数据所在的缓存行置Invalid，而是放入到队列中。假如此刻CPU0更新了缓存行这将导致该数据在两个核的cache上表现不一致</p>
+<h3 id="Reorder"><a href="#Reorder" class="headerlink" title="Reorder"></a>Reorder</h3><p>指令重排序从源头上就造成了指令实际执行的顺序与我们代码所期望执行的顺序存在差别。而Reorder设计的本质实际上是为了对我们的代码进行优化，提高cache命令率从而提高执行效率</p>
+<ul>
+<li>编译器重排序</li>
+<li>CPU乱序执行</li>
+</ul>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>其实对于以上MESI优化带来的问题归根结底是在多核CPU上导致最终结果的偏差。进一步思考是多核CPU同时修改同一个变量时而引发的问题，而在实际过程中这种情况是比较少的。在效率和极少数数据不正确两者的考量下，继续基于此进行优化，但是不是硬件优化而是通过软件由程序员保证数据的一致性。因此在需要核间的同步的情况下，多线程对于数据的修改和对于数据的使用需要引起注意，在适当的地方添加内存屏障</p>
+<p>内存屏障（Memory Barriers）其实可以理解为一道墙，前面的读写操作没有完成后面的读写操作不能发生</p>
+<h2 id="读屏障"><a href="#读屏障" class="headerlink" title="读屏障"></a>读屏障</h2><p>本质：读屏障前后指令的读操作不能翻越屏障！强制CPU在屏障前的读操作处理到所有Invalid Queue中的数据，获取到最新的数据。</p>
+<h2 id="写屏障"><a href="#写屏障" class="headerlink" title="写屏障"></a>写屏障</h2><p>本质：写屏障前后指令的写操作不能翻阅屏障！强制CPU在屏障前的写操作清空Store Buffer内容，将数据更新至cache甚至主存</p>
+<h2 id="读写屏障"><a href="#读写屏障" class="headerlink" title="读写屏障"></a>读写屏障</h2><p>以上两种屏障只有在区分读写屏障的体系结构里才会有作用，比如 alpha 结构。而在 X86 和 Arm 中是没有作用的，这是因为 X86 采用的 TSO 模型不存在缓存一致性的问题，而 Arm 则是采用了另一种称为单向屏障的分类方式。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://zhuanlan.zhihu.com/p/375706879">缓存一致性硬核讲解</a></li>
+<li>编程高必学的内存知识（极客时间 海纳）</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Computure System</category>
+        <category>Storage</category>
+        <category>Cache</category>
+      </categories>
+      <tags>
+        <tag>storage system</tag>
+        <tag>Cache</tag>
+      </tags>
   </entry>
   <entry>
     <title>DDR基础与原理</title>
@@ -3415,52 +3649,6 @@
       </tags>
   </entry>
   <entry>
-    <title>MESI协议的优化与内存屏障</title>
-    <url>/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</url>
-    <content><![CDATA[<p>无论是计算机硬件还是软件，新的技术的出现的初衷一定是为了解决某项需求，而随之而来的可能会带来新的问题，无所谓解决就是了！</p>
-<h1 id="MESI带来的性能问题"><a href="#MESI带来的性能问题" class="headerlink" title="MESI带来的性能问题"></a>MESI带来的性能问题</h1><p>从本质上来讲MESI协议解决的是数据的核间同步问题，但是严格遵守MESI协议一定又会带来新的问题。以下两种情况会再次带来性能问题：</p>
-<ol>
-<li>更新Shared状态的Cache。当某个缓存行的状态是Shared时，CPU想要修改该缓存行的数据，一定会产生总线事件通知其它CPU将该缓存行副本状态置Invalid，当拥有该缓存行副本的CPU确认并回复它“Invalid acknowledgement”以后，它才能进行数据更新。</li>
-<li>更新Invalid状态的Cache。当某个缓存行的状态是Invalid时，CPU想要修改该缓存行的数据，一定会产生总线事件从其它CPU甚至是主存中加载进最新数据，进而基于最新数据进行更新。</li>
-</ol>
-<h1 id="MESI协议优化"><a href="#MESI协议优化" class="headerlink" title="MESI协议优化"></a>MESI协议优化</h1><p>MESI协议以上两个痛点可以发现是由于事务串行化所带来的负面影响。所以解决这两个问题的关键就是使MESI协议的请求异步化，释放总线提高并行度。因而就有了在硬件上增加写缓存区和失效队列两种方法。</p>
-<h2 id="写缓冲-Store-Buffer"><a href="#写缓冲-Store-Buffer" class="headerlink" title="写缓冲 Store Buffer"></a>写缓冲 Store Buffer</h2><p><img src="/images/computerSystem/storage/cache-9.png" alt="image"></p>
-<p>基于之前的缓存结构，增加完Store Buffer之后的结果如上图所示。</p>
-<p>整个同步过程：CPU想要修改某个缓存数据，首先通过总线广播获得总线所有权，发出信号通知其它CPU需要将该缓存块数据置无效，然后将需要更新的数据放入到Store Buffer。而此时就可以释放总线所有权去做其它的事情不用等待收到ACK（效率提高在此），等其它cpu都收到再由Store Buffer慢慢做核间同步，刷入Cache的值即可</p>
-<p>当CPU读数据时，首先会先在Store Buffer中查询记录是否存在，如果存在则会从写缓冲区中直接获取，这一机制即是 Store Fowarding。</p>
-<h2 id="失效队列-Invalid-Queue"><a href="#失效队列-Invalid-Queue" class="headerlink" title="失效队列 Invalid Queue"></a>失效队列 Invalid Queue</h2><p><img src="/images/computerSystem/storage/cache-10.png" alt="image"></p>
-<p>在Store Buffer基础之上，增加完Invalid Queue之后的结构如上图所示</p>
-<p>失效队列的存在可以说是更好的使Store Buffer工作。当CPU收到使某个缓存行失效的请求时，如果迟迟不回复ACK则可能导致Store Buffer里数据越来越多最终溢出，因此Invalid Queue的存在可以说是为了平衡Store Buffer写入速度和收到ACK速度</p>
-<p>过程：当CPU Core收到使某个cache失效的消息时，先回复确认收到的消息，然后将失效的数据加入到Invalidate Queue中。而队列的实失效的操作等待空闲时候在进行处理。</p>
-<h1 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h1><h2 id="MESI优化之后带来的问题"><a href="#MESI优化之后带来的问题" class="headerlink" title="MESI优化之后带来的问题"></a>MESI优化之后带来的问题</h2><p>MESI协议本身属于强一致性协议，但是经过性能的优化变成了弱一致性协议，这就导致在某些中间状态下多核CPU的数据可能并不一致。</p>
-<h3 id="Store-Buffer"><a href="#Store-Buffer" class="headerlink" title="Store Buffer"></a>Store Buffer</h3><p>由于Store Buffer的引入将部分事务变成并行，这就将导致数据的更新顺序将不会严格按照代码顺序执行，进而导致其它CPU拿到正确数据的时机延后。例如：CPU需要顺序执行A、B两条写指令，A在CPU0的缓存行状态是S，B在CPU0的缓存行状态是E，最终的cache对于两条指令所对应的两个数据的更新的顺序可能不是我们所期望的</p>
-<h3 id="Invalid-Queue"><a href="#Invalid-Queue" class="headerlink" title="Invalid Queue"></a>Invalid Queue</h3><p>CPU1在回复ACK之后实际并没有对数据所在的缓存行置Invalid，而是放入到队列中。假如此刻CPU0更新了缓存行这将导致该数据在两个核的cache上表现不一致</p>
-<h3 id="Reorder"><a href="#Reorder" class="headerlink" title="Reorder"></a>Reorder</h3><p>指令重排序从源头上就造成了指令实际执行的顺序与我们代码所期望执行的顺序存在差别。而Reorder设计的本质实际上是为了对我们的代码进行优化，提高cache命令率从而提高执行效率</p>
-<ul>
-<li>编译器重排序</li>
-<li>CPU乱序执行</li>
-</ul>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>其实对于以上MESI优化带来的问题归根结底是在多核CPU上导致最终结果的偏差。进一步思考是多核CPU同时修改同一个变量时而引发的问题，而在实际过程中这种情况是比较少的。在效率和极少数数据不正确两者的考量下，继续基于此进行优化，但是不是硬件优化而是通过软件由程序员保证数据的一致性。因此在需要核间的同步的情况下，多线程对于数据的修改和对于数据的使用需要引起注意，在适当的地方添加内存屏障</p>
-<p>内存屏障（Memory Barriers）其实可以理解为一道墙，前面的读写操作没有完成后面的读写操作不能发生</p>
-<h2 id="读屏障"><a href="#读屏障" class="headerlink" title="读屏障"></a>读屏障</h2><p>本质：读屏障前后指令的读操作不能翻越屏障！强制CPU在屏障前的读操作处理到所有Invalid Queue中的数据，获取到最新的数据。</p>
-<h2 id="写屏障"><a href="#写屏障" class="headerlink" title="写屏障"></a>写屏障</h2><p>本质：写屏障前后指令的写操作不能翻阅屏障！强制CPU在屏障前的写操作清空Store Buffer内容，将数据更新至cache甚至主存</p>
-<h2 id="读写屏障"><a href="#读写屏障" class="headerlink" title="读写屏障"></a>读写屏障</h2><p>以上两种屏障只有在区分读写屏障的体系结构里才会有作用，比如 alpha 结构。而在 X86 和 Arm 中是没有作用的，这是因为 X86 采用的 TSO 模型不存在缓存一致性的问题，而 Arm 则是采用了另一种称为单向屏障的分类方式。</p>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="https://zhuanlan.zhihu.com/p/375706879">缓存一致性硬核讲解</a></li>
-<li>编程高必学的内存知识（极客时间 海纳）</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Computure System</category>
-        <category>Storage</category>
-        <category>Cache</category>
-      </categories>
-      <tags>
-        <tag>storage system</tag>
-        <tag>Cache</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>缓存一致性协议</title>
     <url>/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/</url>
     <content><![CDATA[<h1 id="导语-cache、主存与CPU的通信"><a href="#导语-cache、主存与CPU的通信" class="headerlink" title="导语 - cache、主存与CPU的通信"></a>导语 - cache、主存与CPU的通信</h1><p><img src="/images/computerSystem/storage/cache-6.png" alt="image"></p>
@@ -3587,6 +3775,125 @@
 <li><a href="https://juejin.cn/post/6844903965696458765">cache一致性里的MESI协议</a></li>
 <li><a href="https://www.scss.tcd.ie/Jeremy.Jones/VivioJS/caches/MESIHelp.htm">MESI动画</a></li>
 </ul>
+]]></content>
+      <categories>
+        <category>Computure System</category>
+        <category>Storage</category>
+        <category>Cache</category>
+      </categories>
+      <tags>
+        <tag>storage system</tag>
+        <tag>Cache</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GPIO</title>
+    <url>/2022/09/22/computerSystem/Peripherals/GPIO/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>GPIO：General Purpose Input Output，通用输入输出，简称为“IO口”，芯片与外围设备交互的硬件接口</p>
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>以下图片来自STM32的GPIO硬件电路图</p>
+<p><img src="/images/computerSystem/Peripherals/GPIO-1.png" alt="image"></p>
+<p>施密特触发器：在正向递增和负向递减两个方向有不同的阈值，有一定的抗干扰能力，外部的小扰动不会导致cpu误判，直至剧烈变化或者真的有电平的变化。</p>
+<h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><h2 id="输入（4）"><a href="#输入（4）" class="headerlink" title="输入（4）"></a>输入（4）</h2><ol>
+<li>浮空输入：多用于外部按键输入，io状态不确定完全由外部输入决定</li>
+<li>上拉输入：IO口输入设定为高电平输入（1），检测低电平或下降沿</li>
+<li>下拉输入：IO口输入设定为低电平输入（0）</li>
+<li>模拟输入：ADC模拟输入，测量外部电压幅值不通过TTL</li>
+</ol>
+<h2 id="输出（4）"><a href="#输出（4）" class="headerlink" title="输出（4）"></a>输出（4）</h2><ol>
+<li>推挽输出：输出高低电平</li>
+<li>开漏输出：只有一个NMOS导通，只能输出低电平+高阻态，不能输出高电平；当NMOS导通输出低电平，截至输出高阻态。用作线与，电平不匹配的场合，外部上拉</li>
+<li>复用推挽输出：需要输出高低电平的其他模式，如：spi uart</li>
+<li>复用开漏输出：普通i2c处于该模式</li>
+</ol>
+<h1 id="GPIO寄存器"><a href="#GPIO寄存器" class="headerlink" title="GPIO寄存器"></a>GPIO寄存器</h1><h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><p>以stm32为例</p>
+<ul>
+<li>GPIO 端口模式寄存器 (GPIOx_MODER) (x = A…I)</li>
+<li>GPIO 端口输出类型寄存器 (GPIOx_OTYPER) (x = A…I)</li>
+<li>GPIO 端口输出速度寄存器 (GPIOx_OSPEEDR) (x = A…I/)</li>
+<li>GPIO 端口上拉/下拉寄存器 (GPIOx_PUPDR) (x = A…I/)</li>
+<li>GPIO 端口输入数据寄存器 (GPIOx_IDR) (x = A…I)</li>
+<li>GPIO 端口输出数据寄存器 (GPIOx_ODR) (x = A…I)</li>
+<li>GPIO 端口置位/复位寄存器 (GPIOx_BSRR) (x = A…I)</li>
+</ul>
+<h2 id="GPIO-Shadow"><a href="#GPIO-Shadow" class="headerlink" title="GPIO Shadow"></a>GPIO Shadow</h2><p>由于设置某个模式的过程中配置的不只是一个寄存器，配置过程中就可能出现别的状态的产生，导致错误。而使用shadow寄存器，可以先将所有需要配置的寄存器分别设置进去，但不生效，直至全部设置完毕，再指定GPID即要映射的组上去生效！避免了中间非必要状态的产生。</p>
+<h1 id="用户层应用"><a href="#用户层应用" class="headerlink" title="用户层应用"></a>用户层应用</h1><h2 id="配置GPIO"><a href="#配置GPIO" class="headerlink" title="配置GPIO"></a>配置GPIO</h2><p>在内核导出 gpio 节点的前提下， 可以操作/sys/class/gpio 节点， 控制 gpio 输入输出</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">导出节点：  echo <span class="number">20</span> &gt; /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">export</span></span></span><br><span class="line"><span class="class">设置方向：  <span class="title">echo</span> [<span class="title">out</span> / <span class="title">in</span>] &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio20</span>/<span class="title">direction</span></span></span><br><span class="line"><span class="class">设置值：    <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">value</span></span></span><br><span class="line"><span class="class">设置触发模式：<span class="title">echo</span> [<span class="title">none</span> / <span class="title">rising</span> / <span class="title">falling</span> /  <span class="title">both</span>] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">edge</span></span></span><br><span class="line"><span class="class">翻转属性：  <span class="title">echo</span> [0 / 1] &gt;</span> sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">gpio19</span>/<span class="title">active_low</span></span></span><br><span class="line"><span class="class">移除节点：  <span class="title">echo</span> 20 &gt;</span> /sys/<span class="class"><span class="keyword">class</span>/<span class="title">gpio</span>/<span class="title">unexport</span></span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>注意事项</p>
+<ul>
+<li>direction<br>如果内核不支持改变 GPIO 的方向，或者在导出时内核代码没有明确允许用户空间可以重新配置 GPIO 方向， 那么这个属性将不存在。</li>
+<li>value<br>输出时，控制高低电平；输入时，获取高低电平</li>
+<li>edge<br>控制中断触发模式，引脚被配置为中断后可以使用poll() 函数监听引脚<br>非中断引脚、上升沿触发、下降沿触发、边沿触发</li>
+<li>active_low<br>用于翻转电平，当外部有效信号与GPIO有效信号不一致（即0可能表示有效，1也有可能表示有效）</li>
+</ul>
+<h2 id="查看GPIO配置"><a href="#查看GPIO配置" class="headerlink" title="查看GPIO配置"></a>查看GPIO配置</h2><p>不同的厂商对于GPIO配置结果的查看方式有所不同，以下以Ingenic-x2000为例对应相关的手册可以确定相应的IO状态</p>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">/<span class="meta"># cat /sys/devices/platform/apb/10010000.pinctrl/dump_gpio</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果如下图, 下面会有每一个GPIO状态</span></span><br><span class="line">REG 	|+++GPA++|+++GPB++|+++GPC++|+++GPD++|</span><br><span class="line"></span><br><span class="line">INL 	|<span class="number">0</span>c3fffff|<span class="number">67f</span>6036f|<span class="number">0110f</span>ef4|<span class="number">0f</span>7fffff|</span><br><span class="line">INT 	|<span class="number">02b</span>00000|<span class="number">30440000</span>|<span class="number">00000081</span>|<span class="number">00000100</span>|</span><br><span class="line">MSK 	|<span class="number">194f</span>cfff|ce0a0040|<span class="number">74f</span>f0076|<span class="number">003f</span>feff|</span><br><span class="line">PAT1 	|<span class="number">0265</span>cfff|f6440000|<span class="number">77</span>efc0fb|<span class="number">003f</span>fbff|</span><br><span class="line">PAT0 	|<span class="number">0f</span>8a3000|<span class="number">1033</span>efc0|<span class="number">88100005</span>|<span class="number">00000400</span>|</span><br><span class="line">EDG 	|<span class="number">3f</span>ffff00|f6037f00|<span class="number">10f</span>ff400|<span class="number">7f</span>ffff00|</span><br><span class="line">PLUP 	|<span class="number">14000000</span>|<span class="number">41800000</span>|<span class="number">00200001</span>|<span class="number">00000100</span>|</span><br><span class="line">PLDWN 	|<span class="number">00000000</span>|<span class="number">800000</span>c0|<span class="number">00100002</span>|<span class="number">00000000</span>|</span><br><span class="line">FLAG 	|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|<span class="number">00000000</span>|</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="相关功能"><a href="#相关功能" class="headerlink" title="相关功能"></a>相关功能</h1><p>在低功耗场景下，系统休眠以后部分硬件时钟可能关闭。但是GPIO不依赖时钟，故可以配置IO作为中断源对CPU进行唤醒</p>
+]]></content>
+      <categories>
+        <category>Computure System</category>
+        <category>GPIO</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Cache简介</title>
+    <url>/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</url>
+    <content><![CDATA[<p>随着技术的不断进步，芯片制程和工艺有了极大的发展，相应的CPU的计算能力越来越强。作为程序员，我们希望有无线资源的快速存储器可以使用，但是快速存储器的成本非常高昂，因此访存变成了计算机系统的性能瓶颈。为了平衡cpu运行速度与访存速度之间的差异缓存被设计出来！</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>缓冲存储器，简称缓存(cache)，用于存储可能频繁访问的数据。</p>
+<p>缓存结合了寄存器速度快和内存造价低的优点，因此通过缓存的设计使整个存储系统的性能接近寄存器，并且每字节的成本都接近内存，甚至是磁盘。</p>
+<p>高速缓存的工作就是将内存中最近读写过的数据在高速缓存中保留一个<strong>备份</strong>，使这些数据能够快速地返回给CPU</p>
+<h1 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h1><blockquote>
+<p>本节内容大多取自极客时间，《编程高手必学的内存知识》海纳</p>
+</blockquote>
+<p>缓存的组成单元是SRAM，而目前SRAM通常采用了6管式的存储电路</p>
+<p>简单来讲，SRAM 存储单元的特点是使用 6 个晶体管来实现。其中两个 P 型 MOS 管和两个 N 型 MOS 管组成两个反相器用于存储信息。还有两个用于控制存储单元是否选通。6 管 SRAM 的结构比触发器简单，速度也比较快</p>
+<h2 id="连接图"><a href="#连接图" class="headerlink" title="连接图"></a>连接图</h2><p>如下图所示，M1 和 M3 两个 MOS 管，是 N 沟道场效应管，在高电压时导通；而 M2 和 M4 这两个 MOS，则是 P 沟道场效应管，在低电压时导通。本质上，M1 和 M2 一起组成了一个非门，M3 和 M4 一起组成了另一个非门，这两个非门的输出互为对方的输入，这样，两个非门就组成了一种可以存储比特值的电路。</p>
+<p><img src="/images/computerSystem/storage/cache-0.png" alt="image"></p>
+<h2 id="等效图"><a href="#等效图" class="headerlink" title="等效图"></a>等效图</h2><p><img src="/images/computerSystem/storage/cache-1.png" alt="image"></p>
+<h2 id="读写原理"><a href="#读写原理" class="headerlink" title="读写原理"></a>读写原理</h2><p>当要读入SRAM数据时，字线 (Word Line, WL) 加高电平，使得每个基本单元的两个控制开关M5、M6导通，存储单元与位线 (Bit Line, BL) 连通。位线用于读取或写入基本单元的保存状态。</p>
+<p>我们假定储存的内容为 1，即在 Q 处的电平为高。读取周期开始时，两条位线预先设成高电平，随后字线 WL 变成高电平，使得两个访问控制晶体管 M5 与 M6 导通。Q 的高电平使得晶体管 M1 导通，而 Q 反与 BL 反的预充值不同，使得 BL 反经由 M1 与 M5 放电而变成逻辑 0。在位线 BL 一侧，Q 反的低电平使得 M4 导通，再加上 M6 通路，位线就连接到 VDD 的高电压。</p>
+<p>如果储存的内容为 0，相反的电路状态将会使 BL 反为 1，而 BL 为 0。这时，只需要 BL 与 BL 反有一个很小的电位差，读取的放大电路就会辨识出哪条位线是 1，哪条是 0。也就是说，当敏感度越高时，读取的速度就越快。</p>
+<p>在写入周期开始时，把要写入的状态加载到位线。如果要写入 0，则设置 BL 反为 1 且 BL 为 0。随后字线 WL 加载为高电平，位线的状态被加载进 SRAM 的基本单元。</p>
+<h1 id="缓存基础"><a href="#缓存基础" class="headerlink" title="缓存基础"></a>缓存基础</h1><h2 id="集成方式"><a href="#集成方式" class="headerlink" title="集成方式"></a>集成方式</h2><ul>
+<li>分布式缓存：一个处理器对应一个缓存；</li>
+<li>集中式缓存：多个处理器（核）共享一个内存；</li>
+<li>混合式缓存：在 L3 采用集中式缓存，在 L1 和 L2 采用分布式缓存。</li>
+</ul>
+<p><img src="/images/computerSystem/storage/cache-2.png" alt="image"></p>
+<h2 id="缓存结构"><a href="#缓存结构" class="headerlink" title="缓存结构"></a>缓存结构</h2><blockquote>
+<p>冯诺依曼架构：指令和数据混合存储在同一存储器</p>
+<p>哈弗架构：指令和数据独立存储，分别放在程序存储器和数据存储器</p>
+</blockquote>
+<p>在cache设计之初，cpu与内存之间只有一个cache。随着芯片工艺的提高，现代CPU通常采用二级/三级多级缓存结构。</p>
+<ul>
+<li>一级缓存（L1 Cache）：在Core内部，分为指令缓存（I-cache）和数据缓存（D-cache）（冯诺依曼架构）。容量通常在32~256KB，速度3 cycles</li>
+<li>二级缓存（L2 Cache）：具体芯片Core内外不同。容量256KB~3MB不等，速度11cycles（哈弗架构）</li>
+<li>三级缓存（L3 Cache）：在Core外部，所有CPU核心共享。容量更大，速度25cycles（哈弗架构）</li>
+</ul>
+<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><blockquote>
+<p><strong>统一缓存：</strong> 指令和数据统一存放在一个缓存中</p>
+<p><strong>分离缓存：</strong> 指令和数据分别存放在不同缓存中</p>
+</blockquote>
+<h3 id="L1-采用分离缓存的原因？"><a href="#L1-采用分离缓存的原因？" class="headerlink" title="L1 采用分离缓存的原因？"></a>L1 采用分离缓存的原因？</h3><ol>
+<li>流水线角度。可避免取指和执行时期的访存冲突。 在 CPU 内核中，取指和访存是由两个不同的硬件单元完成的。如果使用统一缓存，当 CPU 使用超前控制或流水线控制（并行执行）的控制方式时，会存在取指作和访存同时争用同一个缓存的情况，降低 CPU 运行效率</li>
+<li>cache行为角度。I-cache大多是顺序取指，指令只有读没有写；D-cache是取数据变化较大，数据可读可写，最重要的是冯诺依曼的结构是指令和数据分离，I和D在一起只有相互干扰</li>
+<li>物理设计角度。一块cache，同时需要数据和指令的访问，端口上是很难实现的</li>
+</ol>
+<h3 id="L1分离缓存、L2统一缓存？"><a href="#L1分离缓存、L2统一缓存？" class="headerlink" title="L1分离缓存、L2统一缓存？"></a>L1分离缓存、L2统一缓存？</h3><ol>
+<li>成本角度。L1 cache miss 性能损失与增加L2分离缓存的成本的平衡</li>
+<li>物理设计角度。分离式设计会占用逻辑电路的面积与设计难度，对于L1这种size比较小的采用分离式设计可以承受，但是对于更大的Cache全采用分离设计，无疑设计难度和面积都会加大</li>
+<li>效率角度。分离缓存不适用所有情况，对于指令和数据存放大小的需求不同，无法做到动态调节cache的大小，可能会有浪费</li>
+</ol>
+<h3 id="cache放在片内的优势？"><a href="#cache放在片内的优势？" class="headerlink" title="cache放在片内的优势？"></a>cache放在片内的优势？</h3><ol>
+<li>片内缓存物理距离更短，片内缓存与取指令单元和取数据单元的物理距离更短，速度更快；</li>
+<li>片内缓存不占用系统总线， 片内缓存使用独立的 CPU 片内总线，可以减轻系统总线的负担。</li>
+</ol>
+<h3 id="不需要cache的场景？"><a href="#不需要cache的场景？" class="headerlink" title="不需要cache的场景？"></a>不需要cache的场景？</h3><p>51单片机、cortex-M0（–M4）系列ARM处理器都没有cache</p>
+<ol>
+<li>低功耗、低成本处理器并且工作频率不高（几十兆到几百兆）的处理器不需要，可能甚至不需要SRAM</li>
+<li>cache无法保证实时性，缓存缺失时向RAM加载数据的时间是不等的</li>
+</ol>
 ]]></content>
       <categories>
         <category>Computure System</category>
@@ -3740,75 +4047,6 @@
 <p><a href="https://www.bilibili.com/video/BV1QA411t7Uv">Cache地址映射与变换方法</a></p>
 <p><a href="https://www.bilibili.com/video/BV1h3411h7kV">一张图解决主存和cache的映射问题</a></p>
 </blockquote>
-]]></content>
-      <categories>
-        <category>Computure System</category>
-        <category>Storage</category>
-        <category>Cache</category>
-      </categories>
-      <tags>
-        <tag>storage system</tag>
-        <tag>Cache</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Cache简介</title>
-    <url>/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</url>
-    <content><![CDATA[<p>随着技术的不断进步，芯片制程和工艺有了极大的发展，相应的CPU的计算能力越来越强。作为程序员，我们希望有无线资源的快速存储器可以使用，但是快速存储器的成本非常高昂，因此访存变成了计算机系统的性能瓶颈。为了平衡cpu运行速度与访存速度之间的差异缓存被设计出来！</p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>缓冲存储器，简称缓存(cache)，用于存储可能频繁访问的数据。</p>
-<p>缓存结合了寄存器速度快和内存造价低的优点，因此通过缓存的设计使整个存储系统的性能接近寄存器，并且每字节的成本都接近内存，甚至是磁盘。</p>
-<p>高速缓存的工作就是将内存中最近读写过的数据在高速缓存中保留一个<strong>备份</strong>，使这些数据能够快速地返回给CPU</p>
-<h1 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h1><blockquote>
-<p>本节内容大多取自极客时间，《编程高手必学的内存知识》海纳</p>
-</blockquote>
-<p>缓存的组成单元是SRAM，而目前SRAM通常采用了6管式的存储电路</p>
-<p>简单来讲，SRAM 存储单元的特点是使用 6 个晶体管来实现。其中两个 P 型 MOS 管和两个 N 型 MOS 管组成两个反相器用于存储信息。还有两个用于控制存储单元是否选通。6 管 SRAM 的结构比触发器简单，速度也比较快</p>
-<h2 id="连接图"><a href="#连接图" class="headerlink" title="连接图"></a>连接图</h2><p>如下图所示，M1 和 M3 两个 MOS 管，是 N 沟道场效应管，在高电压时导通；而 M2 和 M4 这两个 MOS，则是 P 沟道场效应管，在低电压时导通。本质上，M1 和 M2 一起组成了一个非门，M3 和 M4 一起组成了另一个非门，这两个非门的输出互为对方的输入，这样，两个非门就组成了一种可以存储比特值的电路。</p>
-<p><img src="/images/computerSystem/storage/cache-0.png" alt="image"></p>
-<h2 id="等效图"><a href="#等效图" class="headerlink" title="等效图"></a>等效图</h2><p><img src="/images/computerSystem/storage/cache-1.png" alt="image"></p>
-<h2 id="读写原理"><a href="#读写原理" class="headerlink" title="读写原理"></a>读写原理</h2><p>当要读入SRAM数据时，字线 (Word Line, WL) 加高电平，使得每个基本单元的两个控制开关M5、M6导通，存储单元与位线 (Bit Line, BL) 连通。位线用于读取或写入基本单元的保存状态。</p>
-<p>我们假定储存的内容为 1，即在 Q 处的电平为高。读取周期开始时，两条位线预先设成高电平，随后字线 WL 变成高电平，使得两个访问控制晶体管 M5 与 M6 导通。Q 的高电平使得晶体管 M1 导通，而 Q 反与 BL 反的预充值不同，使得 BL 反经由 M1 与 M5 放电而变成逻辑 0。在位线 BL 一侧，Q 反的低电平使得 M4 导通，再加上 M6 通路，位线就连接到 VDD 的高电压。</p>
-<p>如果储存的内容为 0，相反的电路状态将会使 BL 反为 1，而 BL 为 0。这时，只需要 BL 与 BL 反有一个很小的电位差，读取的放大电路就会辨识出哪条位线是 1，哪条是 0。也就是说，当敏感度越高时，读取的速度就越快。</p>
-<p>在写入周期开始时，把要写入的状态加载到位线。如果要写入 0，则设置 BL 反为 1 且 BL 为 0。随后字线 WL 加载为高电平，位线的状态被加载进 SRAM 的基本单元。</p>
-<h1 id="缓存基础"><a href="#缓存基础" class="headerlink" title="缓存基础"></a>缓存基础</h1><h2 id="集成方式"><a href="#集成方式" class="headerlink" title="集成方式"></a>集成方式</h2><ul>
-<li>分布式缓存：一个处理器对应一个缓存；</li>
-<li>集中式缓存：多个处理器（核）共享一个内存；</li>
-<li>混合式缓存：在 L3 采用集中式缓存，在 L1 和 L2 采用分布式缓存。</li>
-</ul>
-<p><img src="/images/computerSystem/storage/cache-2.png" alt="image"></p>
-<h2 id="缓存结构"><a href="#缓存结构" class="headerlink" title="缓存结构"></a>缓存结构</h2><blockquote>
-<p>冯诺依曼架构：指令和数据混合存储在同一存储器</p>
-<p>哈弗架构：指令和数据独立存储，分别放在程序存储器和数据存储器</p>
-</blockquote>
-<p>在cache设计之初，cpu与内存之间只有一个cache。随着芯片工艺的提高，现代CPU通常采用二级/三级多级缓存结构。</p>
-<ul>
-<li>一级缓存（L1 Cache）：在Core内部，分为指令缓存（I-cache）和数据缓存（D-cache）（冯诺依曼架构）。容量通常在32~256KB，速度3 cycles</li>
-<li>二级缓存（L2 Cache）：具体芯片Core内外不同。容量256KB~3MB不等，速度11cycles（哈弗架构）</li>
-<li>三级缓存（L3 Cache）：在Core外部，所有CPU核心共享。容量更大，速度25cycles（哈弗架构）</li>
-</ul>
-<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><blockquote>
-<p><strong>统一缓存：</strong> 指令和数据统一存放在一个缓存中</p>
-<p><strong>分离缓存：</strong> 指令和数据分别存放在不同缓存中</p>
-</blockquote>
-<h3 id="L1-采用分离缓存的原因？"><a href="#L1-采用分离缓存的原因？" class="headerlink" title="L1 采用分离缓存的原因？"></a>L1 采用分离缓存的原因？</h3><ol>
-<li>流水线角度。可避免取指和执行时期的访存冲突。 在 CPU 内核中，取指和访存是由两个不同的硬件单元完成的。如果使用统一缓存，当 CPU 使用超前控制或流水线控制（并行执行）的控制方式时，会存在取指作和访存同时争用同一个缓存的情况，降低 CPU 运行效率</li>
-<li>cache行为角度。I-cache大多是顺序取指，指令只有读没有写；D-cache是取数据变化较大，数据可读可写，最重要的是冯诺依曼的结构是指令和数据分离，I和D在一起只有相互干扰</li>
-<li>物理设计角度。一块cache，同时需要数据和指令的访问，端口上是很难实现的</li>
-</ol>
-<h3 id="L1分离缓存、L2统一缓存？"><a href="#L1分离缓存、L2统一缓存？" class="headerlink" title="L1分离缓存、L2统一缓存？"></a>L1分离缓存、L2统一缓存？</h3><ol>
-<li>成本角度。L1 cache miss 性能损失与增加L2分离缓存的成本的平衡</li>
-<li>物理设计角度。分离式设计会占用逻辑电路的面积与设计难度，对于L1这种size比较小的采用分离式设计可以承受，但是对于更大的Cache全采用分离设计，无疑设计难度和面积都会加大</li>
-<li>效率角度。分离缓存不适用所有情况，对于指令和数据存放大小的需求不同，无法做到动态调节cache的大小，可能会有浪费</li>
-</ol>
-<h3 id="cache放在片内的优势？"><a href="#cache放在片内的优势？" class="headerlink" title="cache放在片内的优势？"></a>cache放在片内的优势？</h3><ol>
-<li>片内缓存物理距离更短，片内缓存与取指令单元和取数据单元的物理距离更短，速度更快；</li>
-<li>片内缓存不占用系统总线， 片内缓存使用独立的 CPU 片内总线，可以减轻系统总线的负担。</li>
-</ol>
-<h3 id="不需要cache的场景？"><a href="#不需要cache的场景？" class="headerlink" title="不需要cache的场景？"></a>不需要cache的场景？</h3><p>51单片机、cortex-M0（–M4）系列ARM处理器都没有cache</p>
-<ol>
-<li>低功耗、低成本处理器并且工作频率不高（几十兆到几百兆）的处理器不需要，可能甚至不需要SRAM</li>
-<li>cache无法保证实时性，缓存缺失时向RAM加载数据的时间是不等的</li>
-</ol>
 ]]></content>
       <categories>
         <category>Computure System</category>
