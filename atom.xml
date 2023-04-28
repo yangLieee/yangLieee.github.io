@@ -37,8 +37,8 @@
   
   <entry>
     <title>Problem &amp; Tools</title>
-    <link href="http://yanglieee.com/2023/04/27/work-expericence/problem&amp;tools/"/>
-    <id>http://yanglieee.com/2023/04/27/work-expericence/problem&amp;tools/</id>
+    <link href="http://yanglieee.com/2023/04/27/work-expericence/problem_tools/"/>
+    <id>http://yanglieee.com/2023/04/27/work-expericence/problem_tools/</id>
     <published>2023-04-26T16:00:00.000Z</published>
     <updated>2023-04-28T02:17:59.869Z</updated>
     
@@ -320,14 +320,14 @@
   </entry>
   
   <entry>
-    <title>Cache原理</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
+    <title>Cache简介</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
     <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-22T14:53:12.501Z</updated>
+    <updated>2023-02-15T15:06:42.493Z</updated>
     
     
-    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
+    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
     
     
     
@@ -345,14 +345,14 @@
   </entry>
   
   <entry>
-    <title>Cache简介</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
+    <title>Cache原理</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
     <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-15T15:06:42.493Z</updated>
+    <updated>2023-02-22T14:53:12.501Z</updated>
     
     
-    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
+    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
     
     
     
