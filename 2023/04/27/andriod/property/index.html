@@ -28,7 +28,7 @@
 <meta property="og:description" content="本文基于自己在freertos中开发的property过程和andriod系统property的学习使用过程进行简单记录说明">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-04-26T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-04-27T14:01:16.505Z">
+<meta property="article:modified_time" content="2023-04-28T03:16:14.947Z">
 <meta property="article:author" content="Lee">
 <meta name="twitter:card" content="summary">
 
@@ -223,10 +223,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-04-27 00:00:00 / 修改时间：22:01:16" itemprop="dateCreated datePublished" datetime="2023-04-27T00:00:00+08:00">2023-04-27</time>
+              <time title="创建时间：2023-04-27 00:00:00" itemprop="dateCreated datePublished" datetime="2023-04-27T00:00:00+08:00">2023-04-27</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-04-28 11:16:14" itemprop="dateModified" datetime="2023-04-28T11:16:14+08:00">2023-04-28</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -261,14 +267,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.7k</span>
+              <span>4.1k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
+              <span>4 分钟</span>
             </span>
             <div class="post-description">本文基于自己在freertos中开发的property过程和andriod系统property的学习使用过程进行简单记录说明</div>
 
@@ -289,6 +295,17 @@
 <li>修改变量不同进程只可以通过socket方式，向属性服务发出修改属性值的请求，而不能直接修改属性值</li>
 <li>系统中只有一个实体可以设置修改属性值，即属性服务</li>
 </ul>
+<h2 id="字典树"><a href="#字典树" class="headerlink" title="字典树"></a>字典树</h2><p>属性在内存中是以字典树的形式进行存储的</p>
+<ol>
+<li>首先是共享内存起始块prop_area。其中规定了byte_used、version、magic_number等等</li>
+<li>紧接着是一个空白节点prop_bt，其作为整棵树的根节点</li>
+<li>下面将依次存储相关属性<ul>
+<li>属性名将以‘.’符号为分割符被分割开来。比如ro.secure属性名就会被分割成“ro”和“secure”两部分，而且每个部分用一个prop_bt节点表达。</li>
+<li>属性名中的这种‘.’关系被表示为父子关系，所以“ro”节点的children域，会指向“secure”节点，一个节点只有一个children域，如果它还有其他孩子，那些孩子将会和第一个子节点（比如secure节点）组成一棵二叉树。</li>
+<li>当一个属性名对应的“字典树枝”都已经形成好后，会另外创建一个prop_info节点，专门表示这个属性，该节点就是“字典树叶”</li>
+</ul>
+</li>
+</ol>
 <h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h1><h2 id="获取属性"><a href="#获取属性" class="headerlink" title="获取属性"></a>获取属性</h2><p>getprop 属性名</p>
 <h2 id="设置属性"><a href="#设置属性" class="headerlink" title="设置属性"></a>设置属性</h2><p>setprop 属性名 属性值</p>
 <h2 id="函数调用流程"><a href="#函数调用流程" class="headerlink" title="函数调用流程"></a>函数调用流程</h2><h3 id="获取所有属性"><a href="#获取所有属性" class="headerlink" title="获取所有属性"></a>获取所有属性</h3><ul>
@@ -305,7 +322,7 @@
 <li>__system_property_set(key, value) -call-&gt; send_prop_msg(&amp;msg)</li>
 </ul>
 <p>__system_property_set通过本地SOCKET: “/dev/socket/property_service” 与init进程中properties服务通讯。</p>
-<h1 id="Property机制"><a href="#Property机制" class="headerlink" title="Property机制"></a>Property机制</h1><ol>
+<h1 id="Property调用流程"><a href="#Property调用流程" class="headerlink" title="Property调用流程"></a>Property调用流程</h1><ol>
 <li><p>初始化一块共享内存</p>
 <ul>
 <li>void property_init(void)  ==&gt; init_property_area(void)</li>
@@ -346,7 +363,7 @@
 <li><p>__system_property_add(const char *name, unsigned int namelen,  const char *value, unsigned int valuelen)</p>
 </li>
 <li><p>prop_info *find_property(prop_bt *const trie, const char *name, uint8_t namelen, const char *value, uint8_t valuelen, bool alloc_if_needed)</p>
-<p>核心函数，将prop按照某种数据结构存储对应的内存位置</p>
+<p>核心函数，将prop按照map存储到对应的内存位置</p>
 </li>
 </ul>
 </li>
@@ -388,14 +405,24 @@
 <li>net.开始的属性(除net.change外)设置， 将引发net.change=key的属性设置，被bionic/libc/netbsd/resolv/res_state.c中的代码处理(通过__system_property_find函数)；</li>
 <li>persist.开始的属性，如果在init.rc和代码中设置， 将会被写到/data/property目录下；</li>
 </ul>
-<h1 id="其它实现方式"><a href="#其它实现方式" class="headerlink" title="其它实现方式"></a>其它实现方式</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>自己在freertos的开发中，整体使用C语言，针对property的功能自己实现了一套相关代码。主要包括：get/set property；针对property的前置属性进行判断，ro/rw/presist等等</p>
-<h2 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h2><ul>
-<li><p>底层数据结构：map</p>
-</li>
-<li><p>方式</p>
-<p>通过<a target="_blank" rel="noopener" href="https://github.com/forhappy/rbtree">开源代码rbtree</a>的实现，基于其中的API进一步封装出map表的接口。由于是在小系统下开发，内存比较小，为了防止碎片增加一个简单的内存池为property使用；其次借鉴andriod上property的实现，继续进行封装system_property接口，最终封装出导出使用的API接口</p>
-</li>
+<h1 id="rtos实现方式"><a href="#rtos实现方式" class="headerlink" title="rtos实现方式"></a>rtos实现方式</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>自己在freertos的开发中，整体使用C语言，针对property的功能自己实现了一套相关代码。主要包括：get/set property；针对property的前置属性进行判断，ro/rw/presist等等</p>
+<h2 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h2><ol>
+<li>前期准备<ul>
+<li>选择基础数据结构：map</li>
+<li>选择语言：C</li>
+<li>构建整体软件框架：rbtree–&gt;map—&gt;system_prop—&gt;server_prop</li>
 </ul>
+</li>
+<li>在PC进行代码构建<ul>
+<li>基于<a target="_blank" rel="noopener" href="https://github.com/forhappy/rbtree">开源代码rbtree</a>的实现，封装出map接口</li>
+<li>基于andriod的实现和提供的map接口封装system_prop</li>
+<li>基于system_prop封装导出的API接口</li>
+</ul>
+</li>
+<li>测试代码功能</li>
+<li>移植到开发板并调试</li>
+<li>添加内存池，进行代码优化</li>
+</ol>
 <h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><ul>
 <li><a target="_blank" rel="noopener" href="https://www.pianshen.com/article/8653307704/">深入讲解Android Property机制</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39613712/article/details/117314185">Android Property属性的实现细节</a></li>
@@ -432,7 +459,7 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/04/27/work-expericence/problem/" rel="prev" title="Problem & Tools">
+    <a href="/2023/04/27/work-expericence/problem&tools/" rel="prev" title="Problem & Tools">
       <i class="fa fa-chevron-left"></i> Problem & Tools
     </a></div>
       <div class="post-nav-item"></div>
@@ -495,7 +522,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%B1%9E%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">获取属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%B1%9E%E6%80%A7"><span class="nav-number">2.2.</span> <span class="nav-text">设置属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">函数调用流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E6%89%80%E6%9C%89%E5%B1%9E%E6%80%A7"><span class="nav-number">2.3.1.</span> <span class="nav-text">获取所有属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E6%9F%90%E4%B8%AA%E5%B1%9E%E6%80%A7"><span class="nav-number">2.3.2.</span> <span class="nav-text">获取某个属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%B1%9E%E6%80%A7-1"><span class="nav-number">2.3.3.</span> <span class="nav-text">设置属性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Property%E6%9C%BA%E5%88%B6"><span class="nav-number">3.</span> <span class="nav-text">Property机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%85%B1%E4%BA%AB"><span class="nav-number">4.</span> <span class="nav-text">如何实现共享</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E7%89%B9%E6%AE%8A%E5%A4%84%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">属性特殊处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">6.</span> <span class="nav-text">其它实现方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">6.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">6.2.</span> <span class="nav-text">实现方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">7.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E5%85%B8%E6%A0%91"><span class="nav-number">1.1.</span> <span class="nav-text">字典树</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%B1%9E%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">获取属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%B1%9E%E6%80%A7"><span class="nav-number">2.2.</span> <span class="nav-text">设置属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">函数调用流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E6%89%80%E6%9C%89%E5%B1%9E%E6%80%A7"><span class="nav-number">2.3.1.</span> <span class="nav-text">获取所有属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E6%9F%90%E4%B8%AA%E5%B1%9E%E6%80%A7"><span class="nav-number">2.3.2.</span> <span class="nav-text">获取某个属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%B1%9E%E6%80%A7-1"><span class="nav-number">2.3.3.</span> <span class="nav-text">设置属性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Property%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">Property调用流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%85%B1%E4%BA%AB"><span class="nav-number">4.</span> <span class="nav-text">如何实现共享</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E7%89%B9%E6%AE%8A%E5%A4%84%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">属性特殊处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#rtos%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">6.</span> <span class="nav-text">rtos实现方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">6.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">6.2.</span> <span class="nav-text">实现方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">7.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -583,7 +610,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:57</span>
+    <span title="站点阅读时长">1:58</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
