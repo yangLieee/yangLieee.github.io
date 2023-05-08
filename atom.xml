@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-04-28T03:16:14.947Z</updated>
+  <updated>2023-05-08T15:18:27.081Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,46 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Flash</title>
+    <link href="http://yanglieee.com/2023/05/08/computerSystem/storage/Flash/"/>
+    <id>http://yanglieee.com/2023/05/08/computerSystem/storage/Flash/</id>
+    <published>2023-05-07T16:00:00.000Z</published>
+    <updated>2023-05-08T15:18:27.081Z</updated>
+    
+    
+    <summary type="html">通过网络上的资料对nor、nand、emmc三种flash类型进行学习及说明</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
+    
+    
+    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
+    
+    <category term="Flash" scheme="http://yanglieee.com/tags/Flash/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>gdb &amp;&amp; coredump</title>
+    <link href="http://yanglieee.com/2023/05/06/tools/gdb&amp;coredump/"/>
+    <id>http://yanglieee.com/2023/05/06/tools/gdb&amp;coredump/</id>
+    <published>2023-05-05T16:00:00.000Z</published>
+    <updated>2023-05-08T15:08:53.432Z</updated>
+    
+    
+    <summary type="html">简单总结gdb的使用以及coredump文件的产生及使用（未进行详细学习了解），仅作记录参考</summary>
+    
+    
+    
+    <category term="Tools" scheme="http://yanglieee.com/categories/Tools/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>Andriod Property工作机制</title>
@@ -53,25 +93,6 @@
   </entry>
   
   <entry>
-    <title>Docker</title>
-    <link href="http://yanglieee.com/2023/04/19/third-party/docker/"/>
-    <id>http://yanglieee.com/2023/04/19/third-party/docker/</id>
-    <published>2023-04-18T16:00:00.000Z</published>
-    <updated>2023-04-19T14:22:35.449Z</updated>
-    
-    
-    <summary type="html">在做OTA升级过程中需要搭建本地服务器，将用到的相关命令做简单记录，后面需要继续完善补充</summary>
-    
-    
-    
-    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
-    
-    
-    <category term="docker" scheme="http://yanglieee.com/tags/docker/"/>
-    
-  </entry>
-  
-  <entry>
     <title>LwIP+websocket</title>
     <link href="http://yanglieee.com/2023/04/19/third-party/lwip+websocket/"/>
     <id>http://yanglieee.com/2023/04/19/third-party/lwip+websocket/</id>
@@ -87,6 +108,25 @@
     
     
     <category term="lwip websocket" scheme="http://yanglieee.com/tags/lwip-websocket/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Docker</title>
+    <link href="http://yanglieee.com/2023/04/19/tools/docker/"/>
+    <id>http://yanglieee.com/2023/04/19/tools/docker/</id>
+    <published>2023-04-18T16:00:00.000Z</published>
+    <updated>2023-05-08T15:10:40.387Z</updated>
+    
+    
+    <summary type="html">在做OTA升级过程中需要搭建本地服务器，将用到的相关命令做简单记录，后面需要继续完善补充</summary>
+    
+    
+    
+    <category term="Tools" scheme="http://yanglieee.com/categories/Tools/"/>
+    
+    
+    <category term="docker" scheme="http://yanglieee.com/tags/docker/"/>
     
   </entry>
   
@@ -131,31 +171,6 @@
   </entry>
   
   <entry>
-    <title>DDR基础与原理</title>
-    <link href="http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/"/>
-    <id>http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/</id>
-    <published>2023-04-04T16:00:00.000Z</published>
-    <updated>2023-04-05T12:28:26.906Z</updated>
-    
-    
-    <summary type="html">对SDRAM以及DDR的相关参数、基本结构、原理进行讲解</summary>
-    
-    
-    
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
-    
-    <category term="DDR" scheme="http://yanglieee.com/categories/Computure-System/Storage/DDR/"/>
-    
-    
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
-    
-    <category term="DDR" scheme="http://yanglieee.com/tags/DDR/"/>
-    
-  </entry>
-  
-  <entry>
     <title>IIS</title>
     <link href="http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/"/>
     <id>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</id>
@@ -179,11 +194,34 @@
   </entry>
   
   <entry>
+    <title>DDR基础与原理</title>
+    <link href="http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/"/>
+    <id>http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/</id>
+    <published>2023-04-04T16:00:00.000Z</published>
+    <updated>2023-05-08T15:19:13.497Z</updated>
+    
+    
+    <summary type="html">对SDRAM以及DDR的相关参数、基本结构、原理进行讲解</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
+    
+    
+    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
+    
+    <category term="DDR" scheme="http://yanglieee.com/tags/DDR/"/>
+    
+  </entry>
+  
+  <entry>
     <title>ADC</title>
     <link href="http://yanglieee.com/2023/03/18/computerSystem/Peripherals/ADC/"/>
     <id>http://yanglieee.com/2023/03/18/computerSystem/Peripherals/ADC/</id>
     <published>2023-03-18T14:55:51.047Z</published>
-    <updated>2023-03-19T04:23:34.118Z</updated>
+    <updated>2023-05-08T15:19:41.637Z</updated>
     
     
     <summary type="html">ADC基础知识及相关原理</summary>
@@ -191,8 +229,6 @@
     
     
     <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="ADC" scheme="http://yanglieee.com/categories/Computure-System/ADC/"/>
     
     
   </entry>
@@ -387,44 +423,6 @@
     
     
     <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>《Google工作法》</title>
-    <link href="http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/"/>
-    <id>http://yanglieee.com/2023/02/06/Reading/Google%E5%B7%A5%E4%BD%9C%E6%B3%95/</id>
-    <published>2023-02-05T16:00:00.000Z</published>
-    <updated>2023-02-07T14:20:40.946Z</updated>
-    
-    
-    <summary type="html">《Google工作法》读书笔记</summary>
-    
-    
-    
-    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
-    
-    
-    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>《格局》</title>
-    <link href="http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/"/>
-    <id>http://yanglieee.com/2023/01/04/Reading/%E6%A0%BC%E5%B1%80/</id>
-    <published>2023-01-03T16:00:00.000Z</published>
-    <updated>2023-01-04T14:56:15.682Z</updated>
-    
-    
-    <summary type="html">对《格局》一书的心得</summary>
-    
-    
-    
-    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
-    
-    
-    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
