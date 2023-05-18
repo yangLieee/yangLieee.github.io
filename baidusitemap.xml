@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://yanglieee.com/2023/05/18/computerSystem/Peripherals/RTC/</loc>
+    <lastmod>2023-05-18</lastmod>
+  </url>
+  <url>
+    <loc>http://yanglieee.com/2023/05/17/language-grammar/libc-function/</loc>
+    <lastmod>2023-05-18</lastmod>
+  </url>
+  <url>
+    <loc>http://yanglieee.com/2023/05/08/computerSystem/storage/Flash/</loc>
+    <lastmod>2023-05-17</lastmod>
+  </url>
+  <url>
     <loc>http://yanglieee.com/2022/08/22/hello-world/</loc>
     <lastmod>2023-05-08</lastmod>
   </url>
@@ -14,10 +26,6 @@
   </url>
   <url>
     <loc>http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/</loc>
-    <lastmod>2023-05-08</lastmod>
-  </url>
-  <url>
-    <loc>http://yanglieee.com/2023/05/08/computerSystem/storage/Flash/</loc>
     <lastmod>2023-05-08</lastmod>
   </url>
   <url>
@@ -125,7 +133,7 @@
     <lastmod>2022-12-03</lastmod>
   </url>
   <url>
-    <loc>http://yanglieee.com/2022/11/15/Volatile/</loc>
+    <loc>http://yanglieee.com/2022/11/15/language-grammar/Volatile/</loc>
     <lastmod>2022-12-03</lastmod>
   </url>
   <url>

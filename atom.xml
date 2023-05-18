@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-05-08T15:18:27.081Z</updated>
+  <updated>2023-05-18T15:07:00.881Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,11 +17,45 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>RTC</title>
+    <link href="http://yanglieee.com/2023/05/18/computerSystem/Peripherals/RTC/"/>
+    <id>http://yanglieee.com/2023/05/18/computerSystem/Peripherals/RTC/</id>
+    <published>2023-05-17T16:00:00.000Z</published>
+    <updated>2023-05-18T15:07:00.881Z</updated>
+    
+    
+    <summary type="html">根据实际开发经验以及网络相关资料对RTC做出说明总结</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>libc部分库函数说明</title>
+    <link href="http://yanglieee.com/2023/05/17/language-grammar/libc-function/"/>
+    <id>http://yanglieee.com/2023/05/17/language-grammar/libc-function/</id>
+    <published>2023-05-16T16:00:00.000Z</published>
+    <updated>2023-05-18T15:05:21.795Z</updated>
+    
+    
+    <summary type="html">对自己在开发中使用到的容易出错或者不熟悉的libc库函数做出总结</summary>
+    
+    
+    
+    <category term="c/c++" scheme="http://yanglieee.com/categories/c-c/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>Flash</title>
     <link href="http://yanglieee.com/2023/05/08/computerSystem/storage/Flash/"/>
     <id>http://yanglieee.com/2023/05/08/computerSystem/storage/Flash/</id>
     <published>2023-05-07T16:00:00.000Z</published>
-    <updated>2023-05-08T15:18:27.081Z</updated>
+    <updated>2023-05-17T13:57:20.769Z</updated>
     
     
     <summary type="html">通过网络上的资料对nor、nand、emmc三种flash类型进行学习及说明</summary>
@@ -306,31 +340,6 @@
   </entry>
   
   <entry>
-    <title>MESI协议的优化与内存屏障</title>
-    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/"/>
-    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</id>
-    <published>2023-03-05T16:00:00.000Z</published>
-    <updated>2023-03-06T14:26:05.878Z</updated>
-    
-    
-    <summary type="html">MESI协议带来的问题与之对应的解决办法</summary>
-    
-    
-    
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
-    
-    <category term="Cache" scheme="http://yanglieee.com/categories/Computure-System/Storage/Cache/"/>
-    
-    
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
-    
-    <category term="Cache" scheme="http://yanglieee.com/tags/Cache/"/>
-    
-  </entry>
-  
-  <entry>
     <title>缓存一致性协议</title>
     <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/"/>
     <id>http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/</id>
@@ -356,14 +365,14 @@
   </entry>
   
   <entry>
-    <title>Cache简介</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
-    <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-15T15:06:42.493Z</updated>
+    <title>MESI协议的优化与内存屏障</title>
+    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/"/>
+    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</id>
+    <published>2023-03-05T16:00:00.000Z</published>
+    <updated>2023-03-06T14:26:05.878Z</updated>
     
     
-    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
+    <summary type="html">MESI协议带来的问题与之对应的解决办法</summary>
     
     
     
@@ -402,27 +411,6 @@
     <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
     
     <category term="Cache" scheme="http://yanglieee.com/tags/Cache/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>计算机存储体系</title>
-    <link href="http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/"/>
-    <id>http://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/</id>
-    <published>2023-02-06T16:00:00.000Z</published>
-    <updated>2023-02-07T15:10:34.418Z</updated>
-    
-    
-    <summary type="html">计算机存储体系架构介绍</summary>
-    
-    
-    
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
-    
-    
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
     
   </entry>
   
