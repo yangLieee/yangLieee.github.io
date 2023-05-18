@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-05-18T15:07:00.881Z</updated>
+  <updated>2023-05-18T15:11:51.919Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://yanglieee.com/2023/05/18/computerSystem/Peripherals/RTC/"/>
     <id>http://yanglieee.com/2023/05/18/computerSystem/Peripherals/RTC/</id>
     <published>2023-05-17T16:00:00.000Z</published>
-    <updated>2023-05-18T15:07:00.881Z</updated>
+    <updated>2023-05-18T15:11:51.919Z</updated>
     
     
     <summary type="html">根据实际开发经验以及网络相关资料对RTC做出说明总结</summary>
@@ -390,14 +390,14 @@
   </entry>
   
   <entry>
-    <title>Cache原理</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E5%8E%9F%E7%90%86/</id>
+    <title>Cache简介</title>
+    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
+    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
     <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-22T14:53:12.501Z</updated>
+    <updated>2023-02-15T15:06:42.493Z</updated>
     
     
-    <summary type="html">对cache结构、映射、替换策略、写策略和部分管理缓存等问题进行了详细的解释</summary>
+    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
     
     
     
