@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-05-18T15:11:51.919Z</updated>
+  <updated>2023-05-30T14:34:50.020Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>MIPI &amp;&amp; D-PHY</title>
+    <link href="http://yanglieee.com/2023/05/30/computerSystem/protocol/mipi_dphy/"/>
+    <id>http://yanglieee.com/2023/05/30/computerSystem/protocol/mipi_dphy/</id>
+    <published>2023-05-29T16:00:00.000Z</published>
+    <updated>2023-05-30T14:34:50.020Z</updated>
+    
+    
+    <summary type="html">通过mipi规范文档以及相关资料对mipi联盟、mipi规范进行简述。着重对D-phy进行相关学习记录</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
+    
+    
+    <category term="MIPI" scheme="http://yanglieee.com/tags/MIPI/"/>
+    
+    <category term="D-PHY" scheme="http://yanglieee.com/tags/D-PHY/"/>
+    
+  </entry>
   
   <entry>
     <title>RTC</title>
@@ -127,25 +150,6 @@
   </entry>
   
   <entry>
-    <title>LwIP+websocket</title>
-    <link href="http://yanglieee.com/2023/04/19/third-party/lwip+websocket/"/>
-    <id>http://yanglieee.com/2023/04/19/third-party/lwip+websocket/</id>
-    <published>2023-04-18T16:00:00.000Z</published>
-    <updated>2023-04-27T14:23:26.704Z</updated>
-    
-    
-    <summary type="html">本篇文章是在websocket代码中调用lwip相关API实现websocket的功能的项目中进行调试所整理，以下着重说明关于lwip-socket的API</summary>
-    
-    
-    
-    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
-    
-    
-    <category term="lwip websocket" scheme="http://yanglieee.com/tags/lwip-websocket/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Docker</title>
     <link href="http://yanglieee.com/2023/04/19/tools/docker/"/>
     <id>http://yanglieee.com/2023/04/19/tools/docker/</id>
@@ -161,6 +165,25 @@
     
     
     <category term="docker" scheme="http://yanglieee.com/tags/docker/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>LwIP+websocket</title>
+    <link href="http://yanglieee.com/2023/04/19/third-party/lwip+websocket/"/>
+    <id>http://yanglieee.com/2023/04/19/third-party/lwip+websocket/</id>
+    <published>2023-04-18T16:00:00.000Z</published>
+    <updated>2023-04-27T14:23:26.704Z</updated>
+    
+    
+    <summary type="html">本篇文章是在websocket代码中调用lwip相关API实现websocket的功能的项目中进行调试所整理，以下着重说明关于lwip-socket的API</summary>
+    
+    
+    
+    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
+    
+    
+    <category term="lwip websocket" scheme="http://yanglieee.com/tags/lwip-websocket/"/>
     
   </entry>
   
@@ -209,7 +232,7 @@
     <link href="http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/"/>
     <id>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</id>
     <published>2023-04-04T16:00:00.000Z</published>
-    <updated>2023-04-05T12:29:20.029Z</updated>
+    <updated>2023-05-30T14:31:44.023Z</updated>
     
     
     <summary type="html">对I2S协议进行解析</summary>
@@ -220,8 +243,6 @@
     
     <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
     
-    
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
     
     <category term="I2S" scheme="http://yanglieee.com/tags/I2S/"/>
     
@@ -340,31 +361,6 @@
   </entry>
   
   <entry>
-    <title>缓存一致性协议</title>
-    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/"/>
-    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/</id>
-    <published>2023-03-05T16:00:00.000Z</published>
-    <updated>2023-03-06T14:23:19.740Z</updated>
-    
-    
-    <summary type="html">对缓存一致性协议进行深度探索并对MESI协议做具体分析</summary>
-    
-    
-    
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
-    
-    <category term="Cache" scheme="http://yanglieee.com/categories/Computure-System/Storage/Cache/"/>
-    
-    
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
-    
-    <category term="Cache" scheme="http://yanglieee.com/tags/Cache/"/>
-    
-  </entry>
-  
-  <entry>
     <title>MESI协议的优化与内存屏障</title>
     <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/"/>
     <id>http://yanglieee.com/2023/03/06/computerSystem/storage/MESI%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8C%96/</id>
@@ -390,14 +386,14 @@
   </entry>
   
   <entry>
-    <title>Cache简介</title>
-    <link href="http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/"/>
-    <id>http://yanglieee.com/2023/02/15/computerSystem/storage/%E7%BC%93%E5%AD%98%E7%AE%80%E4%BB%8B/</id>
-    <published>2023-02-14T16:00:00.000Z</published>
-    <updated>2023-02-15T15:06:42.493Z</updated>
+    <title>缓存一致性协议</title>
+    <link href="http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/"/>
+    <id>http://yanglieee.com/2023/03/06/computerSystem/storage/%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/</id>
+    <published>2023-03-05T16:00:00.000Z</published>
+    <updated>2023-03-06T14:23:19.740Z</updated>
     
     
-    <summary type="html">对cache的硬件组成进行分析并对计算机存储体系中的cache架构做简要剖析</summary>
+    <summary type="html">对缓存一致性协议进行深度探索并对MESI协议做具体分析</summary>
     
     
     
