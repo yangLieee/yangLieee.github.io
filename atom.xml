@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-07-09T15:31:15.363Z</updated>
+  <updated>2023-07-09T23:26:45.295Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -18,10 +18,10 @@
   
   <entry>
     <title>IO多路复用</title>
-    <link href="http://yanglieee.com/2023/07/09/computerSystem/model/IO_MUX/"/>
-    <id>http://yanglieee.com/2023/07/09/computerSystem/model/IO_MUX/</id>
+    <link href="http://yanglieee.com/2023/07/09/computerSystem/model/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
+    <id>http://yanglieee.com/2023/07/09/computerSystem/model/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/</id>
     <published>2023-07-08T16:00:00.000Z</published>
-    <updated>2023-07-09T15:31:15.363Z</updated>
+    <updated>2023-07-09T23:26:45.295Z</updated>
     
     
     <summary type="html">为了处理高并发场景并且提高效率，IO多路复用的技术必不可少。本文对select/poll/epoll进行简单的总结</summary>
@@ -192,25 +192,6 @@
   </entry>
   
   <entry>
-    <title>LwIP+websocket</title>
-    <link href="http://yanglieee.com/2023/04/19/third-party/lwip+websocket/"/>
-    <id>http://yanglieee.com/2023/04/19/third-party/lwip+websocket/</id>
-    <published>2023-04-18T16:00:00.000Z</published>
-    <updated>2023-04-27T14:23:26.704Z</updated>
-    
-    
-    <summary type="html">本篇文章是在websocket代码中调用lwip相关API实现websocket的功能的项目中进行调试所整理，以下着重说明关于lwip-socket的API</summary>
-    
-    
-    
-    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
-    
-    
-    <category term="lwip websocket" scheme="http://yanglieee.com/tags/lwip-websocket/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Docker</title>
     <link href="http://yanglieee.com/2023/04/19/tools/docker/"/>
     <id>http://yanglieee.com/2023/04/19/tools/docker/</id>
@@ -226,6 +207,25 @@
     
     
     <category term="docker" scheme="http://yanglieee.com/tags/docker/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>LwIP+websocket</title>
+    <link href="http://yanglieee.com/2023/04/19/third-party/lwip+websocket/"/>
+    <id>http://yanglieee.com/2023/04/19/third-party/lwip+websocket/</id>
+    <published>2023-04-18T16:00:00.000Z</published>
+    <updated>2023-04-27T14:23:26.704Z</updated>
+    
+    
+    <summary type="html">本篇文章是在websocket代码中调用lwip相关API实现websocket的功能的项目中进行调试所整理，以下着重说明关于lwip-socket的API</summary>
+    
+    
+    
+    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
+    
+    
+    <category term="lwip websocket" scheme="http://yanglieee.com/tags/lwip-websocket/"/>
     
   </entry>
   
