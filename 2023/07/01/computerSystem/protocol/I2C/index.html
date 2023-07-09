@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对I2C协议进行解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="I2C">
+<meta property="og:url" content="http://yanglieee.com/2023/07/01/computerSystem/protocol/I2C/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对I2C协议进行解析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/computerSystem/protocol/I2C/I2C-1.png">
+<meta property="og:image" content="http://yanglieee.com/images/computerSystem/protocol/I2C/I2C-2.png">
+<meta property="og:image" content="http://yanglieee.com/images/computerSystem/protocol/I2C/I2C-3.png">
+<meta property="og:image" content="http://yanglieee.com/images/computerSystem/protocol/I2C/I2C-4.png">
+<meta property="article:published_time" content="2023-06-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-09T15:12:38.662Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="I2C">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/computerSystem/protocol/I2C/I2C-1.png">
+
+<link rel="canonical" href="http://yanglieee.com/2023/07/01/computerSystem/protocol/I2C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>I2C | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/07/01/computerSystem/protocol/I2C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          I2C
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-07-01 00:00:00" itemprop="dateCreated datePublished" datetime="2023-07-01T00:00:00+08:00">2023-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-09 23:12:38" itemprop="dateModified" datetime="2023-07-09T23:12:38+08:00">2023-07-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Computure-System/" itemprop="url" rel="index"><span itemprop="name">Computure System</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Computure-System/protocol/" itemprop="url" rel="index"><span itemprop="name">protocol</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/07/01/computerSystem/protocol/I2C/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/07/01/computerSystem/protocol/I2C/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+            <div class="post-description">对I2C协议进行解析</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>I2C：Inter-Integrated Circuit，内部集成电路。作为一种广泛使用的串行通信协议，通过双线接口使多个电子设备能够彼此通信。它由飞利浦半导体（现在的恩智浦半导体）在上世纪80年代初开发，并且后来成为了业界事实上的标准。</p>
+<p>BUS：总线。早期的计算机体积庞大，连线复杂，所有数据都通过实际的电缆传输，这变得非常混乱。把这些大捆的杂乱的电缆线，有序的布置在一个公共线排上，这些规则排列在一起的公共线束就是术语“总线”的早期来源，用BUS表示。在计算体系结构中， 总线（Bus）是计算机内部组件之间或计算机之间传送信息的公共通信干线，它是由导线组成的传输路径。</p>
+<h2 id="特征"><a href="#特征" class="headerlink" title="特征"></a>特征</h2><ul>
+<li><p><strong>工作模式</strong>：半双工，某一时刻要么发要么收</p>
+</li>
+<li><p><strong>总线接口</strong>：双线，串行数据线（SDA）、串行时钟线（SCL）</p>
+</li>
+<li><p><strong>寻址</strong>：总线上的每个设备都有唯一的地址，允许主设备与特定从设备通信。地址空间支持最多128个设备，但由于一些保留地址，可用范围会减少。</p>
+</li>
+<li><p><strong>设备功能</strong>：功能允许的情况下，每一个设备都可以做主设备或从设备（可收可发）</p>
+</li>
+<li><p><strong>同步通信</strong>：总线上的通信是同步的，意味着时钟信号由主设备产生，数据按位在数据线上与时钟同步传输</p>
+</li>
+<li><p><strong>位级确认</strong>：在发送每个字节的数据后，接收设备通过拉低数据线（SDA）来确认成功接收。如果没有收到确认，则表示发生错误。</p>
+</li>
+<li><p><strong>多主支持</strong>：支持多主通信，允许多个主设备同时存在于同一总线上。通过主设备仲裁机制，确定哪个主设备在任何时刻控制总线。</p>
+</li>
+<li><p><strong>传输速率</strong>：标准模式下可达 100kbit/s，快速模式下可达 400kbit/s， 高速模式下可达 3.4Mbit/s</p>
+</li>
+<li><p><strong>最大设备量</strong>：连接到相同总线的 IIC 数量只受到总线的最大电容 400pF 限制（128个唯一设备地址）</p>
+</li>
+<li><p><strong>其它</strong>：片上的滤波器可以滤去总线数据线上的毛刺波 保证数据完整</p>
+</li>
+</ul>
+<h1 id="拓扑结构"><a href="#拓扑结构" class="headerlink" title="拓扑结构"></a>拓扑结构</h1><p><img src="/images/computerSystem/protocol/I2C/I2C-1.png" alt="image"></p>
+<p>I2C协议采用主——从架构，其中一个设备（主设备）启动和控制通信，而一个或多个设备（从设备）响应主设备的命令。I2C使用的两根通信线是串行数据线（SDA）和串行时钟线（SCL）。总线空闲时，两条线路都是高电平。连接到总线的器件输出级必须是漏极开路或集电极开路才能执行线与的功能</p>
+<h1 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h1><h2 id="数据有效性"><a href="#数据有效性" class="headerlink" title="数据有效性"></a>数据有效性</h2><p><img src="/images/computerSystem/protocol/I2C/I2C-2.png" alt="image"></p>
+<p>SDA上的数据必须在SCL的高电平周期保持稳定，SDA高或低电平状态只有在 SCL 时钟信号是低电平时才能改变</p>
+<h2 id="起始结束条件"><a href="#起始结束条件" class="headerlink" title="起始结束条件"></a>起始结束条件</h2><p><img src="/images/computerSystem/protocol/I2C/I2C-3.png" alt="image"></p>
+<p>在5.1中对于数据有效性做了规范，时钟线高电平数据线不能动。因此对于起始和结束条件一定是在SCL高电平，具体是这样规定的：SCL高电平，SDA由高到低电平的切换表示开始传输；SCL高电平，SDA有低到高的电平切换表示传输结束。</p>
+<p>起始结束条件一般是由主机产生，总线在起始条件后被认为处于忙（BUSY）的状态，在停止条件的某段时间后总线被认为再次处于空闲（IDLE）状态</p>
+<h2 id="传输单元"><a href="#传输单元" class="headerlink" title="传输单元"></a>传输单元</h2><p> I2C总线上的主设备与从设备之间以字节(8位)为单位进行双向的数据传输，并且每个字节后面必须跟一个响应位。</p>
+<h2 id="总线操作"><a href="#总线操作" class="headerlink" title="总线操作"></a>总线操作</h2><h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p><img src="/images/computerSystem/protocol/I2C/I2C-4.png" alt="image"></p>
+<ul>
+<li>起始条件</li>
+<li>master将7位从设备地址 + 1位读写标志位 写到总线</li>
+<li>从设备通过发送确认位 (ACK) 作为反馈来响应总线上存在具有正确地址的从设备并等待进一步通信的主设备</li>
+<li>通信</li>
+<li>结束条件</li>
+</ul>
+<h3 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h3><ul>
+<li><p>master write to slave</p>
+</li>
+<li><p>master read from slave</p>
+</li>
+<li><p>读写方向交叉，重复传输（主设备往从设备中写数据，然后重启起始条件，紧接着从从设备中读取数据；或者是主设备从从设备中读数据，然后重启起始条件，紧接着主设备往从设备中写数据）</p>
+<table>
+<thead>
+<tr>
+<th>START</th>
+<th>ADDR</th>
+<th>R/W</th>
+<th>ACK</th>
+<th>DATA</th>
+<th>ACK</th>
+<th>START</th>
+<th>ADDR</th>
+<th>R/W</th>
+<th>ACK</th>
+<th>DATA</th>
+<th>ACK</th>
+<th>STOP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>XX</td>
+<td>XX</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>XX</td>
+<td>XX</td>
+<td></td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h2 id="写入方式"><a href="#写入方式" class="headerlink" title="写入方式"></a>写入方式</h2><p>在I2C通信中，有两种常见的写入方式：字节写入（Byte Write）和页写入（Page Write）。具体使用哪种写入方式取决于从设备的支持和应用需求。有些从设备可能只支持字节写入，而有些设备可能支持页写入。在开发过程中，需要参考从设备的规格和文档，确定合适的写入方式。</p>
+<h3 id="字节写入（Byte-Write）"><a href="#字节写入（Byte-Write）" class="headerlink" title="字节写入（Byte Write）"></a>字节写入（Byte Write）</h3><p>字节写入：字节写入是一种逐个字节写入数据的方式。在字节写入中，每个数据字节都会带有一个ACK（应答）信号，表示接收方正确接收了数据。主机发送一个字节后，等待从设备发送ACK信号，然后再发送下一个字节。这种方式适用于单个字节的数据传输或者在寄存器中写入单个字节的情况。</p>
+<h3 id="页写入（Page-Write）"><a href="#页写入（Page-Write）" class="headerlink" title="页写入（Page Write）"></a>页写入（Page Write）</h3><p>页写入：页写入是一种批量写入数据的方式。在页写入中，主机可以连续写入多个字节的数据，而不需要每个字节都等待ACK信号。主机发送一系列字节后，等待从设备发送一个ACK信号，表示接收方正确接收了一组字节。这种方式可以提高写入数据的效率，尤其在写入大量数据时。</p>
+<p>需要注意的是，对于页写入，有一个页的大小限制。页的大小是指从设备支持一次连续写入的最大字节数。超过页的大小进行写入操作可能会导致数据丢失或错误。因此，在使用页写入时，需要确保写入的数据量不超过从设备规定的页大小。</p>
+<h1 id="开发注意事项"><a href="#开发注意事项" class="headerlink" title="开发注意事项"></a>开发注意事项</h1><ul>
+<li>电平兼容性：确保I2C总线上的所有设备和主控制器的电平兼容。确认设备和主控制器使用相同的电源电压和电平标准（如3.3V、5V等），以避免电平不匹配导致的通信问题。</li>
+<li>电源稳定性：提供稳定的电源供应给I2C设备，确保电源电压和电流满足设备的要求。电源的波动和噪声可能会对I2C通信产生干扰，导致通信错误或故障。</li>
+<li>电缆长度和布线：I2C通信的可靠性与电缆长度和布线有关。确保电缆长度不超过I2C标准规定的最大长度，并避免电缆过长或扭曲的情况。同时，布线应避免与电源线、高频干扰源等信号相互干扰。</li>
+<li>I2C地址冲突：I2C设备的地址应唯一，不得出现地址冲突。在设计时，仔细选择和分配每个I2C设备的地址，确保各设备地址不重复。</li>
+<li>时钟频率选择：根据I2C设备的要求和总线长度，选择合适的时钟频率。过高的时钟频率可能导致信号失真或通信错误，而过低的时钟频率可能导致通信速度较慢。</li>
+<li>错误处理和超时机制：在I2C通信中，可能会发生错误，如<strong>设备未响应、总线冲</strong>突等。在开发中，应实现适当的错误处理和超时机制，例如设置适当的超时时间和错误处理策略，以确保程序的鲁棒性和可靠性。</li>
+<li>适当的延时：I2C通信需要一些延时以确保数据传输的稳定性。在编程时，根据具体设备的要求和I2C标准，适当添加延时以确保数据的正确传输。</li>
+<li>电容限制：I2C总线上的电容负载应在规定范围内。过高的电容负载可能导致信号波形变形和传输错误。在设计中，需要根据I2C标准和设备规格表的要求，控制电容负载并添加必要的电容补偿。</li>
+<li>适当的软件实现：编写I2C通信的软件实现时，需要确保正确地操作I2C控制器和设备的寄存器。遵循I2C通信的协议和流程，正确设置起始条件、地址、读写位和数据传输。</li>
+</ul>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li><p>从设备的设备地址是自定义的吗？</p>
+<p>在大多数情况下，I2C设备的地址是由设备制造商提供的，并由开发人员在软件开发过程中进行配置和使用。一般来说，I2C设备的地址是一个7位的值，有时也可以是10位。7位地址模式下，地址范围是从0x00到0x7F，其中一些地址是保留地址或用于特定目的的预定义地址。</p>
+</li>
+<li><p>为什么I2C总线不能太长？</p>
+<p>过长的总线长度可能会引起信号失真、时序问题以及通信错误。这是由于I2C总线使用的是开漏架构和电容负载的特性所决定的。</p>
+<p>I2C总线的长度限制是由总线的电容负载和通信速率决定的。较长的总线长度会引入额外的电容负载，这会导致信号的上升和下降时间变慢，从而影响信号的稳定性和正确传输。此外，总线长度过长也会增加信号的传输延迟，导致时序问题。</p>
+<p>根据I2C标准规范，对于标准模式（Standard Mode）的I2C总线，总线长度应在3-5米范围内。对于高速模式（High-Speed Mode）的I2C总线，总线长度则更短，通常不超过1米。</p>
+</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://d1.amobbs.com/bbs_upload782111/files_24/ourdev_522629.pdf">周立功I2C总线规范</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.nxp.com/docs/en/user-guide/UM10204.pdf">I2C-bus specification and user manual</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.analog.com/en/technical-articles/i2c-primer-what-is-i2c-part-1.html">I2C Primer: What is I2C? (Part 1)</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/07/01/computerSystem/protocol/I2C/" title="I2C">http://yanglieee.com/2023/07/01/computerSystem/protocol/I2C/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/I2C/" rel="tag"><i class="fa fa-tag"></i> I2C</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/05/30/computerSystem/protocol/mipi_dphy/" rel="prev" title="MIPI && D-PHY">
+      <i class="fa fa-chevron-left"></i> MIPI && D-PHY
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/09/computerSystem/model/IO%20multiplexing%20/" rel="next" title="IO多路复用">
+      IO多路复用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E5%BE%81"><span class="nav-number">1.2.</span> <span class="nav-text">特征</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8B%93%E6%89%91%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">拓扑结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE"><span class="nav-number">3.</span> <span class="nav-text">协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%9C%89%E6%95%88%E6%80%A7"><span class="nav-number">3.1.</span> <span class="nav-text">数据有效性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%B7%E5%A7%8B%E7%BB%93%E6%9D%9F%E6%9D%A1%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">起始结束条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%8D%95%E5%85%83"><span class="nav-number">3.3.</span> <span class="nav-text">传输单元</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BA%BF%E6%93%8D%E4%BD%9C"><span class="nav-number">3.4.</span> <span class="nav-text">总线操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B"><span class="nav-number">3.4.1.</span> <span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.4.2.</span> <span class="nav-text">类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%85%A5%E6%96%B9%E5%BC%8F"><span class="nav-number">3.5.</span> <span class="nav-text">写入方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E5%86%99%E5%85%A5%EF%BC%88Byte-Write%EF%BC%89"><span class="nav-number">3.5.1.</span> <span class="nav-text">字节写入（Byte Write）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B5%E5%86%99%E5%85%A5%EF%BC%88Page-Write%EF%BC%89"><span class="nav-number">3.5.2.</span> <span class="nav-text">页写入（Page Write）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">4.</span> <span class="nav-text">开发注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">5.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">155k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:21</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://yanglieee.com/2023/07/01/computerSystem/protocol/I2C/</loc>
+    <lastmod>2023-07-09</lastmod>
+  </url>
+  <url>
+    <loc>http://yanglieee.com/2023/07/09/computerSystem/model/IO%20multiplexing%20/</loc>
+    <lastmod>2023-07-09</lastmod>
+  </url>
+  <url>
     <loc>http://yanglieee.com/2023/05/30/computerSystem/protocol/mipi_dphy/</loc>
-    <lastmod>2023-05-30</lastmod>
+    <lastmod>2023-06-14</lastmod>
   </url>
   <url>
     <loc>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</loc>

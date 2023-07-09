@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://yanglieee.com/images/computerSystem/protocol/mipi/mipi-13.png">
 <meta property="og:image" content="http://yanglieee.com/images/computerSystem/protocol/mipi/mipi-14.png">
 <meta property="article:published_time" content="2023-05-29T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-05-30T14:34:50.020Z">
+<meta property="article:modified_time" content="2023-06-14T13:52:37.082Z">
 <meta property="article:author" content="Lee">
 <meta property="article:tag" content="MIPI">
 <meta property="article:tag" content="D-PHY">
@@ -240,10 +240,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-05-30 00:00:00 / 修改时间：22:34:50" itemprop="dateCreated datePublished" datetime="2023-05-30T00:00:00+08:00">2023-05-30</time>
+              <time title="创建时间：2023-05-30 00:00:00" itemprop="dateCreated datePublished" datetime="2023-05-30T00:00:00+08:00">2023-05-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-14 21:52:37" itemprop="dateModified" datetime="2023-06-14T21:52:37+08:00">2023-06-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -278,14 +284,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.8k</span>
+              <span>7k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>5 分钟</span>
+              <span>6 分钟</span>
             </span>
             <div class="post-description">通过mipi规范文档以及相关资料对mipi联盟、mipi规范进行简述。着重对D-phy进行相关学习记录</div>
 
@@ -503,7 +509,26 @@
 <h2 id="状态机"><a href="#状态机" class="headerlink" title="状态机"></a>状态机</h2><p><img src="/images/computerSystem/protocol/mipi/mipi-14.png" alt="image"></p>
 <h2 id="检测（P50）"><a href="#检测（P50）" class="headerlink" title="检测（P50）"></a>检测（P50）</h2><p>存在三种不同的机制来检测链路故障。总线争用和 错误检测功能包含在 D-PHY 中。这些功能应该检测许多典型故障。然而，有些故障无法在 D-PHY 内检测到，需要协议级解决方案。</p>
 <h3 id="争用检测"><a href="#争用检测" class="headerlink" title="争用检测"></a>争用检测</h3><h3 id="序列错误检测"><a href="#序列错误检测" class="headerlink" title="序列错误检测"></a>序列错误检测</h3><p>• SoT Error<br>• SoT Sync Error<br>• EoT Sync Error<br>• Escape Entry Command Error<br>• LP Transmission Sync Error<br>• False Control Error</p>
-<h3 id="协议看门狗定时器（资料性）"><a href="#协议看门狗定时器（资料性）" class="headerlink" title="协议看门狗定时器（资料性）"></a>协议看门狗定时器（资料性）</h3><h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<h3 id="协议看门狗定时器（资料性）"><a href="#协议看门狗定时器（资料性）" class="headerlink" title="协议看门狗定时器（资料性）"></a>协议看门狗定时器（资料性）</h3><h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li>mipi csi 如何理解虚拟通道?</li>
+</ol>
+<p>   在MIPI CSI（Camera Serial Interface）中，虚拟通道（Virtual Channel）是一种用于在单个物理通道上传输多个数据流的机制。</p>
+<p>   MIPI CSI标准允许将单个物理通道划分为多个虚拟通道，每个虚拟通道可以独立传输不同的数据流或数据类型。通过虚拟通道的使用，可以实现并行传输多个数据流，提高带宽利用率和系统的灵活性。</p>
+<p>   在MIPI CSI中，虚拟通道的数量和配置是根据具体的应用需求进行定义和配置的。每个虚拟通道可以传输不同的图像数据流，例如主摄像头数据、辅助摄像头数据、深度图像数据等。此外，还可以使用虚拟通道传输其他与图像相关的数据，如元数据、时间戳、图像标签等。</p>
+<p>   通过虚拟通道的使用，可以灵活地组织和传输多种类型的数据，从而满足不同应用场景下的需求。例如，在多摄像头系统中，可以使用不同的虚拟通道将各个摄像头的数据进行分离和传输。</p>
+<p>   需要注意的是，虚拟通道的使用需要在发送方和接收方之间进行协商和配置，以确保数据能够正确地路由到相应的虚拟通道。因此，在实际应用中，需要遵循MIPI CSI标准并进行正确的配置和处理，以实现数据的正确传输和解析。</p>
+<p>   总而言之，MIPI CSI中的虚拟通道是一种在单个物理通道上传输多个数据流的机制，通过划分和配置虚拟通道，可以实现并行传输不同类型的数据，提高带宽利用率和系统的灵活性。</p>
+<ol start="2">
+<li><p>mipi  ULPS和LPDT的区别?</p>
+<p>在MIPI（Mobile Industry Processor Interface）标准中，ULPS（Ultra Low Power Save）和LPDT（Low Power Data Transmission）是两种不同的低功耗模式，用于在移动设备中实现节能和延长电池寿命。</p>
+<ol>
+<li>ULPS（Ultra Low Power Save）：ULPS是一种更为极端的低功耗模式，旨在将设备的功耗降至最低限度。在ULPS模式下，设备的电源消耗极低，主要通过减少电压和关闭非必要的模块来实现。这可能包括关闭不使用的传感器、降低主频、进入深度睡眠状态等措施。ULPS模式通常用于极端低功耗要求的场景，例如待机模式或长时间不使用时的电源管理。</li>
+<li>LPDT（Low Power Data Transmission）：LPDT是一种在数据传输过程中实现低功耗的模式。在LPDT模式下，数据传输过程中采用一些技术手段来降低功耗，如降低传输速率、减少电压、采用更节能的传输协议等。LPDT模式在需要进行数据传输的同时，尽量减少功耗的消耗。这种模式适用于需要在传输数据的同时保持较低功耗的场景，例如实时数据传输、图像传输等。</li>
+</ol>
+<p>需要注意的是，ULPS和LPDT都是根据MIPI标准中的要求和规范来定义的，具体实现和支持程度可能因设备和厂商而有所不同。在实际应用中，设备制造商根据具体需求和硬件能力，选择和实现适当的低功耗模式以平衡性能和功耗之间的关系，以提供更长的电池寿命和更好的用户体验。</p>
+</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
 <li><a target="_blank" rel="noopener" href="https://caxapa.ru/thumbs/799244/mipi_D_PHY_specification_v1_2.pdf">Specification for D-PHY</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Tv411j7Q6/">MIPI设计基础</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1e4411q7CC/">差分信号与单端信号的差别</a></li>
@@ -550,7 +575,10 @@
     <a href="/2023/05/18/computerSystem/Peripherals/RTC/" rel="prev" title="RTC">
       <i class="fa fa-chevron-left"></i> RTC
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/01/computerSystem/protocol/I2C/" rel="next" title="I2C">
+      I2C <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -610,7 +638,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MIPI%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">MIPI基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%93%E6%9C%89%E5%90%8D%E8%AF%8D"><span class="nav-number">1.2.</span> <span class="nav-text">专有名词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MIPI%E5%B1%82%E6%AC%A1"><span class="nav-number">1.3.</span> <span class="nav-text">MIPI层次</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DSI"><span class="nav-number">1.3.1.</span> <span class="nav-text">DSI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CSI-2"><span class="nav-number">1.3.2.</span> <span class="nav-text">CSI-2</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%AE%E5%88%86-x2F-%E5%8D%95%E7%AB%AF%E4%BF%A1%E5%8F%B7"><span class="nav-number">1.4.</span> <span class="nav-text">差分&#x2F;单端信号</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PHY"><span class="nav-number">2.</span> <span class="nav-text">PHY</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B-1"><span class="nav-number">2.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB"><span class="nav-number">2.2.</span> <span class="nav-text">区别</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#D-PHY"><span class="nav-number">3.</span> <span class="nav-text">D-PHY</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">3.1.</span> <span class="nav-text">概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lane"><span class="nav-number">3.1.1.</span> <span class="nav-text">Lane</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">3.3.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.4.</span> <span class="nav-text">传输模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lane%E7%8A%B6%E6%80%81%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.5.</span> <span class="nav-text">Lane状态描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AELane%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.6.</span> <span class="nav-text">数据Lane操作模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E9%80%9F%E6%A8%A1%E5%BC%8F%EF%BC%88High-Speed-Mode%EF%BC%89"><span class="nav-number">3.6.1.</span> <span class="nav-text">高速模式（High-Speed Mode）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%BC%8F%EF%BC%88Control-Mode%EF%BC%89"><span class="nav-number">3.6.2.</span> <span class="nav-text">控制模式（Control Mode）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%8C%E5%90%91%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-Data-Lane-Turnaround"><span class="nav-number">3.6.2.1.</span> <span class="nav-text">双向数据传输 Data Lane Turnaround</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%83%E9%80%B8%E6%A8%A1%E5%BC%8F%EF%BC%88Escape-mode%EF%BC%89"><span class="nav-number">3.6.3.</span> <span class="nav-text">逃逸模式（Escape mode）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#LPDT"><span class="nav-number">3.6.3.1.</span> <span class="nav-text">LPDT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RESET"><span class="nav-number">3.6.3.2.</span> <span class="nav-text">RESET</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Calibration%E6%A0%A1%E5%87%86"><span class="nav-number">3.7.</span> <span class="nav-text">Calibration校准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9FLane%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.8.</span> <span class="nav-text">时钟Lane操作模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#High-Speed"><span class="nav-number">3.8.1.</span> <span class="nav-text">High Speed</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Low-Power%EF%BC%88ULPS%EF%BC%89"><span class="nav-number">3.8.2.</span> <span class="nav-text">Low Power（ULPS）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="nav-number">3.9.</span> <span class="nav-text">状态机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%EF%BC%88P50%EF%BC%89"><span class="nav-number">3.10.</span> <span class="nav-text">检测（P50）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%89%E7%94%A8%E6%A3%80%E6%B5%8B"><span class="nav-number">3.10.1.</span> <span class="nav-text">争用检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E9%94%99%E8%AF%AF%E6%A3%80%E6%B5%8B"><span class="nav-number">3.10.2.</span> <span class="nav-text">序列错误检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E7%9C%8B%E9%97%A8%E7%8B%97%E5%AE%9A%E6%97%B6%E5%99%A8%EF%BC%88%E8%B5%84%E6%96%99%E6%80%A7%EF%BC%89"><span class="nav-number">3.10.3.</span> <span class="nav-text">协议看门狗定时器（资料性）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MIPI%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">MIPI基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%93%E6%9C%89%E5%90%8D%E8%AF%8D"><span class="nav-number">1.2.</span> <span class="nav-text">专有名词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MIPI%E5%B1%82%E6%AC%A1"><span class="nav-number">1.3.</span> <span class="nav-text">MIPI层次</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DSI"><span class="nav-number">1.3.1.</span> <span class="nav-text">DSI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CSI-2"><span class="nav-number">1.3.2.</span> <span class="nav-text">CSI-2</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%AE%E5%88%86-x2F-%E5%8D%95%E7%AB%AF%E4%BF%A1%E5%8F%B7"><span class="nav-number">1.4.</span> <span class="nav-text">差分&#x2F;单端信号</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PHY"><span class="nav-number">2.</span> <span class="nav-text">PHY</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B-1"><span class="nav-number">2.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB"><span class="nav-number">2.2.</span> <span class="nav-text">区别</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#D-PHY"><span class="nav-number">3.</span> <span class="nav-text">D-PHY</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">3.1.</span> <span class="nav-text">概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lane"><span class="nav-number">3.1.1.</span> <span class="nav-text">Lane</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">3.3.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.4.</span> <span class="nav-text">传输模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lane%E7%8A%B6%E6%80%81%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.5.</span> <span class="nav-text">Lane状态描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AELane%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.6.</span> <span class="nav-text">数据Lane操作模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E9%80%9F%E6%A8%A1%E5%BC%8F%EF%BC%88High-Speed-Mode%EF%BC%89"><span class="nav-number">3.6.1.</span> <span class="nav-text">高速模式（High-Speed Mode）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%BC%8F%EF%BC%88Control-Mode%EF%BC%89"><span class="nav-number">3.6.2.</span> <span class="nav-text">控制模式（Control Mode）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%8C%E5%90%91%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-Data-Lane-Turnaround"><span class="nav-number">3.6.2.1.</span> <span class="nav-text">双向数据传输 Data Lane Turnaround</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%83%E9%80%B8%E6%A8%A1%E5%BC%8F%EF%BC%88Escape-mode%EF%BC%89"><span class="nav-number">3.6.3.</span> <span class="nav-text">逃逸模式（Escape mode）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#LPDT"><span class="nav-number">3.6.3.1.</span> <span class="nav-text">LPDT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RESET"><span class="nav-number">3.6.3.2.</span> <span class="nav-text">RESET</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Calibration%E6%A0%A1%E5%87%86"><span class="nav-number">3.7.</span> <span class="nav-text">Calibration校准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9FLane%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.8.</span> <span class="nav-text">时钟Lane操作模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#High-Speed"><span class="nav-number">3.8.1.</span> <span class="nav-text">High Speed</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Low-Power%EF%BC%88ULPS%EF%BC%89"><span class="nav-number">3.8.2.</span> <span class="nav-text">Low Power（ULPS）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="nav-number">3.9.</span> <span class="nav-text">状态机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%EF%BC%88P50%EF%BC%89"><span class="nav-number">3.10.</span> <span class="nav-text">检测（P50）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%89%E7%94%A8%E6%A3%80%E6%B5%8B"><span class="nav-number">3.10.1.</span> <span class="nav-text">争用检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E9%94%99%E8%AF%AF%E6%A3%80%E6%B5%8B"><span class="nav-number">3.10.2.</span> <span class="nav-text">序列错误检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E7%9C%8B%E9%97%A8%E7%8B%97%E5%AE%9A%E6%97%B6%E5%99%A8%EF%BC%88%E8%B5%84%E6%96%99%E6%80%A7%EF%BC%89"><span class="nav-number">3.10.3.</span> <span class="nav-text">协议看门狗定时器（资料性）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">4.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -624,20 +652,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -693,12 +721,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">146k</span>
+    <span title="站点总字数">155k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">2:13</span>
+    <span title="站点阅读时长">2:21</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
