@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-07-09T23:35:29.528Z</updated>
+  <updated>2023-07-09T23:40:03.329Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -18,10 +18,10 @@
   
   <entry>
     <title>IO多路复用</title>
-    <link href="http://yanglieee.com/2023/07/09/computerSystem/pattern/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
-    <id>http://yanglieee.com/2023/07/09/computerSystem/pattern/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/</id>
+    <link href="http://yanglieee.com/2023/07/09/computerSystem/pattern/IOmux/"/>
+    <id>http://yanglieee.com/2023/07/09/computerSystem/pattern/IOmux/</id>
     <published>2023-07-08T16:00:00.000Z</published>
-    <updated>2023-07-09T23:35:29.528Z</updated>
+    <updated>2023-07-09T23:40:03.329Z</updated>
     
     
     <summary type="html">为了处理高并发场景并且提高效率，IO多路复用的技术必不可少。本文对select/poll/epoll进行简单的总结</summary>
@@ -30,7 +30,7 @@
     
     <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
     
-    <category term="model" scheme="http://yanglieee.com/categories/Computure-System/model/"/>
+    <category term="pattern" scheme="http://yanglieee.com/categories/Computure-System/pattern/"/>
     
     
     <category term="IO 多路复用" scheme="http://yanglieee.com/tags/IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
