@@ -2,6 +2,33 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yanglieee.com/2023/07/08/computerSystem/appFunction/ota/</loc>
+    
+    <lastmod>2023-07-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/2023/07/19/computerSystem/appFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/</loc>
+    
+    <lastmod>2023-07-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/2023/07/15/computerSystem/protocol/spi/</loc>
+    
+    <lastmod>2023-07-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://yanglieee.com/2023/07/09/computerSystem/pattern/IOmux/</loc>
     
     <lastmod>2023-07-09</lastmod>
@@ -436,155 +463,176 @@
 
   <url>
     <loc>http://yanglieee.com/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
-    <loc>http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <loc>http://yanglieee.com/tags/libmad/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/ALSA/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://yanglieee.com/tags/libmad/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <loc>http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/opus/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/storage-system/</loc>
-    <lastmod>2023-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://yanglieee.com/tags/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/volatile/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/lwip-websocket/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://yanglieee.com/tags/lwip/</loc>
-    <lastmod>2023-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://yanglieee.com/tags/sqlite/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <loc>http://yanglieee.com/tags/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/Makefile/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/CmakeLists-txt/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/tags/lwip/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/docker/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://yanglieee.com/tags/IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <loc>http://yanglieee.com/tags/sqlite/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/DDR/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/Flash/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/Cache/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/tags/OTA/</loc>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/tags/Suspend-Resume/</loc>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/tags/IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/I2C/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/I2S/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/MIPI/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/tags/D-PHY/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/tags/SPI/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -593,112 +641,119 @@
   
   <url>
     <loc>http://yanglieee.com/categories/Personal/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/Linux/</loc>
-    <lastmod>2023-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://yanglieee.com/categories/Reading/</loc>
-    <lastmod>2023-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://yanglieee.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/Linux/Audio/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://yanglieee.com/categories/Computure-System/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <loc>http://yanglieee.com/categories/Linux/%E6%90%AD%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA/</loc>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/categories/Reading/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/Linux/Andriod/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/categories/Computure-System/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/Item/</loc>
-    <lastmod>2023-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>http://yanglieee.com/categories/Third-Party/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/c-c/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://yanglieee.com/categories/Work-Experience/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <loc>http://yanglieee.com/categories/Third-Party/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/Tools/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://yanglieee.com/categories/Computure-System/pattern/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <loc>http://yanglieee.com/categories/Work-Experience/</loc>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/categories/Computure-System/Function/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/Computure-System/Storage/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://yanglieee.com/categories/Computure-System/pattern/</loc>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/Computure-System/protocol/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://yanglieee.com/categories/Computure-System/Storage/Cache/</loc>
-    <lastmod>2023-07-09</lastmod>
+    <lastmod>2023-07-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>

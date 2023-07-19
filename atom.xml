@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-07-09T23:40:03.329Z</updated>
+  <updated>2023-07-19T13:55:15.286Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,48 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>功耗管理</title>
+    <link href="http://yanglieee.com/2023/07/19/computerSystem/appFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/"/>
+    <id>http://yanglieee.com/2023/07/19/computerSystem/appFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/</id>
+    <published>2023-07-18T16:00:00.000Z</published>
+    <updated>2023-07-19T13:55:15.286Z</updated>
+    
+    
+    <summary type="html">对于电子设备，系统待机时长无疑一项重要的技术指标。而这与系统的功耗是密切相关的，本篇将工作中休眠唤醒的调试经验及相关内容的学习做整理</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="Function" scheme="http://yanglieee.com/categories/Computure-System/Function/"/>
+    
+    
+    <category term="Suspend Resume" scheme="http://yanglieee.com/tags/Suspend-Resume/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SPI</title>
+    <link href="http://yanglieee.com/2023/07/15/computerSystem/protocol/spi/"/>
+    <id>http://yanglieee.com/2023/07/15/computerSystem/protocol/spi/</id>
+    <published>2023-07-14T16:00:00.000Z</published>
+    <updated>2023-07-19T13:45:26.825Z</updated>
+    
+    
+    <summary type="html">对SPI协议进行解析</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
+    
+    
+    <category term="SPI" scheme="http://yanglieee.com/tags/SPI/"/>
+    
+  </entry>
   
   <entry>
     <title>IO多路复用</title>
@@ -34,6 +76,27 @@
     
     
     <category term="IO 多路复用" scheme="http://yanglieee.com/tags/IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>OTA</title>
+    <link href="http://yanglieee.com/2023/07/08/computerSystem/appFunction/ota/"/>
+    <id>http://yanglieee.com/2023/07/08/computerSystem/appFunction/ota/</id>
+    <published>2023-07-07T16:00:00.000Z</published>
+    <updated>2023-07-19T13:55:29.513Z</updated>
+    
+    
+    <summary type="html">对于电子产品，系统的升级迭代离不开OTA技术，本篇将根据工作经验对OTA升级步骤及策略进行解析</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="Function" scheme="http://yanglieee.com/categories/Computure-System/Function/"/>
+    
+    
+    <category term="OTA" scheme="http://yanglieee.com/tags/OTA/"/>
     
   </entry>
   
@@ -346,59 +409,6 @@
     
     
     <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>《嵌入式C语言自我修养》笔记</title>
-    <link href="http://yanglieee.com/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/"/>
-    <id>http://yanglieee.com/2023/03/13/Reading/%E5%B5%8C%E5%85%A5%E5%BC%8FC%E8%AF%AD%E8%A8%80%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/</id>
-    <published>2023-03-12T16:00:00.000Z</published>
-    <updated>2023-03-13T14:58:59.593Z</updated>
-    
-    
-    <summary type="html">主要对专业书籍&lt;&lt;嵌入式C语言自我修养&gt;&gt;一书的第六章进行笔记的撰写以及相关demo的展示</summary>
-    
-    
-    
-    <category term="Reading" scheme="http://yanglieee.com/categories/Reading/"/>
-    
-    
-    <category term="读书笔记" scheme="http://yanglieee.com/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Mplayer编译及使用说明</title>
-    <link href="http://yanglieee.com/2023/03/07/third-party/mplayer/"/>
-    <id>http://yanglieee.com/2023/03/07/third-party/mplayer/</id>
-    <published>2023-03-06T16:00:00.000Z</published>
-    <updated>2023-03-07T15:00:49.641Z</updated>
-    
-    
-    <summary type="html">曾经在项目中为Mplayer添加过MV12视频格式的旋转功能，基于此对将自己对于Mplayer的相关开发说明及经验进行总结。</summary>
-    
-    
-    
-    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>电池电量检测</title>
-    <link href="http://yanglieee.com/2023/03/06/work-expericence/%E7%94%B5%E6%B1%A0%E7%94%B5%E9%87%8F%E6%A3%80%E6%B5%8B/"/>
-    <id>http://yanglieee.com/2023/03/06/work-expericence/%E7%94%B5%E6%B1%A0%E7%94%B5%E9%87%8F%E6%A3%80%E6%B5%8B/</id>
-    <published>2023-03-05T16:00:00.000Z</published>
-    <updated>2023-03-06T15:29:28.528Z</updated>
-    
-    
-    <summary type="html">基于正在做的电池电量检测的工作内容，对该部分内容做进一步扩展延伸和经验总结</summary>
-    
-    
-    
-    <category term="Work Experience" scheme="http://yanglieee.com/categories/Work-Experience/"/>
-    
     
   </entry>
   
