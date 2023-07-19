@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-07-19T13:55:15.286Z</updated>
+  <updated>2023-07-19T14:27:04.093Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://yanglieee.com/2023/07/19/computerSystem/appFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/"/>
     <id>http://yanglieee.com/2023/07/19/computerSystem/appFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/</id>
     <published>2023-07-18T16:00:00.000Z</published>
-    <updated>2023-07-19T13:55:15.286Z</updated>
+    <updated>2023-07-19T14:27:04.093Z</updated>
     
     
     <summary type="html">对于电子设备，系统待机时长无疑一项重要的技术指标。而这与系统的功耗是密切相关的，本篇将工作中休眠唤醒的调试经验及相关内容的学习做整理</summary>
@@ -203,8 +203,8 @@
   
   <entry>
     <title>gdb &amp;&amp; coredump</title>
-    <link href="http://yanglieee.com/2023/05/06/tools/gdb&amp;coredump/"/>
-    <id>http://yanglieee.com/2023/05/06/tools/gdb&amp;coredump/</id>
+    <link href="http://yanglieee.com/2023/05/06/tools/gdb/"/>
+    <id>http://yanglieee.com/2023/05/06/tools/gdb/</id>
     <published>2023-05-05T16:00:00.000Z</published>
     <updated>2023-05-08T15:08:53.432Z</updated>
     
@@ -333,6 +333,27 @@
   </entry>
   
   <entry>
+    <title>IIS</title>
+    <link href="http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/"/>
+    <id>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</id>
+    <published>2023-04-04T16:00:00.000Z</published>
+    <updated>2023-05-30T14:31:44.023Z</updated>
+    
+    
+    <summary type="html">对I2S协议进行解析</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
+    
+    
+    <category term="I2S" scheme="http://yanglieee.com/tags/I2S/"/>
+    
+  </entry>
+  
+  <entry>
     <title>DDR基础与原理</title>
     <link href="http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/"/>
     <id>http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/</id>
@@ -352,27 +373,6 @@
     <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
     
     <category term="DDR" scheme="http://yanglieee.com/tags/DDR/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>IIS</title>
-    <link href="http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/"/>
-    <id>http://yanglieee.com/2023/04/05/computerSystem/protocol/IIS/</id>
-    <published>2023-04-04T16:00:00.000Z</published>
-    <updated>2023-05-30T14:31:44.023Z</updated>
-    
-    
-    <summary type="html">对I2S协议进行解析</summary>
-    
-    
-    
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="protocol" scheme="http://yanglieee.com/categories/Computure-System/protocol/"/>
-    
-    
-    <category term="I2S" scheme="http://yanglieee.com/tags/I2S/"/>
     
   </entry>
   

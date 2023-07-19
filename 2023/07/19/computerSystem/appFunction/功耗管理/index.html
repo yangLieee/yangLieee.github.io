@@ -28,7 +28,7 @@
 <meta property="og:description" content="对于电子设备，系统待机时长无疑一项重要的技术指标。而这与系统的功耗是密切相关的，本篇将工作中休眠唤醒的调试经验及相关内容的学习做整理">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-07-18T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-07-19T13:55:15.286Z">
+<meta property="article:modified_time" content="2023-07-19T14:27:04.093Z">
 <meta property="article:author" content="Lee">
 <meta property="article:tag" content="Suspend Resume">
 <meta name="twitter:card" content="summary">
@@ -226,7 +226,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-07-19 00:00:00 / 修改时间：21:55:15" itemprop="dateCreated datePublished" datetime="2023-07-19T00:00:00+08:00">2023-07-19</time>
+              <time title="创建时间：2023-07-19 00:00:00 / 修改时间：22:27:04" itemprop="dateCreated datePublished" datetime="2023-07-19T00:00:00+08:00">2023-07-19</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -379,9 +379,9 @@
 <p>A：wifi-irq中断在休眠时需要配置成下拉或者输出低，不让其唤醒即可</p>
 </li>
 <li><p>Q：唤醒之后某个功能不能正常使用？</p>
+<p>A：唤醒之后相关IO的状态设置可能出现错误，在休眠前通过<code>get_gpio_func</code>获取到并记录保证一致；如果还是不成功可以考虑休眠时IO状态的设置，是否是休眠时某些IO状态组合对外设产生了非法的命令导致错误，IO状态设置原则只是一般规则</p>
 </li>
 </ol>
-<p>   A：唤醒之后相关IO的状态设置可能出现错误，在休眠前通过<code>get_gpio_func</code>获取到并记录保证一致；如果还是不成功可以考虑休眠时IO状态的设置，是否是休眠时某些IO状态组合对外设产生了非法的命令导致错误，IO状态设置原则只是一般规则。</p>
 <h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
 <li><a target="_blank" rel="noopener" href="https://www.eefocus.com/article/491902.html">MCU低功耗设计的5点注意要点</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/568050822">一文搞懂linux系统休眠唤醒</a></li>
