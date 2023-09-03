@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://yanglieee.com/2023/08/15/work-expericence/Audio-musicPop/</loc>
+    <lastmod>2023-09-03</lastmod>
+  </url>
+  <url>
+    <loc>http://yanglieee.com/2023/09/01/computerSystem/pattern/%E9%A1%B5%E4%B8%AD%E6%96%AD/</loc>
+    <lastmod>2023-09-03</lastmod>
+  </url>
+  <url>
+    <loc>http://yanglieee.com/2023/07/09/computerSystem/pattern/IOmux/</loc>
+    <lastmod>2023-09-03</lastmod>
+  </url>
+  <url>
     <loc>http://yanglieee.com/2023/07/30/work-expericence/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/</loc>
     <lastmod>2023-07-30</lastmod>
   </url>
@@ -27,10 +39,6 @@
   <url>
     <loc>http://yanglieee.com/2023/07/15/computerSystem/protocol/spi/</loc>
     <lastmod>2023-07-19</lastmod>
-  </url>
-  <url>
-    <loc>http://yanglieee.com/2023/07/09/computerSystem/pattern/IOmux/</loc>
-    <lastmod>2023-07-09</lastmod>
   </url>
   <url>
     <loc>http://yanglieee.com/2023/07/01/computerSystem/protocol/I2C/</loc>

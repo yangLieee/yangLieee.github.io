@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-07-30T09:08:48.135Z</updated>
+  <updated>2023-09-03T13:04:14.142Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,48 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>页中断机制详解</title>
+    <link href="http://yanglieee.com/2023/09/01/computerSystem/pattern/%E9%A1%B5%E4%B8%AD%E6%96%AD/"/>
+    <id>http://yanglieee.com/2023/09/01/computerSystem/pattern/%E9%A1%B5%E4%B8%AD%E6%96%AD/</id>
+    <published>2023-08-31T16:00:00.000Z</published>
+    <updated>2023-09-03T13:04:14.142Z</updated>
+    
+    
+    <summary type="html">在linux中页中断机制为内存管理提供了依据，本篇重点对页中断类型、原因及源码进行比较深层次的解读。</summary>
+    
+    
+    
+    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
+    
+    <category term="pattern" scheme="http://yanglieee.com/categories/Computure-System/pattern/"/>
+    
+    
+    <category term="页中断" scheme="http://yanglieee.com/tags/%E9%A1%B5%E4%B8%AD%E6%96%AD/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>音频POP音解析</title>
+    <link href="http://yanglieee.com/2023/08/15/work-expericence/Audio-musicPop/"/>
+    <id>http://yanglieee.com/2023/08/15/work-expericence/Audio-musicPop/</id>
+    <published>2023-08-14T16:00:00.000Z</published>
+    <updated>2023-09-03T13:04:42.664Z</updated>
+    
+    
+    <summary type="html">在调试ES8326 codec和aw87390功放进行放音时产生的POP音问题时的解决方案</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
+    
+    
+    <category term="opus" scheme="http://yanglieee.com/tags/opus/"/>
+    
+  </entry>
   
   <entry>
     <title>Uart</title>
@@ -124,7 +166,7 @@
     <link href="http://yanglieee.com/2023/07/09/computerSystem/pattern/IOmux/"/>
     <id>http://yanglieee.com/2023/07/09/computerSystem/pattern/IOmux/</id>
     <published>2023-07-08T16:00:00.000Z</published>
-    <updated>2023-07-09T23:40:03.329Z</updated>
+    <updated>2023-09-03T13:01:27.065Z</updated>
     
     
     <summary type="html">为了处理高并发场景并且提高效率，IO多路复用的技术必不可少。本文对select/poll/epoll进行简单的总结</summary>
@@ -316,25 +358,6 @@
   </entry>
   
   <entry>
-    <title>Docker</title>
-    <link href="http://yanglieee.com/2023/04/19/tools/docker/"/>
-    <id>http://yanglieee.com/2023/04/19/tools/docker/</id>
-    <published>2023-04-18T16:00:00.000Z</published>
-    <updated>2023-05-08T15:10:40.387Z</updated>
-    
-    
-    <summary type="html">在做OTA升级过程中需要搭建本地服务器，将用到的相关命令做简单记录，后面需要继续完善补充</summary>
-    
-    
-    
-    <category term="Tools" scheme="http://yanglieee.com/categories/Tools/"/>
-    
-    
-    <category term="docker" scheme="http://yanglieee.com/tags/docker/"/>
-    
-  </entry>
-  
-  <entry>
     <title>LwIP+websocket</title>
     <link href="http://yanglieee.com/2023/04/19/third-party/lwip+websocket/"/>
     <id>http://yanglieee.com/2023/04/19/third-party/lwip+websocket/</id>
@@ -350,6 +373,25 @@
     
     
     <category term="lwip websocket" scheme="http://yanglieee.com/tags/lwip-websocket/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Docker</title>
+    <link href="http://yanglieee.com/2023/04/19/tools/docker/"/>
+    <id>http://yanglieee.com/2023/04/19/tools/docker/</id>
+    <published>2023-04-18T16:00:00.000Z</published>
+    <updated>2023-05-08T15:10:40.387Z</updated>
+    
+    
+    <summary type="html">在做OTA升级过程中需要搭建本地服务器，将用到的相关命令做简单记录，后面需要继续完善补充</summary>
+    
+    
+    
+    <category term="Tools" scheme="http://yanglieee.com/categories/Tools/"/>
+    
+    
+    <category term="docker" scheme="http://yanglieee.com/tags/docker/"/>
     
   </entry>
   
@@ -371,48 +413,6 @@
     
     
     <category term="ALSA" scheme="http://yanglieee.com/tags/ALSA/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>sqlite</title>
-    <link href="http://yanglieee.com/2023/04/11/third-party/sqlite3/"/>
-    <id>http://yanglieee.com/2023/04/11/third-party/sqlite3/</id>
-    <published>2023-04-10T16:00:00.000Z</published>
-    <updated>2023-04-11T14:37:46.505Z</updated>
-    
-    
-    <summary type="html">基于工作的内容对sqlite进行学习的文档说明</summary>
-    
-    
-    
-    <category term="Third Party" scheme="http://yanglieee.com/categories/Third-Party/"/>
-    
-    
-    <category term="sqlite" scheme="http://yanglieee.com/tags/sqlite/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>DDR基础与原理</title>
-    <link href="http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/"/>
-    <id>http://yanglieee.com/2023/04/05/computerSystem/storage/DDR/</id>
-    <published>2023-04-04T16:00:00.000Z</published>
-    <updated>2023-05-08T15:19:13.497Z</updated>
-    
-    
-    <summary type="html">对SDRAM以及DDR的相关参数、基本结构、原理进行讲解</summary>
-    
-    
-    
-    <category term="Computure System" scheme="http://yanglieee.com/categories/Computure-System/"/>
-    
-    <category term="Storage" scheme="http://yanglieee.com/categories/Computure-System/Storage/"/>
-    
-    
-    <category term="storage system" scheme="http://yanglieee.com/tags/storage-system/"/>
-    
-    <category term="DDR" scheme="http://yanglieee.com/tags/DDR/"/>
     
   </entry>
   
