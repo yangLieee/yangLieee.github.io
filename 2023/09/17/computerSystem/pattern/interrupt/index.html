@@ -29,7 +29,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://yanglieee.com/images/computerSystem/pattern/interrupt.png">
 <meta property="article:published_time" content="2023-09-16T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-09-17T14:19:37.352Z">
+<meta property="article:modified_time" content="2023-09-18T13:38:07.476Z">
 <meta property="article:author" content="Lee">
 <meta property="article:tag" content="中断机制">
 <meta name="twitter:card" content="summary">
@@ -226,10 +226,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-09-17 00:00:00 / 修改时间：22:19:37" itemprop="dateCreated datePublished" datetime="2023-09-17T00:00:00+08:00">2023-09-17</time>
+              <time title="创建时间：2023-09-17 00:00:00" itemprop="dateCreated datePublished" datetime="2023-09-17T00:00:00+08:00">2023-09-17</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-09-18 21:38:07" itemprop="dateModified" datetime="2023-09-18T21:38:07+08:00">2023-09-18</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -264,7 +270,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>12k</span>
+              <span>13k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -366,12 +372,21 @@
 
 <h3 id="ARM中断异常类型"><a href="#ARM中断异常类型" class="headerlink" title="ARM中断异常类型"></a>ARM中断异常类型</h3><figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ./arch/arm/kernel/entry-armv.S</span></span><br><span class="line">__vectors_start:</span><br><span class="line">    W(b)    vector_rst						<span class="comment">// 复位异常</span></span><br><span class="line">    W(b)    vector_und						<span class="comment">// 未定义指令异常</span></span><br><span class="line">    W(ldr)  pc, __vectors_start + <span class="number">0x1000</span>	<span class="comment">// 软件中断</span></span><br><span class="line">    W(b)    vector_pabt						<span class="comment">// 中止（预取）</span></span><br><span class="line">    W(b)    vector_dabt						<span class="comment">// 中止（数据）</span></span><br><span class="line">    W(b)    vector_addrexcptn				<span class="comment">// 保留</span></span><br><span class="line">    W(b)    vector_irq						<span class="comment">// 一般中断请求</span></span><br><span class="line">    W(b)    vector_fiq     					<span class="comment">// 快速中断请求</span></span><br></pre></td></tr></tbody></table></figure>
 
-<h3 id="MIPS实现过程"><a href="#MIPS实现过程" class="headerlink" title="MIPS实现过程"></a>MIPS实现过程</h3><p>如下代码所示即为mips对于trap_init函数的实现（只保留关键代码）。其主要作用是判断寄存器或者系统相关变量的值来设置中断向量表，而中断向量表是一个全局变量，其在genex.S汇编中进行了引用。而在汇编中，通过指令mfc0把控制寄存器CP0_CAUSE值拷贝到通用寄存器k1。CP0_CAUSE保存了这次中断发生的原因。用andi指令把k1的值加上0x7c，然后用指令ld加载具体一个中断处理程序的入口地址exception_handlers(k1)。exception_handlers就是我们记录的中断处理程序，根据k1的值找到当前系统需要执行哪个中断处理程序。然后使用指令jr跳转到这个中断处理程序。</p>
+<h3 id="MIPS实现过程"><a href="#MIPS实现过程" class="headerlink" title="MIPS实现过程"></a>MIPS实现过程</h3><ul>
+<li>将异常处理函数放在中断异常的地址入口（except_vec3_generic放到BASE+0x180位置）</li>
+<li>填充中断向量表（填充exception_handlers，exception_handlers[0] = 中断入口）</li>
+<li>当发生中断的时候，进入中断异常地址入口</li>
+<li>做保护现场等动作</li>
+<li>跳转进入except_vec3_generic中断异常处理函数</li>
+<li>向量表第一项即会调入平台相关的中断中</li>
+</ul>
+<p>如下代码所示即为mips对于trap_init函数的实现（只保留关键代码）。其主要作用是判断寄存器或者系统相关变量的值来设置中断向量表，而中断向量表是一个全局变量，其在genex.S汇编中进行了引用。而在汇编中，通过指令mfc0把控制寄存器CP0_CAUSE值拷贝到通用寄存器k1。CP0_CAUSE保存了这次中断发生的原因。用andi指令把k1的值加上0x7c，然后用指令ld加载具体一个中断处理程序的入口地址exception_handlers(k1)。exception_handlers就是我们记录的中断处理程序，根据k1的值找到当前系统需要执行哪个中断处理程序。然后使用指令jr跳转到这个中断处理程序。</p>
 <p>k0和k1是为MIPS系统所保留，专门保留给系统发生中断时程序使用的寄存器。这里的”k”代表keep。</p>
 <figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/arch/mips/kernel/traps.c</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> exception_handlers[<span class="number">32</span>];</span><br><span class="line"><span class="type">void</span> __init *<span class="title function_">set_except_vector</span><span class="params">(<span class="type">int</span> n, <span class="type">void</span> *addr)</span></span><br><span class="line">{</span><br><span class="line">    ...</span><br><span class="line">    old_handler = xchg(&amp;exception_handlers[n], handler);</span><br><span class="line">    ...</span><br><span class="line">}</span><br><span class="line"><span class="type">void</span> __init <span class="title function_">trap_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 把except_vec3_generic函数指针放在地址为 KSEG0 ＋ 0x180 处，这个地址就是中断异常的入口地址。</span></span><br><span class="line">    set_handler(<span class="number">0x180</span>, &amp;except_vec3_generic, <span class="number">0x80</span>);</span><br><span class="line">    ...</span><br><span class="line">    set_except_vector(<span class="number">0</span>, using_rollback_handler() ? rollback_handle_int: handle_int);</span><br><span class="line">    set_except_vector(<span class="number">1</span>, handle_tlbm);</span><br><span class="line">    set_except_vector(<span class="number">2</span>, handle_tlbl);</span><br><span class="line">    set_except_vector(<span class="number">3</span>, handle_tlbs);</span><br><span class="line">    set_except_vector(<span class="number">4</span>, handle_adel);</span><br><span class="line">    set_except_vector(<span class="number">5</span>, handle_ades);                                  </span><br><span class="line">    set_except_vector(<span class="number">6</span>, handle_ibe);</span><br><span class="line">    set_except_vector(<span class="number">7</span>, handle_dbe);</span><br><span class="line">	...</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 
 <figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/arch/mips/kernel/genex.S</span></span><br><span class="line">NESTED(except_vec3_generic, <span class="number">0</span>, sp) </span><br><span class="line">    .<span class="built_in">set</span>    push</span><br><span class="line">    .<span class="built_in">set</span>    noat</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> R5432_CP0_INTERRUPT_WAR</span></span><br><span class="line">    mfc0    k0, CP0_INDEX</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    mfc0    k1, CP0_CAUSE</span><br><span class="line">    andi    k1, k1, <span class="number">0x7c</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_64BIT</span></span><br><span class="line">    dsll    k1, k1, <span class="number">1</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    ld   k0, exception_handlers(k1)</span><br><span class="line">    jr  k0  </span><br><span class="line">    .<span class="built_in">set</span>    pop</span><br><span class="line">    <span class="title function_">END</span><span class="params">(except_vec3_generic)</span>      </span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"><span class="comment">// handle_int</span></span><br><span class="line">BUILD_ROLLBACK_PROLOGUE handle_int</span><br><span class="line"><span class="title function_">NESTED</span><span class="params">(handle_int, PT_SIZE, sp)</span> </span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_TRACE_IRQFLAGS</span></span><br><span class="line">    <span class="comment">/*  </span></span><br><span class="line"><span class="comment">    ┆* Check to see if the interrupted code has just disabled</span></span><br><span class="line"><span class="comment">    ┆* interrupts and ignore this interrupt for now if so.                                                                                                                                </span></span><br><span class="line"><span class="comment">    ┆*</span></span><br><span class="line"><span class="comment">    ┆* local_irq_disable() disables interrupts and then calls</span></span><br><span class="line"><span class="comment">    ┆* trace_hardirqs_off() to track the state. If an interrupt is taken</span></span><br><span class="line"><span class="comment">    ┆* after interrupts are disabled but before the state is updated</span></span><br><span class="line"><span class="comment">    ┆* it will appear to restore_all that it is incorrectly returning with</span></span><br><span class="line"><span class="comment">    ┆* interrupts disabled</span></span><br><span class="line"><span class="comment">    ┆*/</span></span><br><span class="line">    .<span class="built_in">set</span>    push</span><br><span class="line">    .<span class="built_in">set</span>    noat</span><br><span class="line">	...</span><br><span class="line">    # Check <span class="keyword">if</span> already on IRQ <span class="built_in">stack</span></span><br><span class="line">    PTR_LI  t1, ~<span class="params">(_THREAD_SIZE<span class="number">-1</span>)</span></span><br><span class="line">    and t1, t1, sp</span><br><span class="line">    beq t0, t1, 2f</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Switch to IRQ stack */</span></span><br><span class="line">    li  t1, _IRQ_STACK_START</span><br><span class="line">    PTR_ADD sp, t0, t1</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Save task's sp on IRQ stack so that unwinding can follow it */</span></span><br><span class="line">    LONG_S  s1, 0<span class="params">(sp)</span></span><br><span class="line">2:</span><br><span class="line">    jal plat_irq_dispatch</span><br><span class="line">    <span class="comment">/* Restore sp */</span></span><br><span class="line">    move    sp, s1</span><br><span class="line"></span><br><span class="line">    j   ret_from_irq</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_CPU_MICROMIPS</span></span><br><span class="line">    nop</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="title function_">END</span><span class="params">(handle_int)</span></span><br></pre></td></tr></tbody></table></figure>
 
+<p>如上代码所示，最终跳转到plat_irq_dispatch函数，很明显这个函数是与平台相关的，具体代码不做分析。主要完成的功能是：根据中断状态寄存器判断中断类型和中断号等等，随后通过一系列跳转最终调到 <code>desc-&gt;handle_irq(desc)</code> 这样一个语句，即注册的中断服务程序中。</p>
 <h2 id="early-irq-init"><a href="#early-irq-init" class="headerlink" title="early_irq_init"></a>early_irq_init</h2><p>early_irq_init属于与硬件和平台无关的通用逻辑层，为irq_desc[]中个元素的某些成员填充默认值。</p>
 <p>完成后调用体系相关的arch_early_irq_init函数完成进一步的初始化工作，不过ARM / MIPS体系没有实现该函数。</p>
 <figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/irq/irqdesc.c</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">irq_desc</span> <span class="title">irq_desc</span>[<span class="title">NR_IRQS</span>] __<span class="title">cacheline_aligned_in_smp</span> =</span> {</span><br><span class="line">    [<span class="number">0</span> ... NR_IRQS<span class="number">-1</span>] = { </span><br><span class="line">        .handle_irq = handle_bad_irq,</span><br><span class="line">        .depth      = <span class="number">1</span>,</span><br><span class="line">        .lock       = __RAW_SPIN_LOCK_UNLOCKED(irq_desc-&gt;lock),</span><br><span class="line">    }   </span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> __init <span class="title function_">early_irq_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">    <span class="type">int</span> count, i, node = first_online_node;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">irq_desc</span> *<span class="title">desc</span>;</span></span><br><span class="line">    init_irq_default_affinity();</span><br><span class="line"></span><br><span class="line">    printk(KERN_INFO <span class="string">"NR_IRQS:%d\n"</span>, NR_IRQS);</span><br><span class="line"></span><br><span class="line">    desc = irq_desc;</span><br><span class="line">    count = ARRAY_SIZE(irq_desc);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; count; i++) {</span><br><span class="line">        desc[i].kstat_irqs = alloc_percpu(<span class="type">unsigned</span> <span class="type">int</span>);</span><br><span class="line">        alloc_masks(&amp;desc[i], GFP_KERNEL, node);</span><br><span class="line">        raw_spin_lock_init(&amp;desc[i].lock);</span><br><span class="line">        lockdep_set_class(&amp;desc[i].lock, &amp;irq_desc_lock_class);</span><br><span class="line">        desc_set_defaults(i, &amp;desc[i], node, <span class="literal">NULL</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> arch_early_irq_init();</span><br><span class="line">}   </span><br></pre></td></tr></tbody></table></figure>
@@ -423,7 +438,10 @@
     <a href="/2023/09/10/language-grammar/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%8E%9F%E7%90%86/" rel="prev" title="fork与mmap的底层原理">
       <i class="fa fa-chevron-left"></i> fork与mmap的底层原理
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/10/17/Audio/Audio-underrun/" rel="next" title="Xrun的解决方案">
+      Xrun的解决方案 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -497,14 +515,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -566,12 +584,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">206k</span>
+    <span title="站点总字数">215k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">3:08</span>
+    <span title="站点阅读时长">3:15</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-09-17T14:19:37.352Z</updated>
+  <updated>2023-11-29T14:09:25.069Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,11 +17,49 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>m3u8视频流基础</title>
+    <link href="http://yanglieee.com/2023/11/05/video/m3u8Reserch/"/>
+    <id>http://yanglieee.com/2023/11/05/video/m3u8Reserch/</id>
+    <published>2023-11-04T16:00:00.000Z</published>
+    <updated>2023-11-29T14:09:25.069Z</updated>
+    
+    
+    <summary type="html">对m3u8视频流进行调研，并基础信息以及相关资源进行记录</summary>
+    
+    
+    
+    <category term="Media" scheme="http://yanglieee.com/categories/Media/"/>
+    
+    <category term="video" scheme="http://yanglieee.com/categories/Media/video/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Xrun的解决方案</title>
+    <link href="http://yanglieee.com/2023/10/17/Audio/Audio-underrun/"/>
+    <id>http://yanglieee.com/2023/10/17/Audio/Audio-underrun/</id>
+    <published>2023-10-16T16:00:00.000Z</published>
+    <updated>2023-11-29T14:12:08.620Z</updated>
+    
+    
+    <summary type="html">根据开发经验对音频数据流以及Alsa发生xrun时的解决方案进行说明</summary>
+    
+    
+    
+    <category term="Linux" scheme="http://yanglieee.com/categories/Linux/"/>
+    
+    <category term="Audio" scheme="http://yanglieee.com/categories/Linux/Audio/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>中断及异常原理</title>
     <link href="http://yanglieee.com/2023/09/17/computerSystem/pattern/interrupt/"/>
     <id>http://yanglieee.com/2023/09/17/computerSystem/pattern/interrupt/</id>
     <published>2023-09-16T16:00:00.000Z</published>
-    <updated>2023-09-17T14:19:37.352Z</updated>
+    <updated>2023-09-18T13:38:07.476Z</updated>
     
     
     <summary type="html">基于Linux-4.4(MIPS)对中断及异常的的初始化和调用原理，从源代码和使用两个方面进行分析</summary>
@@ -375,42 +413,6 @@
     
     <category term="Andriod" scheme="http://yanglieee.com/categories/Linux/Andriod/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>Problem &amp; Tools</title>
-    <link href="http://yanglieee.com/2023/04/27/work-expericence/problem_tools/"/>
-    <id>http://yanglieee.com/2023/04/27/work-expericence/problem_tools/</id>
-    <published>2023-04-26T16:00:00.000Z</published>
-    <updated>2023-04-28T02:17:59.869Z</updated>
-    
-    
-    <summary type="html">本篇文章主要想记录下自己在工作中使用linux系统及相关工具过程中遇到的问题及相应的解决办法，还会记录下提高工作效率的软件</summary>
-    
-    
-    
-    <category term="Work Experience" scheme="http://yanglieee.com/categories/Work-Experience/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>Docker</title>
-    <link href="http://yanglieee.com/2023/04/19/tools/docker/"/>
-    <id>http://yanglieee.com/2023/04/19/tools/docker/</id>
-    <published>2023-04-18T16:00:00.000Z</published>
-    <updated>2023-05-08T15:10:40.387Z</updated>
-    
-    
-    <summary type="html">在做OTA升级过程中需要搭建本地服务器，将用到的相关命令做简单记录，后面需要继续完善补充</summary>
-    
-    
-    
-    <category term="Tools" scheme="http://yanglieee.com/categories/Tools/"/>
-    
-    
-    <category term="docker" scheme="http://yanglieee.com/tags/docker/"/>
     
   </entry>
   
