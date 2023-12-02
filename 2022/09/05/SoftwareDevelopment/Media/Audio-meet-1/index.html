@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="详解WAVE MP3格式文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Audio-再遇">
+<meta property="og:url" content="http://yanglieee.com/2022/09/05/SoftwareDevelopment/Media/Audio-meet-1/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="详解WAVE MP3格式文件">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/SoftwareDevelopment/Media/Audio-remeet-1.png">
+<meta property="og:image" content="http://yanglieee.com/images/SoftwareDevelopment/Media/Audio-remeet-2.png">
+<meta property="article:published_time" content="2022-09-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-02T00:11:55.143Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="Audio">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/SoftwareDevelopment/Media/Audio-remeet-1.png">
+
+<link rel="canonical" href="http://yanglieee.com/2022/09/05/SoftwareDevelopment/Media/Audio-meet-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Audio-再遇 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2022/09/05/SoftwareDevelopment/Media/Audio-meet-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Audio-再遇
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-09-05 00:00:00" itemprop="dateCreated datePublished" datetime="2022-09-05T00:00:00+08:00">2022-09-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-02 08:11:55" itemprop="dateModified" datetime="2023-12-02T08:11:55+08:00">2023-12-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/" itemprop="url" rel="index"><span itemprop="name">Software Development</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/Media/" itemprop="url" rel="index"><span itemprop="name">Media</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/09/05/SoftwareDevelopment/Media/Audio-meet-1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/09/05/SoftwareDevelopment/Media/Audio-meet-1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">详解WAVE MP3格式文件</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本篇内容对一节提到的编码进行扩展，将重点对PCM格式、WAVE格式、MP3格式进行详细解析。</p>
+<h1 id="PCM"><a href="#PCM" class="headerlink" title="PCM"></a>PCM</h1><p>PCM : Pulse-Code Modulation 脉冲调制编码</p>
+<p>PCM 本是一种调制方法的名称，进而通过该方法得到的音频数据也称作PCM数据，即裸数据。该数据是我们通过codec得到的最原始的数据！</p>
+<p>​    <img src="/images/SoftwareDevelopment/Media/Audio-remeet-1.png" alt="pic"></p>
+<h1 id="WAVE"><a href="#WAVE" class="headerlink" title="WAVE"></a>WAVE</h1><p>WAVE : Waveform Audio File Format 波形音频文件格式, 即我们平时所说的wave文件</p>
+<p>很简单，WAV文件格式结构体通常是用来保存PCM格式的原始数据，基于此添加一个文件头构成了WAV文件，即wave = wave头 + PCM数据。因此它通常也被称为无损音频，但是严格意义上来讲，WAV也可以存储其它压缩格式的音频数据。</p>
+<h2 id="wav头"><a href="#wav头" class="headerlink" title="wav头"></a>wav头</h2><table>
+<thead>
+<tr>
+<th><strong>偏移地址</strong></th>
+<th><strong>数据类型</strong></th>
+<th><strong>大小</strong></th>
+<th><strong>名称</strong></th>
+<th><strong>内容</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00H~03H</td>
+<td>char</td>
+<td>4</td>
+<td>资源交换文件标志 ( RIFF )</td>
+<td>52 49 46 46 固定写法</td>
+</tr>
+<tr>
+<td>04H~07H</td>
+<td>long int （4）</td>
+<td>1</td>
+<td>文件大小size</td>
+<td>从下个地址 (08) 开始到 WAV 文件结尾的总字节数整个 WAV 文件的大小就是该数值 + 8</td>
+</tr>
+<tr>
+<td>08H~0BH</td>
+<td>char</td>
+<td>4</td>
+<td>WAV文件标志 WAVE</td>
+<td>57 41 56 45 , 是 WAVE 四个字母的 ASCII 码，固定写法</td>
+</tr>
+<tr>
+<td>0CH~0FH</td>
+<td>char</td>
+<td>4</td>
+<td>波形格式标志（fmt ）</td>
+<td>最后一位0x20 对应的字符是空格</td>
+</tr>
+<tr>
+<td>10H~13H</td>
+<td>int</td>
+<td>1</td>
+<td>过滤字节</td>
+<td>一般为00000010H</td>
+</tr>
+<tr>
+<td>14H~15H</td>
+<td>short int （2）</td>
+<td>1</td>
+<td><strong>格式种类audioformat</strong></td>
+<td>值为1时，表示数据为线性PCM编码</td>
+</tr>
+<tr>
+<td>16H~17H</td>
+<td>short int</td>
+<td>1</td>
+<td><strong>通道数 channnels</strong></td>
+<td>1 表示单声道 , 2 表示立体声</td>
+</tr>
+<tr>
+<td>18H~1BH</td>
+<td>long int</td>
+<td>1</td>
+<td><strong>采样频率 sampleRate</strong></td>
+<td>80 BB 00 00 – &gt; 48000 Hz ;</td>
+</tr>
+<tr>
+<td>1CH~1FH</td>
+<td>long int</td>
+<td>1</td>
+<td>波形数据传输速率（每秒平均字节数）</td>
+<td>采样率×通道数×采样位数 / 8</td>
+</tr>
+<tr>
+<td>20H~21H</td>
+<td>short int</td>
+<td>1</td>
+<td>DATA数据块调整长度，字节。</td>
+<td>通道数×样本数据位数 / 8</td>
+</tr>
+<tr>
+<td>22H~23H</td>
+<td>short int</td>
+<td>1</td>
+<td>PCM位宽</td>
+<td>10 00 —-&gt; 16 位, 2 字节</td>
+</tr>
+<tr>
+<td>24H~27H</td>
+<td>char</td>
+<td>4</td>
+<td>数据标记</td>
+<td>64 61 74 61 data的ASCII的值</td>
+</tr>
+<tr>
+<td>28H~2BH</td>
+<td>long int</td>
+<td>1</td>
+<td>PCM 数据总长度</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>Q：wave文件的文件头一定是44Bytes吗？</p>
+<p>A：不一定！以上格式只是wave文件的标准，属于通用标准。但是将其他格式文件通过ffmpeg转码之后的wav文件头会大于44个字节（115Bytes），在文件头和数据块之间添加了一些ffmpeg的信息，部分表征的意义不同！网上很多格式转换工具都是调用的ffmpeg转码的，导致文件头大小不完全相同。</p>
+<blockquote>
+<p>​     -map_metadata -1 -fflags +bitexact 可以去除标注信息，使文件头符合标准</p>
+<p>​     ffmpeg -y -i music.mp3 -map_metadata -1 -fflags +bitexact -f wav -ac 1 -ar 16000 -ab 16k music.wav</p>
+</blockquote>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>Ffmpeg不去标准信息转码wave之后的文件格式：</p>
+<table>
+<thead>
+<tr>
+<th>偏移地址</th>
+<th>字节数</th>
+<th>数据类型</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00H ~ 23H</td>
+<td>36</td>
+<td>同上表的00H~23H一致</td>
+<td></td>
+</tr>
+<tr>
+<td>24H ~ 27H</td>
+<td>4</td>
+<td>char</td>
+<td>“LIST”, LIST块标志，固定不变</td>
+</tr>
+<tr>
+<td>28H ~ 2BH</td>
+<td>4</td>
+<td>long</td>
+<td>LIST块占用的字节数，在这里为26字节</td>
+</tr>
+<tr>
+<td>2CH ~ 45H</td>
+<td>26</td>
+<td>char</td>
+<td>LIST块内容</td>
+</tr>
+<tr>
+<td>46H ~ 49H</td>
+<td>4</td>
+<td>char</td>
+<td>“data”, data数据块标志，固定不变</td>
+</tr>
+<tr>
+<td>4AH ~ 4DH</td>
+<td>4</td>
+<td>long</td>
+<td>wav文件音频数据所占大小</td>
+</tr>
+</tbody></table>
+<h1 id="MP3"><a href="#MP3" class="headerlink" title="MP3"></a>MP3</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>MP3：Moving Picture Experts Group Audio Layer III, 动态影像专家压缩标准音频层面3</p>
+<p>首先科普下部分概念：MPEG（Moving Pictures Experts Group ，动态图像专家组），简单理解就是一些研究音视频的专家发布的相关标准，其命名为MPEG-*（其中*代表数字或字母），例如MPEG-1、MPEG-2.5、MPEG-E等等。</p>
+<p>可能有人会想MPEG-3是不是就是MP3呢？MPEG是针对音视频及系统测试的一整套的标准规范，其中对于MPEG1来讲，其part3音频部分规定了3个独立分层的音频编码格式，分别为layer Ⅰ、layer Ⅱ、layer Ⅲ，而layer Ⅲ也就是我们所说的MP3（MEPEG1 Layer Ⅲ），这三层的区别主要在于编码的算法及输出速率的区别。同样纵向来看，MPEG2、MPEG2.5同样有三个独立的layer，区别在于它们所使用的采样率更低了。</p>
+<h2 id="文件结构"><a href="#文件结构" class="headerlink" title="文件结构"></a>文件结构</h2><p>目前大多数标准MP3文件都支持ID3V2标准。具体组成格式为：ID3V2.3标签帧（1个）+ 数据帧（若干）+ ID3V1帧（1个），其中ID3V2.3 = 标签头（1个，必须） + 标签帧（若干，不必须） + 扩展标签头（不必须）</p>
+<p>组成部分我画了一张示意图可以参考，每一部分下面将做详细解析</p>
+<p>​    <img src="/images/SoftwareDevelopment/Media/Audio-remeet-2.png" alt="pic"></p>
+<h2 id="ID3标准"><a href="#ID3标准" class="headerlink" title="ID3标准"></a>ID3标准</h2><p>MP3帧头中除了存储一些象private、copyright、original的简单音乐说明信息以外，没有考虑存放歌名、作者、专辑名、年份 等复杂信息，而这些信息在MP3应用中非常必要。1996年，FricKemp在“Studio 3”项目中提出了在MP3文件尾增加一块用于存放歌曲的说明信息，形成了ID3标准</p>
+<h2 id="标签头"><a href="#标签头" class="headerlink" title="标签头"></a>标签头</h2><p>标签头是由10Byte组成的，具体含义如下</p>
+<table>
+<thead>
+<tr>
+<th>定义</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>char Header[3];</td>
+<td>必须为”ID3”否则认为标签不存在，如上图地址00—02部分为”49 44 33”，文本为“ID3”</td>
+</tr>
+<tr>
+<td>char Ver;</td>
+<td>版本号 ID3V2.3 就记录 3，如上图地址03处记录为”03”</td>
+</tr>
+<tr>
+<td>char Revision;</td>
+<td>副版本号此版本记录为 0</td>
+</tr>
+<tr>
+<td>char Flag;</td>
+<td>放标志的字节，一般为00abc00000a – 表示是否使用 Unsynchronisationb – 表示是否有扩展头部,一般没有(至少 Winamp 没有记录),所以一般也不设置c – 表示是否为测试标签(99.99%的标签都不是测试用的，所以一般也不设置)</td>
+</tr>
+<tr>
+<td>char Size[4];</td>
+<td>标签大小,包括标签头的 10 个字节和所有的标签帧的大小</td>
+</tr>
+</tbody></table>
+<p>整个标签大小 :</p>
+<p>ID3V2_frame_size = (int)(Size[0] &amp; 0x7F) &lt;&lt; 21 | (int)(Size[1] &amp; 0x7F) &lt;&lt; 14 | (int)(Size[2] &amp; 0x7F) &lt;&lt; 7 | (int)(Size[3] &amp; 0x7F) + 10;</p>
+<h2 id="标签帧"><a href="#标签帧" class="headerlink" title="标签帧"></a>标签帧</h2><p>每个标签帧都有一个 10 个字节的帧头（虽然都是10字节，但是与标签头不是一个东西。标签头有且只有一个，而标签头每一个标签帧都有一个帧头）和至少一个字节的不固定长度的内容组成。</p>
+<table>
+<thead>
+<tr>
+<th>定义</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>char FrameID[4]</td>
+<td>用四个字符标识一个帧，说明其内容</td>
+</tr>
+<tr>
+<td>char Size[4]</td>
+<td>帧内容的大小，不包括帧头，不得小于1</td>
+</tr>
+<tr>
+<td>char Flags[2]</td>
+<td>存放标志，只定义了6 位，此处不再说明</td>
+</tr>
+</tbody></table>
+<p>常用帧标识：</p>
+<p>TIT2：标题<br>TPE1：作者<br>TALB：专辑<br>TRCK： 音轨，格式：N/M，N表示专辑中第几首，M为专辑中歌曲总数<br>TYER：年份<br>TCON：类型<br>COMM：备注，格式：“eng\0备注内容”，其中eng表示所使用的语言<br>帧大小为四个字节所表示的整数大小。</p>
+<h2 id="数据帧"><a href="#数据帧" class="headerlink" title="数据帧"></a>数据帧</h2><p>数据帧由帧头和数据帧组成，对于每一帧数据都有一个帧头。</p>
+<p>帧头长4字节，对于固定位率的MP3文件，所有帧的帧头格式一样其数据结构如下</p>
+<p>typedef struct frameHeader<br>{<br>unsigned int sync1:8; //同步信息 1<br>unsigned int error_protection:1; //CRC 校验<br>unsigned int layer:2; //层<br>unsigned int version:2; //版本<br>unsigned int sync2:3; //同步信息 2<br>unsigned int extension:1; //版权<br>unsigned int padding:1; //填充空白字<br>unsigned int sample_rate_index:2; //采样率索引<br>unsigned int bit_rate_index:4; //位率索引<br>unsigned int emphasis:2; //强调方式<br>unsigned int original:1; //原始媒体<br>unsigned int copyright:1; //版权标志<br>unsigned int mode_extension:2; //扩展模式,仅用于联合立体声<br>unsigned int channel_mode:2; //声道模式<br>}FHEADER;</p>
+<p>比特率为32的整数倍一般就是恒定编码，否则就是可变编码；可变编码帧头一般会有不同</p>
+<h2 id="ID3V1标签帧"><a href="#ID3V1标签帧" class="headerlink" title="ID3V1标签帧"></a>ID3V1标签帧</h2><p>标签头是由128Byte组成的，具体含义如下</p>
+<table>
+<thead>
+<tr>
+<th>定义</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>char Header[3]</td>
+<td>标签头必须是”TAG”否则认为没有标签</td>
+</tr>
+<tr>
+<td>char Title[30]</td>
+<td>标题</td>
+</tr>
+<tr>
+<td>char Artist[30]</td>
+<td>作者</td>
+</tr>
+<tr>
+<td>char Album[30]</td>
+<td>专集</td>
+</tr>
+<tr>
+<td>char Year[4]</td>
+<td>出品年代</td>
+</tr>
+<tr>
+<td>char Comment[28]</td>
+<td>备注</td>
+</tr>
+<tr>
+<td>char reserve</td>
+<td>保留</td>
+</tr>
+<tr>
+<td>char track</td>
+<td>音轨</td>
+</tr>
+<tr>
+<td>char Genre;</td>
+<td>类型</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2022/09/05/SoftwareDevelopment/Media/Audio-meet-1/" title="Audio-再遇">http://yanglieee.com/2022/09/05/SoftwareDevelopment/Media/Audio-meet-1/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Audio/" rel="tag"><i class="fa fa-tag"></i> Audio</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/08/31/SoftwareDevelopment/Media/Audio-meet/" rel="prev" title="Audio-初识">
+      <i class="fa fa-chevron-left"></i> Audio-初识
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/09/22/Hardware/Controller/GPIO/" rel="next" title="GPIO">
+      GPIO <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PCM"><span class="nav-number">1.</span> <span class="nav-text">PCM</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#WAVE"><span class="nav-number">2.</span> <span class="nav-text">WAVE</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wav%E5%A4%B4"><span class="nav-number">2.1.</span> <span class="nav-text">wav头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">2.2.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">2.3.</span> <span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MP3"><span class="nav-number">3.</span> <span class="nav-text">MP3</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">3.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">文件结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ID3%E6%A0%87%E5%87%86"><span class="nav-number">3.3.</span> <span class="nav-text">ID3标准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E5%A4%B4"><span class="nav-number">3.4.</span> <span class="nav-text">标签头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E5%B8%A7"><span class="nav-number">3.5.</span> <span class="nav-text">标签帧</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%B8%A7"><span class="nav-number">3.6.</span> <span class="nav-text">数据帧</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ID3V1%E6%A0%87%E7%AD%BE%E5%B8%A7"><span class="nav-number">3.7.</span> <span class="nav-text">ID3V1标签帧</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

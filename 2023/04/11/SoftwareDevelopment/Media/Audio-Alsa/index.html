@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对ALSA基础及使用进行说明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ALSA">
+<meta property="og:url" content="http://yanglieee.com/2023/04/11/SoftwareDevelopment/Media/Audio-Alsa/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对ALSA基础及使用进行说明">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-30T23:33:09.778Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="Audio">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yanglieee.com/2023/04/11/SoftwareDevelopment/Media/Audio-Alsa/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ALSA | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/04/11/SoftwareDevelopment/Media/Audio-Alsa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ALSA
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-04-11 00:00:00" itemprop="dateCreated datePublished" datetime="2023-04-11T00:00:00+08:00">2023-04-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-01 07:33:09" itemprop="dateModified" datetime="2023-12-01T07:33:09+08:00">2023-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/" itemprop="url" rel="index"><span itemprop="name">Software Development</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/Media/" itemprop="url" rel="index"><span itemprop="name">Media</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/04/11/SoftwareDevelopment/Media/Audio-Alsa/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/04/11/SoftwareDevelopment/Media/Audio-Alsa/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>9.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+            <div class="post-description">对ALSA基础及使用进行说明</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><blockquote>
+<p>官网：<a target="_blank" rel="noopener" href="https://www.alsa-project.org/wiki/Main_Page">https://www.alsa-project.org/wiki/Main_Page</a></p>
+</blockquote>
+<p>ALSA：Advanced Linux Sound Architecture，高级linux声音体系，它在Linux操作系统上提供了音频和MIDI（Musical Instrument Digital Interface，音乐设备数字化接口）的支持。</p>
+<h1 id="ALSA设备文件结构"><a href="#ALSA设备文件结构" class="headerlink" title="ALSA设备文件结构"></a>ALSA设备文件结构</h1><figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># cd /dev/snd; ls -l;</span></span><br><span class="line"></span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">8</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">38</span> controlC0	 用于声卡的控制,例如通道选择,混音,麦克风的控制等 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">4</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">38</span> midiC0D0	 用于播放midi音频 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">7</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">39</span> pcmC0D0c	 用于录音的pcm设备 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">6</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">56</span> pcmC0D0p	 用于播放的pcm设备 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">3</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">38</span> seq		 音序器 </span><br><span class="line">crw-rw----+ <span class="number">1</span> root audio <span class="number">116</span>, <span class="number">2</span> <span class="number">2011</span><span class="number">-02</span><span class="number">-23</span> <span class="number">21</span>:<span class="number">38</span> timer	     定时器</span><br></pre></td></tr></tbody></table></figure>
+
+<p>其中,C0D0代表的是声卡0中的设备0 ; pcmC0D0c最后一个c代表capture ; pcmC0D0p最后一个p代表playback。</p>
+<h2 id="alsa相关函数及文件"><a href="#alsa相关函数及文件" class="headerlink" title="alsa相关函数及文件"></a>alsa相关函数及文件</h2><h3 id="函数及结构体"><a href="#函数及结构体" class="headerlink" title="函数及结构体"></a>函数及结构体</h3><ul>
+<li>AVFrame    iFrame           存储非压缩的数据，输入</li>
+<li>AVFrame    swapFrame   存储非压缩的数据，重采样</li>
+<li>AVPack       oPacket          压缩即编码后的输入，输出</li>
+</ul>
+<ol>
+<li><p>snd_pcm_hw_params_get_rate( )</p>
+</li>
+<li><p>snd_pcm_open( )</p>
+<ul>
+<li><p>snd_config_update_ref</p>
+<p>这个函数作用是检查alsa配置文件是否发生了变化，包括文件名字和各个配置文件的内容是否修改，如果有修改，就重新加载配置文件树，刷新全局变量snd_config并增加一个snd_config的引用计数，调用snd_config_update_ref传入的top就是指向snd_config的指针，这个top当作参数传入snd_pcm_open_noupdate函数中。snd_config_unref接下来会减去snd_config的引用计数。</p>
+<p>首先创建顶层配置节点，然后打开/usr/share/alsa/alsa.conf，加载文件内容到顶层配置节点上，然后遍历所有的hooks，调用snd_config_hooks加载所有hooks，并调用相关的hooks函数打开对应的plugin动态库</p>
+</li>
+<li><p>snd_pcm_open_noupdate</p>
+</li>
+</ul>
+</li>
+<li><p>avcodec_open2( )</p>
+<ul>
+<li><p>检测指定的codec和context里面的codec是否匹配。</p>
+</li>
+<li><p>分配空间。</p>
+</li>
+<li><p>检测codec各个参数合法性，并给某些字段赋初值。</p>
+</li>
+<li><p>调用codec的init初始化codec。</p>
+</li>
+<li><p>释放资源，返回。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><ol>
+<li><p>参考网址 : <a target="_blank" rel="noopener" href="https://www.cnblogs.com/lihaiping/p/alsaconfig.html">https://www.cnblogs.com/lihaiping/p/alsaconfig.html</a></p>
+</li>
+<li><p>配置文件的调用过程</p>
+<p>alsa-lib库  :  alsa-lib-1.2.1.2/src/pcm/pcm.c</p>
+<p>snd_pcm_open( ) 函数作为打开一个pcm的接口.  具体的调用过程是 :  static snd_pcm_open_noupdate —-&gt;  static snd_pcm_open_conf( )</p>
+<p>解析asound.conf过程 : <a target="_blank" rel="noopener" href="https://www.xuebuyuan.com/1043778.html">https://www.xuebuyuan.com/1043778.html</a></p>
+</li>
+<li><p>snd_pcm_open内部直接解析的是usr/share/alsa/alsa.conf, 在这个文件中决定了etc/asound.conf和/.asoundrc这两个文件要不要调用</p>
+</li>
+</ol>
+<h3 id="3-3-音频设备的定义"><a href="#3-3-音频设备的定义" class="headerlink" title="3.3 音频设备的定义"></a>3.3 音频设备的定义</h3><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#  文件定义位置 : /system/core/include/system/audio.h</span><br><span class="line">enum {</span><br><span class="line">    AUDIO_DEVICE_NONE                          = 0x0,</span><br><span class="line">    /* reserved bits */</span><br><span class="line">    AUDIO_DEVICE_BIT_IN                        = 0x80000000,</span><br><span class="line">    AUDIO_DEVICE_BIT_DEFAULT                   = 0x40000000,</span><br><span class="line">    /* output devices */</span><br><span class="line">    AUDIO_DEVICE_OUT_EARPIECE                  = 0x1,    // 听筒</span><br><span class="line">    AUDIO_DEVICE_OUT_SPEAKER                   = 0x2,    // 扬声器</span><br><span class="line">    AUDIO_DEVICE_OUT_WIRED_HEADSET             = 0x4,    // 线控耳机，可以通过耳机控制远端播放、暂停、音量调节等功能的耳机</span><br><span class="line">    AUDIO_DEVICE_OUT_WIRED_HEADPHONE           = 0x8,    // 普通耳机，只能听，不能操控播放</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_SCO             = 0x10,   // 单声道蓝牙耳机，十进制32</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET     = 0x20,   // 车载免提蓝牙设备，十进制64</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT      = 0x40,   // 立体声蓝牙耳机</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_A2DP            = 0x80,   // 十进制128</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES = 0x100,  // 十进制256</span><br><span class="line">    AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER    = 0x200,  // 十进制512</span><br><span class="line">    AUDIO_DEVICE_OUT_AUX_DIGITAL               = 0x400,  // 十进制1024</span><br><span class="line">    AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET         = 0x800,  // 十进制2048</span><br><span class="line">    AUDIO_DEVICE_OUT_DGTL_DOCK_HEADSET         = 0x1000, // 十进制4096</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="alsa插件"><a href="#alsa插件" class="headerlink" title="alsa插件"></a>alsa插件</h1><blockquote>
+<p>asound.conf配置 <a target="_blank" rel="noopener" href="https://www.alsa-project.org/main/index.php/Asoundrc">https://www.alsa-project.org/main/index.php/Asoundrc</a></p>
+<p>插件详解官网  <a target="_blank" rel="noopener" href="https://www.alsa-project.org/alsa-doc/alsa-lib/pcm_plugins.html">https://www.alsa-project.org/alsa-doc/alsa-lib/pcm_plugins.html</a></p>
+</blockquote>
+<ol>
+<li>生成alsa配置文件 : alsactl store -f a.conf</li>
+<li>对于耳机的controls需要指定-c 1,默认走的是card 0</li>
+<li>播放音频的命令 arecord -D usbheadsetC -d 5 -f cd -r 48000 -c 2 -t wav test.wav</li>
+</ol>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//查看控件</span></span><br><span class="line"><span class="meta"># amixer -c 1 controls </span></span><br><span class="line">numid=<span class="number">3</span>,iface=MIXER,name=<span class="string">'PCM Playback Switch'</span></span><br><span class="line">numid=<span class="number">4</span>,iface=MIXER,name=<span class="string">'PCM Playback Volume'</span></span><br><span class="line">numid=<span class="number">6</span>,iface=MIXER,name=<span class="string">'usbCapture_vol'</span></span><br><span class="line">numid=<span class="number">5</span>,iface=MIXER,name=<span class="string">'usbPlay_vol'</span></span><br><span class="line">numid=<span class="number">1</span>,iface=PCM,name=<span class="string">'Capture Channel Map'</span></span><br><span class="line">numid=<span class="number">2</span>,iface=PCM,name=<span class="string">'Playback Channel Map'</span></span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"><span class="comment">//对控件进行配置</span></span><br><span class="line"><span class="meta"># amixer -c 1 sget usbCapture_vol </span></span><br><span class="line">Simple mixer control <span class="string">'usbCapture_vol'</span>,<span class="number">0</span></span><br><span class="line">  Capabilities: volume</span><br><span class="line">  Playback channels: Front Left - Front Right</span><br><span class="line">  Capture channels: Front Left - Front Right</span><br><span class="line">  Limits: <span class="number">0</span> - <span class="number">255</span></span><br><span class="line">  Front Left: <span class="number">100</span> [<span class="number">39</span>%]</span><br><span class="line">  Front Right: <span class="number">100</span> [<span class="number">39</span>%]</span><br><span class="line"><span class="meta"># amixer -c 1 cget numid=5,iface=MIXER,name=<span class="string">'usbCapture_vol'</span></span></span><br><span class="line">numid=<span class="number">5</span>,iface=MIXER,name=<span class="string">'usbCapture_vol'</span></span><br><span class="line">  ; type=INTEGER,access=rw---RW-,values=<span class="number">2</span>,min=<span class="number">0</span>,max=<span class="number">255</span>,step=<span class="number">0</span></span><br><span class="line">  : values=<span class="number">100</span>,<span class="number">100</span></span><br><span class="line">  | dBscale-min=<span class="number">-20.00</span>dB,step=<span class="number">0.20</span>dB,mute=<span class="number">0</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta"># arecord -l</span></span><br><span class="line">**** List of CAPTURE Hardware Devices ****</span><br><span class="line">card <span class="number">0</span>: smartpenknot [smartpen_knot], device <span class="number">0</span>: i2s-ecodec nau8822-hifi<span class="number">-0</span> []</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line">card <span class="number">0</span>: smartpenknot [smartpen_knot], device <span class="number">1</span>: dmic dmic-codec-hifi<span class="number">-1</span> []</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line">card <span class="number">0</span>: smartpenknot [smartpen_knot], device <span class="number">2</span>: i2s-tloop pcm-dump<span class="number">-2</span> []</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line">card <span class="number">1</span>: EP3C [Meizu EP3C], device <span class="number">0</span>: USB Audio [USB Audio]</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line"># </span><br><span class="line"><span class="meta"># aplay -l</span></span><br><span class="line">**** List of PLAYBACK Hardware Devices ****</span><br><span class="line">card <span class="number">0</span>: smartpenknot [smartpen_knot], device <span class="number">0</span>: i2s-ecodec nau8822-hifi<span class="number">-0</span> []</span><br><span class="line">  Subdevices: <span class="number">1</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line">card <span class="number">1</span>: EP3C [Meizu EP3C], device <span class="number">0</span>: USB Audio [USB Audio]</span><br><span class="line">  Subdevices: <span class="number">0</span>/<span class="number">1</span></span><br><span class="line">  Subdevice #<span class="number">0</span>: subdevice #<span class="number">0</span></span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h1 id="ALSA音频工具"><a href="#ALSA音频工具" class="headerlink" title="ALSA音频工具"></a>ALSA音频工具</h1><p>对于以下工具的使用，都可以直接输入“工具名”或“工具名 –help” 获得详细使用方法</p>
+<h2 id="arecode-录音"><a href="#arecode-录音" class="headerlink" title="arecode 录音"></a>arecode 录音</h2><ol>
+<li>查看录音设备 : arecode -l</li>
+<li>命令实例 :  arecord -D hw:0,1 -d 10 -f cd -r 44100 -c 2 -t wav test.wav</li>
+<li>参数解析 : <ul>
+<li>-D 指定了录音设备，0,1 是card 0 device 1</li>
+<li>-d 指定录音的时长，单位 : 秒</li>
+<li>-f 指定采样格式，通过上面的信息知道只支持 cd cdr dat </li>
+<li>-r 指定了采样率，单位 : Hz</li>
+<li>-c 指定channel 个数</li>
+<li>-t 指定生成的文件格式</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">lee@lee-virtual-machine:~$ arecord -l</span><br><span class="line">**** CAPTURE 硬體裝置清單 ****</span><br><span class="line">card 0: AudioPCI [Ensoniq AudioPCI], device 0: ES1371/1 [ES1371 DAC2/ADC]</span><br><span class="line">  子设备: 1/1</span><br><span class="line">  子设备 #0: subdevice #0</span><br><span class="line">lee@lee-virtual-machine:~$ arecord -D hw:0,0 -d 10 -f cd -r 44100 -c 2 -t wav test.wav</span><br><span class="line">正在录音 WAVE 'test.wav' : Signed 16 bit Little Endian, 频率44100Hz， Stereo</span><br><span class="line">lee@lee-virtual-machine:~$ </span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="aplay-放音"><a href="#aplay-放音" class="headerlink" title="aplay 放音"></a>aplay 放音</h2><ol>
+<li><p>查看放音设备 : aplay -l</p>
+</li>
+<li><p>命令实例 : aplay test.wav</p>
+<blockquote>
+<p>如果是直接播放pcm数据，则需要指定pcm格式 、采样率、channel个数等。</p>
+</blockquote>
+</li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">lee@lee-virtual-machine:~$ aplay -l</span><br><span class="line">**** PLAYBACK 硬體裝置清單 ****</span><br><span class="line">card 0: AudioPCI [Ensoniq AudioPCI], device 0: ES1371/1 [ES1371 DAC2/ADC]</span><br><span class="line">  子设备: 0/1</span><br><span class="line">  子设备 #0: subdevice #0</span><br><span class="line">card 0: AudioPCI [Ensoniq AudioPCI], device 1: ES1371/2 [ES1371 DAC1]</span><br><span class="line">  子设备: 1/1</span><br><span class="line">  子设备 #0: subdevice #0</span><br><span class="line">lee@lee-virtual-machine:~$ aplay test.wav </span><br><span class="line">正在播放 WAVE 'test.wav' : Signed 16 bit Little Endian, 频率44100Hz， Stereo</span><br><span class="line">lee@lee-virtual-machine:~$ </span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="amixer-配参"><a href="#amixer-配参" class="headerlink" title="amixer 配参"></a>amixer 配参</h2><p>amixer，是alsamixer的文本模式（命令行模式）用于配置音频的各个参数</p>
+<ol>
+<li><p>使用方法 :</p>
+<ol>
+<li><p>用 # amixer controls 列出所有控制项。( 显示接口函数 )</p>
+</li>
+<li><p>如果对控制项不熟悉或者想查看当前的所有配置可以使用 # amixer contents 命令。(显示当前配置)</p>
+</li>
+<li><p>查看获取某个设置项的值用 # amixer cget + 控制参数 命令。 这里控制参数直接复制 # amixer controls 打印出来的数据就可以</p>
+</li>
+<li><p>根据控制参数类型设置控制参数使用 # amixer cset + 控制参数 + 设置参数 命令。</p>
+</li>
+<li><p>values 表示数值对于 volume 之类的是具体的数字，在上下文菜单中有显示数值的范围，对于 switch 之类的表示开关一般是 on 或 off。</p>
+<p>另外一sget/sset系列的命令, 与cget/cset的使用相同</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//使用例子:</span></span><br><span class="line"><span class="comment">//给的参数看value需要几个 需要什么类型进行相应的配置即可</span></span><br><span class="line">/ <span class="meta"># amixer cget numid=43,iface=MIXER,name=<span class="string">'Speaker Playback Volum'</span></span></span><br><span class="line">numid=<span class="number">43</span>,iface=MIXER,name=<span class="string">'Speaker Playback Volume'</span></span><br><span class="line">  ; type=INTEGER,access=rw---R--,values=<span class="number">2</span>,min=<span class="number">0</span>,max=<span class="number">63</span>,step=<span class="number">0</span></span><br><span class="line">  : values=<span class="number">63</span>,<span class="number">63</span></span><br><span class="line">  | dBscale-min=<span class="number">-57.00</span>dB,step=<span class="number">1.00</span>dB,mute=<span class="number">0</span></span><br><span class="line">/ # </span><br><span class="line">/ # </span><br><span class="line">/ # </span><br><span class="line">/ <span class="meta"># amixer cset numid=43,iface=MIXER,name=<span class="string">'Speaker Playback Volum'</span> 30 30 </span></span><br><span class="line">numid=<span class="number">43</span>,iface=MIXER,name=<span class="string">'Speaker Playback Volume'</span></span><br><span class="line">  ; type=INTEGER,access=rw---R--,values=<span class="number">2</span>,min=<span class="number">0</span>,max=<span class="number">63</span>,step=<span class="number">0</span></span><br><span class="line">  : values=<span class="number">30</span>,<span class="number">30</span></span><br><span class="line">  | dBscale-min=<span class="number">-57.00</span>dB,step=<span class="number">1.00</span>dB,mute=<span class="number">0</span></span><br><span class="line">/ # </span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+</li>
+<li><p>保存及恢复方法</p>
+<p>对声卡信息状态进行保存 : alsactl store -f /var/lib/alsa/asound.state </p>
+<p>声卡状态恢复命令 : alsactl restore -f /var/lib/alsa/asound.state</p>
+</li>
+</ol>
+<h2 id="Linux音频分析工具"><a href="#Linux音频分析工具" class="headerlink" title="Linux音频分析工具"></a>Linux音频分析工具</h2><ol>
+<li><p>audacity</p>
+<ul>
+<li><p>功能：查看各种格式音频的波形，并有裁剪、转换格式、生成特定音频数据等诸多功能</p>
+</li>
+<li><p>下载方法 : sudo apt install audacity -o Acquire::http::proxy=”<a target="_blank" rel="noopener" href="http://192.168.4.15:8080/&quot;">http://192.168.4.15:8080/"</a>( -o 参数指定代理)</p>
+</li>
+<li><p>使用方法：命令行输入audacity，添加音频文件即可</p>
+</li>
+</ul>
+</li>
+<li><p>play</p>
+<ul>
+<li>由于aplay播放数据格式有限，play对于音频数据格式进行了较多的支持</li>
+<li>play播放裸数据命令 : play -t raw -r 16000 -e signed-integer -b 16 -c 1 test.wav</li>
+</ul>
+</li>
+</ol>
+<h1 id="API使用"><a href="#API使用" class="headerlink" title="API使用"></a>API使用</h1><p>代码链接：<a target="_blank" rel="noopener" href="https://github.com/yangLieee/audioplayer">https://github.com/yangLieee/audioplayer</a></p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li><p>Q：数据存储出来只有78字节，但是写函数已经执行完毕？</p>
+<p>A：这只是写了一个文件头，而最终文件没有写入。原因是：avio_open之后没有关闭，调用closep函数之后数据正常写入;</p>
+<p>​		调试流程：首先定位问题位置。在alsa录音完成之后将数据写入buffer中存储来看是否是alsa部分的录音问题。之后根据流程进行检查。一定要注意open close / new delete / 等配套的使用</p>
+</li>
+<li><p>数据已经写结束 但是还是会再次执行一次其上面的程序</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(fmtContext)                                                                    </span><br><span class="line">       av_write_trailer(fmtContext);</span><br><span class="line"><span class="keyword">if</span>(fmtContext != <span class="literal">NULL</span>){   </span><br><span class="line">   <span class="keyword">if</span>( avio_closep(&amp;fmtContext-&gt;pb) &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"avio_closep error!"</span>);</span><br><span class="line">   avformat_free_context(fmtContext);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">av_write_trailer的作用</span></span><br><span class="line"><span class="comment">	1. 循环调用interleave_packet()以及write_packet()，将还未输出的AVPacket输出出来。</span></span><br><span class="line"><span class="comment">	2. 调用AVOutputFormat的write_trailer()，输出文件尾。</span></span><br><span class="line"><span class="comment">avio_closep的作用</span></span><br><span class="line"><span class="comment">	关闭输出文件的上下文,与avio_open相对应使用</span></span><br><span class="line"><span class="comment">	</span></span><br><span class="line"><span class="comment">这两个的使用需要保证av_write_trailer函数调用早于avio_closep</span></span><br><span class="line"><span class="comment">如果不调用这两个函数会导致最终文件不能写出</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>Q：重采样时 channel 可以正常转换, sample_rate采样率变化不能转换?</p>
+<p>A：在做采样率的重采样时, 对输出的context配置需要将采样点也做一下转换,否则已经转换成功但是生成的文件大小还是按照以前的输出进行.<br>  采样点转换函数 : av_rescale_rnd(iFrame-&gt;nb_samples, oSampleRate, iSampleRate, AV_ROUND_UP);</p>
+</li>
+<li><p>Q : 录音之后声音太小, 甚至有时候听不到, 需要如何调整? </p>
+<p>A : 通过amixer参数进行相应的配置</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/storage/recode <span class="meta"># amixer cset numid=53,iface=MIXER,name=<span class="string">'DMIC GAIN'</span> 15</span></span><br><span class="line">numid=<span class="number">53</span>,iface=MIXER,name=<span class="string">'DMIC GAIN'</span></span><br><span class="line">  ; type=INTEGER,access=rw---R--,values=<span class="number">1</span>,min=<span class="number">0</span>,max=<span class="number">31</span>,step=<span class="number">0</span></span><br><span class="line">  : values=<span class="number">15</span></span><br><span class="line">  | dBscale-min=<span class="number">0.00</span>dB,step=<span class="number">3.00</span>dB,mute=<span class="number">0</span></span><br><span class="line"><span class="comment">//这个步骤的作用是, 将dmic的增益调整为15 </span></span><br></pre></td></tr></tbody></table></figure>
+
+
+</li>
+<li><p>Q:  耳机音量小但是amixer没有相关可以配置的参数?</p>
+<p>A : 通过asound.conf配置新的插件, </p>
+<p><a target="_blank" rel="noopener" href="https://alsa.opensrc.org/How_to_use_softvol_to_control_the_master_volume">https://alsa.opensrc.org/How_to_use_softvol_to_control_the_master_volume</a></p>
+</li>
+</ol>
+<h1 id="参考资料（包含FFmpeg）"><a href="#参考资料（包含FFmpeg）" class="headerlink" title="参考资料（包含FFmpeg）"></a>参考资料（包含FFmpeg）</h1><blockquote>
+<p>注：如果后续如涉及到FFmpeg文章，再将该部分内容移除，以下文章是在工作的开发中有帮助到自己</p>
+</blockquote>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/1TJQc3Ktdw_Qz576iLjB1Q">ALSA（高级Linux声音架构）浅析</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://wenku.baidu.com/view/dacb0922af45b307e87197a2.html">ALSA框架介绍——音频通路</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://magodo.github.io/alsa-pcm/#0-pcm">ALSA - PCM接口</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/jason-lu/archive/2013/06/07/3123750.html">Linux ALSA框架之三:PCM设备的创建 </a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/leixiaohua1020/article/details/44116215">FFmpeg源代码简单分析</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/BrookIcv/article/details/53490799">FFmpeg 中AVPacket的使用</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/04/11/SoftwareDevelopment/Media/Audio-Alsa/" title="ALSA">http://yanglieee.com/2023/04/11/SoftwareDevelopment/Media/Audio-Alsa/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Audio/" rel="tag"><i class="fa fa-tag"></i> Audio</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/04/11/SoftwareDevelopment/ThirdParty/sqlite3/" rel="prev" title="sqlite">
+      <i class="fa fa-chevron-left"></i> sqlite
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/19/SoftwareDevelopment/ThirdParty/lwip+websocket/" rel="next" title="LwIP+websocket">
+      LwIP+websocket <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ALSA%E8%AE%BE%E5%A4%87%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">ALSA设备文件结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#alsa%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0%E5%8F%8A%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">alsa相关函数及文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%8F%8A%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-number">2.1.1.</span> <span class="nav-text">函数及结构体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.2.</span> <span class="nav-text">配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E9%9F%B3%E9%A2%91%E8%AE%BE%E5%A4%87%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.3.</span> <span class="nav-text">3.3 音频设备的定义</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#alsa%E6%8F%92%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">alsa插件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ALSA%E9%9F%B3%E9%A2%91%E5%B7%A5%E5%85%B7"><span class="nav-number">4.</span> <span class="nav-text">ALSA音频工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#arecode-%E5%BD%95%E9%9F%B3"><span class="nav-number">4.1.</span> <span class="nav-text">arecode 录音</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#aplay-%E6%94%BE%E9%9F%B3"><span class="nav-number">4.2.</span> <span class="nav-text">aplay 放音</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#amixer-%E9%85%8D%E5%8F%82"><span class="nav-number">4.3.</span> <span class="nav-text">amixer 配参</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E9%9F%B3%E9%A2%91%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7"><span class="nav-number">4.4.</span> <span class="nav-text">Linux音频分析工具</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#API%E4%BD%BF%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">API使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">6.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%88%E5%8C%85%E5%90%ABFFmpeg%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">参考资料（包含FFmpeg）</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

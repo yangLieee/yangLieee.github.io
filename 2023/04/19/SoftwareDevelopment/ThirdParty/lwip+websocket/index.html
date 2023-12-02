@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本篇文章是在websocket代码中调用lwip相关API实现websocket的功能的项目中进行调试所整理，以下着重说明关于lwip-socket的API">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LwIP+websocket">
+<meta property="og:url" content="http://yanglieee.com/2023/04/19/SoftwareDevelopment/ThirdParty/lwip+websocket/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="本篇文章是在websocket代码中调用lwip相关API实现websocket的功能的项目中进行调试所整理，以下着重说明关于lwip-socket的API">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-30T23:28:47.749Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="lwip">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yanglieee.com/2023/04/19/SoftwareDevelopment/ThirdParty/lwip+websocket/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>LwIP+websocket | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/04/19/SoftwareDevelopment/ThirdParty/lwip+websocket/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LwIP+websocket
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-04-19 00:00:00" itemprop="dateCreated datePublished" datetime="2023-04-19T00:00:00+08:00">2023-04-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-01 07:28:47" itemprop="dateModified" datetime="2023-12-01T07:28:47+08:00">2023-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/" itemprop="url" rel="index"><span itemprop="name">Software Development</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/Third-Party/" itemprop="url" rel="index"><span itemprop="name">Third Party</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/04/19/SoftwareDevelopment/ThirdParty/lwip+websocket/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/04/19/SoftwareDevelopment/ThirdParty/lwip+websocket/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本篇文章是在websocket代码中调用lwip相关API实现websocket的功能的项目中进行调试所整理，以下着重说明关于lwip-socket的API</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="WebSocket流程"><a href="#WebSocket流程" class="headerlink" title="WebSocket流程"></a>WebSocket流程</h1><blockquote>
+<p>websocket <a target="_blank" rel="noopener" href="https://github.com/dhbaird/easywsclient">https://github.com/dhbaird/easywsclient</a></p>
+</blockquote>
+<h2 id="Server端"><a href="#Server端" class="headerlink" title="Server端"></a>Server端</h2><ol>
+<li>socket()</li>
+<li>bind()</li>
+<li>listen()</li>
+<li>accept()</li>
+<li>recv()</li>
+</ol>
+<h2 id="Client端"><a href="#Client端" class="headerlink" title="Client端"></a>Client端</h2><ol>
+<li>socket()</li>
+<li>connect()</li>
+<li>send()</li>
+</ol>
+<h1 id="Lwip-API"><a href="#Lwip-API" class="headerlink" title="Lwip-API"></a>Lwip-API</h1><h2 id="lwip-socket"><a href="#lwip-socket" class="headerlink" title="lwip_socket"></a>lwip_socket</h2><ul>
+<li><p>功能：用于根据指定的地址族、数据类型和协议来分配一个套接口的描述字及其所用的资源的函数</p>
+</li>
+<li><p>函数原型</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> socket(domain,type,protocol)	  lwip_socket(domain,type,protocol)</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>参数选项</p>
+<ul>
+<li><p>domain：地址族AF_INET（IP_V4）、AF_INET6(IP_V6)</p>
+</li>
+<li><p>type：</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SOCK_STREAM     1 <span class="comment">//流式套接字提供可靠的、面向连接的通信流；它使用TCP 协议，从而保证了数据传输的正确性和顺序性。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SOCK_DGRAM      2<span class="comment">// 数据报套接字定义了一种无连接的服 ，数据通过相互独立的报文进行传输，是无序的，并且不保证是可靠、无差错的。它使用数据报协议UDP。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SOCK_RAW        3<span class="comment">// 原始套接字允许对底层协议如IP或ICMP进行直接访问，功能强大但使用较为不便，主要用于一些协议的开发。</span></span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>ptotocol</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IPPROTO_IP      0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IPPROTO_ICMP    1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IPPROTO_TCP     6</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IPPROTO_UDP     17</span></span><br><span class="line"><span class="comment">// 一般自动设置为0, 系统自动设置合适的协议</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="lwip-connect"><a href="#lwip-connect" class="headerlink" title="lwip_connect"></a>lwip_connect</h2><ul>
+<li><p>函数功能：用于建立与指定socket的连接。一般用于客户端，</p>
+</li>
+<li><p>函数原型</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> connect (s,	name, namelen)	   lwip_connect(s,name,namelen)</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>参数</p>
+<ul>
+<li>s ：socket()返回文件描述符代表的套接字</li>
+<li>const struct sockaddr *name：存放了服务端用于通信的地址和端口。</li>
+<li>socklen_t namelen：name参数结构体的长度。</li>
+</ul>
+</li>
+</ul>
+<h2 id="lwip-setsockopt"><a href="#lwip-setsockopt" class="headerlink" title="lwip_setsockopt"></a>lwip_setsockopt</h2><ul>
+<li><p>功能：设置与某个套接字关联的选项，当操作套接字选项时，选项位于的层和选项的名称必须给出</p>
+</li>
+<li><p>函数原型：</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">setsockopt</span><span class="params">(<span class="type">int</span> sock, <span class="type">int</span> level,<span class="type">int</span> optname, <span class="type">const</span> <span class="type">void</span> *optval, <span class="type">socklen_t</span> optlen)</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>参数选项</p>
+<ul>
+<li><p>sock：将要被设置选项的套接字</p>
+</li>
+<li><p>optname：需要访问的选项名</p>
+</li>
+<li><p>optval：指向包含新选项值得缓冲</p>
+</li>
+<li><p>optlen：现选项的长度</p>
+</li>
+<li><p>level：参数（level）详细说明：level是指定控制套接字的层次，可以取如下三种值</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">选项名称(optname)　　　说明　　　　　          　　　　数据类型</span><br><span class="line">========================================================================</span><br><span class="line">SO_BROADCAST　　　　　 允许发送广播数据　　　　　　　　 <span class="type">int</span></span><br><span class="line">SO_DEBUG　　　　　　　  允许调试　　　　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_DONTROUTE　　　　　　不查找　　　　　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_ERROR　　　　　　　　获得套接字错误　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_KEEPALIVE　　　　　　保持连接　　　　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_LINGER　　　　　　　 延迟关闭连接　　　　　　　　　　<span class="keyword">struct</span> linger</span><br><span class="line">SO_OOBINLINE　　　　　　带外数据放入正常数据流　　　　　<span class="type">int</span></span><br><span class="line">SO_RCVBUF　　　　　　　 接收缓冲区大小　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_SNDBUF　　　　　　　 发送缓冲区大小　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_RCVLOWAT　　　　　　 接收缓冲区下限　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_SNDLOWAT　　　　　　 发送缓冲区下限　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_RCVTIMEO　　　　　　 接收超时　　　　　　　　　　　　<span class="keyword">struct</span> timeval</span><br><span class="line">SO_SNDTIMEO　　　　　　 发送超时　　　　　　　　　　　　<span class="keyword">struct</span> timeval</span><br><span class="line">SO_REUSERADDR　　　　　 允许重用本地地址和端口　　　　　<span class="type">int</span></span><br><span class="line">SO_TYPE　　　　　　　　 获得套接字类型　　　　　　　　　<span class="type">int</span></span><br><span class="line">SO_BSDCOMPAT　　　　　　与BSD系统兼容　　　　　　　　　 <span class="type">int</span></span><br><span class="line">========================================================================</span><br><span class="line"><span class="comment">// SOL_SOCKET：通用套接字选项</span></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">选项名称(optname)　　　说明　　　　　          　　　　数据类型</span><br><span class="line">========================================================================</span><br><span class="line">IP_HDRINCL　　　　　　　在数据包中包含IP首部　　　　　　<span class="type">int</span></span><br><span class="line">IP_OPTINOS　　　　　　　IP首部选项　　　　　　　　　　　<span class="type">int</span></span><br><span class="line">IP_TOS　　　　　　　　　类型</span><br><span class="line">IP_TTL　　　　　　　　　生存时间　　　　　　　　　　　　 <span class="type">int</span></span><br><span class="line">========================================================================</span><br><span class="line"><span class="comment">//IPPROTO_IP：IP选项</span></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">选项名称(optname)　　　说明　　　　　          　　　　数据类型</span><br><span class="line">========================================================================</span><br><span class="line">TCP_MAXSEG　　　　　　TCP最大数据段的大小　　　　　　　 <span class="type">int</span></span><br><span class="line">TCP_NODELAY　　　　　 不使用Nagle算法　　　　　　　　　 <span class="type">int</span></span><br><span class="line">========================================================================</span><br><span class="line"><span class="comment">// IPPROTO_TCP：TCP选项  </span></span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="lwip-fcntl"><a href="#lwip-fcntl" class="headerlink" title="lwip_fcntl"></a>lwip_fcntl</h2><ul>
+<li>功能：fcntl 的最小实现。 目前仅实现了命令 F_GETFL 和 F_SETFL。 只有标志 O_NONBLOCK 被实现。</li>
+</ul>
+<h2 id="lwip-send-x2F-lwip-sendto-x2F-lwip-write"><a href="#lwip-send-x2F-lwip-sendto-x2F-lwip-write" class="headerlink" title="lwip_send / lwip_sendto / lwip_write"></a>lwip_send / lwip_sendto / lwip_write</h2><ul>
+<li><p>功能：发送数据</p>
+</li>
+<li><p>区别：</p>
+<ul>
+<li>lwip_send：核心， 最终的调用</li>
+<li>lwip_write：直接调用lwip_send</li>
+<li>Lwip_sendto：相较于lwip_to多了远程主机的ip地址和端口号相关的参数，处理中多了netconn_connect的调用（lwip_connect + lwip_send）</li>
+</ul>
+</li>
+<li><p>函数原型</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> sendmsg	(s,	message，flags )	   lwip_sendmsg(s,message,flags)</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+<h2 id="lwip-select"><a href="#lwip-select" class="headerlink" title="lwip_select"></a>lwip_select</h2><ul>
+<li><p>功能：用于I/O多路复用的API，使用select可以同时监听多个socket的状态，以便读写数据</p>
+</li>
+<li><p>原型</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> select	(maxfdp1,readset,writeset,exceptset,timeout)</span></span><br><span class="line">		lwip_select(maxfdp1,readset,writeset,exceptset,timeout)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>参数含义</p>
+<ul>
+<li><p>maxfdp1：要检查的最大文件描述符的数目，一般是最大dp+1</p>
+</li>
+<li><p>readset/writeset/exceptset：</p>
+<p>fd_set类型，指向需要监听的可读、可写和异常事件的文件描述符集合</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="lwip-recv"><a href="#lwip-recv" class="headerlink" title="lwip_recv"></a>lwip_recv</h2><ul>
+<li><p>函数功能：接受数据</p>
+</li>
+<li><p>函数原型</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> recv(s,	mem,len,flags)	   lwip_recv(s,mem,len,flags)</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li><p>Q：调用lwip_send / lwip_recv时出现WSAEWOULDBLOCK / WSAEINPROGRESS</p>
+<p>A：本质上以上两个错误码不是错误，而是一种警告，接收方告诉发送方它现在处于busy状态</p>
+<p>​		WSAEWOULDBLOCK的意思是output buffer已经满了，无法再写入数据。按照网上博主的说法，在绝大多数情况下其实不会出现buffer满的情况，而是		处于busy状态。我理解的这与overrun的意思差不多，只不过这里不会对数据正确性、完整性造成影响，接收方告诉我它的缓冲区满了或者数据已经处理		不过来了，它不再接受数据了，所以给我们一个异常。</p>
+<p>​		WSAEINPROGRESS:一个阻塞的WINDOWS套接口调用正在运行中。</p>
+<p>解决：当出现 WSAEWOULDBLOCK 异常后直到空出 Output Buffer 时，系统会发送一个 FD_WRITE 给发送方。我们完全可以在等收到 FD_WRITE 消息后再重新发送从出现异常开始的数据包即可（该包需要全部重新发送）。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://bbs.csdn.net/topics/70198557">参考链接</a></p>
+</blockquote>
+</li>
+<li></li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wwwyue1985/article/details/113789192">Lwip之API接口与原理</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39854159/article/details/120693512">LWIP学习之Socket （API篇）</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.nongnu.org/lwip/2_0_x/group__socket.html#gae3d13671f622e17c17317c9a16dfd0ee">Lwip API</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/04/19/SoftwareDevelopment/ThirdParty/lwip+websocket/" title="LwIP+websocket">http://yanglieee.com/2023/04/19/SoftwareDevelopment/ThirdParty/lwip+websocket/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/lwip/" rel="tag"><i class="fa fa-tag"></i> lwip</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/04/11/SoftwareDevelopment/Media/Audio-Alsa/" rel="prev" title="ALSA">
+      <i class="fa fa-chevron-left"></i> ALSA
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/19/SoftwareDevelopment/Tools/docker/" rel="next" title="Docker">
+      Docker <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WebSocket%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">WebSocket流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Server%E7%AB%AF"><span class="nav-number">1.1.</span> <span class="nav-text">Server端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Client%E7%AB%AF"><span class="nav-number">1.2.</span> <span class="nav-text">Client端</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lwip-API"><span class="nav-number">2.</span> <span class="nav-text">Lwip-API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#lwip-socket"><span class="nav-number">2.1.</span> <span class="nav-text">lwip_socket</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lwip-connect"><span class="nav-number">2.2.</span> <span class="nav-text">lwip_connect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lwip-setsockopt"><span class="nav-number">2.3.</span> <span class="nav-text">lwip_setsockopt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lwip-fcntl"><span class="nav-number">2.4.</span> <span class="nav-text">lwip_fcntl</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lwip-send-x2F-lwip-sendto-x2F-lwip-write"><span class="nav-number">2.5.</span> <span class="nav-text">lwip_send &#x2F; lwip_sendto &#x2F; lwip_write</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lwip-select"><span class="nav-number">2.6.</span> <span class="nav-text">lwip_select</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lwip-recv"><span class="nav-number">2.7.</span> <span class="nav-text">lwip_recv</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">3.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

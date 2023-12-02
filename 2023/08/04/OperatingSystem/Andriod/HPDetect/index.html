@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对模拟耳机类型进行分类，针对linux inputevent和 android uevent的两种耳机检测方式做解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="耳机插拔检测">
+<meta property="og:url" content="http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对模拟耳机类型进行分类，针对linux inputevent和 android uevent的两种耳机检测方式做解析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/OperatingSystem/Andriod/hp_detect.png">
+<meta property="article:published_time" content="2023-08-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-01T14:00:26.513Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/OperatingSystem/Andriod/hp_detect.png">
+
+<link rel="canonical" href="http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>耳机插拔检测 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          耳机插拔检测
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-04 00:00:00" itemprop="dateCreated datePublished" datetime="2023-08-04T00:00:00+08:00">2023-08-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-01 22:00:26" itemprop="dateModified" datetime="2023-12-01T22:00:26+08:00">2023-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Andriod/" itemprop="url" rel="index"><span itemprop="name">Andriod</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/08/04/OperatingSystem/Andriod/HPDetect/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/08/04/OperatingSystem/Andriod/HPDetect/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">对模拟耳机类型进行分类，针对linux inputevent和 android uevent的两种耳机检测方式做解析</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="耳机分类"><a href="#耳机分类" class="headerlink" title="耳机分类"></a>耳机分类</h1><p>目前市场上的耳机种类繁多每一种耳机都有其较为匹配的应用场景。按照佩戴方式可以划分为：入耳式、外耳式、头戴式等等；按照数据传输方式可以划分为：有线耳机、无线耳机；按照进入耳机的数据类型分类可以划分为：模拟耳机、数字耳机；本文主要是根据嵌入式产品上应用较多的两种不同的接口耳机进行说明：type-c耳机和3.5mm音频接口耳机（type-c耳机不一定是数字耳机，3.5mm圆孔耳机一定是模拟耳机）</p>
+<h2 id="3-5mm音频接口耳机"><a href="#3-5mm音频接口耳机" class="headerlink" title="3.5mm音频接口耳机"></a>3.5mm音频接口耳机</h2><p><img src="/images/OperatingSystem/Andriod/hp_detect.png" alt="image"></p>
+<ul>
+<li>3-pole（Headphone）</li>
+<li>4-pole（Headset）<ul>
+<li>OMTP（Open Mobile Terminal Platform），对应插头上的塑料环一般是黑色，国标 / 欧标；</li>
+<li>CITA（Cellular Telecommunications and Internet Association），对应插头上的塑料环一般是白色，美标；</li>
+</ul>
+</li>
+</ul>
+<h1 id="硬件检测原理"><a href="#硬件检测原理" class="headerlink" title="硬件检测原理"></a>硬件检测原理</h1><p>一般的耳机检测包含普通的耳机（Headphone）检测和带mic的耳机（Headset）检测两种，这两种耳机统称为Headset。</p>
+<p>对于耳机装置的插拔检测，一般通过Jack即耳机插座来完成，大致的原理是使用带检测机械结构的耳机插座，将检测脚连到可GPIO中断上，当耳机插入时，耳机插头的金属会碰到检测脚，使得检测脚的电平产生变化，从而引起中断。这样就可以在中断处理函数中读取GPIO的的值，进一步判断出耳机是插入还是拔出。而对于耳机是否带mic的检测，需要通过codec附加的micbias电流的功能</p>
+<h1 id="检测机制"><a href="#检测机制" class="headerlink" title="检测机制"></a>检测机制</h1><h2 id="InputEvent"><a href="#InputEvent" class="headerlink" title="InputEvent"></a>InputEvent</h2><p>在 Linux 内核中，Input Event 是用于处理输入设备事件的机制，它允许内核捕获和处理各种输入设备的事件。内核中的 Input Event 机制通过 struct input_event 结构体来表示输入事件的信息。但是在音频部分ASOC已经为我们封装好了相应Jack接口函数。</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">input_event</span> {</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">time</span>;</span> <span class="comment">// 时间戳，记录事件发生的时间</span></span><br><span class="line">    __u16 type;          <span class="comment">// 事件类型，如 EV_KEY (键盘按键事件)、EV_REL (相对坐标事件)、EV_ABS (绝对坐标事件) 等</span></span><br><span class="line">    __u16 code;          <span class="comment">// 事件码，表示事件的具体类型或键码</span></span><br><span class="line">    __s32 value;         <span class="comment">// 事件的值，表示事件状态，例如按键的按下 (1) 或释放 (0)，坐标事件的位置值等</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="ASoc-Jack函数"><a href="#ASoc-Jack函数" class="headerlink" title="ASoc Jack函数"></a>ASoc Jack函数</h3><ol>
+<li><p>创建生成jack对象</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">snd_soc_jack_new</span> <span class="params">(<span class="keyword">struct</span> snd_soc_codec *codec, <span class="type">const</span> <span class="type">char</span> *id, <span class="type">int</span> type, <span class="keyword">struct</span> snd_soc_jack *jack)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// id: 名字</span></span><br><span class="line"><span class="comment">// type: 被检测的类型，即可能插入的设备, SND_JACK_HEADPHONE / SND_JACK_HEADSET或者其他</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>函数调用关系：snd_jack_new  –&gt;  input_allocate_device  申请input device空间，注册成输入设备</p>
+</li>
+<li><p>将定义好的pins加入dapm widgets进行电源管理。这一步和InputEvent没有一定联系，也可以不调用。</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>	<span class="title function_">snd_soc_jack_add_pins</span> <span class="params">(<span class="keyword">struct</span> snd_soc_jack *jack, <span class="type">int</span> count, <span class="keyword">struct</span> snd_soc_jack_pin *pins)</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">snd_soc_jack_pin</span> {</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">list</span>;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *pin;		<span class="comment">// 耳机检测引脚的名称或标识符</span></span><br><span class="line">    <span class="type">int</span> mask;				<span class="comment">// 需要报告的插拔事件类型</span></span><br><span class="line">    <span class="type">bool</span> invert;</span><br><span class="line">}; </span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里说之前定义好的pins指的是：使用类似于SND_SOC_DAPM_MIC / SND_SOC_DAPM_HP等等宏声明过的控件名称，否则在add_pins的过程中就会失败。在使用宏声明过后还需要将其定义为snd_soc_jack_pin结构体类型，其中两个重要的两个参数就是pin、mask两个字段需要声明。</p>
+<p>本质上还是对控件的管理，当jack有动作其符合mask所标识的时候，就会将对应的控件进行控制。</p>
+</li>
+<li><p>向用户空间上报事件</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">snd_soc_jack_report</span> <span class="params">(<span class="keyword">struct</span> snd_soc_jack *jack, <span class="type">int</span> status, <span class="type">int</span> mask)</span></span><br></pre></td></tr></tbody></table></figure>
+
+<ol>
+<li><p>判断此时的status和mask事件是否对应 使用snd_soc_jack_add_pins函数注册的dapm pin状态，并进行电源管理</p>
+</li>
+<li><p>通过调用 –&gt;  snd_jack_report  –&gt; input_report_key/input_report_switch函数来向上层汇报input event</p>
+</li>
+</ol>
+</li>
+<li><p>将GPIO引脚状态变化与音频时间关联起来。</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">snd_soc_jack_add_gpios</span><span class="params">(<span class="keyword">struct</span> snd_soc_jack *jack, <span class="type">int</span> count,  <span class="keyword">struct</span> snd_soc_jack_gpio *gpios)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> snd_soc_jack_gpio {</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> gpio;			<span class="comment">//GPIO 引脚的编号</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> idx; </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">gpiod_dev</span>;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;		<span class="comment">// 这个jack结构体标识符</span></span><br><span class="line">    <span class="type">int</span> report;				<span class="comment">// 表示插拔事件的报告类型或标志位。</span></span><br><span class="line">    <span class="type">int</span> invert;</span><br><span class="line">    <span class="type">int</span> debounce_time;		<span class="comment">// GPIO 引脚的去抖动时间，用于在检测到状态变化后延迟一段时间再处理事件，以避免抖动现象。</span></span><br><span class="line">    <span class="type">bool</span> wake;				<span class="comment">// 用于表示是否在检测到插拔事件后唤醒系统。</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* private: */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">snd_soc_jack</span> *<span class="title">jack</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">delayed_work</span> <span class="title">work</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">gpio_desc</span> *<span class="title">desc</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="type">void</span> *data;</span><br><span class="line">    <span class="comment">/* public: */</span></span><br><span class="line">    <span class="type">int</span> (*jack_status_check)(<span class="type">void</span> *data);	<span class="comment">//检查耳机插拔状态的回调函数。</span></span><br><span class="line">};  </span><br></pre></td></tr></tbody></table></figure>
+
+<p>该函数通过标准GPIO驱动申请GPIO及GPIO对应中断，并提供了统一的中断处理函数来汇报事件。此函数只适用于耳机中断接至GPIO且GPIO驱动为Linux标准驱动的情况下，并且不支持mic检测。</p>
+</li>
+</ol>
+<h3 id="操作流程"><a href="#操作流程" class="headerlink" title="操作流程"></a>操作流程</h3><ol>
+<li><p>snd_soc_jack_new 创建jack对象</p>
+</li>
+<li><p>snd_soc_jack_add_pins将其加入到dapm wigets中（可不调用）</p>
+</li>
+<li><p>将耳机detect_pin GPIO注册成中断，并在中断处理函数中进一步读取codec相关寄存器判断是headset还是headphone（这一步骤需要注意hp_detect pin需要连接到codec，并且codec是支持该功能的）</p>
+</li>
+<li><p>根据判断结果调用snd_soc_jack_report发送InputEvent</p>
+</li>
+</ol>
+<h3 id="Interrupt"><a href="#Interrupt" class="headerlink" title="Interrupt"></a>Interrupt</h3><p>对于InputEvent的方式本质上还是Jack和IRQ方式的结合，但是如果codec不支持headset / headphone的检测，就只能使用snd_soc_jack_add_gpios这个函数来进行向应用层通知插拔事件。</p>
+<p>当然如果用户层不需要感知HP插拔事件的时候，我们可以直接在中断处理函数中操作codec寄存器进行录放音的切换即可，这样只是用户层将拿不到状态信息。</p>
+<h2 id="UEvent"><a href="#UEvent" class="headerlink" title="UEvent"></a>UEvent</h2><blockquote>
+<p>源码位置：<a target="_blank" rel="noopener" href="http://androidxref.com/kernel_3.18/xref/drivers/switch/switch_class.c">andriod-kernel_3.18</a></p>
+</blockquote>
+<p>UEvent 是 Linux 内核对设备插拔等事件的通知机制，当设备插入或拔出时，内核会生成相应的 UEvent，并发送给用户空间，以便用户空间的应用程序可以对事件作出响应。UEvent是Android系统默认的耳机插拔机制，而UEvent机制比较简单，它基于switch driver。switch driver的目录在Linux kernel的drivers/staging/android/switch目录下，switch_class.c是switch driver的内部实现，它提供了switch driver所需的一些API；switch_gpio.c是一个例子，它实现了一个基于GPIO中断的switch driver。下面着重对switch_class.c进行分析。（只分析kernel层，不关注framework和app Layer）</p>
+<h3 id="switch原理"><a href="#switch原理" class="headerlink" title="switch原理"></a>switch原理</h3><p>Switch是Android引进的新的驱动，目的是用于检测一些开关量，比如检测耳机插入、检测 USB 设备插入等。Switch在sysfs文件系统中创建相应entry，用户可以通过sysfs与之交互； 此外还可以通过UEvent机制与之交互， 从而检测switch状态。 </p>
+<h3 id="switch函数实现"><a href="#switch函数实现" class="headerlink" title="switch函数实现"></a>switch函数实现</h3><p>Switch class在Android中实现为一个module，可动态加载。switch_class.c文件创建了一个switch_class，实现了内核的switch机制，提供支持函数供其他switch device驱动调用。 </p>
+<ol>
+<li><p>创建switch_class</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">create_switch_class</span><span class="params">(<span class="type">void</span>)</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>驱动注册入口函数 module_init()  中调用 create_switch_class() 函数。而该函数主要功能是调用 class_create() 函数创建了一个名为 <code>switch</code> 的class</p>
+</li>
+<li><p>注册 / 注销switch设备</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">switch_dev_register</span><span class="params">(<span class="keyword">struct</span> switch_dev *sdev)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">switch_dev_unregister</span><span class="params">(<span class="keyword">struct</span> switch_dev *sdev)</span>;</span><br></pre></td></tr></tbody></table></figure>
+
+
+</li>
+<li><p>显示设备名字和状态</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">ssize_t</span> <span class="title function_">state_show</span><span class="params">(<span class="keyword">struct</span> device *dev, <span class="keyword">struct</span> device_attribute *attr, <span class="type">char</span> *buf)</span>;</span><br><span class="line"><span class="type">static</span> <span class="type">ssize_t</span> <span class="title function_">name_show</span><span class="params">(<span class="keyword">struct</span> device *dev, <span class="keyword">struct</span> device_attribute *attr, <span class="type">char</span> *buf)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="title function_">DEVICE_ATTR</span><span class="params">(state, S_IRUGO, state_show, <span class="literal">NULL</span>)</span>;</span><br><span class="line"><span class="type">static</span> <span class="title function_">DEVICE_ATTR</span><span class="params">(name, S_IRUGO, name_show, <span class="literal">NULL</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// #define DEVICE_ATTR(_name, _mode, _show, _store)</span></span><br><span class="line"><span class="comment">// sysfs（system file system）接口的一部分，允许将设备的状态信息以文件的形式暴露给用户空间，使用户空间可以通过读写这些文件来与设备进行交互和配置。</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>这两个sysfs操作函数分别用于输出switch device的name和state。当用户读取sysfs中对应的switch entry（/sys/class/switch/<dev_name>/name和/sys/class/switch/<dev_name>/state）时候，系统会自动调用这两个函数向用户返回switch设备的名称和状态。</dev_name></dev_name></p>
+</li>
+<li><p>改变并通知用户swtich状态</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">switch_set_state</span><span class="params">(<span class="keyword">struct</span> switch_dev *sdev, <span class="type">int</span> state)</span></span><br></pre></td></tr></tbody></table></figure>
+
+<ol>
+<li>调用name_show和state_show输出switch设备名称和状态至sysfs文件系统；</li>
+<li>调用 kobject_uevent_env() 函数发送UEvent通知用户switch device的信息(名称和状态)</li>
+</ol>
+</li>
+</ol>
+<h3 id="用户层使用"><a href="#用户层使用" class="headerlink" title="用户层使用"></a>用户层使用</h3><p>UEvent机制比较简单，它基于switch driver，switch driver会在Android建立耳机插拔的目录/sys/devices/virtual/switch/h2w，在此目录下有个设备结点名为state，driver通过更新state的值，从而通知Android上层耳机状态的改变。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Qidi_Huang/article/details/51969396">3.5mm 音频接口类型说明</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fengying765/article/details/38301483/">Android4.×耳机插拔检测</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zhgn2/article/details/7422095">Android 耳机系统综述</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/" title="耳机插拔检测">http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/30/WorkExperience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/" rel="prev" title="CODEC移植开发总结">
+      <i class="fa fa-chevron-left"></i> CODEC移植开发总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/10/Hardware/Protocol/uart/" rel="next" title="Uart">
+      Uart <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%80%B3%E6%9C%BA%E5%88%86%E7%B1%BB"><span class="nav-number">1.</span> <span class="nav-text">耳机分类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5mm%E9%9F%B3%E9%A2%91%E6%8E%A5%E5%8F%A3%E8%80%B3%E6%9C%BA"><span class="nav-number">1.1.</span> <span class="nav-text">3.5mm音频接口耳机</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E6%A3%80%E6%B5%8B%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">硬件检测原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6"><span class="nav-number">3.</span> <span class="nav-text">检测机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#InputEvent"><span class="nav-number">3.1.</span> <span class="nav-text">InputEvent</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ASoc-Jack%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.1.</span> <span class="nav-text">ASoc Jack函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">3.1.2.</span> <span class="nav-text">操作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interrupt"><span class="nav-number">3.1.3.</span> <span class="nav-text">Interrupt</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UEvent"><span class="nav-number">3.2.</span> <span class="nav-text">UEvent</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#switch%E5%8E%9F%E7%90%86"><span class="nav-number">3.2.1.</span> <span class="nav-text">switch原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#switch%E5%87%BD%E6%95%B0%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.2.2.</span> <span class="nav-text">switch函数实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E5%B1%82%E4%BD%BF%E7%94%A8"><span class="nav-number">3.2.3.</span> <span class="nav-text">用户层使用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
