@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对SDRAM以及DDR的相关参数、基本结构、原理进行讲解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DDR基础与原理">
+<meta property="og:url" content="http://yanglieee.com/2023/04/05/Hardware/Storage/DDR/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对SDRAM以及DDR的相关参数、基本结构、原理进行讲解">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Storage/ddr-1.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Storage/ddr-2.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Storage/ddr-3.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Storage/ddr-4.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Storage/ddr-5.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Storage/ddr-6.png">
+<meta property="article:published_time" content="2023-04-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-01T14:18:46.903Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="DDR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/Hardware/Storage/ddr-1.png">
+
+<link rel="canonical" href="http://yanglieee.com/2023/04/05/Hardware/Storage/DDR/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>DDR基础与原理 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/04/05/Hardware/Storage/DDR/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DDR基础与原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-04-05 00:00:00" itemprop="dateCreated datePublished" datetime="2023-04-05T00:00:00+08:00">2023-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-01 22:18:46" itemprop="dateModified" datetime="2023-12-01T22:18:46+08:00">2023-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/" itemprop="url" rel="index"><span itemprop="name">Hardware</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/Storage/" itemprop="url" rel="index"><span itemprop="name">Storage</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/04/05/Hardware/Storage/DDR/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/04/05/Hardware/Storage/DDR/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">对SDRAM以及DDR的相关参数、基本结构、原理进行讲解</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://yanglieee.com/2023/02/07/computerSystem/%E5%AD%98%E5%82%A8%E4%BD%93%E7%B3%BB/">前面的文章</a>对SRAM的Cache做了详细分析，而这部分将对另一种随机存取器动态随机存储器DRAM做进一步说明。本文大部分是基于BranchEducation的视频内容和其它文章进行行文的，文章截图全部来自视频，部分是自己所画，视频连接放在最后的参考资料部分。</p>
+<h1 id="DRAM"><a href="#DRAM" class="headerlink" title="DRAM"></a>DRAM</h1><p>DRAM：Dynamic Random Access Memory，动态随机存储器。</p>
+<p>在DRAM的分类中，SDRAM（Synchronous DRAM）同步动态随机存储器在各个行业则占较大的比例。而我们经常听到的DDR（Double Data Rate SDRAM）即双倍速率SDRAM则又是SDRAM中的主要代表，本篇将着重对DDR原理进行分析</p>
+<p>DRAM是程序运行的和临时数据存储的媒介，无论是计算机还是手机的参数主存大小即指的是DRAM的大小。在工作中我们其实很少区分DDR和DRAM，严格来说DDR只能是DRAM中的一种，whatever，工作中不影响正常理解和使用就好。</p>
+<h1 id="DDR-SDRAM"><a href="#DDR-SDRAM" class="headerlink" title="DDR SDRAM"></a>DDR SDRAM</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
+<p>Wiki：<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/DDR_SDRAM">英文</a>；<a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/DDR_SDRAM">中文</a></p>
+</blockquote>
+<ul>
+<li><p>DDR SDRAM：Double Data Rate Synchronous Dynamic Random Access Memory，双倍数据率同步动态随机存取存储器。之所以“同步”是指内存的工作需要同步时钟，命令的发送和数据的传输都要以此为基准；“动态”则是因为我们需要为其提供电压定时刷新来保证数据的完整性，掉电则数据丢失；“双倍”则是由于其在时钟的上升沿和下降沿都可以进行数据的传输</p>
+</li>
+<li><p>LPDDR SDRAM：Low-Power Double Data Rate SDRAM，是一种功耗较低的同步动态随机存取存储器，主要用于移动计算机和手机等设备。较旧的变体也称为移动 DDR，缩写为 mDDR。现代 LPDDR SDRAM 与DDR SDRAM截然不同，具有多种差异，甚至LPDDR 技术标准是独立于 DDR 标准开发的。（本篇不对此做详细说明）</p>
+</li>
+</ul>
+<h2 id="各版本参数对比"><a href="#各版本参数对比" class="headerlink" title="各版本参数对比"></a>各版本参数对比</h2><table>
+<thead>
+<tr>
+<th align="center">DDR SDRAM Standard</th>
+<th align="center">Bus clock (MHz)</th>
+<th align="center">Internal rate (MHz)</th>
+<th align="center">Prefetch (min burst)</th>
+<th align="center">Transfer Rate (MT/s)</th>
+<th align="center">Voltage</th>
+<th align="center"><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/DIMM">DIMM</a> pins</th>
+<th align="center"><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/SO-DIMM">SO-DIMM</a> pins</th>
+<th align="center"><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/w/index.php?title=MicroDIMM&amp;action=edit&amp;redlink=1">MicroDIMM</a> pins</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>DDR</strong></td>
+<td align="center">100–200</td>
+<td align="center">100–200</td>
+<td align="center">2n</td>
+<td align="center">200–400</td>
+<td align="center">2.5/2.6</td>
+<td align="center">184</td>
+<td align="center">200</td>
+<td align="center">172</td>
+</tr>
+<tr>
+<td align="center"><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/DDR2_SDRAM">DDR2</a></td>
+<td align="center">200–533</td>
+<td align="center">100–266</td>
+<td align="center">4n</td>
+<td align="center">400–1066</td>
+<td align="center">1.8</td>
+<td align="center">240</td>
+<td align="center">200</td>
+<td align="center">214</td>
+</tr>
+<tr>
+<td align="center"><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/DDR3_SDRAM">DDR3</a></td>
+<td align="center">400–1066</td>
+<td align="center">100–266</td>
+<td align="center">8n</td>
+<td align="center">800–2400</td>
+<td align="center">1.5</td>
+<td align="center">240</td>
+<td align="center">204</td>
+<td align="center">214</td>
+</tr>
+<tr>
+<td align="center"><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/DDR4_SDRAM">DDR4</a></td>
+<td align="center">800–1200</td>
+<td align="center">200–300</td>
+<td align="center">16n</td>
+<td align="center">1600–5067</td>
+<td align="center">1.2</td>
+<td align="center">288</td>
+<td align="center">260</td>
+<td align="center">214</td>
+</tr>
+</tbody></table>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ul>
+<li><p>channel：通道，属于控制器端的概念。可以简单理解为一个通道对应一个DDR控制器，每个通道拥有一组地址线、控制线和数据线</p>
+</li>
+<li><p>SIMM：Single In-line Memory Module，单列内存模组。内存模组电路板与主板插槽的接口只有一列引脚</p>
+</li>
+<li><p>DIMM：Double In-line Memory Module，双列内存模组，主板上的一个内存插槽，内存模组电路板与主板插槽的接口有两列引脚。一个Channel可以包括多个DIMM。</p>
+</li>
+<li><p>Rank：CPU在一个时钟周期取数据的大小取决于数据总线的位宽（这个位宽被称为物理 Bank（Physical Bank)，通常内存颗粒都没有P-Bank大小的位宽，这时就需要多个内存颗粒组合起来满足CPU的一次访存。假设P-Bank=64bit即64位数据总线，而内存颗粒Chip的位宽是8bit，则8个chip组成了一个Rank。</p>
+</li>
+<li><p>Chip：1个chip大多是4bit/8bit/16bit等，多个chip组成一个rank，配合完成一次访问的位宽要求。这就是颗粒。内存颗粒共享地址和命令总线，各自有自己的数据总线</p>
+</li>
+<li><p>Bank：也称Logic Bank逻辑Bank，与物理bank的概念相对应。由于成本、技术以及SDRAM工作原理的限制，做一个全容量的Bank不太现实（寻址冲突），所以在寻址时需要先选中Bank，在根据行列选中数据。DDR2、DDR3已经有8个Bank </p>
+</li>
+<li><p>row/column：行列，存储的最小单元，每一个行列交叉点存储了1bit的数据。</p>
+</li>
+</ul>
+<p>笼统上讲从大到小为：<strong>channel ＞ DIMM ＞ rank ＞ chip ＞ bank ＞ row/column</strong>，如下图：</p>
+<p><img src="/images/Hardware/Storage/ddr-1.png" alt="image"></p>
+<h2 id="内存大小"><a href="#内存大小" class="headerlink" title="内存大小"></a>内存大小</h2><p>SDRAM总存储容量 = 行数 x 列数 x L-Bank数量  = 存储单元个数 x 存储单元容量（4bit/8bit/16bit）</p>
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><blockquote>
+<p>Tips：判断MOS管是N沟道还是P沟道，里N外P，即箭头指向G是NMOS，反之是PMOS</p>
+</blockquote>
+<p>利用了电容能够保持电荷及其充放电的特性。目前市场最常用的存储1bit数据的SDRAM的结构是由一个MOS管、一个电容和两根导线组成的。电容一段连接晶体管一端另一端接地、字线连接MOS管的栅极，位线连接到晶体管通道的另一端，如下图所示：</p>
+<p><img src="/images/Hardware/Storage/ddr-2.png" alt="image"></p>
+<ul>
+<li><p>写</p>
+<p>当字线（WL）电压为逻辑1时开关打开，存储单元选通，如果此时位线（BL）为高电压，则向电容中充电，则就是向存储单元中写1；相反如果WL=1，BL=0电容放电，这就是向存储单元中写0</p>
+</li>
+<li><p>读</p>
+<p>当字线（WL）电压为逻辑1时开关打开，此时在位线上连接电量计就可以测量电容中存储的的值。如果电容放电，那么就表示这个单元里原来存的值是 1，如果电容不放电，则表示原来的值是 0。可见当DRAM进行数据读取的时候会使存储单元中的1变成0，是有破坏性的，而实际中我们需要读出继续保持数据或电荷，后面有对此的解决办法（感应放大器）</p>
+</li>
+</ul>
+<p>当字线关闭的时候就不进行任何读写操作了，晶体管也紧跟着被关闭，电容器与位线隔离从而保存了之前写入的数据或电荷。但是由于晶体管十分小，存储在电容器中的电荷会在通道上慢慢泄露，因此又需要另外的技术来对此进行修复（Recharge）</p>
+<h1 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h1><p>下图是对一个bank的一部分作图进行说明。行译码器、列选择复用器之所以这样设计是因为：当数据进行读写的时候，只需要打开某一个固定行（其它行关闭）即可，这样子该行所在的电容将连接到位线上，而在进行列选择的时候，由于是进行多比特的选择（4bit/8bit）所以要这里的列多路复用器相当于列中的第几组（组数*位宽）</p>
+<p><img src="/images/Hardware/Storage/ddr-3.png" alt="image"></p>
+<h2 id="读-x2F-写"><a href="#读-x2F-写" class="headerlink" title="读/写"></a>读/写</h2><h3 id="通用流程"><a href="#通用流程" class="headerlink" title="通用流程"></a>通用流程</h3><blockquote>
+<p>预充电电压根据DDR每一代是有所不同的，但一定是充电电压的一半</p>
+</blockquote>
+<ol>
+<li>选择bank；</li>
+<li>关闭所有行；关闭所有字线，隔离所有电容</li>
+<li>预充电；将所有位线的电压升值供电电压一半（DDR5：0.55V；DDR4：0.6V；DDR3：0.75V）</li>
+<li>行选择；字线上电打开MOS管形成的开关，电容连接到对应的位线</li>
+<li>列选择；位线通过多路复用选择器连接到数据线上</li>
+</ol>
+<h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><ul>
+<li><p>读（保证数据不丢失）</p>
+<p>行选择时，当字线选中后，该行所在的电容被连接到对应的位线。如果电容存储的数据是1（电容压差是供电电压1.1 / 1.2 / 1.4），由于位线预充电后电压至供电电压的一半，所以电荷将从电容流向位线，进而位线电压增加，这时位线下面所连接的感应放大器能感受到这种轻微的变化或扰动，并放大这一变化，将位线电压再增加到供电电压（1.1 / 1.2 / 1.4）；相反，如果存储的是0，电荷将从位线流向电容，位线电压降低，感应放大器放大这一变化，将位线电压降低至0V。这样就保证了既能够通过位线读取数据又保证电容数据不丢失</p>
+</li>
+<li><p>写</p>
+<p>写流程与读类似，但当要写入的数据–&gt;数据总线–&gt;写驱动器器–&gt;多路选择复用器–&gt;感应放大器—&gt;位线 这样流程下来的时候，由于写驱动器的存在，它比感应放大器强大的多，这将会导致写驱动器出来的数据直接覆盖掉位线上原有的数据</p>
+</li>
+</ul>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>假设32位地址总线，32个bank，65536（2^16^）行，8192（2^13^）列，8bitddr颗粒</p>
+<ul>
+<li>0-4，5位地址将选择某个bank</li>
+<li>行关闭 + 预充电</li>
+<li>5-21，16位选择某个行</li>
+<li>22-31，10bit选择某个组（每一组8列，这个由L-bank位宽决定）</li>
+</ul>
+<h2 id="刷新Refresh"><a href="#刷新Refresh" class="headerlink" title="刷新Refresh"></a>刷新Refresh</h2><p>refresh每一行的刷新时间是50ns。而整个bank刷新的时间间隔是64ms/次（小于电荷泄露1-&gt;0的最短时间）</p>
+<h3 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h3><p>由于SDRAM最小存储单元电路形式是电容，电容是有自放电的特性。长时间存储电容电荷会漏电，故需要刷新和预充电进行补充。</p>
+<h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ul>
+<li>自动刷新（Auto Refresh，简称AR/REF，需要CK，CKE高）</li>
+<li>自刷新（Self Refresh，简称SR/SRE-SRF，SDRAM内部产生，不依赖CK，CKE低，用于休眠模式或低功耗）</li>
+</ul>
+<h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ol>
+<li>关闭所有行</li>
+<li>预充电</li>
+<li>打开行，感应放大并填充电荷</li>
+<li>从第一行到最后一行重复第3步骤</li>
+</ol>
+<h1 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h1><ul>
+<li>CAS：Column Address Select，列地址选择</li>
+<li>RAS：Row Address Select，行地址选择</li>
+<li>CAS Latency：(CL）CAS延迟。指的是从行打开到到接收到存储在列中的数据的时间</li>
+<li>tRCD：RAS to CAS Delay RAS-CAS延迟，激活时间。指的是在字线全部关闭，位线被预充电的情况下，打开一行所需要的时间</li>
+<li>tRP：RAS Precharge Time ，行预充电时间。指的是再打开一行之前对位线进行预充电的时间</li>
+<li>tRAS：激活一行和接下来预充电之间的时间</li>
+</ul>
+<p><img src="/images/Hardware/Storage/ddr-4.png" alt="image"></p>
+<h1 id="优化-x2F-访存加速"><a href="#优化-x2F-访存加速" class="headerlink" title="优化/访存加速"></a>优化/访存加速</h1><h2 id="行命中"><a href="#行命中" class="headerlink" title="行命中"></a>行命中</h2><p>在DRAM的读写过程中，其中比较耗时的步骤应该就是行打开。</p>
+<p>可以考虑这样一个场景：CPU第一次访存是在249行，第二次所需要的数据大概率也可能在249行，因此在第一次和第二次访存中间我们就可以不关闭行了，而是等到新的行访存再进行整个读写步骤。进而将一个bank内的情况推广到整个内存颗粒，每一个bank上都存在一行未关闭（即上次访存数据所在的行），而当下次访存所在的行如果打开则成为Row Hit行命中，如果没有称为Row Miss（参考【5参数】章节的图片）</p>
+<h2 id="Burst-Buffer"><a href="#Burst-Buffer" class="headerlink" title="Burst Buffer"></a>Burst Buffer</h2><p>Burst：突发，是指在同一行中相邻的存储单元连续进行数据传输的方式，连续传输所涉及到存储单元（列）的数量就是突发长度（Burst Lengths，简称 BL）。 </p>
+<p>如果所示就是两个128bit的burst buffer，上端连接列选择即数据段，下面连接读写驱动器。人们只要指定起始列地址与突发长度，内存就会依次地自动对后面 相应数量的存储单元进行读/写操作而不再需要控制器连续地提供列地址。这样，除了第一笔数据的传输需要若干个周期（主要是之前的延迟，一般的是 tRCD+CL）外，其后每个数据只需一个周期的即可获得。</p>
+<p>至于 BL 的数值，也是不能随便设或在数据进行传输前临时决定。一定要参考相应的数据手册进行设置，比较常见的设定是 4 和 8。</p>
+<p><img src="/images/Hardware/Storage/ddr-5.png" alt="image"></p>
+<h2 id="感应放大器"><a href="#感应放大器" class="headerlink" title="感应放大器"></a>感应放大器</h2><ul>
+<li><p>优化方式</p>
+<p>让每一个感应放大器上由两个位线连接到其上，让交替排列的存储单元分别连接在左侧和右侧的位线。交叉耦合反相器的存在使得一半的位线处于1，另一半处于0，这被称为差分对</p>
+</li>
+<li><p>好处：</p>
+<ol>
+<li>预充电时，由于差分对两侧一边是0，一边是1，所以断开两个反相器然后通过三极管将两个位线连接，电压将降低到中值</li>
+<li>抗噪音</li>
+<li>减少位线寄生电容</li>
+</ol>
+</li>
+</ul>
+<p><img src="/images/Hardware/Storage/ddr-6.png" alt="image"></p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><blockquote>
+<p>1、2链接为同一视频，区别在于1是Youtube英文版，2是B站中文译版</p>
+</blockquote>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=7J7X7aZvMXQ&amp;t=831s">How does Computer Memory Work?</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1vP411c7pt/?s">计算机如何工作？</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ZZ4y1M79G/">SDRAM与DDR2存储器原理详解【FPGA应用场景】</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.bdtic.com/datasheet/Micron/64Mb_x4_x8_x16SDRAM.pdf">美光SDRAM MT48LC2M32B2TG-7 数据手册</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/04/05/Hardware/Storage/DDR/" title="DDR基础与原理">http://yanglieee.com/2023/04/05/Hardware/Storage/DDR/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DDR/" rel="tag"><i class="fa fa-tag"></i> DDR</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/04/05/Hardware/Protocol/IIS/" rel="prev" title="IIS">
+      <i class="fa fa-chevron-left"></i> IIS
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/04/11/Software%20Development/Third%20Party/sqlite3/" rel="next" title="sqlite">
+      sqlite <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DRAM"><span class="nav-number">1.</span> <span class="nav-text">DRAM</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DDR-SDRAM"><span class="nav-number">2.</span> <span class="nav-text">DDR SDRAM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">2.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%84%E7%89%88%E6%9C%AC%E5%8F%82%E6%95%B0%E5%AF%B9%E6%AF%94"><span class="nav-number">2.2.</span> <span class="nav-text">各版本参数对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">2.3.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%A4%A7%E5%B0%8F"><span class="nav-number">2.4.</span> <span class="nav-text">内存大小</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">基本结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB-x2F-%E5%86%99"><span class="nav-number">4.1.</span> <span class="nav-text">读&#x2F;写</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">4.1.1.</span> <span class="nav-text">通用流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E"><span class="nav-number">4.1.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.1.3.</span> <span class="nav-text">实例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%B7%E6%96%B0Refresh"><span class="nav-number">4.2.</span> <span class="nav-text">刷新Refresh</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E7%9A%84"><span class="nav-number">4.2.1.</span> <span class="nav-text">目的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">4.2.2.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4"><span class="nav-number">4.2.3.</span> <span class="nav-text">步骤</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E6%95%B0"><span class="nav-number">5.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E5%8C%96-x2F-%E8%AE%BF%E5%AD%98%E5%8A%A0%E9%80%9F"><span class="nav-number">6.</span> <span class="nav-text">优化&#x2F;访存加速</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%8C%E5%91%BD%E4%B8%AD"><span class="nav-number">6.1.</span> <span class="nav-text">行命中</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Burst-Buffer"><span class="nav-number">6.2.</span> <span class="nav-text">Burst Buffer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%84%9F%E5%BA%94%E6%94%BE%E5%A4%A7%E5%99%A8"><span class="nav-number">6.3.</span> <span class="nav-text">感应放大器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">7.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

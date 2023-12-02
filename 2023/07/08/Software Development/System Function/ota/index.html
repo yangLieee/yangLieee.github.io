@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对于电子产品，系统的升级迭代离不开OTA技术，本篇将根据工作经验对OTA升级步骤及策略进行解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OTA">
+<meta property="og:url" content="http://yanglieee.com/2023/07/08/Software%20Development/System%20Function/ota/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对于电子产品，系统的升级迭代离不开OTA技术，本篇将根据工作经验对OTA升级步骤及策略进行解析">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-30T23:34:57.619Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yanglieee.com/2023/07/08/Software%20Development/System%20Function/ota/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>OTA | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/07/08/Software%20Development/System%20Function/ota/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OTA
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-07-08 00:00:00" itemprop="dateCreated datePublished" datetime="2023-07-08T00:00:00+08:00">2023-07-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-01 07:34:57" itemprop="dateModified" datetime="2023-12-01T07:34:57+08:00">2023-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/" itemprop="url" rel="index"><span itemprop="name">Software Development</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/System-Function/" itemprop="url" rel="index"><span itemprop="name">System Function</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/07/08/Software%20Development/System%20Function/ota/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/07/08/Software%20Development/System%20Function/ota/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+            <div class="post-description">对于电子产品，系统的升级迭代离不开OTA技术，本篇将根据工作经验对OTA升级步骤及策略进行解析</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>OTA（Over-the-Air）直译来讲就是空中下载，是指通过网络将设备固件更新到最新版本，而无需物理连接。对于不同厂家的不同的产品有着不同的OTA升级策略，但是在OTA升级中关键步骤几乎都是一致的。</p>
+<p>相应的，通过有线方式进行升级，叫本地升级，比如通过UART，USB或者SPI通信接口来升级设备固件</p>
+<h2 id="需要解决的问题"><a href="#需要解决的问题" class="headerlink" title="需要解决的问题"></a>需要解决的问题</h2><ol>
+<li>如何将固件下载到本地？</li>
+<li>如何保证下载到的固件是正确且完整的？</li>
+<li>如何烧录新的固件且过程中出现问题可以正常恢复？</li>
+</ol>
+<h1 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h1><ol>
+<li>服务器端制作升级包</li>
+<li>设备端下载升级包<ul>
+<li>建立与服务器的网络连接</li>
+<li>从服务器下载新的固件版本，确认是否需要升级</li>
+<li>下载升级包</li>
+</ul>
+</li>
+<li>设备端检验升级包<ul>
+<li>解压升级包</li>
+<li>校验固件版本的完整性、准确性、安全性</li>
+</ul>
+</li>
+<li>升级<ul>
+<li>将固件写入设备的存储介质</li>
+<li>升级成功写入新的版本号</li>
+</ul>
+</li>
+<li>设备重启</li>
+</ol>
+<h1 id="OTA升级策略"><a href="#OTA升级策略" class="headerlink" title="OTA升级策略"></a>OTA升级策略</h1><h2 id="固件完整性"><a href="#固件完整性" class="headerlink" title="固件完整性"></a>固件完整性</h2><h3 id="全包升级"><a href="#全包升级" class="headerlink" title="全包升级"></a>全包升级</h3><p>全包升级（Full Update）：全包升级是指将完整的固件包发送给设备进行升级。这意味着设备需要下载整个固件包并进行完全的替换，无论设备当前运行的是哪个版本。全包升级适用于较小的固件更新或在设备上进行了较大的改动。</p>
+<h3 id="差分升级"><a href="#差分升级" class="headerlink" title="差分升级"></a>差分升级</h3><p>差分升级（Differential Update）：差分升级是指只发送变更部分的固件包给设备进行升级。这样，设备只需要下载和应用固件的变化部分，而不是整个固件包。差分升级适用于较大的固件更新，尤其是当设备已经处于较新的版本上时。</p>
+<p>这种方式可以大大减少升级所需的时间和数据量，提高升级的效率。但是，差分升级可能需要额外的计算资源来处理固件的合并和应用，因为设备需要将变更部分与当前的固件进行合并，并且可能会出现不兼容的情况。</p>
+<h2 id="固件覆盖模式"><a href="#固件覆盖模式" class="headerlink" title="固件覆盖模式"></a>固件覆盖模式</h2><h3 id="单区模式"><a href="#单区模式" class="headerlink" title="单区模式"></a>单区模式</h3><p>在单区覆盖模式下，设备固件的存储空间被分成一个单一的区域。当进行OTA固件升级时，新的固件包会完全替换原有的固件，覆盖在同一个存储区域上。这意味着在升级过程中，设备的固件会被擦除并用新的固件替代。但是由于程序执行的代码已经从flash拷贝到ram中进行执行了，所以OTA的流程还是可以进行完成的，当新的固件覆写到旧固件的存储区域完成重启设备即可进入新版本</p>
+<p>单区覆盖模式的优点是实现简单，固件更新相对直接，但缺点是如果升级失败，可能需要进行完全的固件恢复，而且升级过程中无法回滚到原有固件版本，甚至最后变成“板砖”</p>
+<h3 id="双区模式"><a href="#双区模式" class="headerlink" title="双区模式"></a>双区模式</h3><p>在双区覆盖模式下，设备固件的存储空间被分为两个独立的区域，假设称为”A区”和”B区”。设备当前运行的固件版本存储在其中一个区域（例如A区），而进行OTA固件升级时，新的固件包将被下载并写入另一个区域（例如B区）。</p>
+<p>在升级过程中，设备将保持运行在当前固件版本所在的区域（例如A区），而新的固件被下载到另一个区域（例如B区）。下载完成后，设备会进行固件切换，将运行环境从当前区域切换到新的固件所在的区域。这样，如果升级失败，设备可以回滚到原有的固件版本，通过切换回之前的区域。</p>
+<p>双区覆盖模式的优点是在升级过程中提供了冗余和回滚的能力，减少了升级失败的风险。然而，相对于单区覆盖模式，双区覆盖模式需要更多的存储空间来维护两个固件区域。</p>
+<h1 id="其它策略"><a href="#其它策略" class="headerlink" title="其它策略"></a>其它策略</h1><h2 id="解压策略"><a href="#解压策略" class="headerlink" title="解压策略"></a>解压策略</h2><p>在工作的一个项目中（freertos系统、8M nor flash），由于flash存储空间有限，不能将升级包下载解压到flash文件系统上。</p>
+<p>此时可以使用<code>边解压变升级</code>的方式，使用minizip、zlib等开源库的API将升级包的zip包解压到RAM当中，无论是使用堆空间还是栈空间都是可以的，按照固定大小解压到buffer，将buffer内容升级或者是烧录进flash即可。</p>
+<p>这样做的好处很明显：节省flash空间、减少了一次数据的写flash和读flash，理论上按照同样大小的块烧录，速度更快</p>
+<h2 id="完整性策略"><a href="#完整性策略" class="headerlink" title="完整性策略"></a>完整性策略</h2><p>完整性指的是：我们下载download下来的数据包与网络服务器端的数据包是一致的</p>
+<p>这个相对简单，我们对升级包做hash或者md5值，将这个值写入文件放到服务器上。当我们下载压缩包的时候，将这个hash/md5一起下载，在本地对压缩包做hash/md5，再与下载下来的值比较。这样对于数据包是否正确是否完整我们就有了准确的判断依据。</p>
+<h2 id="合法性策略"><a href="#合法性策略" class="headerlink" title="合法性策略"></a>合法性策略</h2><p>合法性策略指的是：对于服务器来讲，它所存放的升级包不能给规定产品以外的设备来获取到压缩包，或者说即使客户端下载下来了也不能正常解压压缩包拿到数据。</p>
+<p>工作中我所涉及的加密的方法是使用非对称加密RSA算法，这里可能涉及到密码学的相关知识，后面我也需要再进一步学习整理出专门的文章来做解释。在OTA的场景下，可以概括成如下一些步骤：</p>
+<ul>
+<li>生成RSA密钥对（公钥+私钥）</li>
+<li>将公钥提供给设备端。可以将公钥作为固件的一部分或单独提供给设备。</li>
+<li>将私钥提供给服务端。在OTA服务器端，使用私钥对固件文件进行数字签名。</li>
+<li>OTA下载流程。将固件通过HTTP/HTTP等协议传输到设备端。</li>
+<li>设备端验签。OTA设备接收到加密的固件后，使用嵌入在设备中的公钥对固件进行解密和验证。</li>
+<li>验证成功进入固件升级流程</li>
+</ul>
+<h1 id="伪码"><a href="#伪码" class="headerlink" title="伪码"></a>伪码</h1><figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">bool</span> <span class="title function_">download_firmware</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">bool</span> <span class="title function_">verify_firmware</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">bool</span> <span class="title function_">write_firmware</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">bool</span> <span class="title function_">update_firmware_version</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">bool</span> <span class="title function_">restart_device</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">if</span>(download_firmware() &amp;&amp;</span><br><span class="line">     verify_firmware() &amp;&amp;</span><br><span class="line">     write_firmware() &amp;&amp;</span><br><span class="line">     update_firmware_version()) {</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"OTA upgrade succeeded.\n"</span>);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">else</span> {</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"OTA upgrade failed.\n"</span>);</span><br><span class="line">  }</span><br><span class="line">    reboot();		<span class="comment">// 设备重启</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">download_firmware</span><span class="params">()</span> {</span><br><span class="line">	<span class="comment">// 从服务器端下载固件</span></span><br><span class="line">    <span class="comment">// 工具：wget、curl</span></span><br><span class="line">    <span class="comment">// 在lwip工程中提供了代码http_client_download_to_disk接口来下载文件</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">verify_firmware</span><span class="params">()</span> {</span><br><span class="line">  <span class="comment">// 校验固件（完整性、安全性、准确性）</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">write_firmware</span><span class="params">()</span> {</span><br><span class="line">  <span class="comment">// 将固件写入非易失性存储器当中（write to flash）</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">update_firmware_version</span><span class="params">()</span> {</span><br><span class="line">  <span class="comment">// 将系统的版本号进行更新</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/usstmiracle/article/details/123200234">OTA实现原理</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/07/08/Software%20Development/System%20Function/ota/" title="OTA">http://yanglieee.com/2023/07/08/Software Development/System Function/ota/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/01/Hardware/Protocol/I2C/" rel="prev" title="I2C">
+      <i class="fa fa-chevron-left"></i> I2C
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/09/Operating%20System/Linux/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" rel="next" title="IO多路复用">
+      IO多路复用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">需要解决的问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">整体流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#OTA%E5%8D%87%E7%BA%A7%E7%AD%96%E7%95%A5"><span class="nav-number">3.</span> <span class="nav-text">OTA升级策略</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BA%E4%BB%B6%E5%AE%8C%E6%95%B4%E6%80%A7"><span class="nav-number">3.1.</span> <span class="nav-text">固件完整性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%8C%85%E5%8D%87%E7%BA%A7"><span class="nav-number">3.1.1.</span> <span class="nav-text">全包升级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%AE%E5%88%86%E5%8D%87%E7%BA%A7"><span class="nav-number">3.1.2.</span> <span class="nav-text">差分升级</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%BA%E4%BB%B6%E8%A6%86%E7%9B%96%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">固件覆盖模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E5%8C%BA%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.2.1.</span> <span class="nav-text">单区模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E5%8C%BA%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.2.2.</span> <span class="nav-text">双区模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E7%AD%96%E7%95%A5"><span class="nav-number">4.</span> <span class="nav-text">其它策略</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%8E%8B%E7%AD%96%E7%95%A5"><span class="nav-number">4.1.</span> <span class="nav-text">解压策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%80%A7%E7%AD%96%E7%95%A5"><span class="nav-number">4.2.</span> <span class="nav-text">完整性策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E6%B3%95%E6%80%A7%E7%AD%96%E7%95%A5"><span class="nav-number">4.3.</span> <span class="nav-text">合法性策略</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%AA%E7%A0%81"><span class="nav-number">5.</span> <span class="nav-text">伪码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

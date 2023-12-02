@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="通过mipi规范文档以及相关资料对mipi联盟、mipi规范进行简述。着重对D-phy进行相关学习记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MIPI &amp;&amp; D-PHY">
+<meta property="og:url" content="http://yanglieee.com/2023/05/30/Hardware/Protocol/mipi_dphy/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="通过mipi规范文档以及相关资料对mipi联盟、mipi规范进行简述。着重对D-phy进行相关学习记录">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-1.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-2.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-3.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-4.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-5.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-6.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-7.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-8.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-9.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-10.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-11.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-12.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-13.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-14.png">
+<meta property="article:published_time" content="2023-05-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-01T14:12:17.917Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="硬件传输协议">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/Hardware/Protocol/mipi/mipi-1.png">
+
+<link rel="canonical" href="http://yanglieee.com/2023/05/30/Hardware/Protocol/mipi_dphy/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MIPI && D-PHY | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/05/30/Hardware/Protocol/mipi_dphy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MIPI && D-PHY
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-30 00:00:00" itemprop="dateCreated datePublished" datetime="2023-05-30T00:00:00+08:00">2023-05-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-01 22:12:17" itemprop="dateModified" datetime="2023-12-01T22:12:17+08:00">2023-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/" itemprop="url" rel="index"><span itemprop="name">Hardware</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/Protocol/" itemprop="url" rel="index"><span itemprop="name">Protocol</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/05/30/Hardware/Protocol/mipi_dphy/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/05/30/Hardware/Protocol/mipi_dphy/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+            <div class="post-description">通过mipi规范文档以及相关资料对mipi联盟、mipi规范进行简述。着重对D-phy进行相关学习记录</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="MIPI基础"><a href="#MIPI基础" class="headerlink" title="MIPI基础"></a>MIPI基础</h1><p><img src="/images/Hardware/Protocol/mipi/mipi-1.png" alt="image"></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><ul>
+<li>含义：MIPI（Mobile Industry Processor Interface）移动行业处理器接口</li>
+<li>MIPI联盟：一家开放的会员制组织，2003年7月，由TI、ST、ARM、Nokia四家公司共同成立。</li>
+<li>MIPI协议：MIPI协议本质是多个协议族，随着MIPI的规范的不断的更新改进，目前较为成熟的接口包括摄像头接口CSI、显示接口DSI，而对于其中每一种又分别在物理层和协议层做出了相应的规范。该协议最初制定目的是把手机内部各种接口（显示屏、摄像头、射频等）标准化，减少手机设计的复杂度和增加设计的灵活性。</li>
+</ul>
+<h2 id="专有名词"><a href="#专有名词" class="headerlink" title="专有名词"></a>专有名词</h2><ul>
+<li><p>DCS：Display Command Set，显示命令集合。用于显示模块命令模式下的标准化命令集</p>
+</li>
+<li><p>DBI：Display Bus Interface，显示总线接口。与具有显示控制器和帧缓冲器的显示模块的并行接口</p>
+</li>
+<li><p>DPI：Display Pixel Interface，显示像素接口。与显示模块的并行接口，不带显示控制器或帧缓冲器</p>
+</li>
+<li><p>DSI：Display Serial Interface，显示串行接口。主机处理器与显示模块之间的高速串行接口</p>
+</li>
+<li><p>CSI：Camera Serial Interface，相机串行接口。主机处理器与摄像头模块之间的高速串行接口</p>
+</li>
+<li><p>PHY：Physical，物理层。物理层规范了传输介质、电气特性、IO电路、和同步机制。通俗地说，就是指定物理层构建的规则，比如指定如何拿到数据、怎样编码、转化成怎样的电信号、通过多少根/组通道送出去等等。</p>
+<ul>
+<li>C-PHY：100Mbits/s，C是罗马数字（拉丁文数字）中100 </li>
+<li>D-PHY： 500Mbits/s，D是罗马数字（拉丁文数字）中500 </li>
+<li>M-PHY：1000Mbits/s，M是罗马数字（拉丁文数字）中1000</li>
+</ul>
+</li>
+<li><p>APPI：Abstracted PHY-Protocol Interface，抽象物理协议接口</p>
+</li>
+<li><p>PPI：PHY-Protocol Interface， 物理协议接口</p>
+</li>
+<li><p>SoT：Start of Transmission，传输开始</p>
+</li>
+<li><p>EoT：End of Transmission，传输结束</p>
+</li>
+</ul>
+<h2 id="MIPI层次"><a href="#MIPI层次" class="headerlink" title="MIPI层次"></a>MIPI层次</h2><blockquote>
+<p>本部分文字说明均来自官方文档说明</p>
+</blockquote>
+<p><img src="/images/Hardware/Protocol/mipi/mipi-2.png" alt="image"></p>
+<h3 id="DSI"><a href="#DSI" class="headerlink" title="DSI"></a>DSI</h3><ul>
+<li><p>PHY layer</p>
+<p>PHY 层指定传输介质（电导体）、输入/输出电路和从串行比特流中捕获“1”和“0”的时钟机制。 规范的这一部分记录了传输介质的特性、信号的电气参数以及时钟和数据通道之间的时序关系。</p>
+<p>传输开始 (SoT) 和传输结束 (EoT) 的信令机制以及可以在传输和接收 PHY 之间传送的其他“带外”信息被指定。 位级和字节级同步机制作为 PHY 的一部分包含在内。</p>
+</li>
+<li><p>Lane Management Layer</p>
+<p>DSI 通过通道扩展以提高性能。 根据应用的带宽要求，数据信号的数量可以是 1、2、3 或 4。 接口的发送端将输出数据流分配到一个或多个通道（“分配器”功能）。 在接收端，接口从通道收集字节并将它们合并到一个重新组合的数据流中，恢复原始流序列（“合并”功能）。</p>
+</li>
+<li><p>Protocol Layer</p>
+<p>在最低级别，DSI 协议规定了通过接口的位和字节的顺序和值。 它指定如何将字节组织成称为数据包的定义组。 该协议定义了每个数据包所需的标头，以及如何生成和解释标头信息。 接口的发送端将报头和错误检查信息附加到正在发送的数据上。 在接收方，标头被剥离并由接收方中的相应逻辑解释。 错误检查信息可用于测试传入数据的完整性。 DSI 协议还记录了如何标记数据包以使用单个 DSI 将多个命令或数据流交织到不同的目的地。</p>
+</li>
+<li><p>App Layer</p>
+<p>该层描述了数据流中包含的数据的更高级别的编码和解释。 根据显示子系统架构，它可能包含具有规定格式的像素，或由显示模块内的显示控制器解释的命令。 DSI 规范描述了像素值、命令和命令参数到数据包组件中字节的映射。 （DCS specification文档）</p>
+</li>
+</ul>
+<h3 id="CSI-2"><a href="#CSI-2" class="headerlink" title="CSI-2"></a>CSI-2</h3><ul>
+<li><p>PHY layer：同DSI</p>
+</li>
+<li><p>Protocol Layer：指定如何标记和交错多个数据流，以便可以正确地重建每个数据流。</p>
+<ul>
+<li>像素/字节打包/解包层（Pixel/Byte Packing/Unpacking Layer）</li>
+</ul>
+<p>  CSI-2 支持具有从每像素 6 到 24 位的不同像素格式的图像应用程序。 在发送器中，该层在将数据发送到低级协议层之前将来自应用层的像素打包成字节。 在接收器中，该层在将数据发送到应用层之前将来自低级协议层的字节解压缩为像素。 该层以不变的方式传输每像素八位数据。</p>
+<ul>
+<li>低级协议层（Low Level Protocol）</li>
+</ul>
+<p>  低级协议 (LLP) 包括为 SoT（传输开始）和 EoT（传输结束）事件之间传输的串行数据建立 bit508 级和字节级同步以及将数据传递到下一层的方法。 LLP 的最小数据粒度是一个字节。 LLP 还包括字节内位值解释的分配，即“Endian”分配。</p>
+<ul>
+<li>通道管理层（Lane Management ）：同DSI</li>
+</ul>
+</li>
+<li><p>APP layer：该层描述了更高级别的数据编码和解释包含在数据流中。 CSI-2 规范描述了像素值到字节。</p>
+</li>
+</ul>
+<h2 id="差分-x2F-单端信号"><a href="#差分-x2F-单端信号" class="headerlink" title="差分/单端信号"></a>差分/单端信号</h2><ul>
+<li>单端信号：单端信号是相对于差分信号而言的，单端输入指信号有一个参考端和一个信号端构成，参考端一般为地端</li>
+<li>差分信号：两根线上都传输信号，这两个信号的振幅相等，相位相反（大小等、方向反），也称差模信号</li>
+<li>共模信号：两个信号振幅相等，相位相同（干扰信号）</li>
+</ul>
+<p><img src="/images/Hardware/Protocol/mipi/mipi-3.png" alt="image"></p>
+<p>如上图所示，左侧为差分信号，右侧为单端信号。对于差分信号V+电流流向地、V-电流由地流出。对于同一个地来讲，如果存在共模误差，两根线都有做差值就抵消掉了，对于电磁干扰由于相位相反磁场抵消。因此差分信号特点：易分辨小信号，抗干扰能力强；但同时由于使用了两根线成本较高</p>
+<h1 id="PHY"><a href="#PHY" class="headerlink" title="PHY"></a>PHY</h1><h2 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h2><p>PHY层规范了传输介质、电气特性、IO电路、和同步机制。通俗地说，就是指定物理层构建的规则，比如指定如何拿到数据、怎样编码、转化成怎样的电信号、通过多少根/组通道送出去等等。通过标准化不同制造商的产品之间的接口来降低移动设备的设计成本，从而缩短产品上市时间。</p>
+<h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><p><img src="/images/Hardware/Protocol/mipi/mipi-4.png" alt="image"></p>
+<h1 id="D-PHY"><a href="#D-PHY" class="headerlink" title="D-PHY"></a>D-PHY</h1><p>D-PHY 描述了一种源同步、高速、低功耗、低成本的 PHY，特别适用于移动应用。</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><h3 id="Lane"><a href="#Lane" class="headerlink" title="Lane"></a>Lane</h3><p>Lane本意是航道、车道，在这里我们可以将其引申为两个模块间传输数据的通道。</p>
+<p>对于一组信号来讲，主从端（收发端）各有一个Lane模块，并且模块间使用一组差分信号进行连接，也就是2条line即V+ 、V-。而Lane模块和中间的连线作为整个物理层核心，共同构成了完整的数据数据传输通道。</p>
+<p>D-PHY协议规定了必须拥有一条时钟通道（Clock Lane：Clock+、Clock-）和一条或者多条数据通道（Data Lane：D+、D-）</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li><p>主从模式（master提供时钟）</p>
+</li>
+<li><p>时钟通道 Clock Lane：单向由master至slave</p>
+</li>
+<li><p>数据通道 Data Lane：数据可单向、可双向（半双工），其中token控制了传输方向，并且当在反向传输数据的时候（Slave To Master），带宽只有正向传输（Master To Slave）的四分之一</p>
+</li>
+</ul>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="/images/Hardware/Protocol/mipi/mipi-5.png" alt="image"></p>
+<p>上图是通用通道模块架构，为了通用性和层次抽象，将LP、HS都做了双向的展示。而在实际设计或者开发中，根据实际需求只设计或配置单项传输都是ok的</p>
+<h2 id="传输模式"><a href="#传输模式" class="headerlink" title="传输模式"></a>传输模式</h2><ul>
+<li><p>高速模式（High Speed，HS）</p>
+<p>High-Speed 也叫 Burst Mode，用于高速的数据传输，其实就是图像数据传输；在这种模式下，吞吐率可以达到 2500 Mbps，也就是 2.5Gbps/per Lane；</p>
+</li>
+<li><p>低速模式（Low Power，LP）</p>
+<p>Low-Power 模式用于一些控制信息，比如，传一些指令之类的；在这种模式下的最大速率是 10Mbps；</p>
+<p>data lane差分线电平的高低表明了当前处于何种状态，发送方通过驱动差分线一系列的状态变化，进入不同的工作模式</p>
+</li>
+</ul>
+<p>无论是HS模式还是LP模式，都采用LSB fisrt、MSB last的传输方式。两种模式的结合保证了MIPI总线在需要传输大量数据（如图像）时可以高速传输，而在不需要大数据量传输时又能够减少功耗。</p>
+<p><img src="/images/Hardware/Protocol/mipi/mipi-6.png" alt="image"></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>HS模式</th>
+<th>LP模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>传输模式</td>
+<td>低压差分信号传输</td>
+<td>单端信号传输</td>
+</tr>
+<tr>
+<td>信号电平</td>
+<td>100mV ~ 300mV</td>
+<td>0 ~ 1.2V</td>
+</tr>
+<tr>
+<td>传输速度</td>
+<td>80Mbps ~ 1Gbps（v1.0）<br>80Mbps ~ 1.5Gbps（v1.1）<br>2.5Gbps（v1.2）<br>10Gbps ~ 14Gbps（v3.0）</td>
+<td>&lt;10Mbps</td>
+</tr>
+<tr>
+<td>功耗</td>
+<td>高</td>
+<td>低</td>
+</tr>
+</tbody></table>
+<h2 id="Lane状态描述"><a href="#Lane状态描述" class="headerlink" title="Lane状态描述"></a>Lane状态描述</h2><p>在 High-Speed 模式下，Lane 上传输的是差分信号；</p>
+<p>在 Low-Power 模式下，Lane 上的 2 根线是独立的信号，不再是差分的含义了；</p>
+<p><img src="/images/Hardware/Protocol/mipi/mipi-7.png" alt="image"></p>
+<h2 id="数据Lane操作模式"><a href="#数据Lane操作模式" class="headerlink" title="数据Lane操作模式"></a>数据Lane操作模式</h2><p>在正常操作期间，数据通道将处于控制或高速模式。</p>
+<h3 id="高速模式（High-Speed-Mode）"><a href="#高速模式（High-Speed-Mode）" class="headerlink" title="高速模式（High-Speed Mode）"></a>高速模式（High-Speed Mode）</h3><p>高速数据传输以突发（burst）方式发生。传输从停止状态开始，并以停止状态结束。在突发之间的中间时间内，数据通道应保持停止状态，除非通道上出现 turnaround 或 escape 请求。在HS 数据突发期间，时钟通道应处于高速模式，为从端提供 DDR 时钟</p>
+<p><img src="/images/Hardware/Protocol/mipi/mipi-8.png" alt="image"></p>
+<p>传输开始（SOT）至 传输结束 （EOT）序列：</p>
+<ul>
+<li>驱动 停止 状态（LP-11）</li>
+<li>驱动 HS-Rqst 状态持续TLPS时间 (LP-01)</li>
+<li>驱动 Bridge 状态持续HS-PREPARE时间（LP-00）</li>
+<li>同时启用高速驱动器和禁用低功耗驱动器</li>
+<li>驱动 HS-0 持续THS-ZERO时间</li>
+<li>采样开始！！！</li>
+<li>……</li>
+<li>完成有效载荷数据的传输</li>
+<li>在最后一个有效载荷数据位之后立即切换差分状态并保持该状态一段时间 THS-TRAIL</li>
+<li>禁用 HS-TX，启用 LP-TX，并驱动停止状态 (LP-11) 一段时间 THS-EXI</li>
+</ul>
+<h3 id="控制模式（Control-Mode）"><a href="#控制模式（Control-Mode）" class="headerlink" title="控制模式（Control Mode）"></a>控制模式（Control Mode）</h3><p>low power下的一种模式，可以通过变化不同的state进入其它模式。这个目前没有看到更多相关资料。</p>
+<h4 id="双向数据传输-Data-Lane-Turnaround"><a href="#双向数据传输-Data-Lane-Turnaround" class="headerlink" title="双向数据传输 Data Lane Turnaround"></a>双向数据传输 Data Lane Turnaround</h4><p><img src="/images/Hardware/Protocol/mipi/mipi-9.png" alt="image"></p>
+<p>D-PHY双向通道支持TurnAround操作，即反转操作双向传输。虽然数据反向传输但是master/slave角色不变，master向slave去读数据。这个过程是在控制模式下执行的！！！</p>
+<p>流程：</p>
+<ul>
+<li>驱动停止状态 LP11</li>
+<li>驱动 LP-Rqst 状态 (LP-10) 持续 TLPX 时间</li>
+<li>驱动桥态 (LP-00) 时间 TLPX 时间</li>
+<li>驱动 LP-10 状态 TLPX 时间</li>
+<li>驱动桥态 (LP-00) 时间 TTA-GO时间</li>
+<li>停止驱动线路并使用其 LP-RX 观察线路状态以查看确认Wait ACK（接收 LP-00）</li>
+<li>接收 LP-10</li>
+<li>接收 LP-11</li>
+</ul>
+<h3 id="逃逸模式（Escape-mode）"><a href="#逃逸模式（Escape-mode）" class="headerlink" title="逃逸模式（Escape mode）"></a>逃逸模式（Escape mode）</h3><p>low power下的特殊模式，在这种模式下可以使用一些特别的功能。在这种模式下，可以进入一些额外的功能：LPDT（低功耗数据传输模式）, ULPS(超低功耗模式)、Trigger。一旦进入Escape mode模式，发送端必须发送1个8-bit的命令来响应请求的动作（对于Escape Mode流程来讲，最终需要发送一个Entry Command，而Table 8就是3个命令）</p>
+<ul>
+<li>进入Escape Mode流程：LP-11、LP-10、LP-00、LP-01、LP-00、[Entry Command]</li>
+<li>退出Escape Mode流程：LP-00、LP-10、LP-11</li>
+</ul>
+<p><img src="/images/Hardware/Protocol/mipi/mipi-10.png" alt="image"></p>
+<h4 id="LPDT"><a href="#LPDT" class="headerlink" title="LPDT"></a>LPDT</h4><p><img src="/images/Hardware/Protocol/mipi/mipi-11.png" alt="image"></p>
+<p>这个模式下呢，数据可以在低速情况下进行传输，Lane 可以暂停发送</p>
+<h4 id="RESET"><a href="#RESET" class="headerlink" title="RESET"></a>RESET</h4><p><img src="/images/Hardware/Protocol/mipi/mipi-12.png" alt="image"></p>
+<h2 id="Calibration校准"><a href="#Calibration校准" class="headerlink" title="Calibration校准"></a>Calibration校准</h2><p>当以高于 1.5 Gbps 的速度运行或更改为超过 1.5 Gbps 的任何速率时，应在正常操作中的高速数据传输之前发送初始去偏移序列。对于周期性去偏移校准，发送器应在发送 deskew序列之前完成当前突发</p>
+<p>当以 1.5 Gbps 或以下速率运行时，初始去偏移序列的传输是可选的。周期性去偏移是可选的，与数据速率无关。当改变状态时，例如从 ULPS 到 HS，任何去偏移序列的传输都是可选的，前提是 HS 操作以先前已传输初始去偏移序列的速率恢复。</p>
+<h2 id="时钟Lane操作模式"><a href="#时钟Lane操作模式" class="headerlink" title="时钟Lane操作模式"></a>时钟Lane操作模式</h2><p><img src="/images/Hardware/Protocol/mipi/mipi-13.png" alt="image"></p>
+<h3 id="High-Speed"><a href="#High-Speed" class="headerlink" title="High Speed"></a>High Speed</h3><p>启动高速时钟传输的过程：</p>
+<ul>
+<li>驱动停止状态 (LP-11)</li>
+<li>驱动 HS-Req 状态 (LP-01) 时间 TLPX</li>
+<li>驱动桥状态 (LP-00) 时间 TCLK-PREPARE</li>
+<li>启用高速驱动器并同时禁用低功耗驱动器。驱动 HS-0 一段时间 TCLK-ZERO</li>
+<li>在任何数据通道启动之前，在 TCLK-PRE 时间段内驱动高速时钟信号，Data Lane开始工作</li>
+</ul>
+<p>将时钟通道切换到低功耗模式的过程：</p>
+<ul>
+<li>驱动高速时钟信号（切换 HS-0/HS-1）</li>
+<li>最后一个数据通道进入低功耗模式</li>
+<li>继续驱动高速时钟信号一段时间 TCLK-POST 并以 HS-0 状态结束</li>
+<li>驱动 HS-0 一段时间 TCLK-TRA</li>
+<li>禁用 HS-TX，启用 LP-TX，并驱动停止状态 (LP-11) 一段时间 THS-EXI</li>
+</ul>
+<h3 id="Low-Power（ULPS）"><a href="#Low-Power（ULPS）" class="headerlink" title="Low Power（ULPS）"></a>Low Power（ULPS）</h3><p>传输过程：</p>
+<ul>
+<li>LP-11，TX-Stop </li>
+<li>LP-10，TX-ULPS-Rqst</li>
+<li>LP-00，TX-ULPS</li>
+<li>LP-10，TX-ULPS-Exit</li>
+</ul>
+<h2 id="状态机"><a href="#状态机" class="headerlink" title="状态机"></a>状态机</h2><p><img src="/images/Hardware/Protocol/mipi/mipi-14.png" alt="image"></p>
+<h2 id="检测（P50）"><a href="#检测（P50）" class="headerlink" title="检测（P50）"></a>检测（P50）</h2><p>存在三种不同的机制来检测链路故障。总线争用和 错误检测功能包含在 D-PHY 中。这些功能应该检测许多典型故障。然而，有些故障无法在 D-PHY 内检测到，需要协议级解决方案。</p>
+<h3 id="争用检测"><a href="#争用检测" class="headerlink" title="争用检测"></a>争用检测</h3><h3 id="序列错误检测"><a href="#序列错误检测" class="headerlink" title="序列错误检测"></a>序列错误检测</h3><p>• SoT Error<br>• SoT Sync Error<br>• EoT Sync Error<br>• Escape Entry Command Error<br>• LP Transmission Sync Error<br>• False Control Error</p>
+<h3 id="协议看门狗定时器（资料性）"><a href="#协议看门狗定时器（资料性）" class="headerlink" title="协议看门狗定时器（资料性）"></a>协议看门狗定时器（资料性）</h3><h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li>mipi csi 如何理解虚拟通道?</li>
+</ol>
+<p>   在MIPI CSI（Camera Serial Interface）中，虚拟通道（Virtual Channel）是一种用于在单个物理通道上传输多个数据流的机制。</p>
+<p>   MIPI CSI标准允许将单个物理通道划分为多个虚拟通道，每个虚拟通道可以独立传输不同的数据流或数据类型。通过虚拟通道的使用，可以实现并行传输多个数据流，提高带宽利用率和系统的灵活性。</p>
+<p>   在MIPI CSI中，虚拟通道的数量和配置是根据具体的应用需求进行定义和配置的。每个虚拟通道可以传输不同的图像数据流，例如主摄像头数据、辅助摄像头数据、深度图像数据等。此外，还可以使用虚拟通道传输其他与图像相关的数据，如元数据、时间戳、图像标签等。</p>
+<p>   通过虚拟通道的使用，可以灵活地组织和传输多种类型的数据，从而满足不同应用场景下的需求。例如，在多摄像头系统中，可以使用不同的虚拟通道将各个摄像头的数据进行分离和传输。</p>
+<p>   需要注意的是，虚拟通道的使用需要在发送方和接收方之间进行协商和配置，以确保数据能够正确地路由到相应的虚拟通道。因此，在实际应用中，需要遵循MIPI CSI标准并进行正确的配置和处理，以实现数据的正确传输和解析。</p>
+<p>   总而言之，MIPI CSI中的虚拟通道是一种在单个物理通道上传输多个数据流的机制，通过划分和配置虚拟通道，可以实现并行传输不同类型的数据，提高带宽利用率和系统的灵活性。</p>
+<ol start="2">
+<li><p>mipi  ULPS和LPDT的区别?</p>
+<p>在MIPI（Mobile Industry Processor Interface）标准中，ULPS（Ultra Low Power Save）和LPDT（Low Power Data Transmission）是两种不同的低功耗模式，用于在移动设备中实现节能和延长电池寿命。</p>
+<ol>
+<li>ULPS（Ultra Low Power Save）：ULPS是一种更为极端的低功耗模式，旨在将设备的功耗降至最低限度。在ULPS模式下，设备的电源消耗极低，主要通过减少电压和关闭非必要的模块来实现。这可能包括关闭不使用的传感器、降低主频、进入深度睡眠状态等措施。ULPS模式通常用于极端低功耗要求的场景，例如待机模式或长时间不使用时的电源管理。</li>
+<li>LPDT（Low Power Data Transmission）：LPDT是一种在数据传输过程中实现低功耗的模式。在LPDT模式下，数据传输过程中采用一些技术手段来降低功耗，如降低传输速率、减少电压、采用更节能的传输协议等。LPDT模式在需要进行数据传输的同时，尽量减少功耗的消耗。这种模式适用于需要在传输数据的同时保持较低功耗的场景，例如实时数据传输、图像传输等。</li>
+</ol>
+<p>需要注意的是，ULPS和LPDT都是根据MIPI标准中的要求和规范来定义的，具体实现和支持程度可能因设备和厂商而有所不同。在实际应用中，设备制造商根据具体需求和硬件能力，选择和实现适当的低功耗模式以平衡性能和功耗之间的关系，以提供更长的电池寿命和更好的用户体验。</p>
+</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://caxapa.ru/thumbs/799244/mipi_D_PHY_specification_v1_2.pdf">Specification for D-PHY</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Tv411j7Q6/">MIPI设计基础</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1e4411q7CC/">差分信号与单端信号的差别</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/zhoutaopower/article/details/123662047">MIPI 系列之 D-PHY</a></li>
+<li><a target="_blank" rel="noopener" href="https://picture.iczhiku.com/resource/eetop/WHISUkJqgiqojbxm.pdf">MIPI DSI</a></li>
+<li><a target="_blank" rel="noopener" href="https://caxapa.ru/thumbs/799244/MIPI_Alliance_Specification_for_Camera_S.pdf">MIPI CSI-2</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/05/30/Hardware/Protocol/mipi_dphy/" title="MIPI &amp;&amp; D-PHY">http://yanglieee.com/2023/05/30/Hardware/Protocol/mipi_dphy/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/" rel="tag"><i class="fa fa-tag"></i> 硬件传输协议</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/05/18/Hardware/Controller/RTC/" rel="prev" title="RTC">
+      <i class="fa fa-chevron-left"></i> RTC
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/01/Hardware/Protocol/I2C/" rel="next" title="I2C">
+      I2C <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MIPI%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">MIPI基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%93%E6%9C%89%E5%90%8D%E8%AF%8D"><span class="nav-number">1.2.</span> <span class="nav-text">专有名词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MIPI%E5%B1%82%E6%AC%A1"><span class="nav-number">1.3.</span> <span class="nav-text">MIPI层次</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DSI"><span class="nav-number">1.3.1.</span> <span class="nav-text">DSI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CSI-2"><span class="nav-number">1.3.2.</span> <span class="nav-text">CSI-2</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%AE%E5%88%86-x2F-%E5%8D%95%E7%AB%AF%E4%BF%A1%E5%8F%B7"><span class="nav-number">1.4.</span> <span class="nav-text">差分&#x2F;单端信号</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PHY"><span class="nav-number">2.</span> <span class="nav-text">PHY</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B-1"><span class="nav-number">2.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB"><span class="nav-number">2.2.</span> <span class="nav-text">区别</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#D-PHY"><span class="nav-number">3.</span> <span class="nav-text">D-PHY</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">3.1.</span> <span class="nav-text">概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lane"><span class="nav-number">3.1.1.</span> <span class="nav-text">Lane</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">3.3.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.4.</span> <span class="nav-text">传输模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lane%E7%8A%B6%E6%80%81%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.5.</span> <span class="nav-text">Lane状态描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AELane%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.6.</span> <span class="nav-text">数据Lane操作模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E9%80%9F%E6%A8%A1%E5%BC%8F%EF%BC%88High-Speed-Mode%EF%BC%89"><span class="nav-number">3.6.1.</span> <span class="nav-text">高速模式（High-Speed Mode）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%BC%8F%EF%BC%88Control-Mode%EF%BC%89"><span class="nav-number">3.6.2.</span> <span class="nav-text">控制模式（Control Mode）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%8C%E5%90%91%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-Data-Lane-Turnaround"><span class="nav-number">3.6.2.1.</span> <span class="nav-text">双向数据传输 Data Lane Turnaround</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%83%E9%80%B8%E6%A8%A1%E5%BC%8F%EF%BC%88Escape-mode%EF%BC%89"><span class="nav-number">3.6.3.</span> <span class="nav-text">逃逸模式（Escape mode）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#LPDT"><span class="nav-number">3.6.3.1.</span> <span class="nav-text">LPDT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RESET"><span class="nav-number">3.6.3.2.</span> <span class="nav-text">RESET</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Calibration%E6%A0%A1%E5%87%86"><span class="nav-number">3.7.</span> <span class="nav-text">Calibration校准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9FLane%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.8.</span> <span class="nav-text">时钟Lane操作模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#High-Speed"><span class="nav-number">3.8.1.</span> <span class="nav-text">High Speed</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Low-Power%EF%BC%88ULPS%EF%BC%89"><span class="nav-number">3.8.2.</span> <span class="nav-text">Low Power（ULPS）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="nav-number">3.9.</span> <span class="nav-text">状态机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%EF%BC%88P50%EF%BC%89"><span class="nav-number">3.10.</span> <span class="nav-text">检测（P50）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%89%E7%94%A8%E6%A3%80%E6%B5%8B"><span class="nav-number">3.10.1.</span> <span class="nav-text">争用检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E5%88%97%E9%94%99%E8%AF%AF%E6%A3%80%E6%B5%8B"><span class="nav-number">3.10.2.</span> <span class="nav-text">序列错误检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E7%9C%8B%E9%97%A8%E7%8B%97%E5%AE%9A%E6%97%B6%E5%99%A8%EF%BC%88%E8%B5%84%E6%96%99%E6%80%A7%EF%BC%89"><span class="nav-number">3.10.3.</span> <span class="nav-text">协议看门狗定时器（资料性）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">4.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

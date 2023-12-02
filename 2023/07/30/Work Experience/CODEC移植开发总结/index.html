@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在Ingenic X2000平台移植了ES8326 codec和aw87390功放，针对移植流程和遇到的问题进行经验和流程的总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CODEC移植开发总结">
+<meta property="og:url" content="http://yanglieee.com/2023/07/30/Work%20Experience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="在Ingenic X2000平台移植了ES8326 codec和aw87390功放，针对移植流程和遇到的问题进行经验和流程的总结">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-30T09:22:52.035Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yanglieee.com/2023/07/30/Work%20Experience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CODEC移植开发总结 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/07/30/Work%20Experience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CODEC移植开发总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-07-30 00:00:00 / 修改时间：17:22:52" itemprop="dateCreated datePublished" datetime="2023-07-30T00:00:00+08:00">2023-07-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Work-Experience/" itemprop="url" rel="index"><span itemprop="name">Work Experience</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/07/30/Work%20Experience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/07/30/Work%20Experience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+            <div class="post-description">在Ingenic X2000平台移植了ES8326 codec和aw87390功放，针对移植流程和遇到的问题进行经验和流程的总结</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="CODEC移植开发流程"><a href="#CODEC移植开发流程" class="headerlink" title="CODEC移植开发流程"></a>CODEC移植开发流程</h1><ol>
+<li><p>准备原理图、外设（codec、pa）手册。查看硬件音频通路，mic位置、喇叭位置、功放位置等等</p>
+</li>
+<li><p>准备相关代码，移植到平台中。支持驱动中没有的函数保证编译通过</p>
+</li>
+<li><p>I2C通信成功，可以读出codec、pa的设备ID</p>
+<ul>
+<li>配置设备驱动设备树。配置对应设备节点的compatible字段，保证设备可以正常调用probe函数</li>
+<li>配置I2C设备树。根据原理图判断在哪一组的I2C，并根据原理图查看设备地址（固定地址+选通地址）保证通讯成功可以读出ChipID</li>
+<li>（如果I2C失败，通常有以下几个原因：上拉电阻、上拉电阻电压、设备地址不正确）</li>
+</ul>
+</li>
+<li><p>注册声卡</p>
+<ul>
+<li>定义声卡的硬件描述。定义声卡硬件的描述信息，包括声卡的名称、DAI（Digital Audio Interface）和 CODEC 的连接配置等。这通常是在设备树中完成的，使用特定的设备树节点来描述声卡的硬件连接。</li>
+<li>创建声卡驱动代码：编写相应的 ALSA 声卡驱动代码，该驱动代码将负责与设备树中的声卡节点进行匹配，并在匹配成功时注册声卡。在驱动代码中，你需要实现 snd_soc_card 结构体，并填充相应的字段，包括声卡的名称、DAI 链路、CODEC 控制等。</li>
+<li>注册声卡：在驱动代码中，通过调用 snd_soc_register_card() 函数来注册声卡。该函数将会在 ALSA 框架中注册声卡，并建立与硬件之间的连接关系。</li>
+<li>声卡初始化：在声卡注册成功后，你可以在声卡的 probe 函数中进行必要的初始化操作，如设置 DAI 和 CODEC 的配置参数、请求 IRQ、创建 ALSA 控制接口等。</li>
+</ul>
+</li>
+<li><p>根据ASoc框架，配置platform和codec（这个步骤和上一步高度耦合，上面介绍比较泛泛，具体配置流程如下）</p>
+<ul>
+<li>通常数据路径：（playback）RAM -&gt; DMA -&gt; (xxx) -&gt; cpu dai -&gt; codec dai -&gt; pa</li>
+<li>板级端platform。根据不同的平台的使用要求，配置route table和dapm。该通路需要保证数据从RAM到cpu dai</li>
+<li>设备端codec。根据手册和相关文档，查看相关流程是否正确</li>
+<li>设备端pa。根据手册和相关文档，进行配置</li>
+</ul>
+</li>
+<li><p>放音测试正常即可</p>
+</li>
+<li><p>优化codec寄存器配置</p>
+</li>
+</ol>
+<h1 id="问题及解决方案"><a href="#问题及解决方案" class="headerlink" title="问题及解决方案"></a>问题及解决方案</h1><ol>
+<li><p>codec与cpu不能进行i2c通信？</p>
+<ul>
+<li>检查设备地址</li>
+<li>检查设备供电是否有问题</li>
+<li>示波器查看I2C时序</li>
+<li>最终定位在codec供电是3.3v，而codec的i2c上拉是1.8v。将i2c上拉电压更改正常通信</li>
+</ul>
+</li>
+<li><p>request_firmware 函数不能正常加载固件？</p>
+<ul>
+<li>路径不正确。拼写错误</li>
+<li>权限不正确<ul>
+<li>检查SElinux安全模块，是否是权限问题导致禁止读</li>
+<li>检查文件系统的权限，是否可以读</li>
+<li>内核配置问题。内核找到函数的实现部分，定位出现错误的位置，最终定位到是某一个宏未选中导致使用的函数未实现</li>
+</ul>
+</li>
+<li>代码有误。在固件加载过程中不同编译器不同平台对于无符号/有符号的处理可能不同。</li>
+</ul>
+</li>
+<li><p>codec、板级通路检查正常，录音报错？</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="meta"># arecord -D hw:0,5 -c 2 -r 16000 -d 10 -t wav baic0_16000-2.wav</span></span><br><span class="line">	Recording WAVE <span class="string">'baic0_16000-2.wav'</span> : Unsigned <span class="number">8</span> bit, Rate <span class="number">16000</span> Hz, Stereo</span><br><span class="line">	arecord: set_params:<span class="number">1312</span>: Broken configuration <span class="keyword">for</span> this PCM: no configurations available</span><br><span class="line">/ #</span><br></pre></td></tr></tbody></table></figure>
+
+<p>CONFIG_SND_ASOC_INGENIC_DMA_PREALLOC_PAGES内核中这个宏配置较小，改成128正常（ingenic平台）</p>
+<p>最终宏的值配置在了 struct snd_pcm_hardware 结构体 <code>.buffer_bytes_max</code>成员变量上，该成员变量表示 PCM 设备的最大缓冲区大小（以字节为单位），说明该成员变量的值不能太小，否则会出现以上错误。</p>
+<p>另一种解决办法：在命令行加入 -B 参数，表示buffer的大小</p>
+</li>
+<li><p>录放音通路？</p>
+<p>对于录音，通常会有dmic和amic，dmic采样之后已经是数字输出，数字数据输出到CODEC内部对于adc的配置与模拟数据是不一致的，需要调整。</p>
+<ul>
+<li><p>录音：mic  –&gt;  codec(adc)  –&gt;  codec dai  –&gt;  I2S –&gt; cpu dai –&gt; DMA –&gt;  RAM</p>
+</li>
+<li><p>放音：RAM  –&gt; DMA  –&gt; cpu dai  –&gt;  I2S  –&gt; codec dai  –&gt;  codec(dac)  –&gt;  pa</p>
+</li>
+</ul>
+</li>
+<li><p>录音通路正常，但是使用arecord录音没有数据？</p>
+<p>使用示波器对硬件管脚进行检查，定位是在哪一个环节数据没有进一步传输。在此过程中对于时钟也要进行测量。</p>
+<p>在上述问题出现的情况下，测量MCLK正常，LRCLK、WS是没有的。通过软件检查发现：对于x2000-soc aic控制器支持独立时钟和共享时钟两种模式，在硬件上codec通常只有一组I2S，五根pin（MCLK、LRCLK、WS、R_DATA、T_DATA），但是对于SOC每一组的I2S时钟都是独立的，需要硬件和软件进行匹配。最后的问题在于将接受数据的clk输出到另外一个管脚（悬空）上，通过修改设备树配置正确输出时钟即可。</p>
+</li>
+<li><p>耳机录放音无声？</p>
+<p>通过示波器检查输出波形，如果存在波形检查硬件是否存在将其拉地的地方</p>
+<p>对于录音无声可以检查MICBIAS电压是否存在，通常，麦克风需要一个稳定的直流电压来极化麦克风的电容式元件或其他传感器，以便能够正确地工作和产生音频信号。Micbias电压通常是3.3V、5V或其他适合麦克风工作的电压。具体的Micbias电压值取决于麦克风的类型和规格。</p>
+<p><code>对于ES8326这款codec，不能使用VMID来当做耳机的micbias</code></p>
+</li>
+<li><p>不论是否插入HP设备，都会一直来中断？</p>
+<p>首先需要检查中断IO是否配置正确，其次验证对应IO的电平是否发生翻转。最终解决是在设备树中hp_detect_gpio需要配置成HIZ，不能配置成NOBIAS（关闭偏振电压）。</p>
+</li>
+<li><p>耳机录音的时候发现很强的滋啦滋啦声音？</p>
+<p>如果有飞线查看是否存在虚焊</p>
+</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41028621/article/details/105834205">Linux Asoc</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/bobfly1984/p/13966890.html">触发DAPM机制的时机 </a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41028621/category_9941913.html">音频子系统</a></li>
+<li><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/v6.5-rc3/source/sound/soc/soc-core.c">Linux源代码bootlin</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/07/30/Work%20Experience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/" title="CODEC移植开发总结">http://yanglieee.com/2023/07/30/Work Experience/CODEC移植开发总结/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/19/Software%20Development/System%20Function/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/" rel="prev" title="功耗管理">
+      <i class="fa fa-chevron-left"></i> 功耗管理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/04/Operating%20System/Andriod/HPDetect/" rel="next" title="耳机插拔检测">
+      耳机插拔检测 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">CODEC移植开发流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">问题及解决方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

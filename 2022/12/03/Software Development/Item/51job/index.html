@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文所涉及的是对于51job数据的爬取、解析和保存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="51job爬虫项目">
+<meta property="og:url" content="http://yanglieee.com/2022/12/03/Software%20Development/Item/51job/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="本文所涉及的是对于51job数据的爬取、解析和保存">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/SoftwareDevelopment/Item/51job-1.png">
+<meta property="og:image" content="http://yanglieee.com/images/SoftwareDevelopment/Item/51job-2.png">
+<meta property="article:published_time" content="2022-12-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-02T00:06:46.423Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/SoftwareDevelopment/Item/51job-1.png">
+
+<link rel="canonical" href="http://yanglieee.com/2022/12/03/Software%20Development/Item/51job/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>51job爬虫项目 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2022/12/03/Software%20Development/Item/51job/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          51job爬虫项目
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-12-03 00:00:00" itemprop="dateCreated datePublished" datetime="2022-12-03T00:00:00+08:00">2022-12-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-02 08:06:46" itemprop="dateModified" datetime="2023-12-02T08:06:46+08:00">2023-12-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/" itemprop="url" rel="index"><span itemprop="name">Software Development</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-Development/Item/" itemprop="url" rel="index"><span itemprop="name">Item</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/12/03/Software%20Development/Item/51job/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/12/03/Software%20Development/Item/51job/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+            <div class="post-description">本文所涉及的是对于51job数据的爬取、解析和保存</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>紧接着豆瓣爬虫的项目，该项目作为其后的练习和扩展，算是一个较为不错的上手练习。本文所涉及的是对于51job数据的爬取、解析和保存。对于数据可视化操作，在后续会持续更新，请关注！<br>在下面代码中有些函数内部调用了其他函数，需要补全各个部分的函数。如果需要源码请私信或者评论。</p>
+<blockquote>
+<p>具体关于库的操作我选择了一些官方文档和较好理解的解读文章做链接，知识点比较全面请参考下列表。</p>
+</blockquote>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://python-selenium-zh.readthedocs.io/zh_CN/latest/">详情页URL获取模块：selenium</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://requests.readthedocs.io/zh_CN/latest/">URL处理第三方模块：requests</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9135d7833d6d">数据提取etree模块：lxml</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3.7/library/sqlite3.html">数据库保存模块：sqlite3</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/python-robot/p/9958352.html">本地文件保存模块：xlwt</a></p>
+</li>
+</ul>
+<h1 id="数据爬取与解析"><a href="#数据爬取与解析" class="headerlink" title="数据爬取与解析"></a>数据爬取与解析</h1><h2 id="详情页链接的获取：selenium"><a href="#详情页链接的获取：selenium" class="headerlink" title="详情页链接的获取：selenium"></a>详情页链接的获取：selenium</h2><p>selenium作为web自动化测试工具，目前在python爬虫中应用也越来越广泛。其主要应用原理是：通过完全模拟浏览器的操作，比如输入框输入、点击超链接元素、下拉滚动条等等来拿到js渲染之后的代码。<br>必要性：之前用的requests是对一个页面发送请求，只能获得当前加载出来的部分页面即最初的源代码，动态加载的数据是获取不到的，比如js渲染后的代码、下拉滚轮得到的数据和一些框内隐藏元素等等。<br>对于selenium的解读，<a target="_blank" rel="noopener" href="https://blog.csdn.net/heartbeat196/article/details/113831482">请点击click</a>！</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#获得所有网页详情页链接</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_link</span>():</span><br><span class="line">    linklist = []</span><br><span class="line">    <span class="comment">#创建驱动器对象</span></span><br><span class="line">    wd = webdriver.Chrome(<span class="string">r'C:\Program Files\Google\Chrome\Application\chromedriver.exe'</span>)</span><br><span class="line">    wd.implicitly_wait(<span class="number">5</span>)</span><br><span class="line">    <span class="comment">#访问51job网站</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">21</span>):</span><br><span class="line">        wd.get(<span class="string">f"https://search.51job.com/list/010000,000000,0000,00,9,99,keyword,2,<span class="subst">{i}</span>.html?"</span>)</span><br><span class="line">        <span class="comment">#查找每每一条信息链接进入详情页</span></span><br><span class="line">        joblists = wd.find_elements_by_xpath(<span class="string">'//div[@class="j_joblist"]/div/a'</span>)</span><br><span class="line">        <span class="keyword">for</span> joblist <span class="keyword">in</span> joblists:</span><br><span class="line">            con_link = joblist.get_attribute(<span class="string">"href"</span>)</span><br><span class="line">            linklist.append(con_link)</span><br><span class="line">    wd.quit()</span><br><span class="line">    <span class="keyword">return</span> linklist</span><br></pre></td></tr></tbody></table></figure>
+
+<blockquote>
+<p>注释：</p>
+<ol>
+<li>代码中的 webdriver.Chrome，后面是自己所用的驱动器的本地地址。</li>
+<li>webdriver对象wd，调用 get方法，后面括号内为自己所要访问的网页链接地址。</li>
+</ol>
+</blockquote>
+<h2 id="数据爬取与解析：xpath"><a href="#数据爬取与解析：xpath" class="headerlink" title="数据爬取与解析：xpath"></a>数据爬取与解析：xpath</h2><p>由于自己习惯于使用xpath方法解析，在此只做xpath解析的方法，如果需要re正则表达式或者BeautifulSoup解析，评论后续会更新。</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_data</span>():</span><br><span class="line">    job_information = []</span><br><span class="line">    url_lists = get_link()</span><br><span class="line">    <span class="keyword">for</span> i,url <span class="keyword">in</span> <span class="built_in">enumerate</span>(url_lists):</span><br><span class="line">        datalist=[]</span><br><span class="line">        header = {</span><br><span class="line">            <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0(Windows NT 10.0;Win64;x64)AppleWebKit/537.36(KHTML,likeGecko)Chrome/88.0.4324.150Safari/537.36"</span></span><br><span class="line">        }</span><br><span class="line">        response = requests.get(url, headers=header)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            html = response.content.decode(<span class="string">"gbk"</span>)</span><br><span class="line">            data = etree.HTML(html)</span><br><span class="line">            link = url</span><br><span class="line">            datalist.append(link)		<span class="comment">#存入岗位链接</span></span><br><span class="line">            title = data.xpath(<span class="string">r'//div[@class="cn"]/h1/@title'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(title)		<span class="comment">#存入岗位名称</span></span><br><span class="line">            salary = data.xpath(<span class="string">r'//div[@class="cn"]/strong/text()'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(salary)</span><br><span class="line">            information = data.xpath(<span class="string">r'//p[@class="msg ltype"]/@title'</span>)[<span class="number">0</span>]</span><br><span class="line">            information = re.sub(<span class="string">r"\s+"</span>, <span class="string">""</span>, information)  <span class="comment"># 去除空白格</span></span><br><span class="line">            experience = information.split(<span class="string">"|"</span>)[<span class="number">1</span>]</span><br><span class="line">            datalist.append(experience)</span><br><span class="line">            education = information.split(<span class="string">"|"</span>)[<span class="number">2</span>]</span><br><span class="line">            datalist.append(education)</span><br><span class="line">            num = information.split(<span class="string">"|"</span>)[<span class="number">3</span>]</span><br><span class="line">            datalist.append(num)</span><br><span class="line">            place = data.xpath(<span class="string">r'//p[@class="fp"]/text()'</span>)[<span class="number">0</span>]</span><br><span class="line">            datalist.append(place)</span><br><span class="line">            treatment = data.xpath(<span class="string">r'//span[@class="sp4"]/text()'</span>)</span><br><span class="line">            treatment = <span class="string">" "</span>.join(treatment)</span><br><span class="line">            datalist.append(treatment)</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"-----第{}条------"</span>.<span class="built_in">format</span>(i))</span><br><span class="line">            job_information.append(datalist)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"-----第{}条出错，原因是{}------"</span>.<span class="built_in">format</span>(i,e))</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    <span class="comment">#print(job_information)		#测试</span></span><br><span class="line">    <span class="keyword">return</span> job_information</span><br></pre></td></tr></tbody></table></figure>
+<h1 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h1><h2 id="Excel本地保存"><a href="#Excel本地保存" class="headerlink" title="Excel本地保存"></a>Excel本地保存</h2><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_data_excel</span>(<span class="params">datalist</span>):</span><br><span class="line">    workbook = xlwt.Workbook(encoding=<span class="string">"gbk"</span>, style_compression=<span class="number">0</span>)</span><br><span class="line">    worksheet = workbook.add_sheet(<span class="string">"python"</span>)</span><br><span class="line">    col = [<span class="string">"链接"</span>, <span class="string">"岗位名称"</span>, <span class="string">"薪资"</span>, <span class="string">"工作经验"</span>, <span class="string">"学历"</span>, <span class="string">"招聘人数"</span>, <span class="string">"工作地点"</span>, <span class="string">"福利"</span>]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">        worksheet.write(<span class="number">0</span>, i, col[i])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(datalist)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">            worksheet.write(i+<span class="number">1</span>,j,datalist[i][j])</span><br><span class="line">    workbook.save(<span class="string">"北京-python工作.xls"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="Excel数据保存结果展示"><a href="#Excel数据保存结果展示" class="headerlink" title="Excel数据保存结果展示"></a>Excel数据保存结果展示</h2><p><img src="/images/SoftwareDevelopment/Item/51job-1.png" alt="在这里插入图片描述"></p>
+<h2 id="sqlite数据库保存"><a href="#sqlite数据库保存" class="headerlink" title="sqlite数据库保存"></a>sqlite数据库保存</h2><p>在此部分只写了数据库保存的工作，数据库的初始化创建需函数sql_init需要添加即可使用。</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">save_data_sql</span>(<span class="params">datalist,dbpath</span>):</span><br><span class="line">    sql_init(dbpath)</span><br><span class="line">    conn = sqlite3.connect(dbpath)</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> datalist:</span><br><span class="line">        <span class="keyword">for</span> index <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(data)):</span><br><span class="line">            data[index] = <span class="string">'"'</span> + data[index] + <span class="string">'"'</span></span><br><span class="line">        sql = <span class="string">'''</span></span><br><span class="line"><span class="string">        insert into job_information(</span></span><br><span class="line"><span class="string">            link,title,salary,experience,education,num,place,treatment)</span></span><br><span class="line"><span class="string">            values(%s)'''</span>%<span class="string">","</span>.join(data)</span><br><span class="line">        <span class="comment">#print(sql)     #测试sql语句是否正确</span></span><br><span class="line">        cur.execute(sql)</span><br><span class="line">        conn.commit()</span><br><span class="line">    cur.close()</span><br><span class="line">    conn.close()</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="sqlite数据库保存结果展示"><a href="#sqlite数据库保存结果展示" class="headerlink" title="sqlite数据库保存结果展示"></a>sqlite数据库保存结果展示</h2><p><img src="/images/SoftwareDevelopment/Item/51job-2.png" alt="在这里插入图片描述"></p>
+<h1 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h1><p>null</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2022/12/03/Software%20Development/Item/51job/" title="51job爬虫项目">http://yanglieee.com/2022/12/03/Software Development/Item/51job/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/12/03/Software%20Development/Item/doubanTop250Spider/" rel="prev" title="豆瓣电影Top250数据爬取、数据分析及数据可视化">
+      <i class="fa fa-chevron-left"></i> 豆瓣电影Top250数据爬取、数据分析及数据可视化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/12/11/Reading/%E6%9B%BE%E5%9B%BD%E8%97%A9%E4%BC%A0/" rel="next" title="《曾国藩传》">
+      《曾国藩传》 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%88%AC%E5%8F%96%E4%B8%8E%E8%A7%A3%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">数据爬取与解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%A6%E6%83%85%E9%A1%B5%E9%93%BE%E6%8E%A5%E7%9A%84%E8%8E%B7%E5%8F%96%EF%BC%9Aselenium"><span class="nav-number">2.1.</span> <span class="nav-text">详情页链接的获取：selenium</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%88%AC%E5%8F%96%E4%B8%8E%E8%A7%A3%E6%9E%90%EF%BC%9Axpath"><span class="nav-number">2.2.</span> <span class="nav-text">数据爬取与解析：xpath</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8"><span class="nav-number">3.</span> <span class="nav-text">数据存储</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Excel%E6%9C%AC%E5%9C%B0%E4%BF%9D%E5%AD%98"><span class="nav-number">3.1.</span> <span class="nav-text">Excel本地保存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Excel%E6%95%B0%E6%8D%AE%E4%BF%9D%E5%AD%98%E7%BB%93%E6%9E%9C%E5%B1%95%E7%A4%BA"><span class="nav-number">3.2.</span> <span class="nav-text">Excel数据保存结果展示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sqlite%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BF%9D%E5%AD%98"><span class="nav-number">3.3.</span> <span class="nav-text">sqlite数据库保存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sqlite%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BF%9D%E5%AD%98%E7%BB%93%E6%9E%9C%E5%B1%95%E7%A4%BA"><span class="nav-number">3.4.</span> <span class="nav-text">sqlite数据库保存结果展示</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">数据可视化</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

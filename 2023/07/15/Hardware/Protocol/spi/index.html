@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对SPI协议进行解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SPI">
+<meta property="og:url" content="http://yanglieee.com/2023/07/15/Hardware/Protocol/spi/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对SPI协议进行解析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-0.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-1.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-2.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-3.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-4.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-5.png">
+<meta property="article:published_time" content="2023-07-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-01T14:05:23.477Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="硬件传输协议">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-0.png">
+
+<link rel="canonical" href="http://yanglieee.com/2023/07/15/Hardware/Protocol/spi/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SPI | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/07/15/Hardware/Protocol/spi/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SPI
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-07-15 00:00:00" itemprop="dateCreated datePublished" datetime="2023-07-15T00:00:00+08:00">2023-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-01 22:05:23" itemprop="dateModified" datetime="2023-12-01T22:05:23+08:00">2023-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/" itemprop="url" rel="index"><span itemprop="name">Hardware</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/Protocol/" itemprop="url" rel="index"><span itemprop="name">Protocol</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/07/15/Hardware/Protocol/spi/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/07/15/Hardware/Protocol/spi/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+            <div class="post-description">对SPI协议进行解析</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p>SPI：Serial Peripheral Interface 串行外设接口，用于在微控制器和外部设备之间进行数据传输。SPI 接口广泛应用于嵌入式系统中，特别是与外围设备进行通信，如传感器、存储器、显示屏和通信模块等。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
+<li><p>传输信号：MSIO、MOSI、SCKL、CS</p>
+</li>
+<li><p>主从结构。SPI 通信由一个主设备（Master）和一个或多个从设备（Slave）组成。主设备控制通信的时序和数据传输，而从设备按照主设备的命令响应数据传输。</p>
+</li>
+<li><p>同步协议。SPI 使用一个时钟信号（SCLK）来同步数据的传输。主设备产生时钟信号，控制数据传输的速率和时序，而从设备根据时钟信号采样和发送数据。</p>
+</li>
+<li><p>全双工传输（双向传输）。数据可以同时在主设备和从设备之间双向传输。主设备通过 MOSI（Master Out Slave In）线路发送数据，而从设备通过 MISO（Master In Slave Out）线路接收数据。</p>
+</li>
+<li><p>多设备支持：SPI 接口可以连接多个从设备，每个从设备使用一个片选信号（SS）来选择与其通信的从设备。主设备通过选择特定的片选信号来与特定的从设备进行通信。</p>
+</li>
+<li><p>传输速率。SPI 接口的传输速率可以通过调整时钟频率来控制，支持高速传输。传输速率可以根据实际应用需求进行配置，但受硬件和设备的限制。</p>
+</li>
+</ul>
+<h2 id="信号定义"><a href="#信号定义" class="headerlink" title="信号定义"></a>信号定义</h2><ul>
+<li>SCK：Serial Clock，串行时钟</li>
+<li>MOSI：Master Output Slave Input，主发从收</li>
+<li>MISO：Master Input Slave Output，主收从发</li>
+<li>CS/SS：Slave Select / Chip Select，片选信号</li>
+</ul>
+<h2 id="系统框图"><a href="#系统框图" class="headerlink" title="系统框图"></a>系统框图</h2><p><img src="/images/Hardware/Protocol/spi/spi-0.png" alt="image"></p>
+<p>对于SPI来讲，通常是一主（MCU）多从（外设），而多个从机是通过CS片选信号线来选择具体和哪一个设备进行通信，从机也将规定片选信号线是高电平有效还是低电平有效</p>
+<h1 id="通信过程"><a href="#通信过程" class="headerlink" title="通信过程"></a>通信过程</h1><p>不同于I2C，SPI在通信过程中不需要发送起始信号、结束信号，同时也不需要等待应答信号，它的数据线只发送数据，一个byte接着一个byte的数据进行发送。显而易见，它的速度相较于I2C一定是更快的，但是却不能保证数据的可靠性（不能确认从机是否真正收到数据）。另外，在空闲状态的保持和数据发送时的时钟状态上，spi与i2c也是存在差异的。</p>
+<h2 id="相位极性"><a href="#相位极性" class="headerlink" title="相位极性"></a>相位极性</h2><ul>
+<li><p>时钟极性（Clock Polarity）：定义了在时钟信号在空闲状态下的状态</p>
+<ul>
+<li>0：在时钟信号的空闲状态时，数据线上保持低电平（0），而在时钟信号激活时传输数据。</li>
+<li>1：在时钟信号的空闲状态时，数据线上保持高电平（1），而在时钟信号激活时传输数据。</li>
+</ul>
+</li>
+<li><p>时钟相位（Clock Phase）：定义了数据信号采样对应的时钟信号的状态（上升沿/下降沿采样）</p>
+<ul>
+<li>0：时钟上升沿采样</li>
+<li>1：时钟下降沿采样</li>
+</ul>
+</li>
+</ul>
+<p>根据相位极性的每种状态，因此对于spi有四种工作模式，具体选择哪一种模式取决于从机支持哪一种。（I2C相位极性是固定的）</p>
+<h2 id="设计目的"><a href="#设计目的" class="headerlink" title="设计目的"></a>设计目的</h2><ul>
+<li>兼容性：不同的设备可能对SPI的极性和相位有不同的要求，选择适当的组合可以确保设备之间的兼容性。</li>
+<li>时序控制：极性和相位的选择影响了数据传输的时序和同步方式。通过调整极性和相位，可以满足具体应用的时序要求，确保数据的正确传输。</li>
+<li>信号完整性：正确的极性和相位组合可以减少噪声和时钟抖动对数据传输的影响，提高信号的可靠性和稳定性。</li>
+</ul>
+<h1 id="时序"><a href="#时序" class="headerlink" title="时序"></a>时序</h1><h2 id="CPOL-x3D-0-CPHA-x3D-0"><a href="#CPOL-x3D-0-CPHA-x3D-0" class="headerlink" title="CPOL = 0,CPHA = 0"></a>CPOL = 0,CPHA = 0</h2><p>空闲状态低电平，上升沿采样下降沿从机读数据</p>
+<p><img src="/images/Hardware/Protocol/spi/spi-1.png" alt="image"></p>
+<h2 id="CPOL-x3D-0-CPHA-x3D-1"><a href="#CPOL-x3D-0-CPHA-x3D-1" class="headerlink" title="CPOL = 0,CPHA = 1"></a>CPOL = 0,CPHA = 1</h2><p>空闲状态低电平，下降沿采样上升沿从机读数据</p>
+<p><img src="/images/Hardware/Protocol/spi/spi-2.png" alt="image"></p>
+<h2 id="CPOL-x3D-1-CPHA-x3D-0"><a href="#CPOL-x3D-1-CPHA-x3D-0" class="headerlink" title="CPOL = 1,CPHA = 0"></a>CPOL = 1,CPHA = 0</h2><p>空闲状态高电平，上升沿采样下降沿从机读数据</p>
+<p><img src="/images/Hardware/Protocol/spi/spi-3.png" alt="image"></p>
+<h2 id="CPOL-x3D-1-CPHA-x3D-1"><a href="#CPOL-x3D-1-CPHA-x3D-1" class="headerlink" title="CPOL = 1,CPHA = 1"></a>CPOL = 1,CPHA = 1</h2><p>空闲状态高电平，下降沿采样上升沿从机读数据</p>
+<p><img src="/images/Hardware/Protocol/spi/spi-4.png" alt="image"></p>
+<h1 id="SPI-controller"><a href="#SPI-controller" class="headerlink" title="SPI controller"></a>SPI controller</h1><blockquote>
+<p>这个是 <a target="_blank" rel="noopener" href="https://www.ti.com/lit/ug/sprugp2a/sprugp2a.pdf?ts=1689464223160&amp;ref_url=https%253A%252F%252Fwww.google.es%252F">TI SPI User Guide</a>中的控制器的框图</p>
+</blockquote>
+<p><img src="/images/Hardware/Protocol/spi/spi-5.png" alt="image"></p>
+<h2 id="数据通路"><a href="#数据通路" class="headerlink" title="数据通路"></a>数据通路</h2><p>通过读图可以发现，对于控制内部通路存在buffer和移位寄存器。</p>
+<ol>
+<li>发送数据时，主设备将要发送的数据逐位加载到移位寄存器中，然后通过移位寄存器按照时钟信号的节奏逐位发送。在这个过程中，FIFO缓冲区可以用于存储多个待发送的数据字节，以便在移位寄存器中逐位移动数据之前，提供数据的供应。</li>
+<li>接收数据时，数据线上的位被移位寄存器接收和存储。如果存在FIFO缓冲区，接收到的数据字节可以先存储在FIFO中，以便在主设备准备好读取时进行传输</li>
+</ol>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li><p><code>时钟</code></p>
+<p>SPI控制器产生时钟信号，用于同步数据传输。它通常提供可配置的时钟频率选项，以适应不同的通信速率需求</p>
+</li>
+<li><p><code>数据缓冲区</code></p>
+<p>SPI控制器提供数据缓冲区，用于存储要发送或接收的数据。它可以是一个单独的寄存器或一个FIFO（First-In-First-Out）缓冲区。</p>
+</li>
+<li><p><code>通信模式选择</code></p>
+<p>根据从机的需求配置极性和相位以适应其传输模式</p>
+</li>
+<li><p><code>中断DMA</code></p>
+<p>为了提高传输效率，控制器通常有中断DMA相关的配置等等</p>
+</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.analog.com/media/en/analog-dialogue/volume-52/number-3/introduction-to-spi-interface.pdf">Introduction to SPI Interface</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.ti.com/lit/ug/sprugp2a/sprugp2a.pdf">KeyStone Architecture Serial Peripheral Interface</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1NK411X7mV/">SPI通信原理及应用</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/07/15/Hardware/Protocol/spi/" title="SPI">http://yanglieee.com/2023/07/15/Hardware/Protocol/spi/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/" rel="tag"><i class="fa fa-tag"></i> 硬件传输协议</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/09/Operating%20System/Linux/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" rel="prev" title="IO多路复用">
+      <i class="fa fa-chevron-left"></i> IO多路复用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/19/Software%20Development/System%20Function/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/" rel="next" title="功耗管理">
+      功耗管理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E5%AE%9A%E4%B9%89"><span class="nav-number">1.2.</span> <span class="nav-text">信号定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%A1%86%E5%9B%BE"><span class="nav-number">1.3.</span> <span class="nav-text">系统框图</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">通信过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E4%BD%8D%E6%9E%81%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">相位极性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%9B%AE%E7%9A%84"><span class="nav-number">2.2.</span> <span class="nav-text">设计目的</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F"><span class="nav-number">3.</span> <span class="nav-text">时序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-0-CPHA-x3D-0"><span class="nav-number">3.1.</span> <span class="nav-text">CPOL &#x3D; 0,CPHA &#x3D; 0</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-0-CPHA-x3D-1"><span class="nav-number">3.2.</span> <span class="nav-text">CPOL &#x3D; 0,CPHA &#x3D; 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-1-CPHA-x3D-0"><span class="nav-number">3.3.</span> <span class="nav-text">CPOL &#x3D; 1,CPHA &#x3D; 0</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-1-CPHA-x3D-1"><span class="nav-number">3.4.</span> <span class="nav-text">CPOL &#x3D; 1,CPHA &#x3D; 1</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SPI-controller"><span class="nav-number">4.</span> <span class="nav-text">SPI controller</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%80%9A%E8%B7%AF"><span class="nav-number">4.1.</span> <span class="nav-text">数据通路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
