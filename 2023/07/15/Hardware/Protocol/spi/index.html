@@ -33,8 +33,12 @@
 <meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-3.png">
 <meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-4.png">
 <meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-5.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-6.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-7.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-8.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/spi/spi-9.png">
 <meta property="article:published_time" content="2023-07-14T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-01T14:05:23.477Z">
+<meta property="article:modified_time" content="2023-12-02T13:35:02.182Z">
 <meta property="article:author" content="Lee">
 <meta property="article:tag" content="硬件传输协议">
 <meta name="twitter:card" content="summary">
@@ -239,7 +243,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-12-01 22:05:23" itemprop="dateModified" datetime="2023-12-01T22:05:23+08:00">2023-12-01</time>
+                <time title="修改时间：2023-12-02 21:35:02" itemprop="dateModified" datetime="2023-12-02T21:35:02+08:00">2023-12-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -275,14 +279,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.1k</span>
+              <span>3.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>3 分钟</span>
             </span>
             <div class="post-description">对SPI协议进行解析</div>
 
@@ -370,10 +374,25 @@
 <p>为了提高传输效率，控制器通常有中断DMA相关的配置等等</p>
 </li>
 </ul>
+<h1 id="TI-SSP"><a href="#TI-SSP" class="headerlink" title="TI SSP"></a>TI SSP</h1><h2 id="串行传输"><a href="#串行传输" class="headerlink" title="串行传输"></a>串行传输</h2><p>数据传输通过断言帧指示线开始（ss_0_n）一个串行时钟周期。要传输的数据被驱动到txd一个串行时钟周期后行；类似地，来自从机的数据被驱动到接收线。数据在串行时钟的上升沿传播（sclk_输出/slk_输入）并在下降沿捕获。</p>
+<p>注：从机选择信号（ss_0_n) 仅当用作从机 SPI 时才有效。对于主 SPI，一旦输出使能信号无效，数据传输就开始。</p>
+<p><img src="/images/Hardware/Protocol/spi/spi-6.png" alt="image"></p>
+<h2 id="连续传输"><a href="#连续传输" class="headerlink" title="连续传输"></a>连续传输</h2><p>连续数据帧的传输方式与单个数据帧相同。在与当前传输的 LSB 相同的周期内，帧指示符在一个时钟周期内被置位，指示接下来是另一个数据帧。</p>
+<p><img src="/images/Hardware/Protocol/spi/spi-7.png" alt="image"></p>
+<h1 id="National‘s-Microwire"><a href="#National‘s-Microwire" class="headerlink" title="National‘s Microwire"></a><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/ddi0194/h/functional-overview/primecell-ssp-operation/national-semiconductor-microwire-frame-format">National‘s Microwire</a></h1><p>Microwire 格式与 SPI 格式非常相似，不同之处在于传输是半双工而不是全双工，</p>
+<h2 id="单次传输"><a href="#单次传输" class="headerlink" title="单次传输"></a>单次传输</h2><p>使用主从消息传递技术。每个串行传输都以一个 8 位控制字开始，该控制字从 PrimeCell SSP 传输到片外从设备。在此传输期间，PrimeCell SSP 不接收传入数据。消息发送后，片外从机对其进行解码，并在发送 8 位控制消息的最后一位后等待一个串行时钟后，以所需的数据进行响应。返回数据的长度为 4 至 16 位，使得总帧长度在 13-25 位范围内。</p>
+<p>在此配置中，在空闲期间：SSPCLKOUT被强制为低电平；SSPFSSOUT被强制为高电平；发送数据线SSPTXD被任意强制为低电平；nSSPOE焊盘使能信号被强制为高电平，使发送焊盘处于高阻抗。</p>
+<p>通过将控制字节写入发送 FIFO 来触发发送。SSPFSSOUT的下降沿导致发送 FIFO 底部条目中包含的值被传输到发送逻辑的串行移位寄存器，并且 8 位控制帧的 MSB 被移出到 SSPTXD引脚。SSPFSSOUT在帧传输期间保持低电平。SSPRXD引脚在此传输期间保持三态。</p>
+<p>片外串行从设备在每个SSPCLKOUT的上升沿将每个控制位锁存到其串行移位器中。最后一位被从设备锁存后，控制字节在一个时钟等待状态期间被解码，并且从设备通过将数据传输回 PrimeCell SSP 来做出响应。每个位在SSPCLKOUT的下降沿被驱动到SSPRXD线上。PrimeCell SSP 依次锁存SSPCLKOUT上升沿上的每一位。在帧结束时，对于单次传输，SSPFSSOUT信号在最后一位被锁存在接收串行移位器中后一个时钟周期被拉高，这导致数据被传输到接收 FIFO。</p>
+<p><img src="/images/Hardware/Protocol/spi/spi-8.png" alt="image"></p>
+<h2 id="连续传输-1"><a href="#连续传输-1" class="headerlink" title="连续传输"></a>连续传输</h2><p>片外从设备可以在 LSB 被接收移位器锁存后在SSPCLKOUT的下降沿或当SSPFSSOUT引脚变高时使接收线处于三态。</p>
+<p>对于连续传输，数据传输的开始和结束方式与单次传输相同。然而，SSPFSSOUT线持续有效，保持低电平，并且数据传输连续发生。下一帧的控制字节紧跟在当前帧接收数据的 LSB 之后。在帧的 LSB 被锁存到 PrimeCell SSP 中之后，每个接收到的值都会在下降沿SSPCLKOUT上从接收移位器传输。</p>
+<p><img src="/images/Hardware/Protocol/spi/spi-9.png" alt="image"></p>
 <h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
 <li><a target="_blank" rel="noopener" href="https://www.analog.com/media/en/analog-dialogue/volume-52/number-3/introduction-to-spi-interface.pdf">Introduction to SPI Interface</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.ti.com/lit/ug/sprugp2a/sprugp2a.pdf">KeyStone Architecture Serial Peripheral Interface</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1NK411X7mV/">SPI通信原理及应用</a></li>
+<li><a target="_blank" rel="noopener" href="https://ww1.microchip.com/downloads/en/DeviceDoc/31015a.pdf">Synchronous Serial Port (SSP)</a></li>
 </ul>
 
     </div>
@@ -476,7 +495,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E5%AE%9A%E4%B9%89"><span class="nav-number">1.2.</span> <span class="nav-text">信号定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%A1%86%E5%9B%BE"><span class="nav-number">1.3.</span> <span class="nav-text">系统框图</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">通信过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E4%BD%8D%E6%9E%81%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">相位极性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%9B%AE%E7%9A%84"><span class="nav-number">2.2.</span> <span class="nav-text">设计目的</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F"><span class="nav-number">3.</span> <span class="nav-text">时序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-0-CPHA-x3D-0"><span class="nav-number">3.1.</span> <span class="nav-text">CPOL &#x3D; 0,CPHA &#x3D; 0</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-0-CPHA-x3D-1"><span class="nav-number">3.2.</span> <span class="nav-text">CPOL &#x3D; 0,CPHA &#x3D; 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-1-CPHA-x3D-0"><span class="nav-number">3.3.</span> <span class="nav-text">CPOL &#x3D; 1,CPHA &#x3D; 0</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-1-CPHA-x3D-1"><span class="nav-number">3.4.</span> <span class="nav-text">CPOL &#x3D; 1,CPHA &#x3D; 1</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SPI-controller"><span class="nav-number">4.</span> <span class="nav-text">SPI controller</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%80%9A%E8%B7%AF"><span class="nav-number">4.1.</span> <span class="nav-text">数据通路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E5%AE%9A%E4%B9%89"><span class="nav-number">1.2.</span> <span class="nav-text">信号定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%A1%86%E5%9B%BE"><span class="nav-number">1.3.</span> <span class="nav-text">系统框图</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">通信过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E4%BD%8D%E6%9E%81%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">相位极性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%9B%AE%E7%9A%84"><span class="nav-number">2.2.</span> <span class="nav-text">设计目的</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F"><span class="nav-number">3.</span> <span class="nav-text">时序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-0-CPHA-x3D-0"><span class="nav-number">3.1.</span> <span class="nav-text">CPOL &#x3D; 0,CPHA &#x3D; 0</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-0-CPHA-x3D-1"><span class="nav-number">3.2.</span> <span class="nav-text">CPOL &#x3D; 0,CPHA &#x3D; 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-1-CPHA-x3D-0"><span class="nav-number">3.3.</span> <span class="nav-text">CPOL &#x3D; 1,CPHA &#x3D; 0</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPOL-x3D-1-CPHA-x3D-1"><span class="nav-number">3.4.</span> <span class="nav-text">CPOL &#x3D; 1,CPHA &#x3D; 1</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SPI-controller"><span class="nav-number">4.</span> <span class="nav-text">SPI controller</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%80%9A%E8%B7%AF"><span class="nav-number">4.1.</span> <span class="nav-text">数据通路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TI-SSP"><span class="nav-number">5.</span> <span class="nav-text">TI SSP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%B2%E8%A1%8C%E4%BC%A0%E8%BE%93"><span class="nav-number">5.1.</span> <span class="nav-text">串行传输</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E4%BC%A0%E8%BE%93"><span class="nav-number">5.2.</span> <span class="nav-text">连续传输</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#National%E2%80%98s-Microwire"><span class="nav-number">6.</span> <span class="nav-text">National‘s Microwire</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E6%AC%A1%E4%BC%A0%E8%BE%93"><span class="nav-number">6.1.</span> <span class="nav-text">单次传输</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E7%BB%AD%E4%BC%A0%E8%BE%93-1"><span class="nav-number">6.2.</span> <span class="nav-text">连续传输</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -559,12 +578,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">215k</span>
+    <span title="站点总字数">216k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">3:15</span>
+    <span title="站点阅读时长">3:17</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
