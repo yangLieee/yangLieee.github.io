@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-11-30T23:34:00.825Z</updated>
+  <updated>2023-12-02T00:36:34.158Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -21,16 +21,16 @@
     <link href="http://yanglieee.com/2023/11/05/SoftwareDevelopment/Media/m3u8Reserch/"/>
     <id>http://yanglieee.com/2023/11/05/SoftwareDevelopment/Media/m3u8Reserch/</id>
     <published>2023-11-04T16:00:00.000Z</published>
-    <updated>2023-11-30T23:34:00.825Z</updated>
+    <updated>2023-12-02T00:36:34.158Z</updated>
     
     
     <summary type="html">对m3u8视频流进行调研，并基础信息以及相关资源进行记录</summary>
     
     
     
-    <category term="Software Development" scheme="http://yanglieee.com/categories/Software-Development/"/>
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
     
-    <category term="Media" scheme="http://yanglieee.com/categories/Software-Development/Media/"/>
+    <category term="Media" scheme="http://yanglieee.com/categories/SoftwareDevelopment/Media/"/>
     
     
     <category term="Video" scheme="http://yanglieee.com/tags/Video/"/>
@@ -42,16 +42,16 @@
     <link href="http://yanglieee.com/2023/10/17/SoftwareDevelopment/Media/Audio-underrun/"/>
     <id>http://yanglieee.com/2023/10/17/SoftwareDevelopment/Media/Audio-underrun/</id>
     <published>2023-10-16T16:00:00.000Z</published>
-    <updated>2023-12-02T00:13:55.190Z</updated>
+    <updated>2023-12-02T00:36:27.980Z</updated>
     
     
     <summary type="html">根据开发经验对音频数据流以及Alsa发生xrun时的解决方案进行说明</summary>
     
     
     
-    <category term="Software Development" scheme="http://yanglieee.com/categories/Software-Development/"/>
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
     
-    <category term="Media" scheme="http://yanglieee.com/categories/Software-Development/Media/"/>
+    <category term="Media" scheme="http://yanglieee.com/categories/SoftwareDevelopment/Media/"/>
     
     
     <category term="Audio" scheme="http://yanglieee.com/tags/Audio/"/>
@@ -63,16 +63,16 @@
     <link href="http://yanglieee.com/2023/09/17/OperatingSystem/Linux/%E4%B8%AD%E6%96%AD%E5%8F%8A%E5%BC%82%E5%B8%B8%E5%8E%9F%E7%90%86/"/>
     <id>http://yanglieee.com/2023/09/17/OperatingSystem/Linux/%E4%B8%AD%E6%96%AD%E5%8F%8A%E5%BC%82%E5%B8%B8%E5%8E%9F%E7%90%86/</id>
     <published>2023-09-16T16:00:00.000Z</published>
-    <updated>2023-12-01T13:57:20.882Z</updated>
+    <updated>2023-12-02T00:33:32.605Z</updated>
     
     
     <summary type="html">基于Linux-4.4(MIPS)对中断及异常的的初始化和调用原理，从源代码和使用两个方面进行分析</summary>
     
     
     
-    <category term="Operating System" scheme="http://yanglieee.com/categories/Operating-System/"/>
+    <category term="OperatingSystem" scheme="http://yanglieee.com/categories/OperatingSystem/"/>
     
-    <category term="Linux" scheme="http://yanglieee.com/categories/Operating-System/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/OperatingSystem/Linux/"/>
     
     
     <category term="interrrupt" scheme="http://yanglieee.com/tags/interrrupt/"/>
@@ -84,14 +84,14 @@
     <link href="http://yanglieee.com/2023/09/10/LanguageFeatures/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%8E%9F%E7%90%86/"/>
     <id>http://yanglieee.com/2023/09/10/LanguageFeatures/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%8E%9F%E7%90%86/</id>
     <published>2023-09-09T16:00:00.000Z</published>
-    <updated>2023-12-02T00:17:03.598Z</updated>
+    <updated>2023-12-02T00:38:51.014Z</updated>
     
     
     <summary type="html">基于页中断的原理，对fork和mmap的系统调用原理进行详细的分析</summary>
     
     
     
-    <category term="Language Features" scheme="http://yanglieee.com/categories/Language-Features/"/>
+    <category term="LanguageFeatures" scheme="http://yanglieee.com/categories/LanguageFeatures/"/>
     
     
   </entry>
@@ -101,16 +101,16 @@
     <link href="http://yanglieee.com/2023/09/01/OperatingSystem/Linux/%E9%A1%B5%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/"/>
     <id>http://yanglieee.com/2023/09/01/OperatingSystem/Linux/%E9%A1%B5%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/</id>
     <published>2023-08-31T16:00:00.000Z</published>
-    <updated>2023-11-30T14:03:57.193Z</updated>
+    <updated>2023-12-02T00:33:25.689Z</updated>
     
     
     <summary type="html">在linux中页中断机制为内存管理提供了依据，本篇重点对页中断类型、原因及源码进行比较深层次的解读。</summary>
     
     
     
-    <category term="Operating System" scheme="http://yanglieee.com/categories/Operating-System/"/>
+    <category term="OperatingSystem" scheme="http://yanglieee.com/categories/OperatingSystem/"/>
     
-    <category term="Linux" scheme="http://yanglieee.com/categories/Operating-System/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/OperatingSystem/Linux/"/>
     
     
     <category term="interrupt" scheme="http://yanglieee.com/tags/interrupt/"/>
@@ -122,16 +122,16 @@
     <link href="http://yanglieee.com/2023/08/15/SoftwareDevelopment/Media/Audio-musicPop/"/>
     <id>http://yanglieee.com/2023/08/15/SoftwareDevelopment/Media/Audio-musicPop/</id>
     <published>2023-08-14T16:00:00.000Z</published>
-    <updated>2023-11-30T23:38:14.210Z</updated>
+    <updated>2023-12-02T00:36:15.160Z</updated>
     
     
     <summary type="html">在调试ES8326 codec和aw87390功放进行放音时产生的POP音问题时的解决方案</summary>
     
     
     
-    <category term="Software Development" scheme="http://yanglieee.com/categories/Software-Development/"/>
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
     
-    <category term="Media" scheme="http://yanglieee.com/categories/Software-Development/Media/"/>
+    <category term="Media" scheme="http://yanglieee.com/categories/SoftwareDevelopment/Media/"/>
     
     
     <category term="Audio" scheme="http://yanglieee.com/tags/Audio/"/>
@@ -164,16 +164,16 @@
     <link href="http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/"/>
     <id>http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/</id>
     <published>2023-08-03T16:00:00.000Z</published>
-    <updated>2023-12-01T14:00:26.513Z</updated>
+    <updated>2023-12-02T00:32:52.373Z</updated>
     
     
     <summary type="html">对模拟耳机类型进行分类，针对linux inputevent和 android uevent的两种耳机检测方式做解析</summary>
     
     
     
-    <category term="Operating System" scheme="http://yanglieee.com/categories/Operating-System/"/>
+    <category term="OperatingSystem" scheme="http://yanglieee.com/categories/OperatingSystem/"/>
     
-    <category term="Andriod" scheme="http://yanglieee.com/categories/Operating-System/Andriod/"/>
+    <category term="Andriod" scheme="http://yanglieee.com/categories/OperatingSystem/Andriod/"/>
     
     
   </entry>
@@ -183,14 +183,14 @@
     <link href="http://yanglieee.com/2023/07/30/WorkExperience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/"/>
     <id>http://yanglieee.com/2023/07/30/WorkExperience/CODEC%E7%A7%BB%E6%A4%8D%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/</id>
     <published>2023-07-29T16:00:00.000Z</published>
-    <updated>2023-07-30T09:22:52.035Z</updated>
+    <updated>2023-12-02T00:39:05.055Z</updated>
     
     
     <summary type="html">在Ingenic X2000平台移植了ES8326 codec和aw87390功放，针对移植流程和遇到的问题进行经验和流程的总结</summary>
     
     
     
-    <category term="Work Experience" scheme="http://yanglieee.com/categories/Work-Experience/"/>
+    <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
     
     
   </entry>
@@ -200,16 +200,16 @@
     <link href="http://yanglieee.com/2023/07/19/SoftwareDevelopment/SystemFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/"/>
     <id>http://yanglieee.com/2023/07/19/SoftwareDevelopment/SystemFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/</id>
     <published>2023-07-18T16:00:00.000Z</published>
-    <updated>2023-11-30T23:35:07.531Z</updated>
+    <updated>2023-12-02T00:36:56.181Z</updated>
     
     
     <summary type="html">对于电子设备，系统待机时长无疑一项重要的技术指标。而这与系统的功耗是密切相关的，本篇将工作中休眠唤醒的调试经验及相关内容的学习做整理</summary>
     
     
     
-    <category term="Software Development" scheme="http://yanglieee.com/categories/Software-Development/"/>
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
     
-    <category term="System Function" scheme="http://yanglieee.com/categories/Software-Development/System-Function/"/>
+    <category term="SystemFunction" scheme="http://yanglieee.com/categories/SoftwareDevelopment/SystemFunction/"/>
     
     
   </entry>
@@ -240,16 +240,16 @@
     <link href="http://yanglieee.com/2023/07/09/OperatingSystem/Linux/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
     <id>http://yanglieee.com/2023/07/09/OperatingSystem/Linux/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/</id>
     <published>2023-07-08T16:00:00.000Z</published>
-    <updated>2023-12-01T13:57:11.134Z</updated>
+    <updated>2023-12-02T00:33:18.319Z</updated>
     
     
     <summary type="html">为了处理高并发场景并且提高效率，IO多路复用的技术必不可少。本文对select/poll/epoll进行简单的总结</summary>
     
     
     
-    <category term="Operating System" scheme="http://yanglieee.com/categories/Operating-System/"/>
+    <category term="OperatingSystem" scheme="http://yanglieee.com/categories/OperatingSystem/"/>
     
-    <category term="Linux" scheme="http://yanglieee.com/categories/Operating-System/Linux/"/>
+    <category term="Linux" scheme="http://yanglieee.com/categories/OperatingSystem/Linux/"/>
     
     
   </entry>
@@ -259,16 +259,16 @@
     <link href="http://yanglieee.com/2023/07/08/SoftwareDevelopment/SystemFunction/ota/"/>
     <id>http://yanglieee.com/2023/07/08/SoftwareDevelopment/SystemFunction/ota/</id>
     <published>2023-07-07T16:00:00.000Z</published>
-    <updated>2023-11-30T23:34:57.619Z</updated>
+    <updated>2023-12-02T00:36:46.898Z</updated>
     
     
     <summary type="html">对于电子产品，系统的升级迭代离不开OTA技术，本篇将根据工作经验对OTA升级步骤及策略进行解析</summary>
     
     
     
-    <category term="Software Development" scheme="http://yanglieee.com/categories/Software-Development/"/>
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
     
-    <category term="System Function" scheme="http://yanglieee.com/categories/Software-Development/System-Function/"/>
+    <category term="SystemFunction" scheme="http://yanglieee.com/categories/SoftwareDevelopment/SystemFunction/"/>
     
     
   </entry>
@@ -339,14 +339,14 @@
     <link href="http://yanglieee.com/2023/05/17/LanguageFeatures/libc-function/"/>
     <id>http://yanglieee.com/2023/05/17/LanguageFeatures/libc-function/</id>
     <published>2023-05-16T16:00:00.000Z</published>
-    <updated>2023-11-30T23:35:44.131Z</updated>
+    <updated>2023-12-02T00:38:36.844Z</updated>
     
     
     <summary type="html">对自己在开发中使用到的容易出错或者不熟悉的libc库函数做出总结</summary>
     
     
     
-    <category term="Language Features" scheme="http://yanglieee.com/categories/Language-Features/"/>
+    <category term="LanguageFeatures" scheme="http://yanglieee.com/categories/LanguageFeatures/"/>
     
     
   </entry>
@@ -377,16 +377,16 @@
     <link href="http://yanglieee.com/2023/05/06/SoftwareDevelopment/Tools/gdb/"/>
     <id>http://yanglieee.com/2023/05/06/SoftwareDevelopment/Tools/gdb/</id>
     <published>2023-05-05T16:00:00.000Z</published>
-    <updated>2023-11-30T14:23:22.783Z</updated>
+    <updated>2023-12-02T00:38:11.931Z</updated>
     
     
     <summary type="html">简单总结gdb的使用以及coredump文件的产生及使用（未进行详细学习了解），仅作记录参考</summary>
     
     
     
-    <category term="Software Development" scheme="http://yanglieee.com/categories/Software-Development/"/>
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
     
-    <category term="Tools" scheme="http://yanglieee.com/categories/Software-Development/Tools/"/>
+    <category term="Tools" scheme="http://yanglieee.com/categories/SoftwareDevelopment/Tools/"/>
     
     
   </entry>
@@ -396,14 +396,14 @@
     <link href="http://yanglieee.com/2023/04/27/WorkExperience/problem_tools/"/>
     <id>http://yanglieee.com/2023/04/27/WorkExperience/problem_tools/</id>
     <published>2023-04-26T16:00:00.000Z</published>
-    <updated>2023-11-30T23:37:10.376Z</updated>
+    <updated>2023-12-02T00:39:11.688Z</updated>
     
     
     <summary type="html">本篇文章主要想记录下自己在工作中使用linux系统及相关工具过程中遇到的问题及相应的解决办法，还会记录下提高工作效率的软件</summary>
     
     
     
-    <category term="Work Experience" scheme="http://yanglieee.com/categories/Work-Experience/"/>
+    <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
     
     
   </entry>
