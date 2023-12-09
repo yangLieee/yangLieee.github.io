@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-12-02T00:36:34.158Z</updated>
+  <updated>2023-12-09T11:34:51.485Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Git&amp;&amp;Repo</title>
+    <link href="http://yanglieee.com/2023/12/09/SoftwareDevelopment/Tools/GIT/"/>
+    <id>http://yanglieee.com/2023/12/09/SoftwareDevelopment/Tools/GIT/</id>
+    <published>2023-12-08T16:00:00.000Z</published>
+    <updated>2023-12-09T11:34:51.485Z</updated>
+    
+    
+    <summary type="html">详细介绍实际开发中常用到的git命令以及repo命令</summary>
+    
+    
+    
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
+    
+    <category term="Tools" scheme="http://yanglieee.com/categories/SoftwareDevelopment/Tools/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>m3u8视频流基础</title>
@@ -387,23 +406,6 @@
     <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
     
     <category term="Tools" scheme="http://yanglieee.com/categories/SoftwareDevelopment/Tools/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>Problem &amp; Tools</title>
-    <link href="http://yanglieee.com/2023/04/27/WorkExperience/problem_tools/"/>
-    <id>http://yanglieee.com/2023/04/27/WorkExperience/problem_tools/</id>
-    <published>2023-04-26T16:00:00.000Z</published>
-    <updated>2023-12-02T00:39:11.688Z</updated>
-    
-    
-    <summary type="html">本篇文章主要想记录下自己在工作中使用linux系统及相关工具过程中遇到的问题及相应的解决办法，还会记录下提高工作效率的软件</summary>
-    
-    
-    
-    <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
     
     
   </entry>
