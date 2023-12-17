@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2023-12-09T11:34:51.485Z</updated>
+  <updated>2023-12-17T12:40:59.305Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,23 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>内存溢出与内存泄漏</title>
+    <link href="http://yanglieee.com/2023/12/17/WorkExperience/memleak/"/>
+    <id>http://yanglieee.com/2023/12/17/WorkExperience/memleak/</id>
+    <published>2023-12-16T16:00:00.000Z</published>
+    <updated>2023-12-17T12:40:59.305Z</updated>
+    
+    
+    <summary type="html">对内存溢出和内存泄漏两种情况做说明。并对内存泄漏做几种解决方案</summary>
+    
+    
+    
+    <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>Git&amp;&amp;Repo</title>
@@ -388,25 +405,6 @@
     
     
     <category term="Flash" scheme="http://yanglieee.com/tags/Flash/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>gdb &amp;&amp; coredump</title>
-    <link href="http://yanglieee.com/2023/05/06/SoftwareDevelopment/Tools/gdb/"/>
-    <id>http://yanglieee.com/2023/05/06/SoftwareDevelopment/Tools/gdb/</id>
-    <published>2023-05-05T16:00:00.000Z</published>
-    <updated>2023-12-02T00:38:11.931Z</updated>
-    
-    
-    <summary type="html">简单总结gdb的使用以及coredump文件的产生及使用（未进行详细学习了解），仅作记录参考</summary>
-    
-    
-    
-    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
-    
-    <category term="Tools" scheme="http://yanglieee.com/categories/SoftwareDevelopment/Tools/"/>
-    
     
   </entry>
   
