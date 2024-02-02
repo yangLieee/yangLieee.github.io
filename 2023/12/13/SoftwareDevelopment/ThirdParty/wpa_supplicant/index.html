@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="基于Wpa_supplicant开源库对网络STA（WPAS）和AP模式(Hostapd)的两种模式的使用进行解析。同时对于网口开发常用的其它命令做说明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Wpa_supplicant &amp; Hostapd">
+<meta property="og:url" content="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="基于Wpa_supplicant开源库对网络STA（WPAS）和AP模式(Hostapd)的两种模式的使用进行解析。同时对于网口开发常用的其它命令做说明">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-12-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-02T15:23:16.219Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Wpa_supplicant & Hostapd | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Wpa_supplicant & Hostapd
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-12-13 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-13T00:00:00+08:00">2023-12-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-02-02 23:23:16" itemprop="dateModified" datetime="2024-02-02T23:23:16+08:00">2024-02-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SoftwareDevelopment/" itemprop="url" rel="index"><span itemprop="name">SoftwareDevelopment</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SoftwareDevelopment/ThirdParty/" itemprop="url" rel="index"><span itemprop="name">ThirdParty</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>12k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+            <div class="post-description">基于Wpa_supplicant开源库对网络STA（WPAS）和AP模式(Hostapd)的两种模式的使用进行解析。同时对于网口开发常用的其它命令做说明</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="WIFI基础"><a href="#WIFI基础" class="headerlink" title="WIFI基础"></a>WIFI基础</h1><h2 id="OSI七层模型"><a href="#OSI七层模型" class="headerlink" title="OSI七层模型"></a><a target="_blank" rel="noopener" href="https://www.freecodecamp.org/chinese/news/osi-model-networking-layers/">OSI七层模型</a></h2><blockquote>
+<p><em>请不要把暗号告诉任何人（Please Do Not Tell the Secret Password to Anyone）。</em></p>
+</blockquote>
+<ul>
+<li>Application Layer（应用层）。应用层能与应用程序界面沟通以达到向用户展示的目的。常见的协议有HTTP、HTTPS、FTP、SMTP等。其数据单位为APDU（Application Protocol Data Unit）。</li>
+<li>Presentation Layer（表示层）。表示层能为不同客户端提供数据和信息的语法转换，使系统能解读成正确的数据，同时它还能提供压缩解压、加密解密等服务。例如不同格式图像（如GIF、JPEG、TIFF等）的显示就是由位于表示层的协议来支持的。其数据单位为PPDU（Presentation Protocol Data Unit）。</li>
+<li>Session Layer（会话层）。会话层用于为通信双方制定通信方式，创建和注销会话（双方通信）等。其数据单位为-SPDU（Session Protocol Data Unit）。常见的协议有ZIP、AppleTalk、SCP等。</li>
+<li>Transport Layer（传输层）。传输层用于控制数据流量，同时能进行调试及错误处理，以确保通信顺利。发送端的传输层会为数据分组加上序号，以方便接收端把分组重组为有用的数据或文件。传输层的常见协议有TCP、UDP等。于 TCP 而言，数据单元是<code>数据包</code>。对于 UDP 而言，包被称为<code>数据报（datagram）</code></li>
+<li>Network Layer（网络层）。网络层为数据传送的目的地寻址，然后再选择一个传送数据的最佳路线。网络层数据的单位为Packet或Datagram。常见的设备有路由器等。常见协议有IP、IPv6。第三层的数据单元是&nbsp;<code>数据包（data packet）/负载（payload）</code>。通常，每个数据包都包含一个帧&nbsp;<strong>加上</strong>&nbsp;一个 IP 地址信息的包装。换句话说，帧被第三层的地址信息封装了。</li>
+<li>Data Link Layer（数据链路层）。在物理层提供比特流服务的基础上，建立相邻结点之间的数据链路。通过差错控制提供数据帧（Frame）在信道上无差错的传输。数据链路层在不可靠的物理介质上提供可靠的传输。该层的作用包括：物理地址寻址、数据的成帧、流量控制、数据的检错、重发等。数据链路层数据的单位为<code>Frame（帧）</code>。常见的设备有二层交换机、网桥等。<ul>
+<li><strong>介质访问控制（MAC，Media Access Control）。</strong>MAC 子层负责分配硬件标识号，这个标识号被称为 MAC 地址，它能够唯一标识网络上的各个设备。两个设备不应该有相同的 MAC 地址。MAC 地址在硬件制造时就分配好了，位于网卡当中，大多数网络都会自动对其进行识别。交换机会跟踪网络上所有的 MAC 地址。在<a target="_blank" rel="noopener" href="https://www.pcmag.com/encyclopedia/term/mac-address">这里</a>和<a target="_blank" rel="noopener" href="https://people.richland.edu/dkirby/141macaddress.htm">这里</a>了解更多有关 MAC 地址的信息，在<a target="_blank" rel="noopener" href="https://www.networkworld.com/article/3584876/what-is-a-network-switch-and-how-does-it-work.html">这里</a>进一步了解网络交换机。</li>
+<li><strong>逻辑链路控制（LLC，Logical Link Control）。</strong>&nbsp;LLC 子层处理帧的寻址以及流量控制。速度取决于两个节点之间的链路，例如以太网或 Wifi。</li>
+</ul>
+</li>
+<li>Physical Layer（物理层）。物理层定义了通信设备机械、电气、功能和过程等方面的特性，用以建立、维护和拆除物理链路连接。物理层数据的单位为<code>bit</code>。</li>
+</ul>
+<h1 id="STA模式"><a href="#STA模式" class="headerlink" title="STA模式"></a>STA模式</h1><p>STA客户端模式用到了wpa_supplicant和轻量级的udhcpd客户端</p>
+<h2 id="wpa-supplicant介绍"><a href="#wpa-supplicant介绍" class="headerlink" title="wpa_supplicant介绍"></a><strong>wpa_supplicant</strong>介绍</h2><p><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/title/wpa_supplicant">wpa_supplicant - ArchWiki</a></p>
+<p><a target="_blank" rel="noopener" href="https://hostap.epitest.fi/wpa_supplicant/devel/index.html">wpa_supplicant: Developers’ documentation for wpa_supplicant</a></p>
+<p>WPA代表Wi-Fi Protected Access（Wi-Fi受保护访问），是一种用于无线网络的安全协议。它的目的是提供比WEP（Wired Equivalent Privacy，有线等效隐私）更强大的安全性，以保护无线网络免受未经授权的访问和数据截取。</p>
+<p>wpa_supplicant是一个用于实现 WPA（Wi-Fi Protected Access）和 WPA2（Wi-Fi Protected Access 2）协议的开源软件客户端。它的主要功能是处理 Wi-Fi 网络的扫描、关联、认证和加密等任务，使得计算机或设备能够安全地连接到受保护的 Wi-Fi 网络。</p>
+<p>wpa_supplicant是一个 独立运行的 守护进程，其核心是一个消息循环，在消息循环中处理WPA状态机、控制命令、驱动事件、配置信息等。经过编译后 的 wpa_supplicant源程序可以看到两个主要的可执行工具：wpa_supplicant 和 wpa_cli。wpa_supplicant是核心程序，它和wpa_cli的关系就是服务和客户端的关系：后台运行wpa_supplicant，使用 wpa_cli来搜索、设置、和连接网络。</p>
+<h2 id="WPA命令行参数"><a href="#WPA命令行参数" class="headerlink" title="WPA命令行参数"></a>WPA命令行参数</h2><blockquote>
+<p>使用WPAS和WPSC的命令之前，可以通过ifconfig命令查看wlan驱动是否成功加载，wlan成功加载是必要的前提</p>
+</blockquote>
+<ol>
+<li><p>启动WPAS</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/usr/sbin/wpa_supplicant -Dnl80211 -iwlan0 -c/usr/resource/wpa_supplicant.conf -B -d</span><br><span class="line"></span><br><span class="line"><span class="comment"># -D : driver 可选指定的驱动程序，nl80211是当前的标准，但并非所有无线芯片的模块都支持它；</span></span><br><span class="line"><span class="comment"># -i ：interface 网络接口名称 wlan0</span></span><br><span class="line"><span class="comment"># -c : configure files 读取配置文件/etc/wpa_supplicant.conf </span></span><br><span class="line"><span class="comment"># -B : background 后台执行</span></span><br><span class="line"><span class="comment"># -d : debug 调试信息</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://man.archlinux.org/man/wpa_cli.8">wpa_cli常用参数含义</a></p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -p:  path, Change the path where control sockets should be found,更改应找到控制套接字的路径。</span></span><br><span class="line"><span class="comment"># -i:  ifname, Specify the interface that is being configured. By default, choose the first interface found with a control socket in the socket path</span></span><br><span class="line"><span class="comment">#         指定正在配置的接口。 默认情况下，选择在套接字路径中找到的第一个带有控制套接字的接口</span></span><br><span class="line"><span class="comment"># -B： Run as a daemon in the background，在后台作为守护进程运行。</span></span><br><span class="line"><span class="comment"># command ：运行命令，包括：status、scan、scan_result等等命令</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>搜索附近网络（显示OK/NO）</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用默认参数</span></span><br><span class="line">$ wpa_cli scan </span><br><span class="line"><span class="comment"># 指定参数</span></span><br><span class="line">$ wpa_cli scan -i wlan0 -p /var/run/wpa_supplicant</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>搜索附近网络,并列出结果</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wpa_cli scan_results</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>查看当前设备已连接的网络配置列表</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wpa_cli list_networks</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>连接网络（wpa_supplicant.conf配置文件没有配置，即首次连接）</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取一个存储wifi结构的ID (基于wpa_supplicant.conf配置递增)，ID值将以返回值或者打印的形式显示</span></span><br><span class="line">$ wpa_cli -i wlan0 add_network</span><br><span class="line"><span class="comment"># 设置ID=2的热点的SSID</span></span><br><span class="line">$ wpa_cli -i wlan0 set_network 2 ssid <span class="string">'"Jz_Staff"'</span></span><br><span class="line"><span class="comment"># 设置ID=2的热点的PSK</span></span><br><span class="line">$ wpa_cli -i wlan0 set_network 2 psk <span class="string">'"mAkEZnZWPk"'</span></span><br><span class="line"><span class="comment"># 启动ID=2的网络</span></span><br><span class="line">$ wpa_cli -i wlan0 enable_network 2</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>设置网络信息（选填项）</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基于以上连接信息，设置ID=2的热点的加密方式</span></span><br><span class="line">$ wpa_cli -i wlan0 set_network 2 key_mgmt WPA2-PSK</span><br><span class="line">$ wpa_cli -i wlan0 set_network 0 key_mgmt SAE</span><br><span class="line"><span class="comment">#设置ID=2的网络优先级,默认为2</span></span><br><span class="line">wpa_cli -i wlan0 set_network 2 priority 2</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>获取当前网络状态</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wpa_cli status</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>保存刚刚填写的wifi账号密码</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wpa_cli -i wlan0 save_config</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>将ID=2的网络断开</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wpa_cli -i wlan0 disable_network 2</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>将ID=2的网络移除，移除的前提一定是该网络需要断开（DISABLE）</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wpa_cli -i wlan0 remove_network 2</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>切换使用ID=2的网络</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wpa_cli -i wlan0 select_network 2</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>断开/重启网络连接</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ wpa_cli -i wlan0 disconnect</span><br><span class="line">$ wpa_cli -i wlan0 reconnect</span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h2 id="WPA配置文件"><a href="#WPA配置文件" class="headerlink" title="WPA配置文件"></a>WPA配置文件</h2><p>文件名称：wpa_supplicant.conf<br>该配置文件用于指定 Wi-Fi 网络的连接参数、安全设置和其他相关配置。同时包含了连接到一个或多个 Wi-Fi 网络所需的信息，wpa_supplicant 在启动时会读取这个文件，并根据其中的配置信息进行相应的连接。</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 指定本地socket路径，用于wpa_cli与wpas的通信</span></span><br><span class="line">ctrl_interface=/var/run/wpa_supplicant</span><br><span class="line"><span class="comment"># 这个配置项通常用于确定是否要将成功连接到的网络的配置信息写入到配置文件中。如果网络连接成功，会把信息写入该文件</span></span><br><span class="line">update_config=1</span><br><span class="line"></span><br><span class="line">network={</span><br><span class="line">				<span class="comment"># ssid ： 指定无线网络的服务集标识符（SSID），是网络的名称。</span></span><br><span class="line">        ssid=<span class="string">"xiaomiCivi"</span></span><br><span class="line">				<span class="comment"># 表示允许扫描隐藏的网络。当设置为1时，wpa_supplicant 会尝试主动发起对隐藏网络的扫描，并连接到匹配的隐藏网络</span></span><br><span class="line">        scan_ssid=1</span><br><span class="line">				<span class="comment"># 密码</span></span><br><span class="line">        psk=<span class="string">"12345678"</span></span><br><span class="line">				<span class="comment"># 通过配置网络块的优先级，影响最终要连接的网络</span></span><br><span class="line">        priority=1</span><br><span class="line">				<span class="comment"># 指定使用的密钥管理方式，例如 WPA-PSK（预共享密钥）或 WPA-EAP（扩展认证协议）。</span></span><br><span class="line">				key_mgmt=WPA-PSK</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="AP模式"><a href="#AP模式" class="headerlink" title="AP模式"></a>AP模式</h1><p>AP热点模式使用到了hostapd和轻量级的udhcpd服务端</p>
+<h2 id="Hostapd介绍"><a href="#Hostapd介绍" class="headerlink" title="Hostapd介绍"></a>Hostapd介绍</h2><p><a target="_blank" rel="noopener" href="https://wireless.wiki.kernel.org/en/users/documentation/hostapd">en:users:documentation:hostapd [Linux Wireless]</a></p>
+<p><a target="_blank" rel="noopener" href="https://hostap.epitest.fi/hostapd/">hostapd: IEEE 802.11 AP, IEEE 802.1X/WPA/WPA2/EAP/RADIUS Authenticator</a></p>
+<ol>
+<li>hostapd 是一种用于无线局域网（WLAN）访问点的软件，可通过 Linux 系统将一台计算机转化为 WLAN 的访问点。</li>
+<li>特点<ol>
+<li><strong>WLAN访问点（WLAN Access Point）</strong>：hostapd 允许将一台计算机配置为无线局域网访问点，以便允许其他无线设备（如手机、笔记本电脑）连接到计算机并访问网络资源。</li>
+<li><strong>支持多种认证协议：</strong> hostapd 支持多种认证协议，包括WPA（Wi-Fi Protected Access）和WPA2，以提供更高级别的无线网络安全性。</li>
+<li><strong>支持多种加密算法：</strong> 它支持多种加密算法，如WEP（Wired Equivalent Privacy）、TKIP（Temporal Key Integrity Protocol）和CCMP（Counter Cipher Mode with Block Chaining Message Authentication Code Protocol），提供灵活的加密选项。</li>
+<li><strong>支持802.1X认证：</strong> hostapd 支持使用IEEE 802.1X认证协议，这是一种提供对网络用户进行身份验证的标准化方法。</li>
+<li><strong>灵活的配置选项：</strong> 用户可以通过配置文件对 hostapd 进行灵活的设置，以满足特定网络环境和需求。</li>
+<li><strong>实时监控和日志记录：</strong> hostapd 提供实时监控功能，可以记录无线客户端的连接和断开情况，同时生成详细的系统日志以便故障排查和性能监测</li>
+</ol>
+</li>
+</ol>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><blockquote>
+<p>配置说明</p>
+<p><a target="_blank" rel="noopener" href="https://wireless.wiki.kernel.org/en/users/documentation/hostapd#wireless_interface">en:users:documentation:hostapd [Linux Wireless]</a></p>
+</blockquote>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 告诉hostapd 使用什么无线接口</span></span><br><span class="line">interface=wlan0</span><br><span class="line"><span class="comment"># 使用hostapd_cli的命令需要指定这个控制接口</span></span><br><span class="line">ctrl_interface=/var/run/hostapd</span><br><span class="line"><span class="comment"># 驱动程序的选择，始终是nl80211</span></span><br><span class="line">driver=nl80211</span><br><span class="line"><span class="comment"># 设置网络接口名称(SSID = service set identifier)</span></span><br><span class="line">ssid=MyNetwork</span><br><span class="line"><span class="comment"># 设置接口的工作模式和允许的通道。有效值取决于硬件，但始终是 a（5G频段）、b（2.4G）、g(2.4G) 的子集。</span></span><br><span class="line">hw_mode=g</span><br><span class="line"><span class="comment"># 设置hostapd 操作的通道。必须是 hw_mode 中设置的模式支持的通道，以及您所在国家/地区的无线监管规则允许的通道。</span></span><br><span class="line">channel=1</span><br><span class="line"><span class="comment"># 控制 MAC 地址过滤。MAC 地址很容易被欺骗，因此仅考虑使用它来增强您现有的其他安全措施。</span></span><br><span class="line">macaddr_acl=0</span><br><span class="line"><span class="comment"># 身份验证算法，位字段。1=用于开放身份验证，2=用于共享密钥身份验证 (WEP)，3=两者</span></span><br><span class="line">auth_algs=1</span><br><span class="line"><span class="comment"># 是否广播，0 广播SSID，1 不广播SSID（发送空SSID，即长度为0的SSID），2 忽略广播 SSID 的探测请求，跟1类似，但是兼容某些不支持空SSID的设备</span></span><br><span class="line">ignore_broadcast_ssid=0</span><br><span class="line"><span class="comment"># 类似于auth_algs。1 wpa，2 wpa2, 3 两者。 新的设备可以设置为2，仅使用wpa2版本。</span></span><br><span class="line">wpa=3</span><br><span class="line"><span class="comment"># 确定用于 WPA 身份验证的预共享密钥</span></span><br><span class="line">wpa_passphrase=YourPassPhrase</span><br><span class="line"><span class="comment"># 控制客户端可以使用哪些密钥管理算法进行身份验证</span></span><br><span class="line">wpa_key_mgmt=WPA-PSK</span><br><span class="line"><span class="comment"># 设置加密算法，CCMP就是AES，不推荐使用TKIP，除非设备不支持。wpa控制 WPA 的数据加密，rsn控制 WPA2 的数据加密。</span></span><br><span class="line">wpa_pairwise=TKIP</span><br><span class="line">rsn_pairwise=CCMP</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="命令行使用"><a href="#命令行使用" class="headerlink" title="命令行使用"></a>命令行使用</h2><ol>
+<li><p>启动hostapd server</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ hostapd /etc/hostapd.conf -B -d</span><br><span class="line"></span><br><span class="line">-h   显示帮助信息</span><br><span class="line">-d   显示更多的debug信息 (-<span class="built_in">dd</span> 获取更多)</span><br><span class="line">-B   将hostapd程序运行在后台</span><br><span class="line">-g   全局控制接口路径，这个工hostapd_cli使用，一般为/var/run/hostapd</span><br><span class="line">-G   控制接口组</span><br><span class="line">-P   PID 文件</span><br><span class="line">-K   调试信息中包含关键数据</span><br><span class="line">-t   调试信息中包含时间戳</span><br><span class="line">-v   显示hostapd的版本</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>修改无线热点的名称</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hostapd_cli <span class="built_in">set</span> ssid myNetWorkAP</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对端没有连接成功，reload不生效，新的SSID不显示; 对端连接成功，reload断开连接，但无法连接。</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>修改无线热点密码（reload生效）</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hostapd_cli <span class="built_in">set</span> wpa_passphrase 87654321</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>设置无线热点信道（reload不生效）</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hostapd_cli <span class="built_in">set</span> channel 11</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>隐藏无线热点（reload不生效）</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hostapd_cli <span class="built_in">set</span> ignore_broadcast_ssid 1</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>显示接口状态信息，包括接入点命令，当前连接客户端数量</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hostapd_cli status</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>显示当前配置信息</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hostapd_cli get_config</span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<p><code>**注意事项**</code></p>
+<ol>
+<li><p>使用 set 命令进行修改时，修改的内容是对应的内存里变量的内容，并不是修改 hostapd 配置文件的内容，因此在使用 set 命令完成所有的配置修改后，需要使用 reload 命令将这些配置重新加载。</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hostapd_cli reload</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>有些配置内容即使按照 set 、reload 配置后，也是无法更新的。此时需要再 set 命令配置完成后，先使用 disable 命令，再使用 enable ，从而实现配置更新。</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 禁用hostapd</span></span><br><span class="line">$ hostapd_cli <span class="built_in">disable</span></span><br><span class="line"><span class="comment">#启用hostapd</span></span><br><span class="line">$ hostapd_cli <span class="built_in">enable</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h2 id="启动AP流程"><a href="#启动AP流程" class="headerlink" title="启动AP流程"></a>启动AP流程</h2><ol>
+<li><p>启动hostapd server</p>
+</li>
+<li><p>为wlan0分配IP地址，默认为网关地址（可省略，直接使用udhcpd加 -I 参数）</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig wlan0 192.168.1.1</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>启动udhcpd服务</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">udhcpd /etc/udhcpd.conf &amp;</span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h1 id="其它命令"><a href="#其它命令" class="headerlink" title="其它命令"></a>其它命令</h1><h2 id="udhcp"><a href="#udhcp" class="headerlink" title="udhcp"></a>udhcp</h2><blockquote>
+<p>官网</p>
+<p><a target="_blank" rel="noopener" href="https://udhcp.busybox.net/">udhcp Server/Client Package</a></p>
+</blockquote>
+<p>u 可能是 “micro” 的缩写，表示 “微型”。udhcp 是一个小型 DHCP（Dynamic Host Configuration Protocol，动态主机配置协议）客户端和服务器的工具集。这个工具集包括 udhcpc 客户端和 udhcpd 服务器(d 通常表示 “daemon”，指的是守护进程)。udhcpc是用来获取IP地址的，而udhcpd则是用来为设备分配IP地址的。如果使用的是静态IP则不需DHCP服务的。</p>
+<h3 id="udhcpd"><a href="#udhcpd" class="headerlink" title="udhcpd"></a>udhcpd</h3><ul>
+<li><p>配置文件：udhcpd.conf</p>
+  <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># IP租用块的开始和结束</span></span><br><span class="line">start 192.168.0.150   <span class="comment">#default: 192.168.0.20</span></span><br><span class="line">end 192.168.0.240     <span class="comment">#default: 192.168.0.254</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># udhcpd使用的接口</span></span><br><span class="line">interface wlan0       <span class="comment">#default: eth0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 最大租约数（包括 OFFER、DECLINE 和 ARP 冲突保留的地址）</span></span><br><span class="line">max_leases  21      <span class="comment">#default: 254</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 其它DHCP选项</span></span><br><span class="line">opt dns 116.116.116.116</span><br><span class="line">option  subnet  255.255.255.0</span><br><span class="line">opt router  192.168.0.1</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>功能：</p>
+<ul>
+<li><strong>IP地址分配：</strong> 提供动态分配 IP 地址的功能。当设备首次连接到网络时，udhcpd 可以为其分配一个可用的IP地址。</li>
+<li><strong>子网掩码分配：</strong> 配置子网掩码，定义设备在网络上的地址范围。</li>
+<li><strong>默认网关分配：</strong> 分配默认网关的IP地址，允许设备访问其他网络。</li>
+<li><strong>DNS服务器分配：</strong> 提供DNS服务器的IP地址，用于域名解析。</li>
+<li><strong>租约管理：</strong> 管理IP地址的租约，包括租约的分配、更新和释放。</li>
+</ul>
+</li>
+<li><p>启动udhcpd进程</p>
+  <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 执行下面命令自动在对应的目录下生成一个内容为该进程pid的文件，默认/var/run/udhcpd.pid</span></span><br><span class="line">udhcpd /etc/udhcpd.conf -I [addr]</span><br><span class="line"></span><br><span class="line"><span class="comment"># -f   在前台运行</span></span><br><span class="line"><span class="comment"># -S   也记录到系统日志</span></span><br><span class="line"><span class="comment"># -I   本地地址，如果已经使用ifconfig工具配置了addrsess，就不需要这个悬念</span></span><br><span class="line"><span class="comment"># -a   ARP ping 的 MSEC 超时 (默认 2000)</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+<h3 id="udhcpc"><a href="#udhcpc" class="headerlink" title="udhcpc"></a>udhcpc</h3><p>udhcpc 是一个用于从 DHCP 服务器获取 IP 地址的小型 DHCP 客户端程序。通常，udhcpc 用于嵌入式系统或资源受限的环境，因为它相对轻量且占用资源少。</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取DHCP地址</span></span><br><span class="line">$ udhcpc -i &lt;interface&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">#-b: 在后台运行udhcpc，以守护进程的方式工作。</span></span><br><span class="line"><span class="comment">#-i  指定接口,默认eth0</span></span><br><span class="line"><span class="comment">#-t  设置 DHCP 超时时间，即等待 DHCP 服务器响应的最长时间。单位是秒。（默认3）</span></span><br><span class="line"><span class="comment">#-T  设置 DHCP 重试时间，即在未收到 DHCP 服务器响应时，客户端将尝试重新发送 DHCP 请求的时间间隔。单位是秒。（默认3）</span></span><br><span class="line"><span class="comment">#-R: 在关闭udhcpc时，可以向dhcpserver发送release取消租约。</span></span><br><span class="line"><span class="comment">#-H  选项用于指定客户端主机名（Hostname）。主机名是在网络中用于标识设备的名称。</span></span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>-<strong>b</strong>: 后台执行udhcpc命令</li>
+<li>-<strong>s</strong>: 指定脚本文件，在DHCP成功获取地址后执行该脚本文件</li>
+<li>-<strong>H</strong>: 指定客户端主机名，会在DHCP消息中发送</li>
+<li>-<strong>p</strong>: 指定pid文件，记录udhcpc进程的id</li>
+<li>-<strong>t</strong>: 指定超时时间，单位为秒</li>
+</ul>
+<h2 id="netd"><a href="#netd" class="headerlink" title="netd"></a>netd</h2><p>Netd是Android系统中专门负责网络管理和控制的后台daemon程序。Netd位于Framework层和Kernel层之间，它是Android系统中网络相关消息和命令转发及处理的中枢模块。</p>
+<ol>
+<li>异步非阻塞：netd采用异步非阻塞的编程模型，这意味着它可以同时处理多个并发的网络连接，而无需为每个连接创建一个线程。这种模型可以极大地减少线程切换和资源消耗，提高应用程序的性能和可扩展性。</li>
+<li>Reactor模式：netd使用Reactor模式来处理并发网络操作。它通过一个主事件循环来监听所有的网络事件，一旦有事件发生，就会通知相应的处理程序进行处理。这种事件驱动的模式可以更有效地管理并发连接和事件处理。</li>
+<li>内存池：netd使用内存池来管理网络连接的内存分配和释放。通过预先分配一块连续的内存空间，可以避免频繁的内存申请和释放，提高内存的利用率和性能。</li>
+<li>可扩展性：netd具有良好的可扩展性，可以根据应用程序的需求进行灵活的配置。它支持多线程的并发处理，可以通过增加线程数来提高处理能力。同时，它还支持基于事件的任务调度，可以将复杂的任务拆分为多个小任务，并根据情况动态地调整和分配资源。</li>
+</ol>
+<h2 id="ifconfig"><a href="#ifconfig" class="headerlink" title="ifconfig"></a>ifconfig</h2><p>ifconfig（接口配置）是一个网络管理工具，它用于配置和查看 Linux 操作系统中网络接口的状态，使用ifconfig，您可以分配 IP 地址、启用或禁用接口、管理 ARP 缓存、路由等。自从 Linux 内核版本 2.2 开始，推荐使用 <strong><code>ip</code></strong> 命令来替代 **<code>ifconfig</code>**，因为ip 命令提供了更强大和灵活的网络管理功能。</p>
+<p>使用该ifconfig命令设置的配置<code>不是持久</code>的。系统重新启动后，所有更改都将丢失。要使更改永久生效，您需要编辑特定于发行版的配置文件或将命令添加到启动脚本。</p>
+<ol>
+<li><p>显示网络接口信息</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 输出包括有关所有活动和非活动网络接口的信息</span></span><br><span class="line">$ ifconfig -a</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>启用/禁用网络接口</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启用接口，interface: eth0、wlan0等</span></span><br><span class="line">$ ifconfig &lt;interface&gt; up </span><br><span class="line"><span class="comment"># 禁用接口</span></span><br><span class="line">$ ifconfig &lt;interface&gt; down</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>设置IP地址和掩码</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 例：ifconfig eth0 192.168.0.101 netmask 255.255.0.0</span></span><br><span class="line">$ ifconfig &lt;interface&gt; [ip-address] netmask [subnet-mask]</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>更改网络接口的MTU</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># MTU “最大传输单元”允许您限制在接口上传输的数据包的大小。</span></span><br><span class="line">$ ifconfig &lt;interface&gt; mtu [mtu-value]</span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h2 id="ip"><a href="#ip" class="headerlink" title="ip"></a>ip</h2><p>ip 命令是一个强大的网络工具，用于配置网络接口、路由表、策略路由等。</p>
+<ol>
+<li><p>查看网络接口信息</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ip address show</span><br><span class="line">$ ip a</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>启用/禁用网络接口</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ip <span class="built_in">link</span> <span class="built_in">set</span> &lt;interface&gt; up    <span class="comment"># 启用接口</span></span><br><span class="line">$ ip <span class="built_in">link</span> <span class="built_in">set</span> &lt;interface&gt; down  <span class="comment"># 禁用接口</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>配置/删除IP地址</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ip address add    &lt;ip_address/mask&gt; dev &lt;interface&gt;  <span class="comment"># 添加 IP 地址</span></span><br><span class="line">$ ip address delete &lt;ip_address/mask&gt; dev &lt;interface&gt;  <span class="comment"># 删除 IP 地址</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>使用详情：<a target="_blank" rel="noopener" href="https://blog.51cto.com/u_11738327/3883798">click</a></p>
+</li>
+</ol>
+<h2 id="iw"><a href="#iw" class="headerlink" title="iw"></a>iw</h2><p>iw 是一个全新的基于 nl80211 的用于配置无线设备的命令行界面（CLI）实用程序。它支持最近添加到内核中的所有新驱动程序。与已废弃的 iwconfig 工具相比，采用无线扩展接口的 iw 更为先进和强大。因此，我们强烈建议您切换到 iw 和 nl80211，以便更好地配置和管理您的无线设备。</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># iw help    # 帮助</span></span><br><span class="line"><span class="comment"># iw list    # 获得所有设备的功能，如带宽信息（2.4GHz，和5GHz），和802.11n的信息</span></span><br><span class="line"><span class="comment"># iw dev wlan0 scan    # 扫描</span></span><br><span class="line"><span class="comment"># iw event    # 监听事件 </span></span><br><span class="line"><span class="comment"># iw dev wlan0 link    # 获得链路状态 </span></span><br><span class="line"><span class="comment"># iw wlan0 connect foo    # 连接到已禁用加密的AP，这里它的SSID是foo </span></span><br><span class="line"><span class="comment"># iw wlan0 connect foo 2432  # 假设你有两个AP SSID 都是 foo ，你知道你要连接的是在 2432 频道</span></span><br><span class="line"><span class="comment"># iw wlan0 connect foo keys 0:abcde d:1:0011223344    # 连接到使用WEP的AP</span></span><br><span class="line"><span class="comment"># iw dev wlan1 station dump    # 获取station 的统计信息</span></span><br><span class="line"><span class="comment"># iw dev wlan1 station get     # 获得station对应的peer统计信息</span></span><br><span class="line"><span class="comment"># iw dev wlan0 set power_save on  #设置省电模式</span></span><br><span class="line"><span class="comment"># iw dev wlan0 get power_save  #查询当前的节电设定</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li><p>使用wpa_cli执行scan命令出现 <code>Failed to connect to non-global ctrl_ifname: wlan0 error: No such file or directory</code>错误?<br>  可能是-p的参数指定socket的路径的时候出现错误，此时需要查看在wpa_supplicant.conf文件中ctrl_interface指定的socket路径是哪里</p>
+</li>
+<li><p>直接使用udhcpd可能出现一些错误，错误log以及解决方案如下</p>
+ <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># error, max_leases value (254) not sane, setting to 234 instead</span></span><br><span class="line">max_leases 字段的值设置不正确，改成234或者更小即可</span><br><span class="line"></span><br><span class="line"><span class="comment"># error, Unable to open /var/lib/misc/udhcpd.leases for reading</span></span><br><span class="line">系统中没有这个路径和文件。使用以下命令：***<span class="built_in">mkdir</span> -p /var/lib/misc/; <span class="built_in">touch</span> /var/lib/misc/udhcpd.leases***</span><br><span class="line"></span><br><span class="line"><span class="comment"># error, SIOCGIFADDR failed, is the interface up and configured?: No such device</span></span><br><span class="line">interface接口没有启动或者名称错误。可以使用ifconfig查看是否存在，不存在启动（ifconfig wlan0 up），并检查名字拼写</span><br><span class="line"></span><br><span class="line"><span class="comment"># udhcpd: is interface wlan0 up and configured?: Cannot assign requested address</span></span><br><span class="line">没有指定的地址，使用 ***udhcpd -I [addr]*** 或者 ***ifconfig wlan0 addr*** 命令指定</span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://www.kancloud.cn/alex_wsc/android-wifi-nfc-gps/413626">第4章 深入理解wpa_supplicant · 深入理解Android：Wi-Fi、NFC和GPS卷（完整版） · 看云</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/conscience-remain/p/17552340.html">linux下wifi的sta和ap操作 - 良知犹存 - 博客园</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/cxt-janson/p/11542803.html">【转】wpa_supplicant和hostapd的定义和区别 - 陈晓涛 - 博客园</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/" title="Wpa_supplicant &amp; Hostapd">http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/09/SoftwareDevelopment/Tools/GIT/" rel="prev" title="Git&&Repo">
+      <i class="fa fa-chevron-left"></i> Git&&Repo
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/17/WorkExperience/memleak/" rel="next" title="内存溢出与内存泄漏">
+      内存溢出与内存泄漏 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WIFI%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">WIFI基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">OSI七层模型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#STA%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">STA模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#wpa-supplicant%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.1.</span> <span class="nav-text">wpa_supplicant介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WPA%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%8F%82%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">WPA命令行参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WPA%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">WPA配置文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AP%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">AP模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hostapd%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.1.</span> <span class="nav-text">Hostapd介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%BD%BF%E7%94%A8"><span class="nav-number">3.3.</span> <span class="nav-text">命令行使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8AP%E6%B5%81%E7%A8%8B"><span class="nav-number">3.4.</span> <span class="nav-text">启动AP流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">其它命令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#udhcp"><span class="nav-number">4.1.</span> <span class="nav-text">udhcp</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#udhcpd"><span class="nav-number">4.1.1.</span> <span class="nav-text">udhcpd</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#udhcpc"><span class="nav-number">4.1.2.</span> <span class="nav-text">udhcpc</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#netd"><span class="nav-number">4.2.</span> <span class="nav-text">netd</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ifconfig"><span class="nav-number">4.3.</span> <span class="nav-text">ifconfig</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ip"><span class="nav-number">4.4.</span> <span class="nav-text">ip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iw"><span class="nav-number">4.5.</span> <span class="nav-text">iw</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">5.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">235k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

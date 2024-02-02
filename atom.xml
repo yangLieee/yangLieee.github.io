@@ -34,6 +34,25 @@
   </entry>
   
   <entry>
+    <title>Wpa_supplicant &amp; Hostapd</title>
+    <link href="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/"/>
+    <id>http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/</id>
+    <published>2023-12-12T16:00:00.000Z</published>
+    <updated>2024-02-02T15:23:16.219Z</updated>
+    
+    
+    <summary type="html">基于Wpa_supplicant开源库对网络STA（WPAS）和AP模式(Hostapd)的两种模式的使用进行解析。同时对于网口开发常用的其它命令做说明</summary>
+    
+    
+    
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
+    
+    <category term="ThirdParty" scheme="http://yanglieee.com/categories/SoftwareDevelopment/ThirdParty/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>Git&amp;&amp;Repo</title>
     <link href="http://yanglieee.com/2023/12/09/SoftwareDevelopment/Tools/GIT/"/>
     <id>http://yanglieee.com/2023/12/09/SoftwareDevelopment/Tools/GIT/</id>
@@ -57,7 +76,7 @@
     <link href="http://yanglieee.com/2023/11/05/SoftwareDevelopment/Media/m3u8Reserch/"/>
     <id>http://yanglieee.com/2023/11/05/SoftwareDevelopment/Media/m3u8Reserch/</id>
     <published>2023-11-04T16:00:00.000Z</published>
-    <updated>2023-12-02T00:36:34.158Z</updated>
+    <updated>2024-02-02T15:12:57.098Z</updated>
     
     
     <summary type="html">对m3u8视频流进行调研，并基础信息以及相关资源进行记录</summary>
@@ -384,27 +403,6 @@
     
     <category term="LanguageFeatures" scheme="http://yanglieee.com/categories/LanguageFeatures/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>Flash</title>
-    <link href="http://yanglieee.com/2023/05/08/Hardware/Storage/Flash/"/>
-    <id>http://yanglieee.com/2023/05/08/Hardware/Storage/Flash/</id>
-    <published>2023-05-07T16:00:00.000Z</published>
-    <updated>2023-12-01T14:19:07.413Z</updated>
-    
-    
-    <summary type="html">通过网络上的资料对nor、nand、emmc三种flash类型进行学习及说明</summary>
-    
-    
-    
-    <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
-    
-    <category term="Storage" scheme="http://yanglieee.com/categories/Hardware/Storage/"/>
-    
-    
-    <category term="Flash" scheme="http://yanglieee.com/tags/Flash/"/>
     
   </entry>
   
