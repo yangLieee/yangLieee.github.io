@@ -23,16 +23,16 @@
   <meta name="description" content="基于Wpa_supplicant开源库对网络STA（WPAS）和AP模式(Hostapd)的两种模式的使用进行解析。同时对于网口开发常用的其它命令做说明">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Wpa_supplicant &amp; Hostapd">
-<meta property="og:url" content="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/index.html">
+<meta property="og:url" content="http://yanglieee.com/2024/01/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/index.html">
 <meta property="og:site_name" content="yangLieee">
 <meta property="og:description" content="基于Wpa_supplicant开源库对网络STA（WPAS）和AP模式(Hostapd)的两种模式的使用进行解析。同时对于网口开发常用的其它命令做说明">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-12-12T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-02T15:23:16.219Z">
+<meta property="article:published_time" content="2024-01-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-02T15:31:44.068Z">
 <meta property="article:author" content="Lee">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/">
+<link rel="canonical" href="http://yanglieee.com/2024/01/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/">
 
 
 <script id="page-configurations">
@@ -201,7 +201,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2024/01/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -224,14 +224,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2023-12-13 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-13T00:00:00+08:00">2023-12-13</time>
+              <time title="创建时间：2024-01-13 00:00:00" itemprop="dateCreated datePublished" datetime="2024-01-13T00:00:00+08:00">2024-01-13</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-02 23:23:16" itemprop="dateModified" datetime="2024-02-02T23:23:16+08:00">2024-02-02</time>
+                <time title="修改时间：2024-02-02 23:31:44" itemprop="dateModified" datetime="2024-02-02T23:31:44+08:00">2024-02-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -256,8 +256,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/" itemprop="commentCount"></span>
+    <a title="valine" href="/2024/01/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2024/01/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -486,7 +486,7 @@
 <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># iw help    # 帮助</span></span><br><span class="line"><span class="comment"># iw list    # 获得所有设备的功能，如带宽信息（2.4GHz，和5GHz），和802.11n的信息</span></span><br><span class="line"><span class="comment"># iw dev wlan0 scan    # 扫描</span></span><br><span class="line"><span class="comment"># iw event    # 监听事件 </span></span><br><span class="line"><span class="comment"># iw dev wlan0 link    # 获得链路状态 </span></span><br><span class="line"><span class="comment"># iw wlan0 connect foo    # 连接到已禁用加密的AP，这里它的SSID是foo </span></span><br><span class="line"><span class="comment"># iw wlan0 connect foo 2432  # 假设你有两个AP SSID 都是 foo ，你知道你要连接的是在 2432 频道</span></span><br><span class="line"><span class="comment"># iw wlan0 connect foo keys 0:abcde d:1:0011223344    # 连接到使用WEP的AP</span></span><br><span class="line"><span class="comment"># iw dev wlan1 station dump    # 获取station 的统计信息</span></span><br><span class="line"><span class="comment"># iw dev wlan1 station get     # 获得station对应的peer统计信息</span></span><br><span class="line"><span class="comment"># iw dev wlan0 set power_save on  #设置省电模式</span></span><br><span class="line"><span class="comment"># iw dev wlan0 get power_save  #查询当前的节电设定</span></span><br></pre></td></tr></tbody></table></figure>
 
 <h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
-<li><p>使用wpa_cli执行scan命令出现 <code>Failed to connect to non-global ctrl_ifname: wlan0 error: No such file or directory</code>错误?<br>  可能是-p的参数指定socket的路径的时候出现错误，此时需要查看在wpa_supplicant.conf文件中ctrl_interface指定的socket路径是哪里</p>
+<li><p>使用wpa_cli执行scan命令出现 <code>Failed to connect to non-global ctrl_ifname: wlan0 error: No such file or directory</code>错误?<br> 可能是-p的参数指定socket的路径的时候出现错误，此时需要查看在wpa_supplicant.conf文件中ctrl_interface指定的socket路径是哪里</p>
 </li>
 <li><p>直接使用udhcpd可能出现一些错误，错误log以及解决方案如下</p>
  <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># error, max_leases value (254) not sane, setting to 234 instead</span></span><br><span class="line">max_leases 字段的值设置不正确，改成234或者更小即可</span><br><span class="line"></span><br><span class="line"><span class="comment"># error, Unable to open /var/lib/misc/udhcpd.leases for reading</span></span><br><span class="line">系统中没有这个路径和文件。使用以下命令：***<span class="built_in">mkdir</span> -p /var/lib/misc/; <span class="built_in">touch</span> /var/lib/misc/udhcpd.leases***</span><br><span class="line"></span><br><span class="line"><span class="comment"># error, SIOCGIFADDR failed, is the interface up and configured?: No such device</span></span><br><span class="line">interface接口没有启动或者名称错误。可以使用ifconfig查看是否存在，不存在启动（ifconfig wlan0 up），并检查名字拼写</span><br><span class="line"></span><br><span class="line"><span class="comment"># udhcpd: is interface wlan0 up and configured?: Cannot assign requested address</span></span><br><span class="line">没有指定的地址，使用 ***udhcpd -I [addr]*** 或者 ***ifconfig wlan0 addr*** 命令指定</span><br></pre></td></tr></tbody></table></figure></li>
@@ -509,7 +509,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/" title="Wpa_supplicant &amp; Hostapd">http://yanglieee.com/2023/12/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/</a>
+    <a href="http://yanglieee.com/2024/01/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/" title="Wpa_supplicant &amp; Hostapd">http://yanglieee.com/2024/01/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -526,13 +526,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/12/09/SoftwareDevelopment/Tools/GIT/" rel="prev" title="Git&&Repo">
-      <i class="fa fa-chevron-left"></i> Git&&Repo
+    <a href="/2023/12/17/WorkExperience/memleak/" rel="prev" title="内存溢出与内存泄漏">
+      <i class="fa fa-chevron-left"></i> 内存溢出与内存泄漏
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/12/17/WorkExperience/memleak/" rel="next" title="内存溢出与内存泄漏">
-      内存溢出与内存泄漏 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
