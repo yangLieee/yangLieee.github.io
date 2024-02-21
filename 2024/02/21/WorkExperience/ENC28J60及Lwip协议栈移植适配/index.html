@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对ENC28J60在Freertos平台上进行移植适配，同时针对Lwip协议栈进行对接，针对移植流程和遇到的问题进行经验和流程的总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ENC28J60及Lwip协议栈移植适配">
+<meta property="og:url" content="http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对ENC28J60在Freertos平台上进行移植适配，同时针对Lwip协议栈进行对接，针对移植流程和遇到的问题进行经验和流程的总结">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/WorkExperience/hardware.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/WorkExperience/framework.png">
+<meta property="article:published_time" content="2024-02-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-21T12:55:24.724Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/Hardware/WorkExperience/hardware.png">
+
+<link rel="canonical" href="http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ENC28J60及Lwip协议栈移植适配 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ENC28J60及Lwip协议栈移植适配
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-02-21 00:00:00 / 修改时间：20:55:24" itemprop="dateCreated datePublished" datetime="2024-02-21T00:00:00+08:00">2024-02-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WorkExperience/" itemprop="url" rel="index"><span itemprop="name">WorkExperience</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">对ENC28J60在Freertos平台上进行移植适配，同时针对Lwip协议栈进行对接，针对移植流程和遇到的问题进行经验和流程的总结</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h1><p><img src="/images/Hardware/WorkExperience/hardware.png" alt="image"></p>
+<p><img src="/images/Hardware/WorkExperience/framework.png" alt="image"></p>
+<h2 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h2><p>对于硬件连接不需要进行过多的赘述，只需要将管脚正确连接即可。电源方面：3V3、GND和RESET管脚，对于ENC28J60有软件复位功能，但是两个RESET的功能不一致，所以将硬件RESET管脚连接起来保证功能的稳定性；数据传输SPI方面：CLK、MISO、MOSI和CS；其它：INT，这个中断的作用是当ENC28J60有数据要发送给MCU时或者存在一些状态错误的时候，这个中断会产生。当然，如果MCU软件部分采用轮询模式，循环查询ENC28J60 某个寄存器是否有数据，则不需要连接这个管脚。但是建议使用中断模式，提高主控效率。</p>
+<h2 id="软件"><a href="#软件" class="headerlink" title="软件"></a>软件</h2><ul>
+<li>驱动层。实现硬件抽象和必要的数据发送接收函数。</li>
+<li>协议栈。根据驱动函数实现协议栈的初始化、数据发送、数据接收接口。</li>
+<li>应用层。使用协议栈的API编写Demo，包括添加网卡、网络配置、DHCP或静态IP配置、数据通讯等等。</li>
+</ul>
+<h1 id="SPI驱动"><a href="#SPI驱动" class="headerlink" title="SPI驱动"></a>SPI驱动</h1><p>SPI驱动是依赖具体的MCU型号的，所以只需要根据提供的驱动代码进行编程即可。主要实现的函数为：SPI初始化、SPI发送数据、SPI接收数据。</p>
+<ul>
+<li>初始化函数需要实现SPI的配置信息。ENC28J60的SPI配置信息固定：时钟相位（0，0）、MSB first（大端）、CS低有效、最大传输速率10Mb/s</li>
+<li>发送接收函数直接调用驱动接口进一步是实现即可。传输方式（DMA/CPU）、接收中断（下降沿有效）</li>
+</ul>
+<h1 id="ENC28J60网卡驱动"><a href="#ENC28J60网卡驱动" class="headerlink" title="ENC28J60网卡驱动"></a>ENC28J60网卡驱动</h1><p>网卡驱动厂商一般都会提供网卡驱动代码，而网卡驱动代码的流程都是有迹可循的，对照手册查看时序和寄存器操作流程即可。而需要用户实现就是基于特定的MCU平台调用spi相关函数实现 enc_readopc、enc_writeopc、enc_readbuf、enc_writebuf四个函数。</p>
+<p>整体上，ENC28J60包括MAC和PHY，要想访问到特定的寄存器需要 bank + 地址两部分组成，对于其8K的RAM访问需要用户编程写寄存器来划分发送和接收缓冲区的边界，并读写数据。</p>
+<h1 id="Lwip协议栈"><a href="#Lwip协议栈" class="headerlink" title="Lwip协议栈"></a>Lwip协议栈</h1><p>关于Lwip协议栈的移植在网上有比较多的示例。最终用户只需要自己实现ethernet.c文件里面的5个函数即可：</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">low_level_init</span><span class="params">(<span class="keyword">struct</span> netif *netif)</span></span><br><span class="line"><span class="type">static</span> <span class="type">err_t</span> <span class="title function_">low_level_output</span><span class="params">(<span class="keyword">struct</span> netif *netif, <span class="keyword">struct</span> pbuf *p)</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">struct</span> pbuf * <span class="title function_">low_level_input</span><span class="params">(<span class="keyword">struct</span> netif *netif)</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">ethernetif_input</span><span class="params">(<span class="type">void</span> *pParams)</span></span><br><span class="line"><span class="type">err_t</span> <span class="title function_">ethernetif_init</span><span class="params">(<span class="keyword">struct</span> netif *netif)</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="low-level-init"><a href="#low-level-init" class="headerlink" title="low_level_init"></a>low_level_init</h2><p>网卡的初始化函数。它主要用来完成网卡复位及参数初始化，主要包含以下几个步骤</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">low_level_init</span><span class="params">(<span class="keyword">struct</span> netif *netif)</span></span><br><span class="line">{</span><br><span class="line">	<span class="comment">// 设置标志位</span></span><br><span class="line">	netif-&gt;flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;</span><br><span class="line">  <span class="comment">// 将 ethernetif_input 作为单独的线程跑起来（数据接收）</span></span><br><span class="line">	thread_create(<span class="string">"receive data"</span>, <span class="number">1024</span>*<span class="number">4</span>,(<span class="type">thread_func_t</span>)ethernetif_input, netif);</span><br><span class="line">  <span class="comment">// 网卡初始化</span></span><br><span class="line">	ENC28J60_Init(netif-&gt;hwaddr);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="low-level-output"><a href="#low-level-output" class="headerlink" title="low_level_output"></a>low_level_output</h2><p>网卡数据包的发送函数。将内核数据包pbuf发送出去，伪代码如下：</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">unsigned</span> <span class="type">char</span> send_buffer[<span class="number">1500</span>];</span><br><span class="line"><span class="type">static</span> <span class="type">err_t</span> <span class="title function_">low_level_output</span><span class="params">(<span class="keyword">struct</span> netif *netif, <span class="keyword">struct</span> pbuf *p)</span></span><br><span class="line">{</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">pbuf</span> *<span class="title">q</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> templen = <span class="number">0</span>;</span><br><span class="line">  <span class="comment">// 遍历所有的pbuf，将数据重新排列保证不丢数据</span></span><br><span class="line">  <span class="keyword">for</span>(q = p;q != <span class="literal">NULL</span>;q = q-&gt;next) {</span><br><span class="line">    <span class="built_in">memcpy</span>(&amp;send_buffer[templen],q-&gt;payload,q-&gt;len);</span><br><span class="line">    templen +=q-&gt;len;</span><br><span class="line">    <span class="keyword">if</span>(templen&gt;<span class="number">1500</span> || templen &gt; p-&gt;tot_len) {</span><br><span class="line">    ┆   LWIP_DEBUGF(NETIF_DEBUG, (<span class="string">"PacketSend : error; templen = %d tot_len = %d"</span>, templen, p-&gt;tot_len));</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="comment">/* 调用网卡发送函数，将数据发送出去 */</span></span><br><span class="line">  <span class="keyword">if</span>(templen == p-&gt;tot_len) {</span><br><span class="line">    ENCPacketSend(send_buffer, templen);</span><br><span class="line">	}</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="low-level-input"><a href="#low-level-input" class="headerlink" title="low_level_input"></a>low_level_input</h2><p>网卡数据包接收函数。需要将网卡传过来的数据封装成pbuf的形式传给协议栈</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">unsigned</span> <span class="type">char</span> recv_buffer[<span class="number">2000</span>];</span><br><span class="line"><span class="type">static</span> <span class="keyword">struct</span> pbuf* <span class="title function_">low_level_input</span><span class="params">(<span class="keyword">struct</span> netif *netif)</span></span><br><span class="line">{</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pbuf</span>* <span class="title">p</span>, <span class="title">q</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> recvlen, i;</span><br><span class="line">		<span class="comment">// 调用网卡接收函数</span></span><br><span class="line">    recvlen = ENCPacketRcv(recv_buffer,<span class="number">2000</span>);</span><br><span class="line">		<span class="comment">// 申请pbuf所需要的内存空间</span></span><br><span class="line">    p = pbuf_alloc(PBUF_RAW,recvlen,PBUF_RAM);</span><br><span class="line">    q = p;</span><br><span class="line">    <span class="keyword">while</span>(q!=<span class="literal">NULL</span>) {</span><br><span class="line">    ┆   <span class="comment">// 封装pbuf结构体</span></span><br><span class="line">    ┆   <span class="built_in">memcpy</span>(q-&gt;payload,&amp;recv_buffer[i],q-&gt;len);</span><br><span class="line">    ┆   i += q-&gt;len;</span><br><span class="line">    ┆   <span class="comment">// 下一个pload</span></span><br><span class="line">    ┆   q = q-&gt;next;</span><br><span class="line">    ┆   <span class="keyword">if</span>(i&gt;recvlen) <span class="keyword">break</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="ethernetif-input"><a href="#ethernetif-input" class="headerlink" title="ethernetif_input"></a>ethernetif_input</h2><p>调用网卡数据包接收函数 low_level_input 从网卡处读取一个数据包。</p>
+<p>对于数据接受来讲，如果使用中断：ETH_IRQHandler() → ethernetif_input() → netif-&gt;input(p, netif) → tcpip_input() → tcpip_inpkt() → tcpip_thread()。当以太网有数据需要Master来接收，首先给主机端产生一个中断，主机端需要做的是将以太网接受数据的过程放在ethernetif_input函数中实现，后面都是通用流程一步步调用，最终将数据返回给应用层。<br>这里还需要注意的是，这里接受数据的过程将可能是耗时的操作，不能放在中断服务程序里面进行，要么使用delay work要么使用thread进行实现。</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">ethernetif_input</span><span class="params">(<span class="type">void</span>* param)</span></span><br><span class="line">{</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pbuf</span> *<span class="title">p</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">netif</span>* <span class="title">netif</span> =</span> (<span class="keyword">struct</span> netif*)param;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) {</span><br><span class="line">				<span class="comment">// 等待网卡中断或者循环读取网卡寄存器，判断是否有可读数据。满足条件继续执行</span></span><br><span class="line">TRY_GET_NEXT_FRAGMENT:</span><br><span class="line">				<span class="comment">// 调用 low_level_input 函数接收数据</span></span><br><span class="line">    ┆   p = low_level_input(netif);</span><br><span class="line">    ┆   <span class="comment">// 将数据发送到协议栈</span></span><br><span class="line">    ┆   <span class="keyword">if</span> (netif-&gt;input(p, netif) != ERR_OK) {</span><br><span class="line">    ┆   ┆   pbuf_free(p);</span><br><span class="line">    ┆   ┆   p = <span class="literal">NULL</span>;</span><br><span class="line">    ┆   }</span><br><span class="line">    ┆   <span class="keyword">else</span></span><br><span class="line">    ┆   ┆   <span class="keyword">goto</span> TRY_GET_NEXT_FRAGMENT;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="ethernetif-init"><a href="#ethernetif-init" class="headerlink" title="ethernetif_init"></a>ethernetif_init</h2><p>网卡初始化函数。需要完成netif字段的初始化，该函数在上层 netif_add 的时候会调用到</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">err_t</span> <span class="title function_">ethernetif_init</span><span class="params">(<span class="keyword">struct</span> netif *netif)</span></span><br><span class="line">{</span><br><span class="line">  netif-&gt;name[<span class="number">0</span>] = IFNAME0;</span><br><span class="line">  netif-&gt;name[<span class="number">1</span>] = IFNAME1;</span><br><span class="line">  netif-&gt;output = etharp_output;</span><br><span class="line">  <span class="comment">// 设置回调函数</span></span><br><span class="line">  netif-&gt;linkoutput = low_level_output;</span><br><span class="line">  <span class="comment">// 调用初始化</span></span><br><span class="line">  low_level_init(netif);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h1><p>展示DHCP配网的基本流程</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">dhcp_config</span><span class="params">(<span class="type">uint8_t</span>* hwaddr)</span></span><br><span class="line">{</span><br><span class="line">		<span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">netif</span> <span class="title">netif</span>;</span></span><br><span class="line">		<span class="type">ip_addr_t</span> ipaddr, gw, netmask;</span><br><span class="line">		<span class="comment">// Start lwip </span></span><br><span class="line">		tcpip_init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">		<span class="comment">// Set data zero</span></span><br><span class="line">    ip_addr_set_zero_ip4(&amp;gw);</span><br><span class="line">    ip_addr_set_zero_ip4(&amp;ipaddr);</span><br><span class="line">    ip_addr_set_zero_ip4(&amp;netmask);</span><br><span class="line">		<span class="comment">// Add netif</span></span><br><span class="line">    netif_add(&amp;netif, &amp;ipaddr, &amp;netmask, &amp;gw, <span class="literal">NULL</span>, &amp;ethernetif_init, &amp;tcpip_input);</span><br><span class="line">    <span class="comment">/*  Registers the default network interface */</span></span><br><span class="line">    netif_set_default(&amp;netif);</span><br><span class="line">    <span class="keyword">if</span> (netif_is_link_up(&amp;netif)) {</span><br><span class="line">    ┆   <span class="comment">/* When the netif is fully configured this function must be called */</span></span><br><span class="line">    ┆   netif_set_up(&amp;netif);</span><br><span class="line">    } <span class="keyword">else</span> {</span><br><span class="line">    ┆   <span class="comment">/* When the netif link is down this function must be called */</span></span><br><span class="line">    ┆   netif_set_down(&amp;netif);</span><br><span class="line">    }</span><br><span class="line">		<span class="comment">// Start dhcp service</span></span><br><span class="line">		dhcp_start(&amp;netif);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h1><ol>
+<li><p>分析发现MCU可以从ENC28J60接收到数据包，但是格式不正确？</p>
+<p> 分析：多次测试查看数据包内容是否一致。如果不一致可能是中断导致，中断响应不及时等原因；如果一致则可能是发送数据包不正确、数据发送或者接收流程有问题。</p>
+<p> 定位：对于ENC28J60有一个8K RAM，按照数据手册将数据从接收缓冲区全部读出验证发现数据是正确的，但是解析不正确，最终定位到ENC_readOpc接口有一个无效字节的问题，对于read buffer所有数据都是有效的，调用这个接口就把有效数据丢掉了进而导致的问题的出现。</p>
+</li>
+<li><p>数据不正确的调试方法？</p>
+<ul>
+<li>信号质量。包括电压大小、信号稳定性等等</li>
+<li>确认数据不正确是错的一致还是错的不一致，进而确认问题是随机产生还是可能配置导致的bug</li>
+<li>对比正确的数据格式，分析可能存在的配置错误</li>
+</ul>
+</li>
+<li><p>ping命令显示主机不可达并且一段时间自行恢复？</p>
+<p> 首先可以通过 arp -n 命令查看arp缓存，这种要么是网络存在问题要么就是防火墙或者arp的问题。将设备上Lwip协议栈中 DHCP_DOES_ARP_CHECK 这个宏的配置改成1即可</p>
+</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://wiki.ocrobot.com/lib/exe/fetch.php?media=ocrobot:alpha:enc28j60:enc28j60_cn.pdf">ENC28J60中文手册</a></li>
+<li><a target="_blank" rel="noopener" href="http://news.eeworld.com.cn/mcu/article_2017020533638.html">ENC28J60学习笔记——AVRNET项目</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40831436/article/details/126778233">《lwip学习1》-数据流篇</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/" title="ENC28J60及Lwip协议栈移植适配">http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60及Lwip协议栈移植适配/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/01/13/SoftwareDevelopment/ThirdParty/wpa_supplicant/" rel="prev" title="Wpa_supplicant & Hostapd">
+      <i class="fa fa-chevron-left"></i> Wpa_supplicant & Hostapd
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6"><span class="nav-number">1.1.</span> <span class="nav-text">硬件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">软件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SPI%E9%A9%B1%E5%8A%A8"><span class="nav-number">2.</span> <span class="nav-text">SPI驱动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ENC28J60%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8"><span class="nav-number">3.</span> <span class="nav-text">ENC28J60网卡驱动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lwip%E5%8D%8F%E8%AE%AE%E6%A0%88"><span class="nav-number">4.</span> <span class="nav-text">Lwip协议栈</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#low-level-init"><span class="nav-number">4.1.</span> <span class="nav-text">low_level_init</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#low-level-output"><span class="nav-number">4.2.</span> <span class="nav-text">low_level_output</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#low-level-input"><span class="nav-number">4.3.</span> <span class="nav-text">low_level_input</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ethernetif-input"><span class="nav-number">4.4.</span> <span class="nav-text">ethernetif_input</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ethernetif-init"><span class="nav-number">4.5.</span> <span class="nav-text">ethernetif_init</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="nav-number">5.</span> <span class="nav-text">应用层</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FAQ"><span class="nav-number">6.</span> <span class="nav-text">FAQ</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">60</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">241k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:39</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

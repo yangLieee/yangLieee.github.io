@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2024-02-02T15:31:44.068Z</updated>
+  <updated>2024-02-21T12:55:24.724Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,23 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>ENC28J60及Lwip协议栈移植适配</title>
+    <link href="http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/"/>
+    <id>http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/</id>
+    <published>2024-02-20T16:00:00.000Z</published>
+    <updated>2024-02-21T12:55:24.724Z</updated>
+    
+    
+    <summary type="html">对ENC28J60在Freertos平台上进行移植适配，同时针对Lwip协议栈进行对接，针对移植流程和遇到的问题进行经验和流程的总结</summary>
+    
+    
+    
+    <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>Wpa_supplicant &amp; Hostapd</title>
@@ -385,23 +402,6 @@
     <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
     
     <category term="Controller" scheme="http://yanglieee.com/categories/Hardware/Controller/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>libc部分库函数说明</title>
-    <link href="http://yanglieee.com/2023/05/17/LanguageFeatures/libc-function/"/>
-    <id>http://yanglieee.com/2023/05/17/LanguageFeatures/libc-function/</id>
-    <published>2023-05-16T16:00:00.000Z</published>
-    <updated>2023-12-02T00:38:36.844Z</updated>
-    
-    
-    <summary type="html">对自己在开发中使用到的容易出错或者不熟悉的libc库函数做出总结</summary>
-    
-    
-    
-    <category term="LanguageFeatures" scheme="http://yanglieee.com/categories/LanguageFeatures/"/>
     
     
   </entry>
