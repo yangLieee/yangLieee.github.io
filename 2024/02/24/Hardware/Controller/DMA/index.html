@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对DMA的基本知识进行总结并基于STM32的DMA系统框图进行模式的学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DMA">
+<meta property="og:url" content="http://yanglieee.com/2024/02/24/Hardware/Controller/DMA/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对DMA的基本知识进行总结并基于STM32的DMA系统框图进行模式的学习">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Controller/dma-0.jpg">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Controller/dma-1.png">
+<meta property="article:published_time" content="2024-02-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-23T17:13:33.567Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/Hardware/Controller/dma-0.jpg">
+
+<link rel="canonical" href="http://yanglieee.com/2024/02/24/Hardware/Controller/DMA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>DMA | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2024/02/24/Hardware/Controller/DMA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DMA
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-02-24 00:00:00 / 修改时间：01:13:33" itemprop="dateCreated datePublished" datetime="2024-02-24T00:00:00+08:00">2024-02-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/" itemprop="url" rel="index"><span itemprop="name">Hardware</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/Controller/" itemprop="url" rel="index"><span itemprop="name">Controller</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2024/02/24/Hardware/Controller/DMA/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2024/02/24/Hardware/Controller/DMA/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+            <div class="post-description">对DMA的基本知识进行总结并基于STM32的DMA系统框图进行模式的学习</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p>DMA：Direct Memory Access，直接内存访问。</p>
+<p>DMA是计算机系统中一种数据传输的技术，允许将数据从一个地址空间复制到另一个地址空间，提供在外设和存储器之间或者存储器和存储器之间的高速数据传输，而整个过程不需要CPU的直接干预。用户需要做的是根据实际需求，配置DMA控制器，一旦使能控制器数据将自动根据配置进行传输。解放出来的CPU可以去做其它的事情，极大的提高了效率。需要注意的是DMA只是不再占用CPU，但仍需要占用总线</p>
+<h1 id="主要特征"><a href="#主要特征" class="headerlink" title="主要特征"></a>主要特征</h1><h2 id="传输模式"><a href="#传输模式" class="headerlink" title="传输模式"></a>传输模式</h2><ul>
+<li><p>Burst Mode</p>
+<p>Burst传输，可以翻译为突发传输或者是连续传输。是指在同一行中相邻的存储单元连续进行数据传输的方式，只要指定起始地址和突发长度（Burst lengths，可以理解为跨度），控制器就会依次自动对后面相同数量的存储单元进行读/写操作，而不需要控制器连续提供列地址。DMA仅在完成整个数据传输后将总线移交给CPU。同时，如果 CPU 需要总线，它必须保持IDLE并等待数据传输。</p>
+</li>
+<li><p>Cycle Stealing Mode</p>
+<p>单字节传输。DMA 在传输每个字节后将总线的控制权交给 CPU。它不断发出总线控制请求，传输一个字节并返回总线。这样一来，如果 CPU 需要总线来执行更高优先级的任务，则不必等待很长时间。</p>
+</li>
+<li><p>Transparent Mode</p>
+<p>DMA 仅在 CPU 执行不需要使用总线的指令时传输数据。该模式传输数据块所需的时间最多，但就整体系统性能而言，它也是最有效的模式。 DMA 传输在时间上是自由的，而缺点是硬件需要确定 CPU 何时不使用系统总线比较复杂。</p>
+</li>
+</ul>
+<h2 id="传输方式"><a href="#传输方式" class="headerlink" title="传输方式"></a>传输方式</h2><p>DMA传输的本质就是实现数据从一个内存区域到另一个内存区域的拷贝，主要包含四种情况：外设到内存；内存到外设；内存到内存；外设到外设。</p>
+<h2 id="传输结构"><a href="#传输结构" class="headerlink" title="传输结构"></a>传输结构</h2><h3 id="寄存器模式"><a href="#寄存器模式" class="headerlink" title="寄存器模式"></a>寄存器模式</h3><p>处理器直接对DMA控制寄存器进⾏编程来启动传输。在寄存器模式下⼜分为两种⼦模式组成：⾃动缓存模式和停⽌模式。</p>
+<p>在⾃动缓存模式中，当⼀个传输块传输完毕，控制寄存器就⾃动重新载⼊其最初的设定值，同⼀个DMA进程重新启动。这构成了⼀个“循环缓冲器”，因为当⼀个值被写⼊到缓冲器的最后⼀个位置上时，下⼀个值将被写⼊到缓冲器的第⼀个位置上。⾃动缓冲 DMA 使⽤场景：对性能敏感的、存在持续数据流的应⽤。DMA控制器可以在独⽴于处理器其他活动的情况下读⼊数据流，然后在每次传输结束时，发出中断。</p>
+<p>停⽌模式 DMA 与⾃动缓冲型类似，区别在于各寄存器在DMA结束后不会重新载⼊，因此整个DMA传输只发⽣⼀次。使⽤场景：⾮定期地将数据块从⼀个位置转移到另⼀个位置、某些事务的⼀次性传输。</p>
+<h3 id="描述符模式"><a href="#描述符模式" class="headerlink" title="描述符模式"></a>描述符模式</h3><p>基于描述符的 DMA 要求DMA 通道需要⼀组称为 DMA 描述符的参数，该参数存储在存储器中。每个描述符包含特定 DMA 传送序列所需要的所有信息，⽐如 数据块的起始地址、传送的数据量、其他各种控制信息、指向下⼀个描述符的指针。</p>
+<p>该模式可以更好的减少中断的产生，因为可以配置一个descriptor链，按照链上的顺序进行传输（4+1+2+x+x）</p>
+<h2 id="传输流程"><a href="#传输流程" class="headerlink" title="传输流程"></a>传输流程</h2><p><img src="/images/Hardware/Controller/dma-0.jpg" alt="image"></p>
+<p>cpu通过配置DMA各个寄存器，使其具有相应的功能 ； DMA通过总线从device中取出数据，在通过特有的DMA通道传输给DDR</p>
+<h1 id="DMA系统框图（STM32）"><a href="#DMA系统框图（STM32）" class="headerlink" title="DMA系统框图（STM32）"></a>DMA系统框图（STM32）</h1><p><img src="/images/Hardware/Controller/dma-1.png" alt="image"></p>
+<h2 id="配置过程"><a href="#配置过程" class="headerlink" title="配置过程"></a>配置过程</h2><ol>
+<li><p>配置数据传输的源和目标地址</p>
+</li>
+<li><p>配置传输数量</p>
+</li>
+<li><p>配置数据位宽（8bit / 16bit / 32bit）</p>
+</li>
+<li><p>配置功能：数据传输方向、循环模式以及源和目标地址是否自增</p>
+</li>
+<li><p>配置中断（全部完成 / 完成一半 或其它所支持的方式）</p>
+</li>
+<li><p>使能DMA</p>
+</li>
+</ol>
+<h2 id="请求及响应流程"><a href="#请求及响应流程" class="headerlink" title="请求及响应流程"></a>请求及响应流程</h2><ol>
+<li>（外设-&gt;DMA控制器）请求DRQ（DMA Request）。当设备需要通过DMA通道传输数据，首先外设需要向DMA控制器发送DMA请求。</li>
+<li>（DMA控制器-&gt;CPU）保持请求 HRQ（Hold Request）。DMA 控制器向 CPU 发送保持请求 并等待 CPU 断言 HLDA 信号。</li>
+<li>（CPU-&gt;DMA控制器）保持确认 HLDA（Hold Acknowledgment）。CPU所有数据总线、地址总线和控制总线三态化并释放总线控制权，回复HLDA 信号允许DMA控制器接管总线</li>
+<li>（DMA控制器-&gt;外设）回复DACK（DMA Acknowledgment）。DMA控制器向发出DRQ信号的外设的回应，表示收到请求和正在进行处理。</li>
+</ol>
+<h1 id="注意事项（重要）"><a href="#注意事项（重要）" class="headerlink" title="注意事项（重要）"></a>注意事项（重要）</h1><ol>
+<li><strong>DMA需要使用物理地址</strong>。因为编程使用的是虚拟地址，所以配置DMA时必须将虚拟地址转化成物理地址</li>
+<li><strong>DMA启动前刷Cache</strong>。因为程序使用虚拟地址，而且一般使用Cached地址，所以虚拟地址中的内容与其物理地址上的内容不一定一致，所以在启动DMA传输前一定要将该地址的Cache刷新，即写入主存。</li>
+<li><strong>地址对齐且尽量一次申请一大块内存保证连续</strong>。由于系统产时间使用之后可能产生内存碎片，申请到的空间可能不连续导致错误，如果不连续就需要把这段内存分成几段让DMA完成传输</li>
+<li><strong>性能瓶颈</strong>。对于DMA控制器来讲，通常有多个通道可以配置，不同的通道可以并发传输。虽然多通道可以同时工作但是总线只有一条，因此在特定时刻实际只有一个通道能在总线上传输数据。不同的MCU对于DMA通道传输的调度策略有所不同，可能是先到先调度、也可能是基于channel的优先级进行调度</li>
+<li>某些设备内部可能有自己的<strong>专用DMA</strong>，硬件上与通用DMA是一致的，但是在速度、可靠性上有所提高。通用DMA：burst可能更小一些；专用DMA：burst可以传输的更大一些 。DMA尽量按照最大数据量进行传输（某些设备除外，串口可能就是按照1byte传输），但是对于5byte可以按照 4 +1  的方式传输</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://www.davuniversity.org/images/files/study-material/DMA%20Controller.pdf">DMA</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.eet-china.com/mp/a167316.html">DMA原理，步骤超细详解，一文看懂DMA</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/imred/article/details/50357819">DMA中的四种控制信号：DRQ、DACK、HRQ、HLDA</a></li>
+<li><a target="_blank" rel="noopener" href="https://xuanxuanblingbling.github.io/assets/attachment/stm32/STM32%E4%B8%AD%E6%96%87%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8CV10.pdf">STM32中文手册</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2024/02/24/Hardware/Controller/DMA/" title="DMA">http://yanglieee.com/2024/02/24/Hardware/Controller/DMA/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/" rel="prev" title="ENC28J60及Lwip协议栈移植适配">
+      <i class="fa fa-chevron-left"></i> ENC28J60及Lwip协议栈移植适配
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">基础</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E7%89%B9%E5%BE%81"><span class="nav-number">2.</span> <span class="nav-text">主要特征</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">传输模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%96%B9%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">传输方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E7%BB%93%E6%9E%84"><span class="nav-number">2.3.</span> <span class="nav-text">传输结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.3.1.</span> <span class="nav-text">寄存器模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%8F%E8%BF%B0%E7%AC%A6%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.3.2.</span> <span class="nav-text">描述符模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%B5%81%E7%A8%8B"><span class="nav-number">2.4.</span> <span class="nav-text">传输流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DMA%E7%B3%BB%E7%BB%9F%E6%A1%86%E5%9B%BE%EF%BC%88STM32%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">DMA系统框图（STM32）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E8%BF%87%E7%A8%8B"><span class="nav-number">3.1.</span> <span class="nav-text">配置过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E5%8F%8A%E5%93%8D%E5%BA%94%E6%B5%81%E7%A8%8B"><span class="nav-number">3.2.</span> <span class="nav-text">请求及响应流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%88%E9%87%8D%E8%A6%81%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">注意事项（重要）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">243k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:41</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2024-02-21T12:56:57.756Z</updated>
+  <updated>2024-02-23T17:13:33.567Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -17,11 +17,30 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>DMA</title>
+    <link href="http://yanglieee.com/2024/02/24/Hardware/Controller/DMA/"/>
+    <id>http://yanglieee.com/2024/02/24/Hardware/Controller/DMA/</id>
+    <published>2024-02-23T16:00:00.000Z</published>
+    <updated>2024-02-23T17:13:33.567Z</updated>
+    
+    
+    <summary type="html">对DMA的基本知识进行总结并基于STM32的DMA系统框图进行模式的学习</summary>
+    
+    
+    
+    <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
+    
+    <category term="Controller" scheme="http://yanglieee.com/categories/Hardware/Controller/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>ENC28J60及Lwip协议栈移植适配</title>
     <link href="http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/"/>
     <id>http://yanglieee.com/2024/02/21/WorkExperience/ENC28J60%E5%8F%8ALwip%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D/</id>
     <published>2024-02-20T16:00:00.000Z</published>
-    <updated>2024-02-21T12:56:57.756Z</updated>
+    <updated>2024-02-21T13:03:08.138Z</updated>
     
     
     <summary type="html">对ENC28J60在Freertos平台上进行移植适配，同时针对Lwip协议栈进行对接，针对移植流程和遇到的问题进行经验和流程的总结</summary>
@@ -384,25 +403,6 @@
     
     
     <category term="硬件传输协议" scheme="http://yanglieee.com/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>RTC</title>
-    <link href="http://yanglieee.com/2023/05/18/Hardware/Controller/RTC/"/>
-    <id>http://yanglieee.com/2023/05/18/Hardware/Controller/RTC/</id>
-    <published>2023-05-17T16:00:00.000Z</published>
-    <updated>2023-12-01T14:21:35.539Z</updated>
-    
-    
-    <summary type="html">根据实际开发经验以及网络相关资料对RTC做出说明总结</summary>
-    
-    
-    
-    <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
-    
-    <category term="Controller" scheme="http://yanglieee.com/categories/Hardware/Controller/"/>
-    
     
   </entry>
   
