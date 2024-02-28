@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2024-02-23T17:13:33.567Z</updated>
+  <updated>2024-02-28T13:29:20.469Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>IPC进程间通讯</title>
+    <link href="http://yanglieee.com/2024/02/28/OperatingSystem/Linux/IPC%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/"/>
+    <id>http://yanglieee.com/2024/02/28/OperatingSystem/Linux/IPC%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/</id>
+    <published>2024-02-27T16:00:00.000Z</published>
+    <updated>2024-02-28T13:29:20.469Z</updated>
+    
+    
+    <summary type="html">进程间通讯是Linux等系统经常使用到的机制，包括管道、信号量、套接字等，本文将对进程间通信的方式进行总结，并展示示例代码</summary>
+    
+    
+    
+    <category term="OperatingSystem" scheme="http://yanglieee.com/categories/OperatingSystem/"/>
+    
+    <category term="Linux" scheme="http://yanglieee.com/categories/OperatingSystem/Linux/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>DMA</title>
@@ -373,27 +392,6 @@
     
     
     <summary type="html">对I2C协议进行解析</summary>
-    
-    
-    
-    <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
-    
-    <category term="Protocol" scheme="http://yanglieee.com/categories/Hardware/Protocol/"/>
-    
-    
-    <category term="硬件传输协议" scheme="http://yanglieee.com/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MIPI &amp;&amp; D-PHY</title>
-    <link href="http://yanglieee.com/2023/05/30/Hardware/Protocol/mipi_dphy/"/>
-    <id>http://yanglieee.com/2023/05/30/Hardware/Protocol/mipi_dphy/</id>
-    <published>2023-05-29T16:00:00.000Z</published>
-    <updated>2023-12-01T14:12:17.917Z</updated>
-    
-    
-    <summary type="html">通过mipi规范文档以及相关资料对mipi联盟、mipi规范进行简述。着重对D-phy进行相关学习记录</summary>
     
     
     
