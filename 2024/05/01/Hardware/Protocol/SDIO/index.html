@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="基于SDIO Simplified Specification Version 3.00 和 linux mmc驱动对SDIO协议进行解读">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SDIO">
+<meta property="og:url" content="http://yanglieee.com/2024/05/01/Hardware/Protocol/SDIO/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="基于SDIO Simplified Specification Version 3.00 和 linux mmc驱动对SDIO协议进行解读">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_internal.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_cccr.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_fbr.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_cis.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_cis_code.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_cmd5.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_r4.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_cmd52.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_r5.png">
+<meta property="og:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_cmd53.png">
+<meta property="article:published_time" content="2024-04-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-05-01T13:19:29.735Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="硬件传输协议">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/Hardware/Protocol/sdio/sdio_internal.png">
+
+<link rel="canonical" href="http://yanglieee.com/2024/05/01/Hardware/Protocol/SDIO/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SDIO | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2024/05/01/Hardware/Protocol/SDIO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SDIO
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-05-01 00:00:00 / 修改时间：21:19:29" itemprop="dateCreated datePublished" datetime="2024-05-01T00:00:00+08:00">2024-05-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/" itemprop="url" rel="index"><span itemprop="name">Hardware</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hardware/Protocol/" itemprop="url" rel="index"><span itemprop="name">Protocol</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2024/05/01/Hardware/Protocol/SDIO/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2024/05/01/Hardware/Protocol/SDIO/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">基于SDIO Simplified Specification Version 3.00 和 linux mmc驱动对SDIO协议进行解读</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>本次文档基于 <a target="_blank" rel="noopener" href="https://www.sdcard.org/downloads/pls/pdf/?p=PartE1_SDIO_Simplified_Specification_Ver3.00.jpg&amp;f=PartE1_SDIO_Simplified_Specification_Ver3.00.pdf&amp;e=EN_SSE1">SDIO Simplified Specification Version 3.00</a> 进行学习记录</p>
+</blockquote>
+<h1 id="SDIO卡描述"><a href="#SDIO卡描述" class="headerlink" title="SDIO卡描述"></a>SDIO卡描述</h1><h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><ul>
+<li>SDIO卡。可插拔设备，SPI模式在SDIO卡中是强制的，但并非所有功能在SPI模式下可用</li>
+<li>嵌入式SDIO。不可插拔设备，焊接在电路板上。SPI模式在嵌入式SDIO设备中是可选的。并非所有的功能都可以在SPI模式下可用。</li>
+</ul>
+<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><ul>
+<li>全速SDIO卡。支持SPI、1bitSD和4位bitSD传输模式，数据传输速率超过100Mb/秒（10MB/秒）</li>
+<li>低速SDIO卡。支持SPI和1bitSD传输模式，4bit的支持可选，支持0-400 KHz的全时钟范围</li>
+</ul>
+<p>如果一个卡是一个“组合卡”（内存加上SDIO），那么对卡的内存和SDIO部分都是全速和4位操作是必须的。</p>
+<h2 id="模式"><a href="#模式" class="headerlink" title="模式"></a>模式</h2><ul>
+<li><p>SPI</p>
+</li>
+<li><p>1-bit。data[0]、CLK、CMD</p>
+</li>
+<li><p>4-bit。data[3:0]、CLK、CMD</p>
+</li>
+</ul>
+<h1 id="CIA"><a href="#CIA" class="headerlink" title="CIA"></a>CIA</h1><p><img src="/images/Hardware/Protocol/sdio/sdio_internal.png" alt="image"></p>
+<p>CIA（Common I/O Area）通用IO区域，是所有SDIO卡都要支持的一个固定的公共端口区域。它包含三部分：CCCR (Card Common Control Registers)， FBR (Function Basic Registers) 和 CIS (Card Information Structure) ，这三部分的功能决定的CIA的功能，主机端通过读写Func0对CIA区域寄存器进行相关操作。</p>
+<h2 id="CCCR"><a href="#CCCR" class="headerlink" title="CCCR"></a>CCCR</h2><p>CCCR （Card Common Control Registers）卡通用控制寄存器（Page-43）。主机端通过CMD52命令Func0对CCCR寄存器组进行读写，完成对SDIO卡的信息检查和状态操作，CCCR 地址为 0x000000-0x0000FF 。以下是相关寄存器列表，具体说明可参考手册</p>
+<p><img src="/images/Hardware/Protocol/sdio/sdio_cccr.png" alt="image"></p>
+<ul>
+<li>00H。分别定义了CCCR/FBR格式版本 和 该卡所遵循的SDIO spec版本</li>
+<li>01H。定义了SD格式版本号（物理层规范）</li>
+<li>02H - 03H。定义了所要使能的Func号和是否使能成功的标志位</li>
+<li>06H。如果需要软件复位SDIO需要写RES比特</li>
+<li>08H。定义了一些SDIO卡的功能范围，是否支持中断， 是否支持热插拔等<ul>
+<li>SDC：是否支持CMD52</li>
+<li>SMB：是否支持CMD53</li>
+<li>LSC：定义卡的速率类型（低速卡 / 高速卡）</li>
+<li>4BLS：如果是低速卡（LSC=1前提），是否支持4Bit传输</li>
+</ul>
+</li>
+<li>09H - 0BH。通用CIS的指针，可以通过这个指针找到公共CIS区域</li>
+</ul>
+<h2 id="FBR"><a href="#FBR" class="headerlink" title="FBR"></a>FBR</h2><p>FBR (Function Basic Registers) 功能基本寄存器（Page-53）。 每个支持的I/O功能都有一个256字节的区域，用于允许主机快速确定每个功能的能力和要求，为每个功能启用电源选择，并启用软件加载。该区域的地址为从0x00n00h到0x00nFFh（其中 n 为功能端口号 1-7）。</p>
+<p><img src="/images/Hardware/Protocol/sdio/sdio_fbr.png" alt="image"></p>
+<ul>
+<li>n00H  - n01H。每个功能支持的接口类型</li>
+<li>n09H - n0BH。各端口功能的 CIS 指针，指向各功能端口的 CIS</li>
+<li>n10H - n11H。设置每个Func I/O操作块的大小</li>
+</ul>
+<p>(其中 n是功能端口号1-7)</p>
+<h2 id="CIS"><a href="#CIS" class="headerlink" title="CIS"></a>CIS</h2><p>CIS (Card Information Structure) ，卡信息结构（Page-72）。CIS 存储关于SDIO卡的信息和配置，地址为 0x001000-0x017FFF。需要注意的是CIS分成公共CIS和各自Func的CIS，公共的CIS地址存储在CCCR的09H - 0BH地址区域，每个func的CIS地址存储在FBR的n09H - n11H地址区域</p>
+<p>CIS 中的信息是以 TUPLE 为单位的， TUPLE 的格式如下：tuple code + next tuple address + context</p>
+<p><img src="/images/Hardware/Protocol/sdio/sdio_cis.png" alt="image"></p>
+<ul>
+<li>00H。指示这个Tuple的功能</li>
+<li>01H。下一个Tuple的地址</li>
+<li>02H - (2+n)。Tuple的实际内容，软件结合tuple code和这个内容解析配置</li>
+</ul>
+<h3 id="Tuple-Code"><a href="#Tuple-Code" class="headerlink" title="Tuple Code"></a>Tuple Code</h3><p><img src="/images/Hardware/Protocol/sdio/sdio_cis_code.png" alt="image"></p>
+<ul>
+<li>CISTPL_MANFID：制造商标识字符串元组</li>
+<li>CISTPL_FUNCE：函数扩展元组。这个为CIS提供了FUNC类型的扩展识别码，可以进一步通过新的协议内容判断是针对哪一个func的信息，其中下一个识别码如果是0x00代表通用func的信息，0x01代表特定的func的信息（具体参照Page-75）</li>
+</ul>
+<p>需要注意的在驱动代码中，当解析特定Func的CIS区域时，主要是将每个func的max block size（0EH - 0FH）和enable func timeout（1EH - 1FH）取出来，具体参考Page-76</p>
+<h1 id="CSA"><a href="#CSA" class="headerlink" title="CSA"></a>CSA</h1><p>为了支持SDIO卡的“即插即用”的概念，卡中包含的每个功能可能需要包含一块内存，用于存储驱动程序和/或应用程序。此外，由于相同的SDIO卡可以在多个不同的主机平台上使用，因此每个功能可能需要几个不同版本的代码。一种选择是将这些程序存储在组合卡的标准SD内存部分。另外，在可选的代码存储区（CSA）中还包含了一种加载代码的标准访问手段。CSA是一个单独的16MB内存区域，可以使用CSA地址指针和包含在FBR寄存器中的CSA窗口寄存器进行访问。请注意，每个函数可能都有自己的CSA来支持它。CSA数据可以是只读的或R/W的。CSA的实际存储方法不是本规范的一部分，而留给实现者</p>
+<p>为了让主机访问一个函数的CSA，它首先要确定该函数是否支持一个CSA。主机读取地址为00n00h的FBR寄存器，其中n是函数号（1到7）。如果位6=1，则该函数支持CSA，并且主机通过写入位7=1来启用访问。下一步是让主机加载24位地址以开始读取或写。这是通过将24位（A23-0）写入寄存器00n0Ch到00n0Eh来实现的，其中n是函数数（1到7）。一旦写入了起始地址，就可以通过访问CSA数据窗口寄存器00n0Fh来读取或写入数据。如果需要读取或写入多个字节，则可以使用OP代码0（固定地址）执行扩展I/O命令（字节或块）。地址指针应随着对窗口寄存器的每次访问而自动增加，因此访问将是对CSA内的顺序地址。操作完成后，NEXT操作的地址应保存在24位地址寄存器中，以便主机读取。</p>
+<h1 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h1><p>对于这些所有CMD有些位是固定的，具体到每一个不再具体阐述</p>
+<ul>
+<li><p>S（start bit）：开始位。始终为0</p>
+</li>
+<li><p>D（direction）：方向。1表示从主机转移到卡。0指示从卡到主机的传输。</p>
+</li>
+<li><p>Command Index：命令索引。是哪一个CMD正好对应6bit二进制数</p>
+</li>
+<li><p>CRC7：7位CRC校验数据</p>
+</li>
+<li><p>E（end bit）：结束位。总是1</p>
+</li>
+</ul>
+<h2 id="CMD5（IO-SEND-OP-COND）"><a href="#CMD5（IO-SEND-OP-COND）" class="headerlink" title="CMD5（IO_SEND_OP_COND）"></a>CMD5（IO_SEND_OP_COND）</h2><p>CMD5对SDIO卡的功能类似于ACMD41对SD存储卡的操作。它用于查询I/O板卡所需的电压范围。对CMD5的正常反应是SD或SPI格式的R4。</p>
+<p><img src="/images/Hardware/Protocol/sdio/sdio_cmd5.png" alt="image"></p>
+<ul>
+<li>Stuff Bits：内容位。未使用，应设置为0。</li>
+<li>S18R：切换到1.8V请求（Switch 1v8 Request）</li>
+<li>I/O OCR：操作条件寄存器。为VDD提供受支持的最小值和最大值。（参考Page-23 Table3-1）</li>
+</ul>
+<h2 id="R4（IO-SEND-OP-COND-Response）"><a href="#R4（IO-SEND-OP-COND-Response）" class="headerlink" title="R4（IO_SEND_OP_COND Response）"></a>R4（IO_SEND_OP_COND Response）</h2><p><img src="/images/Hardware/Protocol/sdio/sdio_r4.png" alt="image"></p>
+<ul>
+<li>C：如果卡初始化后准备操作，则设置为1</li>
+<li>I/O function个数：表示此卡支持的I/O功能总数。该范围为0-7。其中功能0处所有I/O卡上的公共区域不包括在此计数中。输入/输出功能应从功能1开始按顺序实现。</li>
+<li>内存是否存在：如果包含SD内存，则设置为1。如果仅为I/O，则设置为0。</li>
+<li>S18A：切换到1.8V已接受（仅支持SD模式）</li>
+<li>I/O OCR：操作条件寄存器。为VDD提供受支持的最小值和最大值。</li>
+</ul>
+<h2 id="CMD52（IO-RW-DIRECT）"><a href="#CMD52（IO-RW-DIRECT）" class="headerlink" title="CMD52（IO_RW_DIRECT）"></a>CMD52（IO_RW_DIRECT）</h2><p>IO_RW_DIRECT是访问任何I/O函数中总共128K的寄存器空间中的单个寄存器的最简单的方法，包括公共I/O区域（CIA）。此命令仅使用1个命令/响应对来读取或写出1个字节。常用的是初始化I/O功能的寄存器或监视状态值。此命令是读取或写入单个I/O寄存器的最快方法，因为它只需要单个命令/响应对（Page-35）</p>
+<p><img src="/images/Hardware/Protocol/sdio/sdio_cmd52.png" alt="image"></p>
+<ul>
+<li>R/W标志：此位确定I/O操作的方向。如果该位为0，则该命令将从SDIO卡的函数号和寄存器地址指定的地址读取数据到主机，数据字节在响应R5中返回；如果此位设置为1，则该命令应将写入数据字段中的字节写入由函数编号和寄存器地址寻址的I/O位置。如果RAW标志为0，则应读取被写入的寄存器中的数据，并在响应中返回该值。</li>
+<li>RAW标志：写后的标志。如果该位设置为1，而R/W标志设置为1，则该命令应在写入后读取寄存器的值。这对于允许写入控制寄存器并在同一地址读取状态非常有用。如果清除此位，则R5响应中返回的值应与命令中的写入数据相同。如果设置该位，R5响应的数据字段</li>
+<li>功能编号：您希望读取或写出的I/O卡内的功能编号。函数0会选择公共I/O区域（CIA）。</li>
+<li>寄存器地址：这是要读取或写的选定函数内的数据字节的地址。有17位可用的地址，因此寄存器位于该函数的前128K（131072）地址内。</li>
+<li>写入数据/内容位：对于直接写入命令（R/W=1），这是写入所选地址的字节。对于直接读取（R/W=0），不使用此字段，且应设置为0。</li>
+</ul>
+<h2 id="R5（IO-RW-DIRECT-Response）"><a href="#R5（IO-RW-DIRECT-Response）" class="headerlink" title="R5（IO_RW_DIRECT Response）"></a>R5（IO_RW_DIRECT Response）</h2><p><img src="/images/Hardware/Protocol/sdio/sdio_r5.png" alt="image"></p>
+<ul>
+<li>stuff bits：未使用，应设置为0</li>
+<li>响应标志：8位标志数据表示SDIO卡的状态</li>
+<li>读取或写入数据：对于具有RAW标志集（RAW=1）的I/O写入（R/W=1），该字段应包含在命令中包含的数据写入后从寻址寄存器读取的值。注意，在这种情况下，读取数据可能与写入寄存器的数据不相同，这取决于硬件的设计。对于使用RAW位=0的I/O写，SDIO函数不得进行逐读操作，该字段中的数据应与写命令中的数据字节相同。对于I/O读取（R/W=0），此处将返回从I/O位置读取的实际值。</li>
+</ul>
+<h2 id="CMD53（IO-RW-EXTENDED）"><a href="#CMD53（IO-RW-EXTENDED）" class="headerlink" title="CMD53（IO_RW_EXTENDED）"></a>CMD53（IO_RW_EXTENDED）</h2><p>此命令允许使用一个命令读取或写入大量I/O寄存器。由于这是一个数据传输命令，因此它提供了最高可能的传输速率（Page-38）</p>
+<p><img src="/images/Hardware/Protocol/sdio/sdio_cmd53.png" alt="image"></p>
+<ul>
+<li><p>收发标志：此位确定I/O操作的方向。如果此位为0，则该命令将从SDIO卡的函数号和注册地址指定的地址读取数据到主机。读取的数据应在DAT行上返回。如果此位设置为1，则该命令应将DAT[x]行中的字节写入由函数号和寄存器地址寻址的I/O位置。</p>
+</li>
+<li><p>功能编号：您希望读取或写出的I/O卡内的功能编号。注意，函数00h选择公共I/O区域（CIA）。</p>
+</li>
+<li><p>块模式（可选）：此位如果设置为1，则表示读取或写操作应按块执行，而不是按普通字节执行。如果设置了此位，则字节/块计数值应包含要读/写的块数。函数1-7的块大小是通过将块大小写入FBR中的I/O块大小寄存器来设置的（请参见表6-3和表6-4)。函数0的块大小是通过写入CCCR中的FN0块大小寄存器来设置的。</p>
+</li>
+<li><p>操作码：定义读/写操作。0代表固定地址读写，1代表自增地址读写</p>
+</li>
+<li><p>寄存器地址：要读取或写的I/O注册器的起始地址。范围为[1 FFFF h：0]</p>
+</li>
+<li><p>字节/块计数：要读或写的字节/块数</p>
+</li>
+</ul>
+<h1 id="SDIO卡初始化序列"><a href="#SDIO卡初始化序列" class="headerlink" title="SDIO卡初始化序列"></a>SDIO卡初始化序列</h1><h2 id="通过非I-x2F-O感知主机进行的初始化"><a href="#通过非I-x2F-O感知主机进行的初始化" class="headerlink" title="通过非I/O感知主机进行的初始化"></a>通过非I/O感知主机进行的初始化</h2><p>当SDIO卡插入的时候，不能使主机发生故障。CMD5（IO_SEND_OP_COND）代替ACMD41</p>
+<p>复位或上电后，卡上的所有I/O功能都被禁用，卡上的I/O部分不得执行除CMD5或CMD0以外的任何操作。如果卡上有SD内存（也称为组合卡），则该内存应对所有强制内存命令进行正常响应。</p>
+<h2 id="通过I-x2F-O感知主机进行初始化"><a href="#通过I-x2F-O感知主机进行初始化" class="headerlink" title="通过I/O感知主机进行初始化"></a>通过I/O感知主机进行初始化</h2><ol>
+<li><p>初始化IO。I/O部分保持不活动状态直至接收到CMD5。主机发送CMD5，卡以R4响应。通过R4主机知道可用的I/O函数的数量，以及是否有内存</p>
+</li>
+<li><p>读取CIA（公共信息区）。这是通过发出I/O函数0的地址00h的字节开始的读命令来实现的。CIA包含卡公共控制寄存器（CCCR）和功能基本寄存器（FBR）。还包括指向卡的公共卡信息结构（CIS）和每个单独函数的CIS的指针。CIS包括有关电源、功能、制造商和主机需要确定I/O功能是否适合通电的其他信息。如果主机确定应该激活卡，则CCCR区域的寄存器将启用卡和每个单独的功能。此时，I/O板卡的所有功能都已全部可用。此外，主机还可以逐个功能地控制功耗和启用/禁用中断。如果存在的I/O访问不会干扰对卡的内存访问。</p>
+</li>
+</ol>
+<h1 id="API"><a href="#API" class="headerlink" title="API"></a>API</h1><ul>
+<li><p>int sdio_enable_func / sdio_disable_func (struct sdio_func *func)</p>
+<p>使能/失能特定的Func。通过CMD52操作CCCR-02H，等CCCR-03H ready返回，否则超时；失能不需要等完成</p>
+</li>
+<li><p>int sdio_set_block_size(struct sdio_func *func, unsigned blksz)</p>
+<p>设置特定Func的block size。通过CMD52操作CCCR - 10H~11H</p>
+</li>
+<li><p>sdio_readb / sdio_writeb<br>读取/写入特定的Func中的register address的1个byte的内容。CMD52实现</p>
+</li>
+<li><p>sdio_memcpy_fromio / sdio_memcpy_toio<br>采用增量的方式从特定的Func，register address读取/写入内容CMD53实现</p>
+</li>
+</ul>
+<p>其它还有一些读写IO的相关函数，其中如果是对Func0进行操作一般都是通过CMD52实现，通用函数的多字节读写都是通过CMD53实现，在此不进行描述</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://github.com/lowkeyway/Embedded/blob/master/Hardware/Hardware%20Interface/SDIO.md">Github - SDIO</a><br><a target="_blank" rel="noopener" href="https://www.sdcard.org/downloads/pls/pdf/?p=PartE1_SDIO_Simplified_Specification_Ver3.00.jpg&amp;f=PartE1_SDIO_Simplified_Specification_Ver3.00.pdf&amp;e=EN_SSE1">SDIO Simplified Specification Version 3.00</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2024/05/01/Hardware/Protocol/SDIO/" title="SDIO">http://yanglieee.com/2024/05/01/Hardware/Protocol/SDIO/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/" rel="tag"><i class="fa fa-tag"></i> 硬件传输协议</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/02/28/OperatingSystem/Linux/IPC%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/" rel="prev" title="IPC进程间通讯">
+      <i class="fa fa-chevron-left"></i> IPC进程间通讯
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SDIO%E5%8D%A1%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">SDIO卡描述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">1.1.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.2.</span> <span class="nav-text">类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.3.</span> <span class="nav-text">模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CIA"><span class="nav-number">2.</span> <span class="nav-text">CIA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CCCR"><span class="nav-number">2.1.</span> <span class="nav-text">CCCR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FBR"><span class="nav-number">2.2.</span> <span class="nav-text">FBR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CIS"><span class="nav-number">2.3.</span> <span class="nav-text">CIS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tuple-Code"><span class="nav-number">2.3.1.</span> <span class="nav-text">Tuple Code</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CSA"><span class="nav-number">3.</span> <span class="nav-text">CSA</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">命令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CMD5%EF%BC%88IO-SEND-OP-COND%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">CMD5（IO_SEND_OP_COND）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R4%EF%BC%88IO-SEND-OP-COND-Response%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">R4（IO_SEND_OP_COND Response）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMD52%EF%BC%88IO-RW-DIRECT%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">CMD52（IO_RW_DIRECT）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R5%EF%BC%88IO-RW-DIRECT-Response%EF%BC%89"><span class="nav-number">4.4.</span> <span class="nav-text">R5（IO_RW_DIRECT Response）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMD53%EF%BC%88IO-RW-EXTENDED%EF%BC%89"><span class="nav-number">4.5.</span> <span class="nav-text">CMD53（IO_RW_EXTENDED）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SDIO%E5%8D%A1%E5%88%9D%E5%A7%8B%E5%8C%96%E5%BA%8F%E5%88%97"><span class="nav-number">5.</span> <span class="nav-text">SDIO卡初始化序列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E9%9D%9EI-x2F-O%E6%84%9F%E7%9F%A5%E4%B8%BB%E6%9C%BA%E8%BF%9B%E8%A1%8C%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">5.1.</span> <span class="nav-text">通过非I&#x2F;O感知主机进行的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87I-x2F-O%E6%84%9F%E7%9F%A5%E4%B8%BB%E6%9C%BA%E8%BF%9B%E8%A1%8C%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">5.2.</span> <span class="nav-text">通过I&#x2F;O感知主机进行初始化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#API"><span class="nav-number">6.</span> <span class="nav-text">API</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">63</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">260k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:57</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

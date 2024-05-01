@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2024-02-28T13:29:20.469Z</updated>
+  <updated>2024-05-01T13:19:29.735Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,27 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SDIO</title>
+    <link href="http://yanglieee.com/2024/05/01/Hardware/Protocol/SDIO/"/>
+    <id>http://yanglieee.com/2024/05/01/Hardware/Protocol/SDIO/</id>
+    <published>2024-04-30T16:00:00.000Z</published>
+    <updated>2024-05-01T13:19:29.735Z</updated>
+    
+    
+    <summary type="html">基于SDIO Simplified Specification Version 3.00 和 linux mmc驱动对SDIO协议进行解读</summary>
+    
+    
+    
+    <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
+    
+    <category term="Protocol" scheme="http://yanglieee.com/categories/Hardware/Protocol/"/>
+    
+    
+    <category term="硬件传输协议" scheme="http://yanglieee.com/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/"/>
+    
+  </entry>
   
   <entry>
     <title>IPC进程间通讯</title>
@@ -380,27 +401,6 @@
     
     <category term="SystemFunction" scheme="http://yanglieee.com/categories/SoftwareDevelopment/SystemFunction/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>I2C</title>
-    <link href="http://yanglieee.com/2023/07/01/Hardware/Protocol/I2C/"/>
-    <id>http://yanglieee.com/2023/07/01/Hardware/Protocol/I2C/</id>
-    <published>2023-06-30T16:00:00.000Z</published>
-    <updated>2023-12-01T14:10:21.553Z</updated>
-    
-    
-    <summary type="html">对I2C协议进行解析</summary>
-    
-    
-    
-    <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
-    
-    <category term="Protocol" scheme="http://yanglieee.com/categories/Hardware/Protocol/"/>
-    
-    
-    <category term="硬件传输协议" scheme="http://yanglieee.com/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/"/>
     
   </entry>
   
