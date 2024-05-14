@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2024-05-01T13:19:29.735Z</updated>
+  <updated>2024-05-14T13:25:17.288Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,42 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>两个设备NAT共享网络</title>
+    <link href="http://yanglieee.com/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/"/>
+    <id>http://yanglieee.com/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/</id>
+    <published>2024-05-13T16:00:00.000Z</published>
+    <updated>2024-05-14T13:25:17.288Z</updated>
+    
+    
+    <summary type="html">在实际项目中，基于NAT技术使用Linux iptables工具，实现两个设备共享一个网络的功能</summary>
+    
+    
+    
+    <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>密码学基础</title>
+    <link href="http://yanglieee.com/2024/05/07/SoftwareDevelopment/SystemFunction/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/"/>
+    <id>http://yanglieee.com/2024/05/07/SoftwareDevelopment/SystemFunction/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/</id>
+    <published>2024-05-06T16:00:00.000Z</published>
+    <updated>2024-05-14T13:22:29.687Z</updated>
+    
+    
+    <summary type="html">实际产品功能的开发中对于加解密是存在一定的需求的，本文将对密码学的基础知识进行剖析</summary>
+    
+    
+    
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
+    
+    <category term="SystemFunction" scheme="http://yanglieee.com/categories/SoftwareDevelopment/SystemFunction/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>SDIO</title>
@@ -363,44 +399,6 @@
     
     
     <category term="硬件传输协议" scheme="http://yanglieee.com/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>IO多路复用</title>
-    <link href="http://yanglieee.com/2023/07/09/OperatingSystem/Linux/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
-    <id>http://yanglieee.com/2023/07/09/OperatingSystem/Linux/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/</id>
-    <published>2023-07-08T16:00:00.000Z</published>
-    <updated>2023-12-02T00:33:18.319Z</updated>
-    
-    
-    <summary type="html">为了处理高并发场景并且提高效率，IO多路复用的技术必不可少。本文对select/poll/epoll进行简单的总结</summary>
-    
-    
-    
-    <category term="OperatingSystem" scheme="http://yanglieee.com/categories/OperatingSystem/"/>
-    
-    <category term="Linux" scheme="http://yanglieee.com/categories/OperatingSystem/Linux/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>OTA</title>
-    <link href="http://yanglieee.com/2023/07/08/SoftwareDevelopment/SystemFunction/ota/"/>
-    <id>http://yanglieee.com/2023/07/08/SoftwareDevelopment/SystemFunction/ota/</id>
-    <published>2023-07-07T16:00:00.000Z</published>
-    <updated>2023-12-02T00:36:46.898Z</updated>
-    
-    
-    <summary type="html">对于电子产品，系统的升级迭代离不开OTA技术，本篇将根据工作经验对OTA升级步骤及策略进行解析</summary>
-    
-    
-    
-    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
-    
-    <category term="SystemFunction" scheme="http://yanglieee.com/categories/SoftwareDevelopment/SystemFunction/"/>
-    
     
   </entry>
   

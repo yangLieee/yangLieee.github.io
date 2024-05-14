@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在实际项目中，基于NAT技术使用Linux iptables工具，实现两个设备共享一个网络的功能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="两个设备NAT共享网络">
+<meta property="og:url" content="http://yanglieee.com/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="在实际项目中，基于NAT技术使用Linux iptables工具，实现两个设备共享一个网络的功能">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/WorkExperience/nat-0.jpg">
+<meta property="og:image" content="http://yanglieee.com/images/WorkExperience/nat-1.jpg">
+<meta property="og:image" content="http://yanglieee.com/images/WorkExperience/nat-2.jpg">
+<meta property="og:image" content="http://yanglieee.com/images/WorkExperience/nat-3.jpg">
+<meta property="article:published_time" content="2024-05-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-05-14T13:25:17.288Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/WorkExperience/nat-0.jpg">
+
+<link rel="canonical" href="http://yanglieee.com/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>两个设备NAT共享网络 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          两个设备NAT共享网络
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-05-14 00:00:00 / 修改时间：21:25:17" itemprop="dateCreated datePublished" datetime="2024-05-14T00:00:00+08:00">2024-05-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WorkExperience/" itemprop="url" rel="index"><span itemprop="name">WorkExperience</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+            <div class="post-description">在实际项目中，基于NAT技术使用Linux iptables工具，实现两个设备共享一个网络的功能</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="项目场景"><a href="#项目场景" class="headerlink" title="项目场景"></a>项目场景</h1><p>有AB两块开发板，其中A开发板有无线网卡可以连接到外网，B开发板无网卡，两个设备通过USB对接，需要实现两个开发板均可上网的需求</p>
+<p>（以下解决方案同样也适合于AB两个开发板使用网口对接）</p>
+<h1 id="技术方案"><a href="#技术方案" class="headerlink" title="技术方案"></a>技术方案</h1><p>基于USB的RNDIS功能在两个设备端虚拟出两块以太网卡，再通过网络的路由转发实现共享网络功能</p>
+<h1 id="实施方案"><a href="#实施方案" class="headerlink" title="实施方案"></a>实施方案</h1><p>将可以连接外网的设备作为Host，另一个设备作为Device</p>
+<h2 id="Host"><a href="#Host" class="headerlink" title="Host"></a>Host</h2><ol>
+<li><p>内核编译支持RNDIS功能。选择 USB_USBNET 和 USB_NET_RNDIS_HOST 宏</p>
+</li>
+<li><p>内核编译支持NAT功能</p>
+</li>
+<li><p>连接外网。启动wpa_supplicant服务并使用udhcpc获取IP</p>
+<p><img src="/images/WorkExperience/nat-0.jpg" alt="image"></p>
+</li>
+<li><p>设置usb0虚拟网卡IP地址</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig usb0 192.168.1.100 broadcast 192.168.1.255 netmask 255.255.255.0</span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<p>​		<img src="/images/WorkExperience/nat-1.jpg" alt="image"></p>
+<ol start="5">
+<li><p>执行以下内容脚本</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使能开启路由转发参数</span></span><br><span class="line"><span class="keyword">if</span> [[ $(<span class="built_in">cat</span> /proc/sys/net/ipv4/ip_forward) -ne 1 ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"Enabling IP forwarding..."</span></span><br><span class="line">    <span class="built_in">echo</span> 1 | <span class="built_in">tee</span> /proc/sys/net/ipv4/ip_forward</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">'net.ipv4.ip_forward = 1'</span> | <span class="built_in">tee</span> -a /etc/sysctl.conf</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 清除NAT表的配置</span></span><br><span class="line">iptables -t nat -F</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置POSTROUTING链的SNAT规则</span></span><br><span class="line"><span class="comment"># 将内部网络的私有 IP 地址转换成公网 IP 地址，以实现内部网络访问互联网的功能。</span></span><br><span class="line">public_ip=<span class="string">"10.1.226.252"</span></span><br><span class="line">iptables -t nat -A POSTROUTING -o wlan0 -j SNAT --to-source <span class="variable">${public_ip}</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置FORWARD链的放行规则（如果系统默认不允许转发）</span></span><br><span class="line">iptables -A FORWARD -i wlan0 -o usb0   -j ACCEPT</span><br><span class="line">iptables -A FORWARD -i usb0  -o wlan0  -j ACCEPT</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"NAT forwarding has been configured successfully"</span></span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h2 id="Device"><a href="#Device" class="headerlink" title="Device"></a>Device</h2><ol>
+<li><p>改动脚本文件支持RNDIS功能。将/etc/init.d/S90usb脚本 /etc/init.d/usb/rndis 行的注释打开即可</p>
+</li>
+<li><p>设置usb0虚拟网卡IP地址</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig usb0 192.168.1.101 broadcast 192.168.1.255 netmask 255.255.255.0</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="/images/WorkExperience/nat-2.jpg" alt="image"></p>
+</li>
+<li><p>添加路由</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">route add default gw 192.168.1.100</span><br><span class="line">route -n</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>成功连接到外网</p>
+<p><img src="/images/WorkExperience/nat-3.jpg" alt="image"></p>
+</li>
+</ol>
+<h1 id="iptables命令详解"><a href="#iptables命令详解" class="headerlink" title="iptables命令详解"></a>iptables命令详解</h1><p>iptables 是一个用于配置 Linux 内核中网络包过滤和 NAT 功能的命令行工具。它允许管理员定义规则，以控制进出系统的网络数据流量。</p>
+<ol>
+<li><p><strong>查看规则</strong></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">iptables -L</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>清空规则</strong></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -F</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>添加规则</strong></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -A &lt;CHAIN&gt; [OPTIONS] &lt;MATCH&gt; &lt;TARGET&gt;</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这个命令用于向指定链 (<strong><code>&lt;CHAIN&gt;</code></strong>) 添加规则，其中 <strong><code>&lt;MATCH&gt;</code></strong> 是匹配条件，**<code>&lt;TARGET&gt;</code>** 是对匹配条件的动作。例如：</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># 命令允许来自 **192.168.1.0/24** 子网的数据包通过 INPUT 链</span></span><br><span class="line">iptables -A INPUT -s 192.168.1.0/24 -j ACCEPT</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>NAT 网络地址</strong></p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -t nat -A POSTROUTING -o &lt;OUT_IF&gt; -j MASQUERADE</span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>参数（简）</th>
+<th>参数（全）</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>t</td>
+<td>–table</td>
+<td>指定要操作的表，如 filter、nat、mangle</td>
+</tr>
+<tr>
+<td>A</td>
+<td>–append</td>
+<td>向指定的链添加规则</td>
+</tr>
+<tr>
+<td>D</td>
+<td>–delete</td>
+<td>从指定的链删除规则</td>
+</tr>
+<tr>
+<td>I</td>
+<td>–insert</td>
+<td>在指定链的指定位置插入规则</td>
+</tr>
+<tr>
+<td>s</td>
+<td>–source</td>
+<td>指定数据包的源 IP 地址</td>
+</tr>
+<tr>
+<td>d</td>
+<td>–destination</td>
+<td>指定数据包的目标 IP 地址</td>
+</tr>
+<tr>
+<td>p</td>
+<td>–protocol</td>
+<td>指定要匹配的协议类型，如 TCP、UDP、ICMP 等</td>
+</tr>
+<tr>
+<td></td>
+<td>-sport</td>
+<td>指定数据包的源端口</td>
+</tr>
+<tr>
+<td></td>
+<td>-dport</td>
+<td>指定数据包的目标端口</td>
+</tr>
+<tr>
+<td>j</td>
+<td>–jump</td>
+<td>指定动作，即对匹配的数据包执行何种操作，如 ACCEPT、DROP、REJECT、LOG 等</td>
+</tr>
+<tr>
+<td>i</td>
+<td>–in-interface</td>
+<td>指定数据包进入的网络接口</td>
+</tr>
+<tr>
+<td>o</td>
+<td>–out-interface</td>
+<td>指定数据包离开的网络接口</td>
+</tr>
+<tr>
+<td></td>
+<td>-state</td>
+<td>匹配数据包的连接状态，如 NEW、ESTABLISHED、RELATED 等</td>
+</tr>
+</tbody></table>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li><p>执行iptables命令报错？</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">can<span class="string">'t initialize iptables table `nat'</span>: Table does not exist (<span class="keyword">do</span> you need to insmod?)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>=⇒ NetWorking support</p>
+<p>=⇒ NetWorking options</p>
+<p>=⇒ Network packet filtering framework(Netfilter)</p>
+<p>=⇒ Core Netfilter Configuration</p>
+<p>=⇒ Netfilter connection tracking support（先选这个配置，否则后面的配置无法显示）</p>
+<p>=⇒IP : Netfilter Configuration</p>
+<p>=⇒ IP tables support(required for filtering / masq / MAT)</p>
+<p>=⇒ iptables NAT support(NEW)</p>
+<p>=⇒ MASQUREADE target support</p>
+</li>
+<li><p>执行iptables报错？</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unkonwn protocol <span class="string">"forward"</span> specified</span><br></pre></td></tr></tbody></table></figure>
+
+<p>命令执行的时候是 iptables -P FORWARD，应该是大写的P</p>
+</li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/gui951753/article/details/86619021">iptables工作原理及iptables命令行使用介绍_linux内核网络数据包的接收过程 iptables 工作原理-CSDN博客</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/" title="两个设备NAT共享网络">http://yanglieee.com/2024/05/14/WorkExperience/双设备NAT共享网络/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/05/07/SoftwareDevelopment/SystemFunction/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/" rel="prev" title="密码学基础">
+      <i class="fa fa-chevron-left"></i> 密码学基础
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E5%9C%BA%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">项目场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">技术方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E6%96%BD%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">实施方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Host"><span class="nav-number">3.1.</span> <span class="nav-text">Host</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Device"><span class="nav-number">3.2.</span> <span class="nav-text">Device</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#iptables%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3"><span class="nav-number">4.</span> <span class="nav-text">iptables命令详解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">5.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">267k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">4:02</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
