@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文档基于Freertos系统，MMC驱动和FAT文件系统进行调试。主要对SD卡读写速度进行优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SD调试笔记">
+<meta property="og:url" content="http://yanglieee.com/2024/05/24/WorkExperience/SD%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="本文档基于Freertos系统，MMC驱动和FAT文件系统进行调试。主要对SD卡读写速度进行优化">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-05-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-06-05T15:15:33.481Z">
+<meta property="article:author" content="Lee">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yanglieee.com/2024/05/24/WorkExperience/SD%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SD调试笔记 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2024/05/24/WorkExperience/SD%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SD调试笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-05-24 00:00:00" itemprop="dateCreated datePublished" datetime="2024-05-24T00:00:00+08:00">2024-05-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-05 23:15:33" itemprop="dateModified" datetime="2024-06-05T23:15:33+08:00">2024-06-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WorkExperience/" itemprop="url" rel="index"><span itemprop="name">WorkExperience</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2024/05/24/WorkExperience/SD%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2024/05/24/WorkExperience/SD%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+            <div class="post-description">本文档基于Freertos系统，MMC驱动和FAT文件系统进行调试。主要对SD卡读写速度进行优化</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="协议内容"><a href="#协议内容" class="headerlink" title="协议内容"></a>协议内容</h1><h2 id="CMD"><a href="#CMD" class="headerlink" title="CMD"></a>CMD</h2><table>
+<thead>
+<tr>
+<th><strong>命令</strong></th>
+<th><strong>名称</strong></th>
+<th><strong>作用</strong></th>
+<th><strong>响应类型</strong></th>
+<th><strong>说明</strong></th>
+<th><strong>命令类型</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CMD0</strong></td>
+<td>GO_IDLE_STATE</td>
+<td>复位卡到闲置状态</td>
+<td>无</td>
+<td></td>
+<td>基本命令</td>
+</tr>
+<tr>
+<td><strong>CMD2</strong></td>
+<td>ALL_SEND_CID</td>
+<td>请求所有卡发送其CID寄存器内容</td>
+<td>R2</td>
+<td>包含CID寄存器内容（136位）</td>
+<td>基本命令</td>
+</tr>
+<tr>
+<td><strong>CMD3</strong></td>
+<td>SEND_RELATIVE_ADDR</td>
+<td>请求新卡发送其相对地址（RCA）</td>
+<td>R6</td>
+<td>包含16位的RCA和卡状态</td>
+<td>基本命令</td>
+</tr>
+<tr>
+<td><strong>CMD7</strong></td>
+<td>SELECT/DESELECT_CARD</td>
+<td>选择卡进行通信或取消选择</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>基本命令</td>
+</tr>
+<tr>
+<td><strong>CMD8</strong></td>
+<td>SEND_IF_COND</td>
+<td>检查卡是否支持电压范围和接口条件</td>
+<td>R7</td>
+<td>包含接口条件回读（48位）</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD9</strong></td>
+<td>SEND_CSD</td>
+<td>请求卡发送CSD寄存器内容</td>
+<td>R2</td>
+<td>包含CSD寄存器内容（136位）</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD10</strong></td>
+<td>SEND_CID</td>
+<td>请求卡发送CID寄存器内容</td>
+<td>R2</td>
+<td>包含CID寄存器内容（136位）</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD12</strong></td>
+<td>STOP_TRANSMISSION</td>
+<td>停止数据传输</td>
+<td>R1b</td>
+<td>包含卡状态，忙标志位（48位）</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD13</strong></td>
+<td>SEND_STATUS</td>
+<td>请求卡发送其状态寄存器内容</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD16</strong></td>
+<td>SET_BLOCKLEN</td>
+<td>设置单个数据块的长度（字节）</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD17</strong></td>
+<td>READ_SINGLE_BLOCK</td>
+<td>读取一个数据块</td>
+<td>R1</td>
+<td>包含卡状态（48位）后跟数据块</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD18</strong></td>
+<td>READ_MULTIPLE_BLOCK</td>
+<td>读取多个数据块</td>
+<td>R1</td>
+<td>包含卡状态（48位）后跟多个数据块</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD24</strong></td>
+<td>WRITE_BLOCK</td>
+<td>写入一个数据块</td>
+<td>R1</td>
+<td>包含卡状态（48位）后跟数据块</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD25</strong></td>
+<td>WRITE_MULTIPLE_BLOCK</td>
+<td>写入多个数据块</td>
+<td>R1</td>
+<td>包含卡状态（48位）后跟多个数据块</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD27</strong></td>
+<td>PROGRAM_CSD</td>
+<td>编程CSD寄存器</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>数据传输命令</td>
+</tr>
+<tr>
+<td><strong>CMD32</strong></td>
+<td>ERASE_WR_BLK_START</td>
+<td>设置要擦除的第一个块的地址</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>错误处理命令</td>
+</tr>
+<tr>
+<td><strong>CMD33</strong></td>
+<td>ERASE_WR_BLK_END</td>
+<td>设置要擦除的最后一个块的地址</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>错误处理命令</td>
+</tr>
+<tr>
+<td><strong>CMD38</strong></td>
+<td>ERASE</td>
+<td>执行从CMD32和CMD33指定的地址范围内的块擦除</td>
+<td>R1b</td>
+<td>包含卡状态，忙标志位（48位）</td>
+<td>错误处理命令</td>
+</tr>
+<tr>
+<td><strong>CMD55</strong></td>
+<td>APP_CMD</td>
+<td>通知卡下一条命令是应用特定命令（ACMD）</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>特殊应用命令</td>
+</tr>
+<tr>
+<td><strong>CMD23</strong></td>
+<td>SET_BLOCK_COUNT</td>
+<td>置SD卡的数据块数量</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>特殊应用命令</td>
+</tr>
+<tr>
+<td><strong>CMD58</strong></td>
+<td>READ_OCR</td>
+<td>读取操作条件寄存器（OCR）</td>
+<td>R3</td>
+<td>包含OCR寄存器内容（48位）</td>
+<td>特殊应用命令</td>
+</tr>
+<tr>
+<td><strong>ACMD6</strong></td>
+<td>SET_BUS_WIDTH</td>
+<td>设置数据总线宽度</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>应用特定命令</td>
+</tr>
+<tr>
+<td><strong>ACMD13</strong></td>
+<td>SD_STATUS</td>
+<td>请求卡发送SD状态</td>
+<td>R1</td>
+<td>包含卡状态（48位）后跟64字节的SD状态数据</td>
+<td>应用特定命令</td>
+</tr>
+<tr>
+<td><strong>ACMD22</strong></td>
+<td>SEND_NUM_WR_BLOCKS</td>
+<td>请求卡发送已写入的数据块数</td>
+<td>R1</td>
+<td>包含卡状态（48位）后跟4字节的块数</td>
+<td>应用特定命令</td>
+</tr>
+<tr>
+<td><strong>ACMD23</strong></td>
+<td>SET_WR_BLK_ERASE_COUNT</td>
+<td>设置或清除多个数据块的写保护状态</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>应用特定命令</td>
+</tr>
+<tr>
+<td><strong>ACMD41</strong></td>
+<td>SD_SEND_OP_COND</td>
+<td>初始化卡并确定工作电压</td>
+<td>R3</td>
+<td>包含OCR寄存器内容（48位）</td>
+<td>应用特定命令</td>
+</tr>
+<tr>
+<td><strong>ACMD51</strong></td>
+<td>SEND_SCR</td>
+<td>请求卡发送SCR寄存器</td>
+<td>R1</td>
+<td>包含卡状态（48位）后跟8字节的SCR寄存器内容</td>
+<td>应用特定命令</td>
+</tr>
+<tr>
+<td><strong>CMD6</strong></td>
+<td>SWITCH_FUNC</td>
+<td>切换卡的功能</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>高级命令</td>
+</tr>
+<tr>
+<td><strong>CMD11</strong></td>
+<td>VOLTAGE_SWITCH</td>
+<td>切换电压</td>
+<td>R1</td>
+<td>包含卡状态（48位）</td>
+<td>高级命令</td>
+</tr>
+<tr>
+<td><strong>CMD52</strong></td>
+<td>IO_RW_DIRECT</td>
+<td>直接读写I/O寄存器</td>
+<td>R5</td>
+<td>包含I/O操作结果（48位）</td>
+<td>SDIO相关命令</td>
+</tr>
+<tr>
+<td><strong>CMD53</strong></td>
+<td>IO_RW_EXTENDED</td>
+<td>扩展读写I/O寄存器</td>
+<td>R5</td>
+<td>包含I/O操作结果（48位）</td>
+<td>SDIO相关命令</td>
+</tr>
+</tbody></table>
+<h2 id="响应类型说明"><a href="#响应类型说明" class="headerlink" title="响应类型说明"></a>响应类型说明</h2><ul>
+<li><p><strong>R1</strong>: 标准响应，包含卡状态（48位）</p>
+</li>
+<li><p><strong>R1b</strong>: R1响应，后跟忙信号</p>
+</li>
+<li><p><strong>R2</strong>: CID和CSD寄存器响应（136位）</p>
+</li>
+<li><p><strong>R3</strong>: OCR寄存器响应（48位）</p>
+</li>
+<li><p><strong>R5</strong>: SDIO操作响应（48位）</p>
+</li>
+<li><p><strong>R6</strong>: RCA和卡状态响应（48位）</p>
+</li>
+<li><p><strong>R7</strong>: 接口条件响应（48位）</p>
+</li>
+</ul>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><ol>
+<li><p>fwrite写数据失败？</p>
+<p>使用CMD25发送多block之后，需要紧接着发送一个CMD12，表示停止传输。</p>
+<p>对于MMC控制器可能有AUTO_CMD12功能，也就是当发送完数据之后自动发送CMD12，不需要手动发送CMD12。因此在实际过程中，如果遇到相关问题可以尝试这两种方式切换。如果自动发送CMD12不正常，则尝试自动CMD12。</p>
+<p>CMD12已用于停止多块读/写操作。然而，CMD12是依赖于时间的，并且很难控制在精确的时间上发出CMD12的时间。由于UHS104卡在时钟和数据之间有很大的延迟变化，CMD23有利于主机停止多次读/写操作，而不是CMD12。主机不需要控制CMD12的时间。此命令适用于总是512字节块长度的读/写操作，然后SDSC（Secure Digital Standard Capacity 低速小容量）卡不支持此命令。UHS104（ Ultra High Speed 104 MB/s）卡必须支持CMD23</p>
+</li>
+<li><p>fwrite向SD卡写数据只能以block size的整数倍写，否则CMD25超时？</p>
+<ul>
+<li><p>调试思路</p>
+<ol>
+<li>定位到是哪一个层次出现的问题（fwrite -&gt; glibc -&gt; filesystem -&gt; dfs_write -&gt; mmc_write -&gt; 驱动程序 -&gt; mmc接口）</li>
+<li>根据现有的情况进行分析。当整数倍写的时候正常，非整数倍错误，说明整个流程是没问题的，驱动程序也支持多块读写。</li>
+<li>对两种情况有差异的地方进行分析，并尝试修改代码，不生效</li>
+<li>进一步简化代码，将DMA模式换成Polling模式，发现与DMA在同一个地方出错，是非法地址访问</li>
+<li>进一步查找问题，定位在数据buffer的地址没有4字节对齐，但是dma和polling都进行4字节访问，进而出错</li>
+</ol>
+</li>
+<li><p>解决方案</p>
+<p>在Filesystem关于mmc_write文件中对数据进行处理。当判断地址不是4字节对齐的时候进行一次memcpy，在进行写入</p>
+</li>
+</ul>
+</li>
+<li><p>Fatfs文件系统不能正常显示中文？</p>
+<p>将ffconf.h文件中的：FF_CODE_PAGE 宏值改成936（简体中文）默认437（US）；FF_LEN_UNICODE改成2（UTF-8）默认0（ANSI）。同时在使用串口工具的时候，需要指定UTF-8格式</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2024/05/24/WorkExperience/SD%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/" title="SD调试笔记">http://yanglieee.com/2024/05/24/WorkExperience/SD调试笔记/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/" rel="prev" title="两个设备NAT共享网络">
+      <i class="fa fa-chevron-left"></i> 两个设备NAT共享网络
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/06/03/SoftwareDevelopment/SystemFunction/PWM%E6%94%BE%E9%9F%B3/" rel="next" title="PWM放音">
+      PWM放音 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E5%86%85%E5%AE%B9"><span class="nav-number">1.</span> <span class="nav-text">协议内容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CMD"><span class="nav-number">1.1.</span> <span class="nav-text">CMD</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E7%B1%BB%E5%9E%8B%E8%AF%B4%E6%98%8E"><span class="nav-number">1.2.</span> <span class="nav-text">响应类型说明</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">2.</span> <span class="nav-text">Q&amp;A</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">271k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">4:06</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

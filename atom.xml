@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2024-05-14T13:25:17.288Z</updated>
+  <updated>2024-06-05T15:23:06.372Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,42 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>PWM放音</title>
+    <link href="http://yanglieee.com/2024/06/03/SoftwareDevelopment/SystemFunction/PWM%E6%94%BE%E9%9F%B3/"/>
+    <id>http://yanglieee.com/2024/06/03/SoftwareDevelopment/SystemFunction/PWM%E6%94%BE%E9%9F%B3/</id>
+    <published>2024-06-02T16:00:00.000Z</published>
+    <updated>2024-06-05T15:23:06.372Z</updated>
+    
+    
+    <summary type="html">对于实际产品采用PWM放音的基本流程进行解析</summary>
+    
+    
+    
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
+    
+    <category term="SystemFunction" scheme="http://yanglieee.com/categories/SoftwareDevelopment/SystemFunction/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>SD调试笔记</title>
+    <link href="http://yanglieee.com/2024/05/24/WorkExperience/SD%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yanglieee.com/2024/05/24/WorkExperience/SD%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/</id>
+    <published>2024-05-23T16:00:00.000Z</published>
+    <updated>2024-06-05T15:15:33.481Z</updated>
+    
+    
+    <summary type="html">本文档基于Freertos系统，MMC驱动和FAT文件系统进行调试。主要对SD卡读写速度进行优化</summary>
+    
+    
+    
+    <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>两个设备NAT共享网络</title>
@@ -359,46 +395,6 @@
     
     <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>功耗管理</title>
-    <link href="http://yanglieee.com/2023/07/19/SoftwareDevelopment/SystemFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/"/>
-    <id>http://yanglieee.com/2023/07/19/SoftwareDevelopment/SystemFunction/%E5%8A%9F%E8%80%97%E7%AE%A1%E7%90%86/</id>
-    <published>2023-07-18T16:00:00.000Z</published>
-    <updated>2023-12-02T00:36:56.181Z</updated>
-    
-    
-    <summary type="html">对于电子设备，系统待机时长无疑一项重要的技术指标。而这与系统的功耗是密切相关的，本篇将工作中休眠唤醒的调试经验及相关内容的学习做整理</summary>
-    
-    
-    
-    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
-    
-    <category term="SystemFunction" scheme="http://yanglieee.com/categories/SoftwareDevelopment/SystemFunction/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>SPI</title>
-    <link href="http://yanglieee.com/2023/07/15/Hardware/Protocol/spi/"/>
-    <id>http://yanglieee.com/2023/07/15/Hardware/Protocol/spi/</id>
-    <published>2023-07-14T16:00:00.000Z</published>
-    <updated>2023-12-02T13:35:02.182Z</updated>
-    
-    
-    <summary type="html">对SPI协议进行解析</summary>
-    
-    
-    
-    <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
-    
-    <category term="Protocol" scheme="http://yanglieee.com/categories/Hardware/Protocol/"/>
-    
-    
-    <category term="硬件传输协议" scheme="http://yanglieee.com/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/"/>
     
   </entry>
   
