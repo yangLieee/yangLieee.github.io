@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2024-07-09T11:47:06.817Z</updated>
+  <updated>2024-07-30T11:29:33.697Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,42 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>USB基础知识</title>
+    <link href="http://yanglieee.com/2024/07/30/SoftwareDevelopment/SystemFunction/USB%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <id>http://yanglieee.com/2024/07/30/SoftwareDevelopment/SystemFunction/USB%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</id>
+    <published>2024-07-29T16:00:00.000Z</published>
+    <updated>2024-07-30T11:29:33.697Z</updated>
+    
+    
+    <summary type="html">本文是在FreeRTOS中添加USB符合设备驱动的任务基础上，对USB基础知识进行学习和整理</summary>
+    
+    
+    
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
+    
+    <category term="SystemFunction" scheme="http://yanglieee.com/categories/SoftwareDevelopment/SystemFunction/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Debug笔记-2</title>
+    <link href="http://yanglieee.com/2024/07/25/WorkExperience/Debug%E7%AC%94%E8%AE%B0_2/"/>
+    <id>http://yanglieee.com/2024/07/25/WorkExperience/Debug%E7%AC%94%E8%AE%B0_2/</id>
+    <published>2024-07-24T16:00:00.000Z</published>
+    <updated>2024-07-30T11:22:26.683Z</updated>
+    
+    
+    <summary type="html">Debug调试系列-2，基于最近遇到的一些问题及相关的调试及解决方法进行总结和归纳。</summary>
+    
+    
+    
+    <category term="WorkExperience" scheme="http://yanglieee.com/categories/WorkExperience/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>Debug笔记-1</title>
@@ -355,46 +391,6 @@
     
     
     <category term="Audio" scheme="http://yanglieee.com/tags/Audio/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Uart</title>
-    <link href="http://yanglieee.com/2023/08/10/Hardware/Protocol/uart/"/>
-    <id>http://yanglieee.com/2023/08/10/Hardware/Protocol/uart/</id>
-    <published>2023-08-09T16:00:00.000Z</published>
-    <updated>2023-12-01T14:04:00.492Z</updated>
-    
-    
-    <summary type="html">对Uart协议进行解析</summary>
-    
-    
-    
-    <category term="Hardware" scheme="http://yanglieee.com/categories/Hardware/"/>
-    
-    <category term="Protocol" scheme="http://yanglieee.com/categories/Hardware/Protocol/"/>
-    
-    
-    <category term="硬件传输协议" scheme="http://yanglieee.com/tags/%E7%A1%AC%E4%BB%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>耳机插拔检测</title>
-    <link href="http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/"/>
-    <id>http://yanglieee.com/2023/08/04/OperatingSystem/Andriod/HPDetect/</id>
-    <published>2023-08-03T16:00:00.000Z</published>
-    <updated>2023-12-02T00:32:52.373Z</updated>
-    
-    
-    <summary type="html">对模拟耳机类型进行分类，针对linux inputevent和 android uevent的两种耳机检测方式做解析</summary>
-    
-    
-    
-    <category term="OperatingSystem" scheme="http://yanglieee.com/categories/OperatingSystem/"/>
-    
-    <category term="Andriod" scheme="http://yanglieee.com/categories/OperatingSystem/Andriod/"/>
-    
     
   </entry>
   
