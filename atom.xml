@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2024-07-30T11:29:33.697Z</updated>
+  <updated>2025-05-29T15:18:20.141Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,27 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Ingenic X2600 RISCV 编译&amp;启动解析</title>
+    <link href="http://yanglieee.com/2025/05/29/Arch/RISCV/Ingenic-RISCV/"/>
+    <id>http://yanglieee.com/2025/05/29/Arch/RISCV/Ingenic-RISCV/</id>
+    <published>2025-05-28T16:00:00.000Z</published>
+    <updated>2025-05-29T15:18:20.141Z</updated>
+    
+    
+    <summary type="html">Ingenic X2600 RISCV代码编译和系统启动流程解析</summary>
+    
+    
+    
+    <category term="Arch" scheme="http://yanglieee.com/categories/Arch/"/>
+    
+    <category term="RISCV" scheme="http://yanglieee.com/categories/Arch/RISCV/"/>
+    
+    
+    <category term="RISCV" scheme="http://yanglieee.com/tags/RISCV/"/>
+    
+  </entry>
   
   <entry>
     <title>USB基础知识</title>
@@ -110,7 +131,7 @@
     <link href="http://yanglieee.com/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/"/>
     <id>http://yanglieee.com/2024/05/14/WorkExperience/%E5%8F%8C%E8%AE%BE%E5%A4%87NAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/</id>
     <published>2024-05-13T16:00:00.000Z</published>
-    <updated>2024-05-14T13:25:17.288Z</updated>
+    <updated>2024-10-10T00:10:30.225Z</updated>
     
     
     <summary type="html">在实际项目中，基于NAT技术使用Linux iptables工具，实现两个设备共享一个网络的功能</summary>
@@ -370,27 +391,6 @@
     
     
     <category term="interrupt" scheme="http://yanglieee.com/tags/interrupt/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>音频POP音解析</title>
-    <link href="http://yanglieee.com/2023/08/15/SoftwareDevelopment/Media/Audio-musicPop/"/>
-    <id>http://yanglieee.com/2023/08/15/SoftwareDevelopment/Media/Audio-musicPop/</id>
-    <published>2023-08-14T16:00:00.000Z</published>
-    <updated>2023-12-02T00:36:15.160Z</updated>
-    
-    
-    <summary type="html">在调试ES8326 codec和aw87390功放进行放音时产生的POP音问题时的解决方案</summary>
-    
-    
-    
-    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
-    
-    <category term="Media" scheme="http://yanglieee.com/categories/SoftwareDevelopment/Media/"/>
-    
-    
-    <category term="Audio" scheme="http://yanglieee.com/tags/Audio/"/>
     
   </entry>
   

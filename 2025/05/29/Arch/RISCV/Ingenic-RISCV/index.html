@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Ingenic X2600 RISCV代码编译和系统启动流程解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ingenic X2600 RISCV 编译&amp;启动解析">
+<meta property="og:url" content="http://yanglieee.com/2025/05/29/Arch/RISCV/Ingenic-RISCV/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="Ingenic X2600 RISCV代码编译和系统启动流程解析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yanglieee.com/images/Arch/RISCV/riscv-execption.png">
+<meta property="og:image" content="http://yanglieee.com/images/Arch/RISCV/test.elf.png">
+<meta property="og:image" content="http://yanglieee.com/images/Arch/RISCV/elf-info.png">
+<meta property="article:published_time" content="2025-05-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-05-29T15:18:20.141Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="RISCV">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yanglieee.com/images/Arch/RISCV/riscv-execption.png">
+
+<link rel="canonical" href="http://yanglieee.com/2025/05/29/Arch/RISCV/Ingenic-RISCV/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Ingenic X2600 RISCV 编译&启动解析 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2025/05/29/Arch/RISCV/Ingenic-RISCV/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ingenic X2600 RISCV 编译&启动解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-05-29 00:00:00 / 修改时间：23:18:20" itemprop="dateCreated datePublished" datetime="2025-05-29T00:00:00+08:00">2025-05-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Arch/" itemprop="url" rel="index"><span itemprop="name">Arch</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Arch/RISCV/" itemprop="url" rel="index"><span itemprop="name">RISCV</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/05/29/Arch/RISCV/Ingenic-RISCV/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/05/29/Arch/RISCV/Ingenic-RISCV/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>15k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>13 分钟</span>
+            </span>
+            <div class="post-description">Ingenic X2600 RISCV代码编译和系统启动流程解析</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>源码链接：<a target="_blank" rel="noopener" href="https://gitee.com/ingenic-dev/libbare-cpu/tree/develop/master/cpu/core-riscv">https://gitee.com/ingenic-dev/libbare-cpu/tree/develop/master/cpu/core-riscv</a></p>
+</blockquote>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Ingenic X2600 是一款双核异构的芯片，主核使用主频1.2GHz的MIPS架构的Xburst2，小核使用主频600MHz的RISCV架构的Victory。其中对于RISCV小核无法做到单独使用，依赖于大核的启动对其进行加载和通讯，软件SDK采用libbare-cpu对其进行编程。本篇主要对跑在RISCV核上的FreeRTOS程序的代码编译和第一个程序的执行等内容进行分析</p>
+<h1 id="代码编译"><a href="#代码编译" class="headerlink" title="代码编译"></a>代码编译</h1><p>具体的代码编译规则是由CMakeLists.txt 和 Makefile两种方式进行构建的，本部分对此不做解释，而是对链接脚本文件ld.lds文件做分析</p>
+<p><code>ld.lds</code> 文件（也叫 <strong>Linker Script</strong>）是 GCC 编译器中 <code>ld</code> 链接器使用的链接脚本，用来控制最终生成的可执行文件或固件的 <strong>内存布局</strong>，在CMakefiles.txt中可以通过target_link_libraries的-T参数将链接脚本文件指定，而Makefile也可以通过-T参数进行指定传递给LDFALGS进一步给gcc进行编译</p>
+<p>本部分展示的ld文件来源于2025年5月25日版本，如果需要查看最新的内容参阅：<a target="_blank" rel="noopener" href="https://gitee.com/ingenic-dev/libbare-cpu/blob/develop/master/cpu/core-riscv/ld.lds#">https://gitee.com/ingenic-dev/libbare-cpu/blob/develop/master/cpu/core-riscv/ld.lds#</a></p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// GNU链接器脚本 中的一个指令，用来指定最终输出文件的目标架构（Target Architecture）</span></span><br><span class="line">OUTPUT_ARCH(riscv)</span><br><span class="line">    </span><br><span class="line"><span class="comment">// GNU链接器脚本 中的一个高级指令，用于将多个库文件打包在一起，让链接器尝试多次解析符号依赖，解决复杂的循环依赖问题</span></span><br><span class="line"><span class="comment">// 这里是 newlib 的正确链接的依赖</span></span><br><span class="line">GROUP( -lc -lgloss -lgcc -lsupc++ )</span><br><span class="line"></span><br><span class="line"><span class="comment">// 指定库文件搜索路径</span></span><br><span class="line">SEARCH_DIR(.)</span><br><span class="line"><span class="comment">// 避免链接器生成 .dynamic 段，解决报错，确保最终是纯静态链接的输出</span></span><br><span class="line">__DYNAMIC  =  <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 指定程序的入口点符号的指令，即告诉链接器程序从哪个函数（或地址）开始执行</span></span><br><span class="line">ENTRY(_reset_entry)</span><br><span class="line"></span><br><span class="line"><span class="comment">// MEMORY 段用于定义目标芯片内存布局，包括内存的起始地址和小。因为链接器需要知道代码和数据要放在哪块物理内存中。</span></span><br><span class="line">MEMORY</span><br><span class="line">{</span><br><span class="line">    instrram    : ORIGIN = <span class="number">0x07f00000</span>, LENGTH = <span class="number">0x50000</span></span><br><span class="line">    cpusram		: ORIGIN = <span class="number">0x12400000</span>, LENGTH = <span class="number">0x2000</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明_stack_start符号指示栈起始位置（栈顶， 栈地址向下增长）</span></span><br><span class="line">_stack_start   = ORIGIN(instrram) + LENGTH(instrram);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* We have to align each sector to word boundaries as our current s19-&gt;slm</span></span><br><span class="line"><span class="comment"> * conversion scripts are not able to handle non-word aligned sections. */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义输出文件中各段的布局和分布，包括 .text、.data、.bss 等代码和数据段应放入哪个内存区域、在哪些位置</span></span><br><span class="line">SECTIONS</span><br><span class="line">{</span><br><span class="line">    <span class="comment">// 定义一个vector的段，4地址对齐，并且定一个符号 __reset_entry 内容是当前地址+0x80</span></span><br><span class="line">    .vectors :</span><br><span class="line">    {</span><br><span class="line">        . = ALIGN(<span class="number">4</span>);</span><br><span class="line">        _reset_entry = . + <span class="number">0x80</span>;</span><br><span class="line">        KEEP(*(.vectors))</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// 代码段</span></span><br><span class="line">    .text : {</span><br><span class="line">        . = ALIGN(<span class="number">4</span>);</span><br><span class="line">        _stext = .;</span><br><span class="line">        *(.text*)			<span class="comment">// * 是通配符语法，表示“来自所有文件”</span></span><br><span class="line">        _etext  =  .;</span><br><span class="line">        __CTOR_LIST__ = .;</span><br><span class="line">        LONG((__CTOR_END__ - __CTOR_LIST__) / <span class="number">4</span> - <span class="number">2</span>)</span><br><span class="line">        *(.ctors)			<span class="comment">// constructors 构造函数</span></span><br><span class="line">        LONG(<span class="number">0</span>)</span><br><span class="line">        __CTOR_END__ = .;</span><br><span class="line">        __DTOR_LIST__ = .;</span><br><span class="line">        LONG((__DTOR_END__ - __DTOR_LIST__) / <span class="number">4</span> - <span class="number">2</span>)</span><br><span class="line">        *(.dtors)			<span class="comment">// destructors 析构函数</span></span><br><span class="line">        LONG(<span class="number">0</span>)</span><br><span class="line">        __DTOR_END__ = .;</span><br><span class="line">        *(.lit)				<span class="comment">// literal data 常量数据</span></span><br><span class="line">        *(.shdata)			<span class="comment">// share data 共享数据</span></span><br><span class="line">        _endtext = .;</span><br><span class="line">    }  &gt; instrram</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*--------------------------------------------------------------------*/</span></span><br><span class="line">    <span class="comment">/* 全局 构造/析构函数 的段                            				   */</span></span><br><span class="line">    <span class="comment">/*--------------------------------------------------------------------*/</span></span><br><span class="line">	<span class="comment">// 预初始数组段</span></span><br><span class="line">    .preinit_array     :</span><br><span class="line">    {</span><br><span class="line">      PROVIDE_HIDDEN (__preinit_array_start = .);</span><br><span class="line">      KEEP (*(.preinit_array))</span><br><span class="line">      PROVIDE_HIDDEN (__preinit_array_end = .);</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// 初始化数据段</span></span><br><span class="line">    .init_array     :</span><br><span class="line">    {</span><br><span class="line">      PROVIDE_HIDDEN (__init_array_start = .);</span><br><span class="line">      KEEP (*(SORT(.init_array.*)))</span><br><span class="line">      KEEP (*(.init_array ))</span><br><span class="line">      PROVIDE_HIDDEN (__init_array_end = .);</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// 初始化结束段</span></span><br><span class="line">    .fini_array     :</span><br><span class="line">    {</span><br><span class="line">      PROVIDE_HIDDEN (__fini_array_start = .);</span><br><span class="line">      KEEP (*(SORT(.fini_array.*)))</span><br><span class="line">      KEEP (*(.fini_array ))</span><br><span class="line">      PROVIDE_HIDDEN (__fini_array_end = .);</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// GOT表（动态链接需要使用，这里是在静态链接中实现加载跳转）段</span></span><br><span class="line">    .got : {</span><br><span class="line">	    __got_start = .;</span><br><span class="line">	    *(.got)</span><br><span class="line">	    *(.got.plt)</span><br><span class="line">	    __got_end = .;</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// 资源表段（Ingenic用于大小核通讯中使用）</span></span><br><span class="line">    .resource_table : {</span><br><span class="line">	    . = ALIGN(<span class="number">4</span>);</span><br><span class="line">	    __rsc_table_start = .;</span><br><span class="line">	    KEEP (*(.resource_table*))</span><br><span class="line">	    __rsc_table_end = .;</span><br><span class="line">    } &gt; instrram</span><br><span class="line">    <span class="comment">// 中断处理段</span></span><br><span class="line">    .interrupt_handler : {</span><br><span class="line">	    . = ALIGN(<span class="number">4</span>);</span><br><span class="line">	    KEEP (*(.interrupt_handler*))</span><br><span class="line">    } &gt; instrram</span><br><span class="line">   	<span class="comment">// IPC 通讯环形缓冲区段（用于IPC通讯）</span></span><br><span class="line">    <span class="comment">// NOLOAD 表示：链接器不会将此段内容加载到最终生成的二进制文件中（例如 ELF 的 LOAD 标记会被取消）</span></span><br><span class="line">    <span class="comment">// 虽然不加载但是将占位</span></span><br><span class="line">    .ipc_ring_mem (NOLOAD):{</span><br><span class="line">	    . = ALIGN(<span class="number">4</span>);</span><br><span class="line">	    KEEP (*(.ipc_ring_mem*))</span><br><span class="line">    } &gt; cpusram</span><br><span class="line">    <span class="comment">// Read Only 只读段</span></span><br><span class="line">    .rodata : {</span><br><span class="line">        . = ALIGN(<span class="number">4</span>);</span><br><span class="line">          *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))</span><br><span class="line">    } &gt; instrram</span><br><span class="line">    <span class="comment">// Share BSS共享的BSS段的定义（Maybe）</span></span><br><span class="line">    .shbss :</span><br><span class="line">    {</span><br><span class="line">        . = ALIGN(<span class="number">4</span>);</span><br><span class="line">        *(.shbss)</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// relocation data 重定位后的段</span></span><br><span class="line">    .data.rel : {</span><br><span class="line">	    __data_rel_start = .;</span><br><span class="line">	    *(.data.rel.*)</span><br><span class="line">	    __data_rel_end = .;</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// 数据段</span></span><br><span class="line">    .data : {</span><br><span class="line">        . = ALIGN(<span class="number">4</span>);</span><br><span class="line">        sdata  =  .;</span><br><span class="line">        _sdata  =  .;</span><br><span class="line">        *(.data);</span><br><span class="line">        *(.data.*)</span><br><span class="line">        edata  =  .;</span><br><span class="line">        _edata  =  .;</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// 函数符号序列段</span></span><br><span class="line">    .func_symbol_index :</span><br><span class="line">    {</span><br><span class="line">	. = ALIGN(<span class="number">16</span>);</span><br><span class="line">    	__func_symbol_index_start = .;</span><br><span class="line">    	KEEP(*(SORT(.func_symbol_index*)))</span><br><span class="line">	 __func_symbol_index_end = .;</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// 函数符号字串段</span></span><br><span class="line">    .func_symbol_str :</span><br><span class="line">    {</span><br><span class="line">	__func_symbol_str_start = .;</span><br><span class="line">	KEEP(*(SORT(.func_symbol_str*)))</span><br><span class="line">	__func_symbol_str_end = .;</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// BSS段</span></span><br><span class="line">    .bss :</span><br><span class="line">    {</span><br><span class="line">        . = ALIGN(<span class="number">4</span>);</span><br><span class="line">        _bss_start = .;</span><br><span class="line">        *(.bss)</span><br><span class="line">        *(.bss.*)</span><br><span class="line">        *(.sbss)</span><br><span class="line">        *(.sbss.*)</span><br><span class="line">        *(COMMON)</span><br><span class="line">        _bss_end = .;</span><br><span class="line">    } &gt; instrram</span><br><span class="line">	<span class="comment">// STABS 调试格式 的符号表段，存储调试符号信息（变量名、函数名、类型等）</span></span><br><span class="line">    .stab  <span class="number">0</span> (NOLOAD) :</span><br><span class="line">    {</span><br><span class="line">        [ .stab ]</span><br><span class="line">    }</span><br><span class="line">	<span class="comment">// .stabstr 是 .stab 段中符号名称的字符串表</span></span><br><span class="line">    .stabstr  <span class="number">0</span> (NOLOAD) :</span><br><span class="line">    {</span><br><span class="line">        [ .stabstr ]</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>对于以上诸多的段代码，至于链接器会将哪些内容放到对应的段，有些是通识定义比如：（函数体）默认放在 <code>.text</code> 段；初始化的全局变量放 <code>.data</code>；未初始化的全局变量放 <code>.bss</code>；常量字符串放 <code>.rodata</code>，而自定义的段可以通过<code>__attribute__((section(".my_section")))</code> 来显式声明</p>
+<h1 id="启动流程"><a href="#启动流程" class="headerlink" title="启动流程"></a>启动流程</h1><p>由于使用FreeRTOS所以启动过程较复杂，主要包括的文件包括start.S、genex.S、portASM.S文件。对于文件内容较多的不做全部解析，只对重要的语句进行解释</p>
+<ul>
+<li>start.S: 通常是启动代码（startup code）文件，上电或复位之后执行的第一段汇编代码</li>
+<li>genex.S: 可能是generated exceptions生成的异常的缩写，里面内容则是与系统异常处理相关的汇编代码</li>
+<li>portASM.S: 通常是“porting assembly”的缩写，移植层的汇编代码，用于对接到FreeRTOS的汇编代码</li>
+</ul>
+<h2 id="启动汇编代码"><a href="#启动汇编代码" class="headerlink" title="启动汇编代码"></a>启动汇编代码</h2><p><code>start.S</code>（或 <code>start.s</code>）是<strong>启动汇编文件</strong>，在嵌入式系统、操作系统内核、引导程序等项目中极其关键。它是系统上电或重启后 <strong>第一段被执行的代码</strong>。</p>
+<p>本部分展示的ld文件来源于2025年5月25日版本，如果需要查看最新的内容参阅：<a target="_blank" rel="noopener" href="https://gitee.com/ingenic-dev/libbare-cpu/blob/develop/master/cpu/core-riscv/start.S">https://gitee.com/ingenic-dev/libbare-cpu/blob/develop/master/cpu/core-riscv/start.S</a></p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 声明 全局变量reset_handler 外部变量__MTVEC</span></span><br><span class="line">.global reset_handler</span><br><span class="line">.<span class="keyword">extern</span> __MTVEC</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 告诉汇编器接下来的代码放到 代码段中</span></span><br><span class="line">  .section .text</span><br><span class="line">    </span><br><span class="line"><span class="comment">// reset_handler 符号内容</span></span><br><span class="line">reset_handler:</span><br><span class="line">  <span class="comment">// mv rd, rs (将rs寄存器内容复制到rd中)</span></span><br><span class="line">  <span class="comment">// 以下代码是将x1 - x31寄存器的值清0</span></span><br><span class="line">  mv  x1, x0</span><br><span class="line">  mv  x2, x1</span><br><span class="line">  mv  x3, x1</span><br><span class="line">  mv  x4, x1</span><br><span class="line">  mv  x5, x1</span><br><span class="line">  mv  x6, x1</span><br><span class="line">  mv  x7, x1</span><br><span class="line">  mv  x8, x1</span><br><span class="line">  mv  x9, x1</span><br><span class="line">  mv x10, x1</span><br><span class="line">  mv x11, x1</span><br><span class="line">  mv x12, x1</span><br><span class="line">  mv x13, x1</span><br><span class="line">  mv x14, x1</span><br><span class="line">  mv x15, x1</span><br><span class="line">  mv x16, x1</span><br><span class="line">  mv x17, x1</span><br><span class="line">  mv x18, x1</span><br><span class="line">  mv x19, x1</span><br><span class="line">  mv x20, x1</span><br><span class="line">  mv x21, x1</span><br><span class="line">  mv x22, x1</span><br><span class="line">  mv x23, x1</span><br><span class="line">  mv x24, x1</span><br><span class="line">  mv x25, x1</span><br><span class="line">  mv x26, x1</span><br><span class="line">  mv x27, x1</span><br><span class="line">  mv x28, x1</span><br><span class="line">  mv x29, x1</span><br><span class="line">  mv x30, x1</span><br><span class="line">  mv x31, x1</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Register x1 = 8 ---&gt;  0x300 MIE 全局中断使能位</span></span><br><span class="line">  <span class="comment">// 0x300 MRW mstatus 机器状态寄存器</span></span><br><span class="line">  li x1, <span class="number">8</span></span><br><span class="line">  csrw <span class="number">0x300</span>, x1</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Register x1 = __MTVEC ---&gt; 0x305 MRW mtvec 机器陷阱处理程序基地址</span></span><br><span class="line">  <span class="comment">// mtvec（Machine Trap-Vector Base Address Register）符号别名或宏定义,用来设置中断/异常的跳转入口地址</span></span><br><span class="line">  <span class="comment">// __MTVEC 定义在genx.S</span></span><br><span class="line">  la x1, __MTVEC</span><br><span class="line">  csrw <span class="number">0x305</span>, x1</span><br><span class="line"></span><br><span class="line">  mv x1, x0</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将 _stack_start - 8 给到x2（stack pointer，sp寄存器）</span></span><br><span class="line">  <span class="comment">//  _stack_start 定义在哪里 ld.lds 中</span></span><br><span class="line">  la   x2, (_stack_start - <span class="number">8</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// _start符号内容</span></span><br><span class="line">_start:</span><br><span class="line">  .global _start</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 以下内容是用于清除BSS段，主要逻辑是将bss起始位置加载，将该部分内容清0</span></span><br><span class="line">  <span class="comment">// _bss_start 和 _bss_end 定义于 ld.lds 文件中</span></span><br><span class="line">  la x26, _bss_start</span><br><span class="line">  la x27, _bss_end</span><br><span class="line">  bge x26, x27, zero_loop_end</span><br><span class="line"></span><br><span class="line">zero_loop:</span><br><span class="line">  sw x0, <span class="number">0</span>(x26)</span><br><span class="line">  addi x26, x26, <span class="number">4</span></span><br><span class="line">  blt x26, x27, zero_loop</span><br><span class="line">zero_loop_end:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// main_entry符号内容</span></span><br><span class="line">main_entry:</span><br><span class="line"><span class="comment">// 1. 清除 mstatus bit11 bit12 (清除 MPP 字段（Machine Previous Privilege) 切换到用户态 U</span></span><br><span class="line"><span class="comment">// 2. 将label-1的地址写入 mepc中 机器异常程序计数器</span></span><br><span class="line"><span class="comment">// 3. 用于从 机器模式（M-mode） 返回到之前的 特权模式。这通常发生在异常或中断处理后，目的是恢复处理前的程序状态</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1f 表示“从当前位置向前查找编号为 1 的标签”；1b 表示“从当前位置向后查找编号为 1 的标签”</span></span><br><span class="line">  li t0, <span class="number">0x00001800</span></span><br><span class="line">  csrc mstatus, t0</span><br><span class="line">  la t0, <span class="number">1f</span></span><br><span class="line">  csrw mepc, t0</span><br><span class="line">  mret</span><br><span class="line"></span><br><span class="line"><span class="number">1</span>:</span><br><span class="line">  <span class="comment">// 跳转到c_main函数，参数argc = argv = 0，返回地址保存到x1中</span></span><br><span class="line">  addi x10, x0, <span class="number">0</span></span><br><span class="line">  addi x11, x0, <span class="number">0</span></span><br><span class="line">  jal x1, c_main</span><br><span class="line"><span class="number">1</span>:</span><br><span class="line">  <span class="comment">// # wfi 是 Wait For Interrupt 的缩写，它用于将处理器置于等待中断状态，直到发生中断或异常</span></span><br><span class="line">  wfi</span><br><span class="line">  j <span class="number">1b</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="异常处理代码"><a href="#异常处理代码" class="headerlink" title="异常处理代码"></a>异常处理代码</h2><p>Ingenic-x2600支持将中断放置到RISCV-RAM中执行，而不在DDR执行，这样就减少了DDR的压力对中断实时性的影响。该功能的实现需要使能CONFIG_IRQ_IN_TCSM宏并配置CMAKE编译，这里不对此部分作说明，因此代码说明部分将删除掉对应的宏控内容</p>
+<p>本部分展示的ld文件来源于2025年5月25日版本，如果需要查看最新的内容参阅：<a target="_blank" rel="noopener" href="https://gitee.com/ingenic-dev/libbare-cpu/blob/develop/master/cpu/core-riscv/port_freertos/genex.S">https://gitee.com/ingenic-dev/libbare-cpu/blob/develop/master/cpu/core-riscv/port_freertos/genex.S</a></p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">    .<span class="keyword">extern</span> reset_handler</span><br><span class="line">        </span><br><span class="line">	<span class="comment">// 以下代码放到vector段</span></span><br><span class="line">    <span class="comment">// a：表示该段是 可分配（allocatable）的，也就是说该段会被分配内存</span></span><br><span class="line">    <span class="comment">// x：表示该段是 可执行（executable）的，意味着它包含的代码是可执行的     </span></span><br><span class="line">  .section .vectors,<span class="string">"ax"</span></span><br><span class="line">   <span class="comment">// RISC-V 汇编器中的一个伪指令，用于关闭 RVC（RISC-V Compressed Instructions）压缩指令模式</span></span><br><span class="line">  .option norvc;</span><br><span class="line">  .global __MTVEC</span><br><span class="line">__MTVEC:</span><br><span class="line">  j handle_exception      # <span class="number">0x00</span>   <span class="comment">// 异常中断处理函数</span></span><br><span class="line">  j handle_exception      # <span class="number">0x04</span></span><br><span class="line">  j handle_exception      # <span class="number">0x08</span></span><br><span class="line">  j handle_soft	          # <span class="number">0x0c</span>   <span class="comment">// 软中断处理函数</span></span><br><span class="line">  j handle_exception      # <span class="number">0x10</span></span><br><span class="line">  j handle_exception      # <span class="number">0x14</span></span><br><span class="line">  j handle_exception      # <span class="number">0x18</span></span><br><span class="line">  j handle_mtimer         # <span class="number">0x1c</span>   <span class="comment">// 定时器中断函数</span></span><br><span class="line">  j handle_exception      # <span class="number">0x20</span></span><br><span class="line">  j handle_exception      # <span class="number">0x24</span></span><br><span class="line">  j handle_exception      # <span class="number">0x28</span></span><br><span class="line">  j handle_interrupt      # <span class="number">0x2c</span>   <span class="comment">// 外部中断函数</span></span><br><span class="line">  j handle_exception      # <span class="number">0x30</span></span><br><span class="line">  j handle_exception      # <span class="number">0x34</span></span><br><span class="line">  j handle_exception      # <span class="number">0x38</span></span><br><span class="line">  j handle_exception      # <span class="number">0x3c</span></span><br><span class="line">  j handle_mailbox        # <span class="number">0x40</span>   <span class="comment">// mailbox中断处理函数</span></span><br><span class="line">  j handle_exception      # <span class="number">0x44</span></span><br><span class="line">  j handle_exception      # <span class="number">0x48</span></span><br><span class="line">  j handle_exception      # <span class="number">0x4c</span></span><br><span class="line">  <span class="comment">// 重复12次 handle_exception .rept - endr</span></span><br><span class="line">  .rept <span class="number">12</span></span><br><span class="line">  j handle_exception      # <span class="number">0x50</span> ~ <span class="number">0x7c</span></span><br><span class="line">  .endr</span><br><span class="line">  <span class="comment">// 将当前位置设置为地址 0x80，也就是告诉汇编器：从地址 0x80 开始放接下来的内容。</span></span><br><span class="line">  .org <span class="number">0x80</span></span><br><span class="line">  <span class="comment">// 跳转到 reset_handler</span></span><br><span class="line">  j reset_handler</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 将当前位置设置为地址 0x200</span></span><br><span class="line">  .org <span class="number">0x200</span></span><br><span class="line">  .word __rsc_table_start</span><br><span class="line">  .word __rsc_table_end</span><br><span class="line">  .word _reset_entry - <span class="number">0x80</span></span><br><span class="line"> </span><br><span class="line">   <span class="comment">//将当前位置设置为地址 0x1000</span></span><br><span class="line">  .org <span class="number">0x1000</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>对于以上设置的 __MTVEC 是 RISC-V 架构下的一个关键寄存器名称，它是 mtvec（Machine Trap-Vector Base Address Register） 的符号别名或宏定义，用来设置中断/异常的跳转入口地址，而不同地址位置的异常是需要满足RISCV标准定义的</p>
+<img src="\images\Arch\RISCV\riscv-execption.png" alt="riscv-execption" width="500">
+
+<h2 id="FreeRTOS汇编对接代码"><a href="#FreeRTOS汇编对接代码" class="headerlink" title="FreeRTOS汇编对接代码"></a>FreeRTOS汇编对接代码</h2><p>本部分展示的ld文件来源于2025年5月25日版本，如果需要查看最新的内容参阅：<a target="_blank" rel="noopener" href="https://gitee.com/ingenic-dev/libbare-cpu/blob/develop/master/cpu/core-riscv/port_freertos/portASM.S#">https://gitee.com/ingenic-dev/libbare-cpu/blob/develop/master/cpu/core-riscv/port_freertos/portASM.S#</a></p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">"portContext.h"</span></span></span><br><span class="line"></span><br><span class="line">    .global xPortStartFirstTask</span><br><span class="line">    .<span class="keyword">extern</span> vTaskSwitchContext</span><br><span class="line"></span><br><span class="line"><span class="comment">// xPortStartFirstTask 开始第一个任务</span></span><br><span class="line">xPortStartFirstTask:</span><br><span class="line">	<span class="comment">//  加载当前任务的 TCB 指针到 sp</span></span><br><span class="line">    lw  sp, pxCurrentTCB</span><br><span class="line">    <span class="comment">// 加载该任务栈顶的地址（stack pointer）</span></span><br><span class="line">    lw  sp, <span class="number">0</span>( sp )</span><br><span class="line">    <span class="comment">// 恢复 ra（return address）</span></span><br><span class="line">    lw  x1, <span class="number">0</span>( sp )</span><br><span class="line"></span><br><span class="line">    lw  x7, <span class="number">4</span> * <span class="number">4</span>( sp )     <span class="comment">/* t2 */</span></span><br><span class="line">    lw  x8, <span class="number">5</span> * <span class="number">4</span>( sp )     <span class="comment">/* s0/fp */</span></span><br><span class="line">    lw  x9, <span class="number">6</span> * <span class="number">4</span>( sp )     <span class="comment">/* s1 */</span></span><br><span class="line">    lw  x10, <span class="number">7</span> * <span class="number">4</span>( sp )    <span class="comment">/* a0 */</span></span><br><span class="line">    lw  x11, <span class="number">8</span> * <span class="number">4</span>( sp )    <span class="comment">/* a1 */</span></span><br><span class="line">    lw  x12, <span class="number">9</span> * <span class="number">4</span>( sp )    <span class="comment">/* a2 */</span></span><br><span class="line">    lw  x13, <span class="number">10</span> * <span class="number">4</span>( sp )   <span class="comment">/* a3 */</span></span><br><span class="line">    lw  x14, <span class="number">11</span> * <span class="number">4</span>( sp )   <span class="comment">/* a4 */</span></span><br><span class="line">    lw  x15, <span class="number">12</span> * <span class="number">4</span>( sp )   <span class="comment">/* a5 */</span></span><br><span class="line">    lw  x16, <span class="number">13</span> * <span class="number">4</span>( sp )   <span class="comment">/* a6 */</span></span><br><span class="line">    lw  x17, <span class="number">14</span> * <span class="number">4</span>( sp )   <span class="comment">/* a7 */</span></span><br><span class="line">    lw  x18, <span class="number">15</span> * <span class="number">4</span>( sp )   <span class="comment">/* s2 */</span></span><br><span class="line">    lw  x19, <span class="number">16</span> * <span class="number">4</span>( sp )   <span class="comment">/* s3 */</span></span><br><span class="line">    lw  x20, <span class="number">17</span> * <span class="number">4</span>( sp )   <span class="comment">/* s4 */</span></span><br><span class="line">    lw  x21, <span class="number">18</span> * <span class="number">4</span>( sp )   <span class="comment">/* s5 */</span></span><br><span class="line">    lw  x22, <span class="number">19</span> * <span class="number">4</span>( sp )   <span class="comment">/* s6 */</span></span><br><span class="line">    lw  x23, <span class="number">20</span> * <span class="number">4</span>( sp )   <span class="comment">/* s7 */</span></span><br><span class="line">    lw  x24, <span class="number">21</span> * <span class="number">4</span>( sp )   <span class="comment">/* s8 */</span></span><br><span class="line">    lw  x25, <span class="number">22</span> * <span class="number">4</span>( sp )   <span class="comment">/* s9 */</span></span><br><span class="line">    lw  x26, <span class="number">23</span> * <span class="number">4</span>( sp )   <span class="comment">/* s10 */</span></span><br><span class="line">    lw  x27, <span class="number">24</span> * <span class="number">4</span>( sp )   <span class="comment">/* s11 */</span></span><br><span class="line">    lw  x28, <span class="number">25</span> * <span class="number">4</span>( sp )   <span class="comment">/* t3 */</span></span><br><span class="line">    lw  x29, <span class="number">26</span> * <span class="number">4</span>( sp )   <span class="comment">/* t4 */</span></span><br><span class="line">    lw  x30, <span class="number">27</span> * <span class="number">4</span>( sp )   <span class="comment">/* t5 */</span></span><br><span class="line">    lw  x31, <span class="number">28</span> * <span class="number">4</span>( sp )   <span class="comment">/* t6 */</span></span><br><span class="line">	<span class="comment">// 从任务堆栈中获取此任务的 xCriticalNesting 值</span></span><br><span class="line">    lw  x5, CRITICAL_NESTING_OFFSET( sp )   </span><br><span class="line">    <span class="comment">// 将 xCriticalNesting 的地址加载到 x6 中    </span></span><br><span class="line">    lw  x6, pxCriticalNesting         </span><br><span class="line">    <span class="comment">// 恢复此任务的关键嵌套值    </span></span><br><span class="line">    sw  x5, <span class="number">0</span>( x6 ) </span><br><span class="line">	<span class="comment">// 初始 mstatus 进入 x5 (t0)</span></span><br><span class="line">    lw  x5, MSTATUS_OFFSET( sp ) </span><br><span class="line">    <span class="comment">// 设置 MIE 位，以便第一个任务以启用中断的方式启动 - 必需，因为返回的是 ret 而不是 eret</span></span><br><span class="line">    addi    x5, x5, <span class="number">0x08</span> </span><br><span class="line">    <span class="comment">// 从这里启用中断！</span></span><br><span class="line">    csrrw   x0, mstatus, x5     </span><br><span class="line">	<span class="comment">// 初始化 x5 x6 寄存器值</span></span><br><span class="line">    lw  x5, <span class="number">2</span> * <span class="number">4</span>( sp )  </span><br><span class="line">    lw  x6, <span class="number">3</span> * <span class="number">4</span>( sp )  </span><br><span class="line">    addi    sp, sp, CONTEXT_SIZE</span><br><span class="line">    ret</span><br><span class="line"><span class="comment">/*-----------------------------------------------------------*/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义 异常处理handler宏（已删除带有中断优先级的异常handler）</span></span><br><span class="line">.macro  __BUILD_INTERRUPT_HANDLER exception handler</span><br><span class="line">    .section .interrupt_handler.text, <span class="string">"ax"</span></span><br><span class="line">    .align <span class="number">2</span></span><br><span class="line">    .global handle_\exception</span><br><span class="line">    .<span class="keyword">extern</span> do_\exception</span><br><span class="line">handle_\exception:</span><br><span class="line">    SAVE_INTERRUPT_CONTEXT</span><br><span class="line">    call do_\handler</span><br><span class="line">    RESTORE_INTERRUPT_CONTEXT</span><br><span class="line">.endm</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用宏进行handler定义</span></span><br><span class="line">__BUILD_INTERRUPT_HANDLER mailbox  mailbox</span><br><span class="line">__BUILD_INTERRUPT_HANDLER interrupt interrupt</span><br><span class="line">__BUILD_INTERRUPT_HANDLER soft soft</span><br><span class="line"></span><br><span class="line">__BUILD_INTERRUPT_HANDLER mtimer    mtimer</span><br><span class="line">    .section .interrupt_handler.text, <span class="string">"ax"</span></span><br><span class="line">    .align <span class="number">2</span></span><br><span class="line">    .global handle_exception</span><br><span class="line">    .<span class="keyword">extern</span> do_exception</span><br><span class="line">handle_exception:</span><br><span class="line">    SAVE_EXCEPTION_CONTEXT</span><br><span class="line">    <span class="comment">// 把 mcause 的值读入寄存器 a0，trap的原因</span></span><br><span class="line">    csrr a0,mcause</span><br><span class="line">    <span class="comment">// 异常代码 11 表示：ecall from machine mode（M-mode） == environment call</span></span><br><span class="line">    li t0, <span class="number">11</span></span><br><span class="line">    <span class="comment">// 如果 mcause != 11，跳转到 other_exception</span></span><br><span class="line">    bne a0, t0, other_exception     </span><br><span class="line">    <span class="comment">// mcause == 11 调用vTaskSwitchContext调度函数</span></span><br><span class="line">    call vTaskSwitchContext</span><br><span class="line">    RESTORE_EXCEPTION_CONTEXT</span><br><span class="line">other_exception:</span><br><span class="line">    call do_exception</span><br><span class="line">    RESTORE_EXCEPTION_CONTEXT</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="整体梳理"><a href="#整体梳理" class="headerlink" title="整体梳理"></a>整体梳理</h1><ol>
+<li><p>编译部分</p>
+<p>通过CMAE指定 -T 参数可以指定链接文件，编译器将按照我们的规定的格式进行代码布局，如下图所示是基于以上文件编译出来的ELF文件，可以看到每个Section依次按照我们预期的布局进行排布，同时地址也是我们对应的内容区域</p>
+<p>程序入口地址 _reset_entry同样符合预期，偏移0x80位置</p>
+<p>这里还有一个需要注意的是 section to segment mapping，section是链接阶段的概念，而segment是运行时的概念，执行时相同属性的section会合并成一个segment加载到内存中，当然也可以手动指定</p>
+<img src="\images\Arch\RISCV\test.elf.png" alt="elf" width="800">
+
+<img src="\images\Arch\RISCV\elf-info.png" alt="elf-info">
+</li>
+<li><p>执行部分</p>
+<ul>
+<li>代码编译出来之后将根据segment装载到对应的地址位置</li>
+<li>解析elf文件头和其它信息</li>
+<li>跳到entry point地址进入到代码入口处</li>
+</ul>
+<p>这里简单看一下内存布局，vectors是第一个section因此__MTVEC符号对应的代码将放到0x7f00000位置（instrram内存区域），具体内容则是中断向量表 + 0x80的reset_handler + 0x200的资源表 —- 0x1000（4K对齐），至此vector的section结束</p>
+<p>当代码开始执行将跳到base+0x80执行也就是reset_handler，此时开始真正执行代码：初始化RISCV寄存器；开启mie；将中断向量表地址设置到RISCV MRW 机器陷阱处理寄存器里；初始化栈；清除BSS段；跳转到c_main函数，这里就可以调用到板级和应用相关的代码。</p>
+</li>
+</ol>
+<h1 id="RISC-V通用寄存器"><a href="#RISC-V通用寄存器" class="headerlink" title="RISC-V通用寄存器"></a>RISC-V通用寄存器</h1><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>名称</th>
+<th>ABI 名称</th>
+<th>用途描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>x0</td>
+<td>zero</td>
+<td><strong>恒为 0</strong>（读为0，写无效）</td>
+<td></td>
+</tr>
+<tr>
+<td>x1</td>
+<td>ra</td>
+<td>返回地址（return address）</td>
+<td>子程序返回地址</td>
+</tr>
+<tr>
+<td>x2</td>
+<td>sp</td>
+<td>栈指针（stack pointer）</td>
+<td>栈顶位置</td>
+</tr>
+<tr>
+<td>x3</td>
+<td>gp</td>
+<td>全局指针（global pointer）</td>
+<td>用于全局数据寻址</td>
+</tr>
+<tr>
+<td>x4</td>
+<td>tp</td>
+<td>线程指针（thread pointer）</td>
+<td>多线程环境中的线程本地存储地址</td>
+</tr>
+<tr>
+<td>x5–x7</td>
+<td>t0–t2</td>
+<td>临时寄存器（caller saved）</td>
+<td></td>
+</tr>
+<tr>
+<td>x8</td>
+<td>s0/fp</td>
+<td>保存寄存器/帧指针</td>
+<td></td>
+</tr>
+<tr>
+<td>x9</td>
+<td>s1</td>
+<td>保存寄存器</td>
+<td></td>
+</tr>
+<tr>
+<td>x10–x17</td>
+<td>a0–a7</td>
+<td>函数参数/返回值（caller saved）</td>
+<td></td>
+</tr>
+<tr>
+<td>x18–x27</td>
+<td>s2–s11</td>
+<td>保存寄存器（callee saved）</td>
+<td></td>
+</tr>
+<tr>
+<td>x28–x31</td>
+<td>t3–t6</td>
+<td>临时寄存器（caller saved）</td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="CSR寄存器"><a href="#CSR寄存器" class="headerlink" title="CSR寄存器"></a>CSR寄存器</h1><p>RISC-V 中的 <strong>CSR（Control and Status Registers，控制和状态寄存器）</strong> 是一种用于控制处理器行为和状态的特殊寄存器，广泛用于异常处理、中断、性能监控、特权级切换等系统功能。</p>
+<h2 id="🧠基本概念"><a href="#🧠基本概念" class="headerlink" title="🧠基本概念"></a>🧠基本概念</h2><ul>
+<li><strong>CSR 是一个特殊的寄存器集合</strong>，用于配置 CPU 行为、保存运行状态。</li>
+<li>访问 CSR 只能通过特定的指令：<code>CSRRW</code>, <code>CSRRS</code>, <code>CSRRC</code> 等。</li>
+<li>通常只在特权级（如 M-mode、S-mode）中可用。</li>
+</ul>
+<h2 id="🧩常见-CSR-列表"><a href="#🧩常见-CSR-列表" class="headerlink" title="🧩常见 CSR 列表"></a>🧩常见 CSR 列表</h2><ol>
+<li>系统控制类</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>CSR 名称</th>
+<th>地址</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mstatus</code></td>
+<td>0x300</td>
+<td>M 模式状态寄存器</td>
+</tr>
+<tr>
+<td><code>misa</code></td>
+<td>0x301</td>
+<td>ISA 特性描述寄存器</td>
+</tr>
+<tr>
+<td><code>mie</code></td>
+<td>0x304</td>
+<td>中断使能控制</td>
+</tr>
+<tr>
+<td><code>mtvec</code></td>
+<td>0x305</td>
+<td>异常/中断向量表入口地址</td>
+</tr>
+<tr>
+<td><code>mscratch</code></td>
+<td>0x340</td>
+<td>保存临时数据（中断使用）</td>
+</tr>
+<tr>
+<td><code>mepc</code></td>
+<td>0x341</td>
+<td>异常发生时的 PC（返回地址）</td>
+</tr>
+<tr>
+<td><code>mcause</code></td>
+<td>0x342</td>
+<td>异常或中断的原因</td>
+</tr>
+<tr>
+<td><code>mtval</code></td>
+<td>0x343</td>
+<td>与异常相关的值（如地址）</td>
+</tr>
+<tr>
+<td><code>mip</code></td>
+<td>0x344</td>
+<td>中断挂起状态</td>
+</tr>
+</tbody></table>
+<ol start="2">
+<li>性能计数类</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>CSR 名称</th>
+<th>地址</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cycle</code></td>
+<td>0xC00</td>
+<td>Cycle 计数器（低 32 位）</td>
+</tr>
+<tr>
+<td><code>time</code></td>
+<td>0xC01</td>
+<td>时间计数器（低 32 位）</td>
+</tr>
+<tr>
+<td><code>instret</code></td>
+<td>0xC02</td>
+<td>已完成指令数</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2025/05/29/Arch/RISCV/Ingenic-RISCV/" title="Ingenic X2600 RISCV 编译&amp;启动解析">http://yanglieee.com/2025/05/29/Arch/RISCV/Ingenic-RISCV/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RISCV/" rel="tag"><i class="fa fa-tag"></i> RISCV</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/07/30/SoftwareDevelopment/SystemFunction/USB%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="prev" title="USB基础知识">
+      <i class="fa fa-chevron-left"></i> USB基础知识
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%BC%96%E8%AF%91"><span class="nav-number">2.</span> <span class="nav-text">代码编译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">启动流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">启动汇编代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%BB%A3%E7%A0%81"><span class="nav-number">3.2.</span> <span class="nav-text">异常处理代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FreeRTOS%E6%B1%87%E7%BC%96%E5%AF%B9%E6%8E%A5%E4%BB%A3%E7%A0%81"><span class="nav-number">3.3.</span> <span class="nav-text">FreeRTOS汇编对接代码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%A2%B3%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">整体梳理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RISC-V%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">RISC-V通用寄存器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CSR%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">6.</span> <span class="nav-text">CSR寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A0%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">6.1.</span> <span class="nav-text">🧠基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A9%E5%B8%B8%E8%A7%81-CSR-%E5%88%97%E8%A1%A8"><span class="nav-number">6.2.</span> <span class="nav-text">🧩常见 CSR 列表</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yangLieee" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yangLieee" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/498051237" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;498051237?" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/li-yang-40-90-67" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;li-yang-40-90-67" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/heartbeat196" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net&#x2F;heartbeat196" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">298k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">4:31</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
