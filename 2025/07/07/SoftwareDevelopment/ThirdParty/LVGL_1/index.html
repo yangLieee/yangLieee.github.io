@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/hexoNeed/y-medium.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/hexoNeed/y-small.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yanglieee.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对LVGL目录结构以及移植过程中的编译和接口对接的注意事项进行详细的说明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LVGL简介和移植说明">
+<meta property="og:url" content="http://yanglieee.com/2025/07/07/SoftwareDevelopment/ThirdParty/LVGL_1/index.html">
+<meta property="og:site_name" content="yangLieee">
+<meta property="og:description" content="对LVGL目录结构以及移植过程中的编译和接口对接的注意事项进行详细的说明">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-07T12:49:28.655Z">
+<meta property="article:author" content="Lee">
+<meta property="article:tag" content="LVGL">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yanglieee.com/2025/07/07/SoftwareDevelopment/ThirdParty/LVGL_1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>LVGL简介和移植说明 | yangLieee</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+<link rel="alternate" href="/atom.xml" title="yangLieee" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/yangLieee"><img style="position:absolute;top:0;right:0;border:0;" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_gray_6d6d6d.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangLieee</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yanglieee.com/2025/07/07/SoftwareDevelopment/ThirdParty/LVGL_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lee">
+      <meta itemprop="description" content="Be all you can be!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangLieee">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LVGL简介和移植说明
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-07-07 00:00:00 / 修改时间：20:49:28" itemprop="dateCreated datePublished" datetime="2025-07-07T00:00:00+08:00">2025-07-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SoftwareDevelopment/" itemprop="url" rel="index"><span itemprop="name">SoftwareDevelopment</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SoftwareDevelopment/ThirdParty/" itemprop="url" rel="index"><span itemprop="name">ThirdParty</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2025/07/07/SoftwareDevelopment/ThirdParty/LVGL_1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2025/07/07/SoftwareDevelopment/ThirdParty/LVGL_1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+            <div class="post-description">对LVGL目录结构以及移植过程中的编译和接口对接的注意事项进行详细的说明</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>LVGL（Light and Versatile Graphics Library）是一个 <strong>轻量级、开源、高度可定制的图形界面库</strong>，专为嵌入式系统设计，适用于低资源的 MCU（如 STM32、ESP32、RP2040 等）和中高端平台（如 Linux framebuffer）。</p>
+<h2 id="核心特性"><a href="#核心特性" class="headerlink" title="核心特性"></a>核心特性</h2><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>📦 名称</td>
+<td>LVGL（Light and Versatile Graphics Library）</td>
+</tr>
+<tr>
+<td>官网</td>
+<td><a target="_blank" rel="noopener" href="https://lvgl.io/">https://lvgl.io</a></td>
+</tr>
+<tr>
+<td>🔧 授权协议</td>
+<td>MIT（可商用、闭源）</td>
+</tr>
+<tr>
+<td>🧱 架构特点</td>
+<td>跨平台、平台无关、完全移植依赖驱动层</td>
+</tr>
+<tr>
+<td>📲 输入支持</td>
+<td>触摸屏、按键、编码器等</td>
+</tr>
+<tr>
+<td>🖥️ 显示支持</td>
+<td>单缓存、双缓存、DMA、GPU 加速</td>
+</tr>
+<tr>
+<td>🎯 最小资源需求</td>
+<td>4 kB Flash，16 kB RAM起可运行</td>
+</tr>
+<tr>
+<td>🌍 代码仓库</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/lvgl">https://github.com/lvgl</a></td>
+</tr>
+</tbody></table>
+<h2 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h2><p>本节代码目录结构以lvgl-v8.3.11为例进行说明，一级目录全部进行展示，二级目录针对重点文件进行保留</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── CMakeLists.txt						# 顶层规则定义文件</span><br><span class="line">├── component.mk						#  LVGL 在 ESP-IDF（尤其是 v3.x ~ v4.x）中的旧版组件构建系统用的配置文件</span><br><span class="line">├── demos								# 官方高级演示程序</span><br><span class="line">│&nbsp;&nbsp; ├── benchmark							# 测试不同控件在设备上的渲染速度和性能瓶颈</span><br><span class="line">│&nbsp;&nbsp; ├── keypad_encoder						# 使用外部按键矩阵或旋转编码器进行 UI 控制</span><br><span class="line">│&nbsp;&nbsp; ├── music								# 音乐播放器UI</span><br><span class="line">│&nbsp;&nbsp; ├── stress								# 测试 LVGL 在高负载（大量对象创建/删除、事件触发）下的稳定性</span><br><span class="line">│&nbsp;&nbsp; └── widgets								# 所有基本控件的集中演示（按钮、滑块、进度条、图表等）</span><br><span class="line">├── docs								# 文档（提供开发手册、用户指南和 API 说明）</span><br><span class="line">├── env_support							# 支持不同开发环境和操作系统平台的适配层</span><br><span class="line">│&nbsp;&nbsp; ├── cmake								# 提供 CMake 支持的模板、宏（基于CMAKE工程）</span><br><span class="line">│&nbsp;&nbsp; ├── cmsis-pack							# 兼容 ARM CMSIS-Pack 格式的元数据和描述文件（Keil、IAR、STM32CubeIDE）</span><br><span class="line">│&nbsp;&nbsp; ├── rt-thread							# RT-Thread 实时操作系统提供组件封装和配置</span><br><span class="line">│&nbsp;&nbsp; └── zephyr								# Zephyr RTOS 提供模块封装</span><br><span class="line">├── examples							# 功能示例集（动画、样式、控件等）</span><br><span class="line">│&nbsp;&nbsp; ├── anim								# 动画系统示例（值动画、路径动画、对象移动动画）</span><br><span class="line">│&nbsp;&nbsp; ├── arduino								# Arduino 平台上的 LVGL 示例</span><br><span class="line">│&nbsp;&nbsp; ├── assets								# 资源（字体、图片）</span><br><span class="line">│&nbsp;&nbsp; ├── event								# 事件系统示例（对象点击、按下、长按、输入事件等）</span><br><span class="line">│&nbsp;&nbsp; ├── get_started							# 简单基础示例（创建按钮、标签等）</span><br><span class="line">│&nbsp;&nbsp; ├── layouts								# 布局系统：Flex、Grid 布局的使用方法</span><br><span class="line">│&nbsp;&nbsp; ├── libs								# 第三方库/扩展库示例（PNG 解码、文件系统接入等）</span><br><span class="line">│&nbsp;&nbsp; ├── others								# 杂项示例，如动画路径自定义、屏幕切换等</span><br><span class="line">│&nbsp;&nbsp; ├── porting								# 移植适配参考（显示、输入、tick）</span><br><span class="line">│&nbsp;&nbsp; ├── scroll								# 滚动相关示例（页面滚动、滑动响应）</span><br><span class="line">│&nbsp;&nbsp; ├── styles								# 样式系统使用（颜色、边框、阴影、透明度、状态样式等）</span><br><span class="line">│&nbsp;&nbsp; └── widgets								# 每种 LVGL 控件的单独示例（lv_btn, lv_label, lv_slider等）</span><br><span class="line">├── idf_component.yml					# ESP-IDF 构建系统所使用的组件描述文件（适用于ESP-IDF v4.1+）</span><br><span class="line">├── Kconfig								# 提供 menuconfig 菜单配置</span><br><span class="line">├── library.json						# PlatformIO 的库描述文件</span><br><span class="line">├── library.properties					# Arduino 库描述文件</span><br><span class="line">├── LICENCE.txt							# LVGL 的开源许可证（MIT License）</span><br><span class="line">├── lv_conf_template.h					# LVGL 配置文件（复制重命名为 lv_conf.h使用）</span><br><span class="line">├── lvgl.h								# LVGL 主头文件，统一包含 src/lvgl.h，导出对外使用</span><br><span class="line">├── lvgl.mk								# 顶层 Makefile规则</span><br><span class="line">├── lvgl.pc.in							# 用于 pkg-config 系统的配置模板，支持桌面 Linux 下的自动依赖管理</span><br><span class="line">├── README.md							# 项目总说明文档（英文版本，描述 LVGL 功能、构建方式、平台支持等）</span><br><span class="line">├── README_pt_BR.md						# 葡萄牙语（巴西）版本</span><br><span class="line">├── README_zh.md						# 文档中文文档版本</span><br><span class="line">├── SConscript							# 用于 SCons 构建系统，适配如 RT-Thread 等平台</span><br><span class="line">├── scripts								# 工具和辅助脚本集合（用于自动化文档生成、代码格式化、版本管理、示例处理等工作）</span><br><span class="line">├── src									# LVGL核心库源码（最重要），包含 core、widgets、draw 等模块</span><br><span class="line">│&nbsp;&nbsp; ├── core								# LVGL 的对象系统、事件、屏幕、焦点组等（lv_obj.c 等）</span><br><span class="line">│&nbsp;&nbsp; ├── draw								# 图形渲染接口，软绘图或 GPU 加速都从这里调用</span><br><span class="line">│&nbsp;&nbsp; ├── extra								# 扩展模块：如 keyboard、calendar、span 等功能控件</span><br><span class="line">│&nbsp;&nbsp; ├── font								# 字体管理、字模缓存、符号字体支持等</span><br><span class="line">│&nbsp;&nbsp; ├── hal									# 硬件抽象层接口，如 flush_cb, read_cb, indev_drv 注册</span><br><span class="line">│&nbsp;&nbsp; ├── misc								# 工具代码：如内存管理、颜色转换、链表、区域计算等</span><br><span class="line">│&nbsp;&nbsp; └── widgets								# 所有控件组件：如 label、btn、slider、chart 等</span><br><span class="line">└── tests								# 测试和验证框架</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="移植"><a href="#移植" class="headerlink" title="移植"></a>移植</h1><p>本部分以单片机（MCU）类型系统的移植为例说明。本次移植方式不破坏源码目录，通过手动构建CMAKE的引用源码目录和自定义的移植文件而实现lvgl最小编译系统，具体说明如下：</p>
+<ol>
+<li><p>建立基础框架<br>新建CMakeLists.txt 和 main.c文件</p>
+<figure class="highlight cmake"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// CMakeLists.txt</span><br><span class="line"></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.12</span>)</span><br><span class="line"><span class="keyword">project</span>(lvgl C CXX ASM)</span><br><span class="line"><span class="keyword">add_compile_options</span>(-Wall -O2)</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span>(SOURCES main.c)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_executable</span>(<span class="variable">${PROJECT_NAME}</span>  <span class="variable">${SOURCES}</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span></span><br><span class="line">{</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}    </span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>添加LVGL功能实现的源码</p>
+<p>以下是 CMakeLists.txt 需要新添加的内容，lvgl-v8.3是lvgl源码目录自行选择自己的目录即可，另外还需要添加其它依赖否则头文件将找不到</p>
+<figure class="highlight cmake"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">file</span>(GLOB_RECURSE LVGL_SOURCES lvgl-v8.<span class="number">3</span>/src/*.c)</span><br><span class="line"><span class="keyword">include_directories</span>(lvgl-v8.<span class="number">3</span>)</span><br><span class="line"><span class="keyword">add_compile_options</span>(-DLV_LVGL_H_INCLUDE_SIMPLE=<span class="keyword">ON</span> -DLV_CONF_INCLUDE_SIMPLE=<span class="keyword">ON</span>)</span><br><span class="line"><span class="keyword">set</span>(SOURCES main.c <span class="variable">${LVGL_SOURCES}</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>添加移植文件</p>
+<ul>
+<li><p>配置文件lv_conf.h</p>
+<p>将源码目录 lv_conf_template.h 文件拷贝出来重命名成 lv_conf.h，并将里面的条件判断语句置成1使能配置</p>
+</li>
+<li><p>显示适配文件lv_port_disp.c &amp; lv_port_disp.h</p>
+<p>将源码目录 examples/porting/lv_port_disp_template.c 和 examples/porting/lv_port_disp_template.h 文件拷贝出来并分别重命名成lv_port_disp.c和lv_port_disp.h</p>
+</li>
+<li><p>输入(键盘、触摸、按键)适配文件lv_port_indev.c &amp; lv_port_indev.h</p>
+<p>将源码目录 examples/porting/lv_port_indev_template.c 和 examples/porting/lv_port_indev_template.h 文件拷贝出来并分别重命名成lv_port_indev.c和lv_port_indev.h</p>
+</li>
+</ul>
+</li>
+<li><p>编译适配文件</p>
+<figure class="highlight cmake"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 将适配文件添加进编译选项</span><br><span class="line"><span class="keyword">set</span>(SOURCES main.c <span class="variable">${LVGL_SOURCES}</span> lv_port_disp.c lv_port_indev.c) </span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>修改显示适配文件</p>
+<ul>
+<li><p>添加编译<br>将源文件和头文件的if 0语句换成if 1进行编译，同时带有templete的头文件引用换成重命名后的</p>
+</li>
+<li><p>定义屏幕宽高<br>MY_DISP_HOR_RES 和 MY_DISP_VER_RES 分别配置成屏幕实际的宽高尺寸，并去掉条件编译选项取消警告</p>
+</li>
+<li><p>屏幕初始化API</p>
+<p>disp_init()函数调用屏幕驱动初始化函数：包括初始化数组的写入和模式的配置等功能，其它地方初始化同样可以，保证一次即可</p>
+</li>
+<li><p>屏幕刷新API<br>disp_flush()函数调用屏幕驱动画点函数LCD_DrawPoint( x, y, color_p-&gt;full) ，xy是坐标值，color_p-&gt;full是16位的颜色值，后续具体是使用dma还是cpu模式就自行优化只是效率和效果问题</p>
+</li>
+<li><p>配置缓存方式</p>
+<p>默认提供了三种缓存配置方式：单buffer大小10行；双buffer大小各10行；双buffer大小各一帧。这三种方式的配置取决于内存大小、想要的目标效果等等方面。目前单纯显示配制成第一种方式即可，注释掉2和3方式(line83 - line94)</p>
+</li>
+</ul>
+</li>
+<li><p>修改触摸适配文件</p>
+<ul>
+<li><p>添加编译<br>将源文件和头文件的if 0语句换成if 1进行编译，并把带有templete的头文件引用换成重命名后的，同时将关于lvgl的引用更换成 #include “lvgl.h”，否则编译出错</p>
+</li>
+<li><p>触摸初始化API</p>
+<p>touchpad_init()函数调用触摸驱动函数：主要是i2c设备的注册同时可以读CHIPID验证是否注册成功</p>
+</li>
+<li><p>是否有触摸事件发生API</p>
+<p>touchpad_is_pressed()函数调用驱动的触摸状态检测函数，按下返回1，未按下返回0</p>
+</li>
+<li><p>触摸坐标API</p>
+<p>touchpad_get_xy()函数调用驱动的坐标获取函数;</p>
+</li>
+<li><p>其它</p>
+<p>对于其它没有用到的外部事件可以删除也可以保留不影响功能</p>
+</li>
+</ul>
+</li>
+<li><p>提供时间基准（心跳）</p>
+<p>为LVGL提供准确的心跳。必须间隔精准地，调用时基函数：lv_tick_inc()，俗称心跳，让LVGL精准地知道时间的流逝;</p>
+<p>对于不同的芯片和SDK有TIMER的不同实现方式，通用方法就是这是1ms中断，中断handler调用 lv_tick_inc 即可</p>
+</li>
+<li><p>任务刷新调度</p>
+<p>间隔5ms左右，调用周期性任务函数： lv_timer_handler() ，它的作用是检查所有注册任务的时间戳，执行那些已经到期的任务，如：屏显更新、动画更新、触控、定时器事件等</p>
+<p>同样不同的环境实现不同，建议是在主函数的while中进行lv_timer_handler的循环调用，并进行相应间隔的延时，但一定不要在中断中调用，避免由于执行时间较长影响系统</p>
+</li>
+<li><p>添加主函数(测试)</p>
+<p>这里可以直接编译LVGL提供的默认例程进行测试，比如将demo/下的源文件添加到cmake编译，这里以widgets为例</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">bool</span> <span class="title function_">repeating_timer_callback</span><span class="params">(__unused <span class="keyword">struct</span> repeating_timer *t)</span> {</span><br><span class="line">    lv_tick_inc(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> </span><br><span class="line">{   </span><br><span class="line">    stdio_init_all();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"(%s %s) Welcome PICO \n"</span>, __DATE__, __TIME__);</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">repeating_timer</span> <span class="title">timer</span>;</span></span><br><span class="line"></span><br><span class="line">    lv_init();                          <span class="comment">// LVGL初始化</span></span><br><span class="line">    lv_port_disp_init();                <span class="comment">// 注册LVGL显示任务</span></span><br><span class="line">    lv_port_indev_init();               <span class="comment">// 注册LVGL触屏任务                                                                    </span></span><br><span class="line">    add_repeating_timer_ms(<span class="number">1</span>, repeating_timer_callback, <span class="literal">NULL</span>, &amp;timer);</span><br><span class="line">    lv_demo_widgets();					<span class="comment">// 测试demo</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) {</span><br><span class="line">    ┆   lv_timer_handler();</span><br><span class="line">    ┆   sleep_ms(<span class="number">5</span>);</span><br><span class="line">    }   </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></li>
+</ol>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_49053936/article/details/136696700">STM32 工程移植 LVGL</a></li>
+<li><a target="_blank" rel="noopener" href="https://lvgl.100ask.net/master/index.html">LVGL中文开发手册</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Lee
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yanglieee.com/2025/07/07/SoftwareDevelopment/ThirdParty/LVGL_1/" title="LVGL简介和移植说明">http://yanglieee.com/2025/07/07/SoftwareDevelopment/ThirdParty/LVGL_1/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/LVGL/" rel="tag"><i class="fa fa-tag"></i> LVGL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/05/29/Arch/RISCV/Ingenic-RISCV/" rel="prev" title="Ingenic X2600 RISCV 编译&启动解析">
+      <i class="fa fa-chevron-left"></i> Ingenic X2600 RISCV 编译&启动解析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">核心特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">代码结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D"><span class="nav-number">2.</span> <span class="nav-text">移植</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lee</p>
+  <div class="site-description" itemprop="description">Be all you can be!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">72</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://bilibili.com/" title="Bilibili → https:&#x2F;&#x2F;bilibili.com&#x2F;" rel="noopener" target="_blank"><i class="fab fa-youtube fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/" title="知乎 → https:&#x2F;&#x2F;www.zhihu.com&#x2F;" rel="noopener" target="_blank"><i class="fab fa-gratipay fa-fw"></i>知乎</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;blog.csdn.net" rel="noopener" target="_blank"><i class="fab fa-codiepie fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022-08 – 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lee</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">304k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">4:36</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'a0EMCgOhrNxOpJCD6sXlbUNH-gzGzoHsz',
+      appKey     : 'zW2lbK0ewJWdnJ1Bx7lIGUnb',
+      placeholder: "Welcome to leave your footprints~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
