@@ -6,7 +6,7 @@
   <link href="http://yanglieee.com/atom.xml" rel="self"/>
   
   <link href="http://yanglieee.com/"/>
-  <updated>2025-07-07T12:49:28.655Z</updated>
+  <updated>2025-07-13T01:44:48.301Z</updated>
   <id>http://yanglieee.com/</id>
   
   <author>
@@ -15,6 +15,27 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>LVGL配置文件说明</title>
+    <link href="http://yanglieee.com/2025/07/13/SoftwareDevelopment/ThirdParty/LVGL-Config_2/"/>
+    <id>http://yanglieee.com/2025/07/13/SoftwareDevelopment/ThirdParty/LVGL-Config_2/</id>
+    <published>2025-07-12T16:00:00.000Z</published>
+    <updated>2025-07-13T01:44:48.301Z</updated>
+    
+    
+    <summary type="html">对lv_conf.h文件默认的配置文件选项进行解析和说明</summary>
+    
+    
+    
+    <category term="SoftwareDevelopment" scheme="http://yanglieee.com/categories/SoftwareDevelopment/"/>
+    
+    <category term="ThirdParty" scheme="http://yanglieee.com/categories/SoftwareDevelopment/ThirdParty/"/>
+    
+    
+    <category term="LVGL" scheme="http://yanglieee.com/tags/LVGL/"/>
+    
+  </entry>
   
   <entry>
     <title>LVGL简介和移植说明</title>
@@ -374,23 +395,6 @@
     
     
     <category term="interrrupt" scheme="http://yanglieee.com/tags/interrrupt/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>fork与mmap的底层原理</title>
-    <link href="http://yanglieee.com/2023/09/10/LanguageFeatures/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%8E%9F%E7%90%86/"/>
-    <id>http://yanglieee.com/2023/09/10/LanguageFeatures/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%8E%9F%E7%90%86/</id>
-    <published>2023-09-09T16:00:00.000Z</published>
-    <updated>2023-12-02T00:38:51.014Z</updated>
-    
-    
-    <summary type="html">基于页中断的原理，对fork和mmap的系统调用原理进行详细的分析</summary>
-    
-    
-    
-    <category term="LanguageFeatures" scheme="http://yanglieee.com/categories/LanguageFeatures/"/>
-    
     
   </entry>
   
